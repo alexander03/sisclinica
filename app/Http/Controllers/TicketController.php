@@ -46,7 +46,7 @@ class TicketController extends Controller
     }
 
     /**
-     * Mostrar el resultado de búsquedas
+     * Mostrar el resultado de bï¿½squedas
      * 
      * @return Response 
      */
@@ -1210,13 +1210,13 @@ class TicketController extends Controller
                 $pdf::SetFont('helvetica','B',12);
                 $pdf::Cell(130,7,"",0,0,'C');
                 $pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 15, 5, 115, 30);
-                $pdf::Cell(60,7,utf8_encode("RUC N° 20480082673"),'RTL',0,'C');
+                $pdf::Cell(60,7,utf8_encode("RUC Nï¿½ 20480082673"),'RTL',0,'C');
                 $pdf::Ln();
                 $pdf::Cell(130,7,"",0,0,'C');
                 $pdf::Cell(60,7,utf8_encode($value->tipodocumento_id=='4'?"FACTURA":"BOLETA"),'RL',0,'C');
                 $pdf::Ln();
                 $pdf::Cell(130,7,"",0,0,'C');
-                $pdf::Cell(60,7,utf8_encode("ELECTRÓNICA"),'RL',0,'C');
+                $pdf::Cell(60,7,utf8_encode("ELECTRï¿½NICA"),'RL',0,'C');
                 $pdf::Ln();
                 $pdf::Cell(130,7,"",0,0,'C');
                 if($value->tipodocumento_id=="4"){
@@ -1241,7 +1241,7 @@ class TicketController extends Controller
                 $pdf::Ln();
                 $pdf::Ln();
                 $pdf::SetFont('helvetica','B',9);
-                $pdf::Cell(37,6,utf8_encode("Nombre / Razón Social: "),0,0,'L');
+                $pdf::Cell(37,6,utf8_encode("Nombre / Razï¿½n Social: "),0,0,'L');
                 $pdf::SetFont('helvetica','',9);
                 $pdf::Cell(110,6,(trim($value->persona->bussinesname." ".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres)),0,0,'L');
                 $pdf::SetFont('helvetica','B',9);
@@ -1258,11 +1258,11 @@ class TicketController extends Controller
                     $pdf::Ln();
                 }
                 $pdf::SetFont('helvetica','B',9);
-                $pdf::Cell(37,6,utf8_encode("Dirección: "),0,0,'L');
+                $pdf::Cell(37,6,utf8_encode("Direcciï¿½n: "),0,0,'L');
                 $pdf::SetFont('helvetica','',9);
                 $pdf::Cell(110,6,(trim($value->persona->direccion)),0,0,'L');
                 $pdf::SetFont('helvetica','B',9);
-                $pdf::Cell(30,6,utf8_encode("Fecha de emisión: "),0,0,'L');
+                $pdf::Cell(30,6,utf8_encode("Fecha de emisiï¿½n: "),0,0,'L');
                 $pdf::SetFont('helvetica','',8);
                 $pdf::Cell(37,6,date("d/m/Y",strtotime($value->fecha)),0,0,'L');
                 $pdf::Ln();
@@ -1297,8 +1297,8 @@ class TicketController extends Controller
                 }
                 $pdf::SetFont('helvetica','B',9);
                 $pdf::Cell(10,7,("Item"),1,0,'C');
-                $pdf::Cell(13,7,utf8_encode("Código"),1,0,'C');
-                $pdf::Cell(68,7,utf8_encode("Descripción"),1,0,'C');
+                $pdf::Cell(13,7,utf8_encode("Cï¿½digo"),1,0,'C');
+                $pdf::Cell(68,7,utf8_encode("Descripciï¿½n"),1,0,'C');
                 $pdf::Cell(10,7,("Und."),1,0,'C');
                 $pdf::Cell(15,7,("Cantidad"),1,0,'C');
                 $pdf::Cell(20,7,("V. Unitario"),1,0,'C');
@@ -1400,12 +1400,12 @@ class TicketController extends Controller
                 $pdf::Cell(195,5,'','LRB',0,'C');
                 $pdf::Ln();
                 $pdf::SetFont('helvetica','',8);
-                $pdf::Cell(0,5,utf8_encode('Autorizado a ser emisor electrónico mediante R.I. SUNAT Nº 0340050004781'),0,0,'L');
+                $pdf::Cell(0,5,utf8_encode('Autorizado a ser emisor electrï¿½nico mediante R.I. SUNAT Nï¿½ 0340050004781'),0,0,'L');
                 $pdf::Ln();
                 $pdf::Cell(0,5,'Usuario: '.$value->responsable->nombres,0,0,'R');
                 $pdf::Ln();
                 $pdf::SetFont('helvetica','',8);
-                $pdf::Cell(160,5,utf8_encode('Representación Impresa de la Factura Electrónica, consulte en https://sfe.bizlinks.com.pe'),0,0,'L');
+                $pdf::Cell(160,5,utf8_encode('Representaciï¿½n Impresa de la Factura Electrï¿½nica, consulte en https://sfe.bizlinks.com.pe'),0,0,'L');
                 $pdf::Cell(0,5,$value->created_at,0,0,'R');
                 $pdf::Ln();
                 $pdf::Output('Comprobante.pdf');
@@ -1474,7 +1474,7 @@ class TicketController extends Controller
                     $pdf::SetFont('helvetica','B',11);
                     $pdf::Cell(5,7,"",0,0,'C');
                     $pdf::Cell(15,7,("Cant."),0,0,'C');
-                    $pdf::Cell(180,7,utf8_encode("Descripción"),0,0,'C');
+                    $pdf::Cell(180,7,utf8_encode("Descripciï¿½n"),0,0,'C');
                     $pdf::Cell(30,7,("P. Unitario"),0,0,'C');
                     $pdf::Cell(30,7,("Sub Total"),0,0,'C');
                     $pdf::Ln();
@@ -1572,7 +1572,7 @@ class TicketController extends Controller
                     $pdf::SetFont('helvetica','B',11);
                     $pdf::Cell(5,7,"",0,0,'C');
                     $pdf::Cell(15,7,("Cant."),0,0,'C');
-                    $pdf::Cell(180,7,utf8_encode("Descripción"),0,0,'C');
+                    $pdf::Cell(180,7,utf8_encode("Descripciï¿½n"),0,0,'C');
                     $pdf::Cell(30,7,("P. Unitario"),0,0,'C');
                     $pdf::Cell(30,7,("Sub Total"),0,0,'C');
                     $pdf::Ln();
@@ -1657,7 +1657,7 @@ class TicketController extends Controller
                 $pdf::Cell(60,4,utf8_decode("Dir.: Av. Grau 1461 - Chiclayo"),0,0,'C');
                 $pdf::Ln();
                 $pdf::SetFont('helvetica','B',8);
-                $pdf::Cell(60,4,utf8_encode($value->tipodocumento_id=='4'?"FACTURA":"BOLETA").utf8_encode(" ELECTRÓNICA"),0,0,'C');
+                $pdf::Cell(60,4,utf8_encode($value->tipodocumento_id=='4'?"FACTURA":"BOLETA").utf8_encode(" ELECTRï¿½NICA"),0,0,'C');
                 $pdf::Ln();
                 if($value->tipodocumento_id=="4"){
                     $abreviatura="F";
@@ -1695,7 +1695,7 @@ class TicketController extends Controller
                     $pdf::MultiCell(47,6,(trim($ticket->persona->apellidopaterno." ".$ticket->persona->apellidomaterno." ".$ticket->persona->nombres)),0,'L');
                 }
                 $pdf::SetFont('helvetica','B',8);
-                $pdf::Cell(14,4,utf8_encode("Dirección: "),0,0,'L');
+                $pdf::Cell(14,4,utf8_encode("Direcciï¿½n: "),0,0,'L');
                 $pdf::SetFont('helvetica','B',8);
                 if(strlen((trim($value->persona->direccion)))>20){
                     $pdf::MultiCell(37,6,(trim($value->persona->direccion)),0,'L');
@@ -1741,7 +1741,7 @@ class TicketController extends Controller
                 $pdf::SetFont('helvetica','B',8);
                 $pdf::Cell(60,4,"====================================",0,0,'L');
                 $pdf::Ln();
-                $pdf::Cell(20,4,utf8_encode("Descripción"),0,0,'C');
+                $pdf::Cell(20,4,utf8_encode("Descripciï¿½n"),0,0,'C');
                 $pdf::Cell(10,4,("Cant"),0,0,'C');
                 $pdf::Cell(15,4,("P. Unit"),0,0,'C');
                 $pdf::Cell(15,4,("Total"),0,0,'C');
@@ -1834,9 +1834,9 @@ class TicketController extends Controller
                 $pdf::Cell(60,4,"====================================",0,0,'L');
                 $pdf::Ln();
                 $pdf::SetFont('helvetica','B',8);
-                $pdf::MultiCell(60,6,utf8_encode('Autorizado a ser emisor electrónico mediante R.I. SUNAT Nº 0340050004781'),0,'L');
+                $pdf::MultiCell(60,6,utf8_encode('Autorizado a ser emisor electrï¿½nico mediante R.I. SUNAT Nï¿½ 0340050004781'),0,'L');
                 $pdf::SetFont('helvetica','B',8);
-                $pdf::MultiCell(60,6,utf8_encode('Representación Impresa de la Factura Electrónica, consulte en https://www.hospitaljuanpablo.pe'),0,'L');
+                $pdf::MultiCell(60,6,utf8_encode('Representaciï¿½n Impresa de la Factura Electrï¿½nica, consulte en https://www.hospitaljuanpablo.pe'),0,'L');
                 $pdf::Output('Comprobante.pdf');
             }
         }
@@ -1919,7 +1919,7 @@ class TicketController extends Controller
                 $pdf::Ln();
                 $pdf::SetFont('helvetica','B',9);
                 $pdf::Cell(13,7,utf8_encode("Cant."),1,0,'C');
-                $pdf::Cell(110,7,utf8_encode("Descripción"),1,0,'C');
+                $pdf::Cell(110,7,utf8_encode("Descripciï¿½n"),1,0,'C');
                 $pdf::Cell(20,7,utf8_encode("P. Unit"),1,0,'C');
                 $pdf::Cell(20,7,utf8_encode("Total"),1,0,'C');
                 $pdf::Cell(20,7,utf8_encode("Empresa"),1,0,'C');
