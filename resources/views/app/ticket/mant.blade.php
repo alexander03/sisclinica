@@ -275,16 +275,16 @@ if(!is_null($ticket)){
                             <option value='M'>Monto</option>
                         </select><br />&nbsp;Desc.
                     </th>
-                    <th class="text-center" style="display: none;">Hospital</th>
-                    <th class="text-center" style="display: none;">Medico</th>
+                    <th class="text-center" style="display:none;">Hospital</th>
+                    <th class="text-center" style="display:none;">Medico</th>
                     <th class="text-center">Subtotal</th>
                 </thead>
                 <tbody>
                 </tbody>
                 <tfoot>
-                    <th class="text-right" colspan="7" style="display: none;">Comprobante</th>
-                    <th style="display: none;">{!! Form::text('totalboleta', null, array('class' => 'form-control input-xs', 'id' => 'totalboleta', 'size' => 3, 'readonly' => 'true', 'style' => 'width: 60px;')) !!}</th>
-                    <th class="text-right"  colspan="7">Pago</th>
+                    <th class="text-right" colspan="7" style="display:none;">Comprobante</th>
+                    <th>{!! Form::text('totalboleta', null, array('class' => 'form-control input-xs', 'id' => 'totalboleta', 'size' => 3, 'readonly' => 'true', 'style' => 'width: 60px; display:none;')) !!}</th>
+                    <th class="text-right" colspan="6">Pago</th>
                     <th align="center" style="text-align:center;">{!! Form::text('total', null, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'readonly' => 'true', 'style' => 'width: 60px; display: inline-block;')) !!}</th>
                 </tfoot>
             </table>
@@ -303,7 +303,7 @@ $(document).ready(function() {
     $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="numeroventa"]').inputmask("99999999");
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="deducible"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="coa"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
-	var personas = new Bloodhound({
+    var personas = new Bloodhound({
 		datumTokenizer: function (d) {
 			return Bloodhound.tokenizers.whitespace(d.value);
 		},
@@ -630,8 +630,8 @@ function guardarPago (entidad, idboton) {
             band = false;
             msg += " *Debe seleccionar medico \n";                        
         }
-        var hospital = parseFloat($("#txtPrecioHospital"+carro[c]).val());
-        var doctor = parseFloat($("#txtPrecioMedico"+carro[c]).val());
+        //var hospital = parseFloat($("#txtPrecioHospital"+carro[c]).val());
+        //var doctor = parseFloat($("#txtPrecioMedico"+carro[c]).val());
         var precio = parseFloat($("#txtPrecio"+carro[c]).val());
         var desc = parseFloat($("#txtDescuento"+carro[c]).val());
         if($("#cboDescuento").val()=="P"){
@@ -639,11 +639,11 @@ function guardarPago (entidad, idboton) {
         }else{
             precio = precio - desc;
         }
-        if((hospital + doctor) != precio){
+     /*   if((hospital + doctor) != precio){
             band = false;
             msg += " *Suma de pago hospital + doctor no coincide con el precio \n";
+        }      */
         }      
-    } 
     if(parseFloat($("#total").val())>700 && $("#tipodocumento").val()=="Boleta"){
         if($("#dni").val().trim().length!=8){
             band = false;
@@ -769,10 +769,10 @@ function seleccionarServicio(idservicio){
                     "<td><input type='checkbox' id='chkCopiar"+datos[c].idservicio+"' onclick='checkMedico(this.checked,"+datos[c].idservicio+")' /></td>"+
                     "<td><input type='text' class='form-control input-xs' id='txtMedico"+datos[c].idservicio+"' name='txtMedico"+datos[c].idservicio+"' /><input type='hidden' id='txtIdMedico"+datos[c].idservicio+"' name='txtIdMedico"+datos[c].idservicio+"' value='0' /></td>"+
                     "<td align='center'>"+datos[c].tiposervicio+"</td><td>"+inpu+"</td>"+
-                    "<td align='center'><input type='hidden' id='txtPrecio2"+datos[c].idservicio+"' name='txtPrecio2"+datos[c].idservicio+"' value='"+datos[c].precio+"' /><input type='text' size='5' class='form-control input-xs' data='numero' id='txtPrecio"+datos[c].idservicio+"' style='width: 60px;' name='txtPrecio"+datos[c].idservicio+"' value='"+datos[c].precio+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+datos[c].idservicio+")}\" onblur=\"calcularTotalItem("+datos[c].idservicio+")\" /></td>"+
+                    "<td align='center'><input type='hidden' precio="+datos[c].idservicio+" id='txtPrecio2"+datos[c].idservicio+"' name='txtPrecio2"+datos[c].idservicio+"' value='"+datos[c].precio+"' /><input type='text' size='5' class='form-control input-xs precio' data='numero' id='txtPrecio"+datos[c].idservicio+"' style='width: 60px;' name='txtPrecio"+datos[c].idservicio+"' value='"+datos[c].precio+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+datos[c].idservicio+")}\" onblur=\"calcularTotalItem("+datos[c].idservicio+")\" /></td>"+
                     "<td align='center'><input type='text' size='5' class='form-control input-xs' data='numero' id='txtDescuento"+datos[c].idservicio+"' style='width: 60px;' name='txtDescuento"+datos[c].idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+datos[c].idservicio+")}\" onblur=\"calcularTotalItem("+datos[c].idservicio+")\" style='width:50%' /></td>"+
-                    "<td align='center' style='display:none;'><input type='hidden' id='txtPrecioHospital2"+datos[c].idservicio+"' name='txtPrecioHospital2"+datos[c].idservicio+"' value='"+datos[c].preciohospital+"' /><input type='text' readonly='' size='5' class='form-control input-xs' style='width: 60px;' data='numero'  id='txtPrecioHospital"+datos[c].idservicio+"' name='txtPrecioHospital"+datos[c].idservicio+"' value='"+datos[c].preciohospital+"' onblur=\"calcularTotalItem("+datos[c].idservicio+")\" /></td>"+
-                    "<td align='center' style='display:none;'><input type='hidden' id='txtPrecioMedico2"+datos[c].idservicio+"' name='txtPrecioMedico2"+datos[c].idservicio+"' value='"+datos[c].preciomedico+"' /><input type='text' readonly='' size='5' class='form-control input-xs' data='numero' style='width: 60px;' id='txtPrecioMedico"+datos[c].idservicio+"' name='txtPrecioMedico"+datos[c].idservicio+"' value='"+datos[c].preciomedico+"' onblur=\"calcularTotalItem("+datos[c].idservicio+")\" /></td>"+
+                    "<td align='center'  style='display:none;'><input type='hidden' id='txtPrecioHospital2"+datos[c].idservicio+"' name='txtPrecioHospital2"+datos[c].idservicio+"' value='"+datos[c].preciohospital+"' /><input type='text' readonly='' size='5' class='form-control input-xs' style='width: 60px;' data='numero'  id='txtPrecioHospital"+datos[c].idservicio+"' name='txtPrecioHospital"+datos[c].idservicio+"' value='"+datos[c].preciohospital+"' onblur=\"calcularTotalItem("+datos[c].idservicio+")\" /></td>"+
+                    "<td align='center'  style='display:none;'><input type='hidden' id='txtPrecioMedico2"+datos[c].idservicio+"' name='txtPrecioMedico2"+datos[c].idservicio+"' value='"+datos[c].preciomedico+"' /><input type='text' readonly='' size='5' class='form-control input-xs' data='numero' style='width: 60px;' id='txtPrecioMedico"+datos[c].idservicio+"' name='txtPrecioMedico"+datos[c].idservicio+"' value='"+datos[c].preciomedico+"' onblur=\"calcularTotalItem("+datos[c].idservicio+")\" /></td>"+
                     "<td align='center'><input type='text' readonly='' data='numero' class='form-control input-xs' size='5' name='txtTotal"+datos[c].idservicio+"' style='width: 60px;' id='txtTotal"+datos[c].idservicio+"' value='"+datos[c].precio+"' /></td>"+
                     "<td><a href='#' onclick=\"quitarServicio('"+datos[c].idservicio+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>");
                 carro.push(idservicio);
@@ -822,10 +822,10 @@ function seleccionarServicioOtro(){
         "<td><input type='checkbox' id='chkCopiar"+idservicio+"' onclick=\"checkMedico(this.checked,'"+idservicio+"')\" /></td>"+
         "<td><input type='text' class='form-control input-xs' id='txtMedico"+idservicio+"' name='txtMedico"+idservicio+"' /><input type='hidden' id='txtIdMedico"+idservicio+"' name='txtIdMedico"+idservicio+"' value='0' /></td>"+
         "<td align='left'><select class='form-control input-xs' id='cboTipoServicio"+idservicio+"' name='cboTipoServicio"+idservicio+"'><option value='0' selected=''>OTROS</option>"+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tiposervicio"]').html()+"</select></td><td><textarea class='form-control input-xs txtareaa' id='txtServicio"+idservicio+"' name='txtServicio"+idservicio+"' /></td>"+
-        "<td align='center'><input type='hidden' id='txtPrecio2"+idservicio+"' name='txtPrecio2"+idservicio+"' value='0' /><input type='text' size='5' class='form-control input-xs' style='width: 60px;' data='numero' id='txtPrecio"+idservicio+"' name='txtPrecio"+idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+idservicio+"')}\" onblur=\"calcularTotalItem2('"+idservicio+"')\" /></td>"+
+        "<td align='center'><input type='hidden' id='txtPrecio2"+idservicio+"' name='txtPrecio2"+idservicio+"' value='0' /><input type='text' size='5' class='form-control input-xs precio' style='width: 60px;' data='numero' precio="+idservicio+" id='txtPrecio"+idservicio+"' name='txtPrecio"+idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+idservicio+"')}\" onblur=\"calcularTotalItem2('"+idservicio+"')\" /></td>"+
         "<td align='center'><input type='text' size='5' style='width: 60px;' class='form-control input-xs' data='numero' id='txtDescuento"+idservicio+"' name='txtDescuento"+idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+idservicio+"')}\" onblur=\"calcularTotalItem2('"+idservicio+"')\" style='width:50%' /></td>"+
-        "<td align='center' style='display:none;'><input type='hidden' id='txtPrecioHospital2"+idservicio+"' name='txtPrecioHospital2"+idservicio+"' value='0' /><input type='text' size='5' style='width: 60px;' class='form-control input-xs' data='numero'  id='txtPrecioHospital"+idservicio+"' name='txtPrecioHospital"+idservicio+"' value='0' onblur=\"calcularTotalItem2("+idservicio+")\" /></td>"+
-        "<td align='center' style='display:none;'><input type='hidden' id='txtPrecioMedico2"+idservicio+"' name='txtPrecioMedico2"+idservicio+"' value='0' /><input type='text' size='5' class='form-control input-xs' data='numero'  id='txtPrecioMedico"+idservicio+"' name='txtPrecioMedico"+idservicio+"' value='0' style='width: 60px;' /></td>"+
+        "<td align='center'  style='display:none;'><input type='hidden' id='txtPrecioHospital2"+idservicio+"' name='txtPrecioHospital2"+idservicio+"' value='0' /><input type='text' size='5' style='width: 60px;' class='form-control input-xs' data='numero'  id='txtPrecioHospital"+idservicio+"' name='txtPrecioHospital"+idservicio+"' value='0' onblur=\"calcularTotalItem2("+idservicio+")\" /></td>"+
+        "<td align='center'  style='display:none;'><input type='hidden' id='txtPrecioMedico2"+idservicio+"' name='txtPrecioMedico2"+idservicio+"' value='0' /><input type='text' size='5' class='form-control input-xs' data='numero'  id='txtPrecioMedico"+idservicio+"' name='txtPrecioMedico"+idservicio+"' value='0' style='width: 60px;' /></td>"+
         "<td align='center'><input type='text' style='width: 60px;' readonly='' data='numero' class='form-control input-xs' size='5' name='txtTotal"+idservicio+"' id='txtTotal"+idservicio+"' value=0' /></td>"+
         "<td><a href='#' onclick=\"quitarServicio('"+idservicio+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>");
     carro.push(idservicio);
@@ -905,8 +905,8 @@ function calcularCoaseguro(){
             }
             var total=Math.round((pv*cant*ded/100) * 100) / 100;
             $("#txtTotal"+carro[c]).val(total);  
-            $("#txtPrecioHospital"+carro[c]).val(hospital);
-            $("#txtPrecioMedico"+carro[c]).val(medico);
+            //$("#txtPrecioHospital"+carro[c]).val(hospital);
+            //$("#txtPrecioMedico"+carro[c]).val(medico);
         }else{
             if($(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="plan_id"]').val()!="6" && $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tipopaciente"]').val()=="Convenio"){
                 var cant=parseFloat($("#txtCantidad"+carro[c]).val());
@@ -915,9 +915,9 @@ function calcularCoaseguro(){
                 var total=Math.round((pv*cant) * 100) / 100;
                 $("#txtTotal"+carro[c]).val(total);  
                 $("#txtPrecio"+carro[c]).val(pv);  
-                $("#txtPrecioHospital"+carro[c]).val(pv);
+                //$("#txtPrecioHospital"+carro[c]).val(pv);
                 var medico = parseFloat($("#txtPrecioMedico2"+carro[c]).val());
-                $("#txtPrecioMedico"+carro[c]).val(medico);
+                //$("#txtPrecioMedico"+carro[c]).val(medico);
             }
         }
     }
@@ -958,19 +958,19 @@ function calcularTotalItem(id){
 
     if($("#txtIdTipoServicio"+id).val()!="1"){
         $("#txtTotal"+id).val(total);   
-        if(med==0){
+        /*if(med==0){
             var hos=pv - med;
             $("#txtPrecioHospital"+id).val(hos);    
         }
-        $("#txtPrecioMedico"+id).val(med);
+        $("#txtPrecioMedico"+id).val(med);*/
     }else if($("#txtIdTipoServicio"+id).val()=="1" && $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="plan_id"]').val()=="6"){
         $("#txtTotal"+id).val(total);
-        med = pv - hosp;
-        $("#txtPrecioMedico"+id).val(med);
+        //med = pv - hosp;
+        //$("#txtPrecioMedico"+id).val(med);
     }else if($("#txtIdTipoServicio"+id).val()=="1" && $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tipoplan"]').val()!="Institucion"){
         $("#txtTotal"+id).val(total);
-        med = pv - hosp;
-        $("#txtPrecioMedico"+id).val(med);
+        //med = pv - hosp;
+        //$("#txtPrecioMedico"+id).val(med);
     }
     calcularTotal();
 }
@@ -1000,13 +1000,13 @@ function calcularTotalItem2(id){
         var ded = 100;
     //}
     var total=Math.round((pv*cant*ded/100) * 100) / 100;
-    var med = pv - hosp;
+    //var med = pv - hosp;
     if($("#txtIdTipoServicio"+id).val()!="1"){
         $("#txtTotal"+id).val(total);   
-        $("#txtPrecioMedico"+id).val(med);
+        //$("#txtPrecioMedico"+id).val(med);
     }else if($("#txtIdTipoServicio"+id).val()=="1" && $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="plan_id"]').val()=="6"){
         $("#txtTotal"+id).val(total);
-        $("#txtPrecioMedico"+id).val(med);
+        //$("#txtPrecioMedico"+id).val(med);
     }
     calcularTotal();
 }
@@ -1246,10 +1246,10 @@ function agregarDetalle(id){
                     "<td><input type='checkbox' id='chkCopiar"+datos[d].idservicio+"' onclick=\"checkMedico(this.checked,'"+datos[d].idservicio+"')\" /></td>"+
                     "<td><input type='text' class='form-control input-xs' id='txtMedico"+datos[d].idservicio+"' name='txtMedico"+datos[d].idservicio+"' value='"+datos[d].medico+"' /><input type='hidden' id='txtIdMedico"+datos[d].idservicio+"' name='txtIdMedico"+datos[d].idservicio+"' value='"+datos[d].idmedico+"' /></td>"+
                     "<td align='center'>"+datos[d].tiposervicio+"</td><td>"+datos[d].servicio+"</td>"+
-                    "<td align='center'><input type='hidden' id='txtPrecio2"+datos[d].idservicio+"' name='txtPrecio2"+datos[d].idservicio+"' value='"+datos[d].precio+"' /><input type='text' size='5' class='form-control input-xs' data='numero' id='txtPrecio"+datos[d].idservicio+"' style='width: 60px;' name='txtPrecio"+datos[d].idservicio+"' value='"+datos[d].precio+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+datos[d].idservicio+")}\" onblur=\"calcularTotalItem("+datos[d].idservicio+")\" /></td>"+
-                    "<td align='center'><input type='text' size='5' style='width: 60px;' class='form-control input-xs' data='numero' id='txtDescuento"+datos[d].idservicio+"' name='txtDescuento"+datos[d].idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+datos[d].idservicio+"')}\" onblur=\"calcularTotalItem2('"+datos[d].idservicio+"')\" style='width:50%' /></td>"+
-                    "<td align='center' style='display:none;'><input type='hidden' id='txtPrecioHospital2"+datos[d].idservicio+"' name='txtPrecioHospital2"+datos[d].idservicio+"' value='0' /><input type='text' size='5' style='width: 60px;' class='form-control input-xs' data='numero'  id='txtPrecioHospital"+datos[d].idservicio+"' name='txtPrecioHospital"+datos[d].idservicio+"' value='0' onblur=\"calcularTotalItem2("+datos[d].idservicio+")\" /></td>"+
-                    "<td align='center' style='display:none;'><input type='hidden' id='txtPrecioMedico2"+datos[d].idservicio+"' name='txtPrecioMedico2"+datos[d].idservicio+"' value='0' /><input type='text' size='5' class='form-control input-xs' data='numero'  id='txtPrecioMedico"+datos[d].idservicio+"' name='txtPrecioMedico"+datos[d].idservicio+"' value='0' style='width: 60px;' /></td>"+
+                    "<td align='center'><input type='hidden' id='txtPrecio2"+datos[d].idservicio+"' name='txtPrecio2"+datos[d].idservicio+"' value='"+datos[d].precio+"' /><input type='text' size='5' class='form-control input-xs precio' data='numero' precio="+datos[d].idservicio+" id='txtPrecio"+datos[d].idservicio+"' style='width: 60px;' name='txtPrecio"+datos[d].idservicio+"' value='"+datos[d].precio+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem('"+datos[d].idservicio+"')}\" onblur=\"calcularTotalItem('"+datos[d].idservicio+"')\" /></td>"+
+                    "<td align='center'><input type='text' size='5' style='width: 60px;' class='form-control input-xs' data='numero' id='txtDescuento"+datos[d].idservicio+"' name='txtDescuento"+datos[d].idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem('"+datos[d].idservicio+"')}\" onblur=\"calcularTotalItem('"+datos[d].idservicio+"')\" style='width:50%' /></td>"+
+                    "<td align='center'  style='display:none;'><input type='hidden' id='txtPrecioHospital2"+datos[d].idservicio+"' name='txtPrecioHospital2"+datos[d].idservicio+"' value='0' /><input type='text' size='5' style='width: 60px;' class='form-control input-xs' data='numero'  id='txtPrecioHospital"+datos[d].idservicio+"' name='txtPrecioHospital"+datos[d].idservicio+"' value='0' onblur=\"calcularTotalItem2("+datos[d].idservicio+")\" /></td>"+
+                    "<td align='center'  style='display:none;'><input type='hidden' id='txtPrecioMedico2"+datos[d].idservicio+"' name='txtPrecioMedico2"+datos[d].idservicio+"' value='0' /><input type='text' size='5' class='form-control input-xs' data='numero'  id='txtPrecioMedico"+datos[d].idservicio+"' name='txtPrecioMedico"+datos[d].idservicio+"' value='0' style='width: 60px;' /></td>"+
                     "<td align='center'><input type='text' style='width: 60px;' readonly='' data='numero' class='form-control input-xs' size='5' name='txtTotal"+datos[d].idservicio+"' id='txtTotal"+datos[d].idservicio+"' value=0' /></td>"+
                     "<td><a href='#' id='Quitar"+datos[d].idservicio+"' onclick=\"quitarServicio('"+datos[d].idservicio+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>");
 
@@ -1308,6 +1308,7 @@ function agregarDetalle(id){
             $(".datofactura").css("display","none");
         }
     });
+    
 }
 
 function agregarHojaCosto(id){
@@ -1325,10 +1326,10 @@ function agregarHojaCosto(id){
                     "<td><input type='checkbox' id='chkCopiar"+datos[d].idservicio+"' onclick=\"checkMedico(this.checked,'"+datos[d].idservicio+"')\" /></td>"+
                     "<td><input type='text' class='form-control input-xs' id='txtMedico"+datos[d].idservicio+"' name='txtMedico"+datos[d].idservicio+"' value='"+datos[d].medico+"' /><input type='hidden' id='txtIdMedico"+datos[d].idservicio+"' name='txtIdMedico"+datos[d].idservicio+"' value='"+datos[d].idmedico+"' /></td>"+
                     "<td align='left'>"+datos[d].tiposervicio+"</td><td>"+datos[d].servicio+"</td>"+
-                    "<td><input type='hidden' id='txtPrecio2"+datos[d].idservicio+"' name='txtPrecio2"+datos[d].idservicio+"' value='0' /><input type='text' size='5' class='form-control input-xs' style='width: 60px;' data='numero' id='txtPrecio"+datos[d].idservicio+"' name='txtPrecio"+datos[d].idservicio+"' value='"+datos[d].precio+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+datos[d].idservicio+"')}\" onblur=\"calcularTotalItem2('"+datos[d].idservicio+"')\" /></td>"+
+                    "<td><input type='hidden' id='txtPrecio2"+datos[d].idservicio+"' name='txtPrecio2"+datos[d].idservicio+"' value='0' /><input type='text' size='5' class='form-control input-xs precio' style='width: 60px;' data='numero' precio="+datos[d].idservicio+" id='txtPrecio"+datos[d].idservicio+"' name='txtPrecio"+datos[d].idservicio+"' value='"+datos[d].precio+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+datos[d].idservicio+"')}\" onblur=\"calcularTotalItem2('"+datos[d].idservicio+"')\" /></td>"+
                     "<td align='center'><input type='text' size='5' style='width: 60px;' class='form-control input-xs' data='numero' id='txtDescuento"+datos[d].idservicio+"' name='txtDescuento"+datos[d].idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+datos[d].idservicio+"')}\" onblur=\"calcularTotalItem2('"+datos[d].idservicio+"')\" style='width:50%' /></td>"+
-                    "<td align='center' style='display:none;'><input type='hidden' id='txtPrecioHospital2"+datos[d].idservicio+"' name='txtPrecioHospital2"+datos[d].idservicio+"' value='"+datos[d].precio+"' /><input type='text' size='5' style='width: 60px;' class='form-control input-xs' data='numero'  id='txtPrecioHospital"+datos[d].idservicio+"' name='txtPrecioHospital"+datos[d].idservicio+"' value='"+datos[d].precio+"' onblur=\"calcularTotalItem2("+datos[d].idservicio+")\" /></td>"+
-                    "<td align='center' style='display:none;'><input type='hidden' id='txtPrecioMedico2"+datos[d].idservicio+"' name='txtPrecioMedico2"+datos[d].idservicio+"' value='0' /><input type='text' size='5' class='form-control input-xs' data='numero'  id='txtPrecioMedico"+datos[d].idservicio+"' name='txtPrecioMedico"+datos[d].idservicio+"' value='0' style='width: 60px;' /></td>"+
+                    "<td align='center'><input type='hidden' id='txtPrecioHospital2"+datos[d].idservicio+"' name='txtPrecioHospital2"+datos[d].idservicio+"' value='"+datos[d].precio+"' /><input type='text' size='5' style='width: 60px;' class='form-control input-xs' data='numero'  id='txtPrecioHospital"+datos[d].idservicio+"' name='txtPrecioHospital"+datos[d].idservicio+"' value='"+datos[d].precio+"' onblur=\"calcularTotalItem2("+datos[d].idservicio+")\" /></td>"+
+                    "<td align='center'><input type='hidden' id='txtPrecioMedico2"+datos[d].idservicio+"' name='txtPrecioMedico2"+datos[d].idservicio+"' value='0' /><input type='text' size='5' class='form-control input-xs' data='numero'  id='txtPrecioMedico"+datos[d].idservicio+"' name='txtPrecioMedico"+datos[d].idservicio+"' value='0' style='width: 60px;' /></td>"+
                     "<td align='center'><input type='text' style='width: 60px;' readonly='' data='numero' class='form-control input-xs' size='5' name='txtTotal"+datos[d].idservicio+"' id='txtTotal"+datos[d].idservicio+"' value='"+datos[d].total+"' /></td>"+
                     "<td><a href='#' id='Quitar"+datos[d].idservicio+"' onclick=\"quitarServicio('"+datos[d].idservicio+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>");
                 }else{
@@ -1338,10 +1339,10 @@ function agregarHojaCosto(id){
                     "<td><input type='checkbox' id='chkCopiar"+datos[d].idservicio+"' onclick=\"checkMedico(this.checked,'"+datos[d].idservicio+"')\" /></td>"+
                     "<td><input type='text' class='form-control input-xs' id='txtMedico"+datos[d].idservicio+"' name='txtMedico"+datos[d].idservicio+"' value='"+datos[d].medico+"' /><input type='hidden' id='txtIdMedico"+datos[d].idservicio+"' name='txtIdMedico"+datos[d].idservicio+"' value='"+datos[d].idmedico+"' /></td>"+
                     "<td align='left'>"+datos[d].tiposervicio+"</td><td><textarea class='form-control input-xs txtareaa' id='txtServicio"+datos[d].idservicio+"' name='txtServicio"+datos[d].idservicio+"' >"+datos[d].servicio+"</textarea></td>"+
-                    "<td align='center'><input type='hidden' id='txtPrecio2"+datos[d].idservicio+"' name='txtPrecio2"+datos[d].idservicio+"' value='0' /><input type='text' size='5' class='form-control input-xs' style='width: 60px;' data='numero' id='txtPrecio"+datos[d].idservicio+"' name='txtPrecio"+datos[d].idservicio+"' value='"+datos[d].precio+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+datos[d].idservicio+"')}\" onblur=\"calcularTotalItem2('"+datos[d].idservicio+"')\" /></td>"+
+                    "<td align='center'><input type='hidden' id='txtPrecio2"+datos[d].idservicio+"' name='txtPrecio2"+datos[d].idservicio+"' value='0' /><input type='text' size='5' class='form-control input-xs precio' style='width: 60px;' data='numero' precio="+datos[d].idservicio+" id='txtPrecio"+datos[d].idservicio+"' name='txtPrecio"+datos[d].idservicio+"' value='"+datos[d].precio+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+datos[d].idservicio+"')}\" onblur=\"calcularTotalItem2('"+datos[d].idservicio+"')\" /></td>"+
                     "<td align='center'><input type='text' size='5' style='width: 60px;' class='form-control input-xs' data='numero' id='txtDescuento"+datos[d].idservicio+"' name='txtDescuento"+datos[d].idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+datos[d].idservicio+"')}\" onblur=\"calcularTotalItem2('"+datos[d].idservicio+"')\" style='width:50%' /></td>"+
-                    "<td align='center' style='display:none;'><input type='hidden' id='txtPrecioHospital2"+datos[d].idservicio+"' name='txtPrecioHospital2"+datos[d].idservicio+"' value='"+datos[d].precio+"' /><input type='text' size='5' style='width: 60px;' class='form-control input-xs' data='numero'  id='txtPrecioHospital"+datos[d].idservicio+"' name='txtPrecioHospital"+datos[d].idservicio+"' value='"+datos[d].precio+"' onblur=\"calcularTotalItem2("+datos[d].idservicio+")\" /></td>"+
-                    "<td align='center' style='display:none;'><input type='hidden' id='txtPrecioMedico2"+datos[d].idservicio+"' name='txtPrecioMedico2"+datos[d].idservicio+"' value='0' /><input type='text' size='5' class='form-control input-xs' data='numero'  id='txtPrecioMedico"+datos[d].idservicio+"' name='txtPrecioMedico"+datos[d].idservicio+"' value='0' style='width: 60px;' /></td>"+
+                    "<td align='center'  style='display:none;'><input type='hidden' id='txtPrecioHospital2"+datos[d].idservicio+"' name='txtPrecioHospital2"+datos[d].idservicio+"' value='"+datos[d].precio+"' /><input type='text' size='5' style='width: 60px;' class='form-control input-xs' data='numero'  id='txtPrecioHospital"+datos[d].idservicio+"' name='txtPrecioHospital"+datos[d].idservicio+"' value='"+datos[d].precio+"' onblur=\"calcularTotalItem2("+datos[d].idservicio+")\" /></td>"+
+                    "<td align='center'  style='display:none;'><input type='hidden' id='txtPrecioMedico2"+datos[d].idservicio+"' name='txtPrecioMedico2"+datos[d].idservicio+"' value='0' /><input type='text' size='5' class='form-control input-xs' data='numero'  id='txtPrecioMedico"+datos[d].idservicio+"' name='txtPrecioMedico"+datos[d].idservicio+"' value='0' style='width: 60px;' /></td>"+
                     "<td align='center'><input type='text' style='width: 60px;' readonly='' data='numero' class='form-control input-xs' size='5' name='txtTotal"+datos[d].idservicio+"' id='txtTotal"+datos[d].idservicio+"' value='"+datos[d].total+"' /></td>"+
                     "<td><a href='#' id='Quitar"+datos[d].idservicio+"' onclick=\"quitarServicio('"+datos[d].idservicio+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>");
                 }

@@ -31,7 +31,7 @@
 	            <td>ANULADO</td>
 	            @endif
 	  			<td>{{ $value->responsable }}</td>
-	            @if($value->situacion=='C' || $value->situacion=='B' || $value->situacion=='U')
+	            @if($value->situacion=='C')
 	            	@if($value->total>0)
 	                	<td align="center">{!! Form::button('<div class="glyphicon glyphicon-print"></div>', array('onclick' => 'window.open(\'ticket/pdfComprobante?ticket_id='.$value->id.'\',\'_blank\')', 'class' => 'btn btn-xs btn-info', 'title'=>'Comprobante A4')) !!}</td>
 	                	<td align="center">{!! Form::button('<div class="glyphicon glyphicon-print"></div>', array('onclick' => 'window.open(\'ticket/pdfComprobante3?ticket_id='.$value->id.'\',\'_blank\')', 'class' => 'btn btn-xs btn-info', 'title'=>'Comprobante Ticketera')) !!}</td>
@@ -41,17 +41,17 @@
 	            @else
 	                <td align="center"> - </td>
 	            @endif
-	            @if($value->situacion=='P')
+	            @if($value->situacion=='P' || $value->situacion=='U')
 					<td align="center">{!! Form::button('<div class="glyphicon glyphicon-remove"></div>', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);', 'class' => 'btn btn-xs btn-danger', 'title'=> 'Eliminar')) !!}</td>
 				@else
 					<td align="center"> - </td>
 				@endif
-				@if(($user->usertype_id==1 || $user->usertype_id==2) && $value->situacion!='U' && $value->total!==0)
+				@if(($user->usertype_id==1 || $user->usertype_id==2) && $value->situacion=='P' && $value->total!==0)
 					<td align="center">{!! Form::button('<div class="glyphicon glyphicon-pencil"></div>', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning', 'title' => 'Editar')) !!}</td>
 				@else
 					<td align="center"> - </td>
 				@endif
-				@if(($user->usertype_id==1 || $user->usertype_id==7 || $user->usertype_id==2) && $value->total!==0 && $value->situacion!='U')
+				@if(($user->usertype_id==1 || $user->usertype_id==7 || $user->usertype_id==2) && $value->total!==0 && $value->situacion=='P')
 					<td align="center">{!! Form::button('<div class="glyphicon glyphicon-minus"></div>', array('onclick' => 'modal (\''.URL::route($ruta["anular"], array($value->id, 'listar'=>'SI')).'\', \'Anular\', this);', 'class' => 'btn btn-xs btn-danger', 'title' => 'Anular')) !!}</td>
 				@else
 					<td align="center"> - </td>

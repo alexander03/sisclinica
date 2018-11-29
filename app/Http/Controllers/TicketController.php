@@ -907,6 +907,7 @@ class TicketController extends Controller
             $Ticket->plan_id = $request->input('plan_id');
             $Ticket->soat = $request->input('soat');
             $Ticket->sctr = $request->input('sctr');
+            $Ticket->total = $request->input('total');
             $Ticket->save();
             $arr2 = array();
             $arr=explode(",",$request->input('listServicio'));
