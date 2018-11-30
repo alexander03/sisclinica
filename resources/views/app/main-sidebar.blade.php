@@ -79,7 +79,7 @@ function generarMenu($idtipousuario)
                 if (strtoupper($aux[$i]['nombre']) === 'SEPARADOR') {
                     //$cadenaMenu .= '<li class="divider"></li>';
                 }else{
-                    $cadenaMenu .= '<li><a onclick="cargarRuta(\''.URL::to($aux[$i]['link']).'\', \'container\');"><i class="'.$aux[$i]['icono'].'"></i> '.$aux[$i]['nombre'].'</a></li>';
+                    $cadenaMenu .= '<li><a style="cursor:pointer" onclick="cargarRuta(\''.URL::to($aux[$i]['link']).'\', \'container\');"><i class="'.$aux[$i]['icono'].'"></i> '.$aux[$i]['nombre'].'</a></li>';
                 }
             }
             if (count($aux) > 0 && $hijos != '' ) {
@@ -152,7 +152,7 @@ function buscarHijos($categoriaopcionmenu_id, $tipousuario_id)
                 if (strtoupper($aux[$i]['nombre']) === 'SEPARADOR') {
                     //$cadenaMenu .= '<li class="divider"></li>';
                 } else {
-                    $cadenaMenu .= '<li><a onclick="cargarRuta(\''.URL::to($aux[$i]['link']).'\', \'container\');"><i class="'.$aux[$i]['icono'].'" ></i> '.$aux[$i]['nombre'].'</a></li>';
+                    $cadenaMenu .= '<li><a style="cursor:pointer" onclick="cargarRuta(\''.URL::to($aux[$i]['link']).'\', \'container\');"><i class="'.$aux[$i]['icono'].'" ></i> '.$aux[$i]['nombre'].'</a></li>';
                 }
             }
             if (count($aux) > 0 && $hijos != '' ) {
