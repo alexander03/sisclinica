@@ -55,7 +55,8 @@ class CajaController extends Controller
             'reject' => 'caja.reject',
             'imprimir' => 'caja.imprimir',
             'descarga' => 'caja.descarga',
-            'control' => 'caja.control'
+            'control' => 'caja.control',
+            'ticketspendientes' => 'caja.ticketspendientes'
         );
 
     public function __construct()
@@ -5436,5 +5437,9 @@ class CajaController extends Controller
             return view($this->folderview.'.list3')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'ruta', 'user'));
         }
         return view($this->folderview.'.list3')->with(compact('lista', 'entidad'));
+    }
+
+    public function ticketspendientes(Request $request) {
+        return view($this->folderview.'.ticketspendientes');
     }
 }
