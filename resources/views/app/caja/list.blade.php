@@ -13,7 +13,7 @@
 @endif
 {!! Form::button('<i class="glyphicon glyphicon-print"></i> Imprimir', array('class' => 'btn btn-warning btn-xs', 'id' => 'btnDetalle', 'onclick' => 'imprimirDetalle();')) !!}   
 {!! Form::button('<i class="glyphicon glyphicon-print"></i> Honorario', array('class' => 'btn btn-warning btn-xs', 'id' => 'btnHonorario', 'onclick' => 'imprimirHonorario();')) !!}
-{!! Form::button('<i class="glyphicon glyphicon-list"></i> Tickets Pendientes', array('class' => 'btn btn-primary btn-xs', 'id' => 'btnTicketsPendientes', 'onclick' => 'modalCaja (\''.URL::route($ruta["ticketspendientes"], array('listar'=>'SI')).'\', \''.$titulo_cierre.'\', this);')) !!}
+{!! Form::button('<i class="glyphicon glyphicon-list"></i> Tickets Pendientes', array('class' => 'btn btn-primary btn-xs', 'id' => 'btnTicketsPendientes', 'onclick' => 'modalCaja (\''.URL::route($ruta["ticketspendientes"], array('listar'=>'SI')).'\', \''.$titulo_ticketspendientes.'\', this);')) !!}
 <?php 
 $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
 ?>

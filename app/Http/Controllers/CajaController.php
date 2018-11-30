@@ -56,7 +56,8 @@ class CajaController extends Controller
             'imprimir' => 'caja.imprimir',
             'descarga' => 'caja.descarga',
             'control' => 'caja.control',
-            'ticketspendientes' => 'caja.ticketspendientes'
+            'ticketspendientes' => 'caja.ticketspendientes',
+            'listaticketspendientes' => 'caja.listaticketspendientes'
         );
 
     public function __construct()
@@ -76,9 +77,10 @@ class CajaController extends Controller
         }else{
             $conceptopago_id=$rst->conceptopago_id;
         }
-        $titulo_registrar = $this->tituloRegistrar;
-        $titulo_apertura  = 'Apertura';
-        $titulo_cierre    = 'Cierre'; 
+        $titulo_registrar            = $this->tituloRegistrar;
+        $titulo_apertura             = 'Apertura';
+        $titulo_cierre               = 'Cierre';
+        $titulo_ticketspendientes    = 'Tickets Pendientes'; 
         
         $rst              = Movimiento::where('tipomovimiento_id','=',2)->where('caja_id','=',$caja_id)->where('conceptopago_id','=',1)->orderBy('id','DESC')->limit(1)->first();
         if(count($rst)>0){
@@ -175,9 +177,9 @@ class CajaController extends Controller
             $paginaactual    = $paramPaginacion['nuevapagina'];
             $lista           = $resultado->paginate($filas);
             $request->replace(array('page' => $paginaactual));
-            return view($this->folderview.'.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'conceptopago_id', 'titulo_registrar', 'titulo_apertura', 'titulo_cierre', 'ingreso', 'egreso', 'titulo_anular', 'garantia', 'efectivo', 'visa', 'master', 'listapendiente', 'user' ));
+            return view($this->folderview.'.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'conceptopago_id', 'titulo_registrar', 'titulo_apertura', 'titulo_cierre', 'titulo_ticketspendientes', 'ingreso', 'egreso', 'titulo_anular', 'garantia', 'efectivo', 'visa', 'master', 'listapendiente', 'user' ));
         }
-        return view($this->folderview.'.list')->with(compact('lista', 'entidad', 'conceptopago_id', 'titulo_registrar', 'titulo_apertura', 'titulo_cierre', 'ruta', 'ingreso', 'egreso','visa', 'master'));
+        return view($this->folderview.'.list')->with(compact('lista', 'entidad', 'conceptopago_id', 'titulo_registrar', 'titulo_apertura', 'titulo_cierre', 'titulo_ticketspendientes', 'ruta', 'ingreso', 'egreso','visa', 'master'));
     }
 
     public function index(Request $request)
@@ -5440,6 +5442,34 @@ class CajaController extends Controller
     }
 
     public function ticketspendientes(Request $request) {
-        return view($this->folderview.'.ticketspendientes');
+        $entidad = 'ticket';
+        $ruta = $this->rutas;
+        return view($this->folderview.'.ticketspendientes')->with(compact('entidad', 'ruta'));
+    }
+
+    public function listaticketspendientes($numero, $fecha) {
+        if($numero == '0') {
+            $numero = '';
+        }
+        $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+        ->where('movimiento.numero','LIKE','%'.$numero.'%')->where('movimiento.tipodocumento_id','=','1');
+        if($fecha!=""){
+            $resultado = $resultado->where('movimiento.fecha', '=', ''.$fecha.'')
+                        ->where('situacion', '=', 'P');
+        }
+        $resultado        = $resultado->select('movimiento.*',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'))->orderBy('movimiento.fecha', 'ASC')->orderBy('movimiento.numero','ASC');
+        $lista            = $resultado->get();
+        $cabecera         = array();
+        $cabecera[]       = array('valor' => 'Fecha', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Nro', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Paciente', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Total', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Situacion', 'numero' => '1');
+        
+        //$conf = DB::connection('sqlsrv')->table('BL_CONFIGURATION')->get();
+        if (count($lista) > 0) {
+            return view($this->folderview.'.listaticketspendientes')->with(compact('lista', 'cabecera'));
+        }
+        return view($this->folderview.'.listaticketspendientes')->with(compact('lista'));
     }
 }
