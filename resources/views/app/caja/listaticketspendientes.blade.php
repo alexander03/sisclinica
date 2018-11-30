@@ -18,13 +18,8 @@
 	            <td>{{ $value->numero }}</td>
 	            <td>{{ $value->paciente }}</td>
 	            <td align="center">{{ number_format($value->total,2,'.','') }}</td>
-	            @if($value->situacion=='P' || $value->situacion=='B')
-	            <td>PENDIENTE</td>
-	            @elseif($value->situacion=='C')
-	            <td>COBRADO</td>
-	            @elseif($value->situacion=='U')
-	            <td>ANULADO</td>
-	            @endif
+	            <td style="color:blue;font-weight: bold;">PENDIENTE</td>
+	            <td style="color:blue;font-weight: bold;">PENDIENTE</td>
 		</tr>
 		@endforeach
 	</tbody>

@@ -5465,6 +5465,7 @@ class CajaController extends Controller
         $cabecera[]       = array('valor' => 'Paciente', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Total', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Situacion', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Operacion', 'numero' => '1');
         
         //$conf = DB::connection('sqlsrv')->table('BL_CONFIGURATION')->get();
         if (count($lista) > 0) {
