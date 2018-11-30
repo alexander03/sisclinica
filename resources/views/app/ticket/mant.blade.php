@@ -55,8 +55,8 @@ if(!is_null($ticket)){
         		<div class="col-lg-2 col-md-2 col-sm-2">
         			{!! Form::text('numero', $numero, array('class' => 'form-control input-xs', 'id' => 'numero', 'readonly' => 'true')) !!}
         		</div>
-                {!! Form::label('manual', 'Manual:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-                <div class="col-lg-1 col-md-1 col-sm-1">
+                {!! Form::label('manual', 'Manual:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label',  'style' => 'display:none;')) !!}
+                <div class="col-lg-1 col-md-1 col-sm-1" style="display:none;">
                     {!! Form::hidden('manual', 'N', array('id' => 'manual')) !!}
                     <input type="checkbox" onclick="Manual(this.checked)" />
                 </div>
