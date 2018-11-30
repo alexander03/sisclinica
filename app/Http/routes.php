@@ -519,6 +519,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('caja/apertura', 'CajaController@apertura')->name('caja.apertura');
     Route::post('caja/aperturar', 'CajaController@aperturar')->name('caja.aperturar');
     Route::get('caja/cierre', 'CajaController@cierre')->name('caja.cierre');
+    Route::get('caja/ticketspendientes', 'CajaController@ticketspendientes')->name('caja.ticketspendientes');
+    Route::get('caja/listaticketspendientes/{numero}/{fecha}', 'CajaController@listaticketspendientes')->name('caja.listaticketspendientes');
     Route::post('caja/cerrar', 'CajaController@cerrar')->name('caja.cerrar');
     Route::post('caja/generarConcepto', 'CajaController@generarConcepto')->name('caja.generarconcepto');
     Route::post('caja/generarNumero', 'CajaController@generarNumero')->name('caja.generarnumero');

@@ -10,6 +10,7 @@
     {!! Form::button('<i class="glyphicon glyphicon-plus"></i> Apertura', array('class' => 'btn btn-info btn-xs', 'disabled' => 'true', 'id' => 'btnApertura', 'onclick' => 'modalCaja (\''.URL::route($ruta["apertura"], array('listar'=>'SI')).'\', \''.$titulo_apertura.'\', this);')) !!}
     {!! Form::button('<i class="glyphicon glyphicon-usd"></i> Nuevo', array('class' => 'btn btn-success btn-xs', 'id' => 'btnCerrar', 'onclick' => 'modalCaja (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
     {!! Form::button('<i class="glyphicon glyphicon-remove-circle"></i> Cierre', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnCerrar', 'onclick' => 'modalCaja (\''.URL::route($ruta["cierre"], array('listar'=>'SI')).'\', \''.$titulo_cierre.'\', this);')) !!}
+    {!! Form::button('<i class="glyphicon glyphicon-list"></i> Tickets Pendientes', array('class' => 'btn btn-primary btn-xs', 'id' => 'btnTicketsPendientes', 'onclick' => 'modalCaja (\''.URL::route($ruta["ticketspendientes"], array('listar'=>'SI')).'\', \''.$titulo_ticketspendientes.'\', this);')) !!}
 @endif
 
 <?php 

@@ -40,7 +40,6 @@
         @include('app.main-sidebar')
         <!-- Content Wrapper. Contains page content -->
         <div class="content-wrapper" id="container">
-            content
         </div>
         <!-- /.content-wrapper -->
         @include('app.footer')
