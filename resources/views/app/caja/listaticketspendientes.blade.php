@@ -19,7 +19,11 @@
 	            <td>{{ $value->paciente }}</td>
 	            <td align="center">{{ number_format($value->total,2,'.','') }}</td>
 	            <td style="color:blue;font-weight: bold;">PENDIENTE</td>
-	            <td style="color:blue;font-weight: bold;">PENDIENTE</td>
+	            <td style="color:blue;font-weight: bold;">
+	            	<center>
+	            		{!! Form::button('<div class="fa fa-money"></div>', array('onclick' => 'modalCaja (\''.URL::route($ruta["cobrarticket"], $value->id).'\', \'Cobrar Ticket\', this);', 'class' => 'btn btn-xs btn-success')) !!}
+	            	</center>
+	            </td>
 		</tr>
 		@endforeach
 	</tbody>
@@ -31,4 +35,9 @@
 		</tr>
 	</tfoot>
 </table>
+<script type="text/javascript">
+$(document).ready(function() {
+	configurarAnchoModal('900');
+}); 
+</script>
 @endif

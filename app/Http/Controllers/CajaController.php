@@ -57,7 +57,8 @@ class CajaController extends Controller
             'descarga' => 'caja.descarga',
             'control' => 'caja.control',
             'ticketspendientes' => 'caja.ticketspendientes',
-            'listaticketspendientes' => 'caja.listaticketspendientes'
+            'listaticketspendientes' => 'caja.listaticketspendientes',
+            'cobrarticket' => 'caja.cobrarticket'
         );
 
     public function __construct()
@@ -212,18 +213,18 @@ class CajaController extends Controller
     public function create(Request $request)
     {
         $listar              = Libreria::getParam($request->input('listar'), 'NO');
-        $entidad             = 'Caja';
+        $entidad             = 'Caja';$cboConcepto = array();
+        $rs = Conceptopago::where(DB::raw('1'),'=','1')->where('tipo','LIKE','I')->where('id','<>','1')->where('id','<>',6)->where('id','<>',13)->where('id','<>',15)->where('id','<>',17)->where('id','<>',19)->where('id','<>',21)->where('id','<>',23)->where('id','<>',32)->where('id','<>',3)->where('admision','like','S')->orderBy('nombre','ASC')->get();
+        foreach ($rs as $key => $value) {
+            $cboConcepto = $cboConcepto + array($value->id => $value->nombre);
+        }
         $caja = null;
         $cboTipoDoc = array();
         $rs = Tipodocumento::where(DB::raw('1'),'=','1')->where('tipomovimiento_id','=',2)->orderBy('nombre','DESC')->get();
         foreach ($rs as $key => $value) {
             $cboTipoDoc = $cboTipoDoc + array($value->id => $value->nombre);
         }
-        $cboConcepto = array();
-        $rs = Conceptopago::where(DB::raw('1'),'=','1')->where('tipo','LIKE','I')->where('id','<>','1')->where('id','<>',6)->where('id','<>',13)->where('id','<>',15)->where('id','<>',17)->where('id','<>',19)->where('id','<>',21)->where('id','<>',23)->where('id','<>',32)->where('id','<>',3)->where('admision','like','S')->orderBy('nombre','ASC')->get();
-        foreach ($rs as $key => $value) {
-            $cboConcepto = $cboConcepto + array($value->id => $value->nombre);
-        }
+        
         $formData            = array('caja.store');
         $caja2                = Caja::find($request->input('caja_id'));
         $cboCaja = array();
@@ -5451,6 +5452,7 @@ class CajaController extends Controller
         if($numero == '0') {
             $numero = '';
         }
+        $ruta = $this->rutas;
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
         ->where('movimiento.numero','LIKE','%'.$numero.'%')->where('movimiento.tipodocumento_id','=','1');
         if($fecha!=""){
@@ -5469,8 +5471,28 @@ class CajaController extends Controller
         
         //$conf = DB::connection('sqlsrv')->table('BL_CONFIGURATION')->get();
         if (count($lista) > 0) {
-            return view($this->folderview.'.listaticketspendientes')->with(compact('lista', 'cabecera'));
+            return view($this->folderview.'.listaticketspendientes')->with(compact('lista', 'cabecera', 'ruta'));
         }
-        return view($this->folderview.'.listaticketspendientes')->with(compact('lista'));
+        return view($this->folderview.'.listaticketspendientes')->with(compact('lista', 'ruta'));
+    }
+
+    public function cobrarticket($id)
+    {
+        $existe = Libreria::verificarExistencia($id, 'Movimiento');
+        $ruta = $this->rutas;
+        if ($existe !== true) {
+            return $existe;
+        }
+        $cboConcepto = array();
+        $rs = Conceptopago::orderBy('nombre','ASC')->get();
+        foreach ($rs as $key => $value) {
+            $cboConcepto = $cboConcepto + array($value->id => $value->nombre);
+        }
+        $movimiento = Movimiento::find($id);
+        $entidad    = 'Movimiento';
+        $formData   = array('Caja.cobrarticket2', $id);
+        $formData   = array('route' => $formData, 'method' => 'POST', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $boton      = 'Registrar';
+        return view($this->folderview.'.cobrarticket')->with(compact('Caja', 'formData', 'entidad', 'boton', 'movimiento', 'cboConcepto', 'ruta'));
     }
 }

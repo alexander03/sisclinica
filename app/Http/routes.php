@@ -548,6 +548,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('caja/quitardescarga', 'CajaController@quitardescarga')->name('caja.quitardescarga');
     Route::get('caja/descargaadmision', 'CajaController@descargaadmision')->name('caja.descargaadmision');
     Route::post('caja/listardescargaadmision', 'CajaController@listardescargaadmision')->name('caja.listardescargaadmision');
+
+    //COBRAR TICKET
+
+    Route::get('caja/cobrarticket/{id}', 'CajaController@cobrarticket')->name('caja.cobrarticket');
     
     /* CAJA TESORERIA*/
     Route::post('cajatesoreria/buscar', 'CajatesoreriaController@buscar')->name('cajatesoreria.buscar');
