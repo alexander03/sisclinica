@@ -1,4 +1,6 @@
 <?php
+use App\Historia;
+
 if(!is_null($ticket)){
     $plan=$ticket->plan->nombre;
     $plan_id=$ticket->plan_id;
@@ -9,8 +11,10 @@ if(!is_null($ticket)){
     $paciente=$ticket->persona->apellidopaterno.' '.$ticket->persona->apellidomaterno.' '.$ticket->persona->nombres;
     $coa=$ticket->subtotal;
     $deducible=$ticket->igv;
-    $historia_id="";
-    $numero_historia="";
+    $historia= Historia::where('person_id',$person_id)->first();
+    $historia_id= $historia->id;
+    $numero_historia= $historia->numero;
+    $tipopaciente = $historia->tipopaciente;
     $referido_id=$ticket->doctor_id;
     if($ticket->doctor_id>0)
         $referido=$ticket->doctor->apellidopaterno.' '.$ticket->doctor->apellidomaterno.' '.$ticket->doctor->nombres;
@@ -28,6 +32,7 @@ if(!is_null($ticket)){
     $deducible="";
     $historia_id="";
     $numero_historia="";
+    $tipopaciente="";
     $referido_id=0;
     $referido="";
 }
@@ -83,7 +88,7 @@ if(!is_null($ticket)){
         		</div>
                 {!! Form::label('tipopaciente', 'Tipo Paciente:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
         		<div class="col-lg-3 col-md-3 col-sm-3">
-        			{!! Form::select('tipopaciente', $cboTipoPaciente, null, array('class' => 'form-control input-xs', 'id' => 'tipopaciente')) !!}
+        			{!! Form::select('tipopaciente', $cboTipoPaciente, $tipopaciente, array('class' => 'form-control input-xs', 'id' => 'tipopaciente')) !!}
         		</div>
         	</div>
             <div class="form-group">

@@ -41,11 +41,7 @@
 	            @else
 	                <td align="center"> - </td>
 	            @endif
-	            @if($value->situacion=='P' || $value->situacion=='U')
-					<td align="center">{!! Form::button('<div class="glyphicon glyphicon-remove"></div>', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);', 'class' => 'btn btn-xs btn-danger', 'title'=> 'Eliminar')) !!}</td>
-				@else
-					<td align="center"> - </td>
-				@endif
+	           
 				@if(($user->usertype_id==1 || $user->usertype_id==2) && $value->situacion=='P' && $value->total!==0)
 					<td align="center">{!! Form::button('<div class="glyphicon glyphicon-pencil"></div>', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning', 'title' => 'Editar')) !!}</td>
 				@else
