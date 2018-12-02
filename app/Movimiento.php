@@ -16,6 +16,11 @@ class Movimiento extends Model
     {
         return $this->belongsTo('App\Person', 'responsable_id');
     }
+
+    public function tipomovimiento()
+    {
+        return $this->belongsTo('App\Tipomovimiento', 'tipomovimiento_id');
+    }
     
     public function persona()
     {
