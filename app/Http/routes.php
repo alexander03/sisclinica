@@ -552,7 +552,7 @@ Route::group(['middleware' => 'auth'], function () {
     //COBRAR TICKET
 
     Route::get('caja/cobrarticket/{id}', 'CajaController@cobrarticket')->name('caja.cobrarticket');
-    Route::post('caja/cobrarticket2', 'CajaController@cobrarticket')->name('caja.cobrarticket');
+    Route::post('caja/cobrarticket2', 'CajaController@cobrarticket2')->name('caja.cobrarticket2');
     
     /* CAJA TESORERIA*/
     Route::post('cajatesoreria/buscar', 'CajatesoreriaController@buscar')->name('cajatesoreria.buscar');

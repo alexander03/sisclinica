@@ -58,7 +58,8 @@ class CajaController extends Controller
             'control' => 'caja.control',
             'ticketspendientes' => 'caja.ticketspendientes',
             'listaticketspendientes' => 'caja.listaticketspendientes',
-            'cobrarticket' => 'caja.cobrarticket'
+            'cobrarticket' => 'caja.cobrarticket',
+            'cobrarticket2' => 'caja.cobrarticket2'
         );
 
     public function __construct()
@@ -5490,7 +5491,7 @@ class CajaController extends Controller
         }
         $movimiento = Movimiento::find($id);
         $entidad    = 'Movimiento';
-        $formData   = array('Caja.cobrarticket2', $id);
+        $formData   = array('caja.cobrarticket2', $id);
         $formData   = array('route' => $formData, 'method' => 'POST', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton      = 'Registrar';
         return view($this->folderview.'.cobrarticket')->with(compact('Caja', 'formData', 'entidad', 'boton', 'movimiento', 'cboConcepto', 'ruta'));

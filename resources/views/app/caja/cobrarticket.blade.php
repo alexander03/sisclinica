@@ -1,6 +1,5 @@
 <div id="divMensajeError{!! $entidad !!}"></div>
 {!! Form::model($movimiento, $formData) !!}	
-	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
     <div class="form-group">
         {!! Form::label('numero', 'Nro. Doc.:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
         <div class="col-lg-6 col-md-6 col-sm-6">
@@ -24,7 +23,7 @@
 {!! Form::close() !!}
 <script type="text/javascript">
 $(document).ready(function() {
-	configurarAnchoModal('350');
+	configurarAnchoModal('800');
 	init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'B', '{!! $entidad !!}');
 }); 
 
