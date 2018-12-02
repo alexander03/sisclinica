@@ -507,12 +507,12 @@ $(document).ready(function() {
     $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="descripcion"]').on( 'keydown', function () {
         var e = window.event; 
         var keyc = e.keyCode || e.which;
-        if(this.value.length>1 && keyc == 13){
+        if(this.value.length > 1 && keyc == 13){
             buscarServicio(this.value);
             valorbusqueda=this.value;
             this.focus();
             return false;
-        }
+        } else
         if(keyc == 38 || keyc == 40 || keyc == 13) {
             var tabladiv='tablaServicio';
 			var child = document.getElementById(tabladiv).rows;
