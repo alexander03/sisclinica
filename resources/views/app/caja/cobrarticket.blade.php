@@ -2,35 +2,35 @@
 	<!-- DATOS DEL TICKET -->
 	<div id="divMensajeError{!! $entidad !!}"></div>
 	<div class="form-group">
-	    {!! Form::label('numero', 'Nro. Doc.:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
+	    {!! Form::label('numero', 'Nro. Doc.', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 	    {!! Form::label('numero', $movimiento->serie.'-'.$movimiento->numero, array('class' => 'col-lg-8 col-md-8 col-sm-8 control-label', 'style' => 'font-weight:normal;text-align:left;text-align:left')) !!}
 	</div>
 	<div class="form-group">
-		{!! Form::label('siniestro', 'Siniestro:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
+		{!! Form::label('siniestro', 'Siniestro', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 		{!! Form::label('siniestro', $movimiento->comentario, array('class' => 'col-lg-8 col-md-8 col-sm-8 control-label', 'style' => 'font-weight:normal;text-align:left')) !!}
 	</div>
 	<div class="form-group">
-		{!! Form::label('fecha', 'Fecha:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
+		{!! Form::label('fecha', 'Fecha', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 		{!! Form::label('siniestro', $movimiento->fecha, array('class' => 'col-lg-8 col-md-8 col-sm-8 control-label', 'style' => 'font-weight:normal;text-align:left')) !!}
 	</div>
 	<div class="form-group">
-		{!! Form::label('paciente', 'Paciente:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
+		{!! Form::label('paciente', 'Paciente', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 		{!! Form::label('siniestro', $movimiento->persona->nombres . ' ' . $movimiento->persona->apellidopaterno . ' ' . $movimiento->persona->apellidomaterno, array('class' => 'col-lg-8 col-md-8 col-sm-8 control-label', 'style' => 'font-weight:normal;text-align:left')) !!}
 	</div>
 	<div class="form-group">
-		{!! Form::label('tipomovimiento', 'Tipo de movimiento:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
+		{!! Form::label('tipomovimiento', 'Tipo de movimiento', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 		{!! Form::label('siniestro', $movimiento->tipomovimiento->nombre, array('class' => 'col-lg-8 col-md-8 col-sm-8 control-label', 'style' => 'font-weight:normal;text-align:left')) !!}
 	</div>
 	<div class="form-group">
-		{!! Form::label('total', 'Total:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
+		{!! Form::label('total', 'Total', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 		{!! Form::label('siniestro', $movimiento->total, array('class' => 'col-lg-8 col-md-8 col-sm-8 control-label', 'style' => 'font-weight:normal;text-align:left')) !!}
 	</div>
 	<div class="form-group">
-		{!! Form::label('doctor', 'Doctor:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
+		{!! Form::label('doctor', 'Doctor', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 		{!! Form::label('siniestro', $movimiento->doctor->nombres . ' ' . $movimiento->doctor->apellidopaterno . ' ' . $movimiento->doctor->apellidomaterno, array('class' => 'col-lg-8 col-md-8 col-sm-8 control-label', 'style' => 'font-weight:normal;text-align:left')) !!}
 	</div>
 	<div class="form-group">
-		{!! Form::label('plan', 'Plan:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
+		{!! Form::label('plan', 'Plan', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 		{!! Form::label('siniestro', $movimiento->plan->nombre, array('class' => 'col-lg-8 col-md-8 col-sm-8 control-label', 'style' => 'font-weight:normal;text-align:left')) !!}
 	</div>
 	<!-- OPCIONES -->
@@ -80,8 +80,10 @@
         </div>
 	</div>
 	{!! Form::hidden('id', $movimiento->id) !!}
-	{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => 'guardar(\''.$entidad.'\', this)')) !!}
-	{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
+	<div class="text-right">
+		{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'data-a' => 'true', 'id' => 'btnGuardar', 'onclick' => 'guardar(\''.$entidad.'\', this)')) !!}
+		{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
+	</div>
 {!! Form::close() !!}
 <script type="text/javascript">
 $(document).ready(function() {
