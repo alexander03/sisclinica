@@ -96,16 +96,16 @@ function generarMenu($idtipousuario)
             <a href="#"><i class="fa fa-lock"></i> <span>Aseguradoras</span><span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span></a>
             <ul class="treeview-menu">
                 <li> 
-                    <a onclick="window.open(\'http://srvjavapp.lapositiva.com.pe:7780/webclinic/\', \'_blank\');">  <i class="glyphicon glyphicon-expand"></i> La Positiva</a>
+                    <a style="cursor:pointer" onclick="window.open(\'http://srvjavapp.lapositiva.com.pe:7780/webclinic/\', \'_blank\');">  <i class="glyphicon glyphicon-expand"></i> La Positiva</a>
                 </li>
                 <li>
-                    <a onclick="window.open(\'http://www.feban.net/jdextre/clinicas2009/index.php\', \'_blank\');">  <i class="glyphicon glyphicon-expand"></i> Feban</a>
+                    <a style="cursor:pointer" onclick="window.open(\'http://www.feban.net/jdextre/clinicas2009/index.php\', \'_blank\');">  <i class="glyphicon glyphicon-expand"></i> Feban</a>
                 </li>
                 <li>
-                    <a onclick="window.open(\'https://www.pacificoseguros.com/loginPacifico/login.aspx\', \'_blank\');">  <i class="glyphicon glyphicon-expand"></i> Pacifico Seguros</a>
+                    <a style="cursor:pointer" onclick="window.open(\'https://www.pacificoseguros.com/loginPacifico/login.aspx\', \'_blank\');">  <i class="glyphicon glyphicon-expand"></i> Pacifico Seguros</a>
                 </li>
                 <li>
-                    <a onclick="window.open(\'http://www.rel.rimac.com.pe/AAAWWeb/logueo_aplicaciones.jsp\', \'_blank\');">  <i class="glyphicon glyphicon-expand"></i> Rimac</a>
+                    <a style="cursor:pointer" onclick="window.open(\'http://www.rel.rimac.com.pe/AAAWWeb/logueo_aplicaciones.jsp\', \'_blank\');">  <i class="glyphicon glyphicon-expand"></i> Rimac</a>
                 </li>
             </ul>
         </li>';
