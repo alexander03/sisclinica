@@ -200,13 +200,17 @@ class TicketController extends Controller
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
             return $validacion->messages()->toJson();
-        }       
+        }     
+
+        //Reviso si es que ya se registró el comprobante  
         
         $validar = Movimiento::where('serie','=',$request->input('serieventa'))->where('manual','like','N')->where('tipodocumento_id','=',$request->input('tipodocumento')=="Boleta"?'5':'4')->where('numero','=',$request->input('numeroventa'))->first();
         if ($validar != null) {
             $dat[0]=array("respuesta"=>"ERROR","msg"=>"Nro de Comprobante ya registrado");
                 return json_encode($dat);
         }
+
+        //Reviso si ya se cerró la caja
 
         $user = Auth::user();
         $dat=array();
@@ -222,6 +226,8 @@ class TicketController extends Controller
                 return json_encode($dat);
             }
         }
+
+
         $numero=($request->input('tipodocumento')=="Boleta"?"B":"F").str_pad($request->input('serieventa'),3,'0',STR_PAD_LEFT).'-'.$request->input('numeroventa');
         $numeronc="";//numero nota credito
 
@@ -243,33 +249,53 @@ class TicketController extends Controller
             $Ticket->plan_id = $request->input('plan_id');
             $Ticket->soat = $request->input('soat');
             $Ticket->sctr = $request->input('sctr');
+
+            //Solo si la forma de pago es con tarjeta
+
             if($request->input('formapago')=="Tarjeta"){
                 $Ticket->tarjeta=$request->input('tipotarjeta');//VISA/MASTER
                 $Ticket->tipotarjeta=$request->input('tipotarjeta2');//DEBITO/CREDITO
                 $Ticket->voucher=$request->input('nroref');
             }
+
+            //Solo si se llega a pagar en efectivo
+
             if($request->input('pagar')=="S"){
                 $Ticket->situacion='C';//Pendiente => P / Cobrado => C / Boleteado => B
-            }elseif($request->input('comprobante')=="S"){
+            }
+
+            //Solo si se genera un comprobante 
+
+            elseif($request->input('comprobante')=="S"){
                 $Ticket->situacion='B';//Pendiente => P / Cobrado => C
                 if($request->input('descuentopersonal')=="S"){
                     $Ticket->descuentoplanilla='S';
                     $Ticket->personal_id=$request->input('personal_id');
                 }
-            }else{
+            }
+
+            //Solo si es pendiente el pago
+
+            else{
                 $Ticket->situacion='P';//Pendiente => P / Cobrado => C
                 if($request->input('descuentopersonal')=="S"){
                     $Ticket->descuentoplanilla='S';
                     $Ticket->personal_id=$request->input('personal_id');
                 }
             }
+
             $Ticket->comentario = $request->input('formapago')."@".$request->input('tipodocumento');
             $Ticket->responsable_id=$user->person_id;
             if($request->input('referido_id')>0){
                 $Ticket->doctor_id=$request->input('referido_id');
             }
 
+            //Guardamos el Ticket
+
             $Ticket->save();
+
+            //Registro de detalles del movimiento
+
             $pagohospital=0;
             $arr=explode(",",$request->input('listServicio'));
             for($c=0;$c<count($arr);$c++){
@@ -302,19 +328,31 @@ class TicketController extends Controller
             }
 
             $notacredito_id=0;
+
+            //Solo si se genera un comprobante de pago
+
             if($request->input('comprobante')=="S" && $pagohospital>0){//Puse con pago hospital por generar F.E.            
                 //Genero Documento de Venta
+                //Boleta
                 if($request->input('tipodocumento')=="Boleta"){
                     $tipodocumento_id=5;
                     $codigo="03";
                     $abreviatura="B";
-                }else{
+                }
+                //Factura
+                else{
                     $tipodocumento_id=4;
                     $codigo="01";
                     $abreviatura="F";
                 }
+
+                //Genero venta como nuevo movimiento
+
                 $venta        = new Movimiento();
                 $venta->fecha = $request->input('fecha');
+
+                //Puede ser manual o no
+
                 if($request->input('manual')=='N'){
                     $venta->numero= Movimiento::NumeroSigue(4,$tipodocumento_id,$request->input('serieventa'),'N');
                 }else{
@@ -361,8 +399,12 @@ class TicketController extends Controller
                 }
                 $venta->movimiento_id=$Ticket->id;
                 $venta->ventafarmacia='N';
+
+                //Guardamos la venta
+
                 $venta->save();
-                //
+
+                //Solo si hay pago
                 
                 if($request->input('pagar')=="S"){
                     //guardo movimiento en caja

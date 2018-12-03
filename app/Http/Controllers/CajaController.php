@@ -5490,39 +5490,124 @@ class CajaController extends Controller
         $formData   = array('caja.cobrarticket2');
         $formData   = array('route' => $formData, 'method' => 'POST', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton      = 'Registrar';
-        $cboConcepto = Conceptopago::all();
-        $cboCaja = Caja::all();
-        return view($this->folderview.'.cobrarticket')->with(compact('Caja', 'formData', 'entidad', 'boton', 'movimiento', 'cboConcepto', 'cboCaja', 'ruta'));
+        $cboCaja = Caja::where('nombre', '<>', 'TESORERIA')->where('nombre', '<>', 'FARMACIA')->where('nombre', '<>', 'TESORERIA - FARMACIA')->get();
+        $cboFormaPago     = array("Efectivo" => "Efectivo", "Tarjeta" => "Tarjeta");
+        $cboTipoTarjeta    = array("VISA" => "VISA", "MASTER" => "MASTER");
+        $cboTipoTarjeta2    = array("CREDITO" => "CREDITO", "DEBITO" => "DEBITO");
+        $cboTipoDocumento     = array("Boleta" => "Boleta", "Factura" => "Factura");        
+        return view($this->folderview.'.cobrarticket')->with(compact('Caja', 'formData', 'entidad', 'boton', 'movimiento', 'cboFormaPago', 'cboTipoTarjeta', 'cboTipoTarjeta2', 'cboCaja', 'cboTipoDocumento', 'ruta'));
     }
 
     public function cobrarticket2(Request $request)
     {
-        $reglas     = array(
-            'conceptopago_id' => 'required',
-            'caja_id'         => 'required',
-            'voucher'         => 'required',
-            'totalpagado'     => 'required',
-        );
-        $mensajes = array(
-            'conceptopago_id.required' => 'Debe tener un concepto',
-            'caja_id.required'         => 'Debe tener una caja',
-            'voucher.required'         => 'Debe tener un voucher',
-            'totalpagado.required'     => 'Debe tener un total pagado',
-        );
-        $validacion = Validator::make($request->all(), $reglas, $mensajes);
-        if ($validacion->fails()) {
-            return $validacion->messages()->toJson();
-        }
         $user = Auth::user();
-        $error = DB::transaction(function() use($request,$user){
-            $movimiento                  = Movimiento::find($request->input('id'));
-            $movimiento->totalpagado     = $request->input('totalpagado ');            
-            $movimiento->voucher         = $request->input('voucher');            
-            $movimiento->conceptopago_id = $request->input('conceptopago_id');
-            $movimiento->situacion       = 'N';
-            $movimiento->tipo            = 2;
-            $movimiento->save();
+
+        $error = DB::transaction(function() use($request,$user,&$dat,&$numeronc){
+            $Ticket = Movimiento::find($request->input('id'));
+            if($request->input('formapago') == "Tarjeta"){
+                $Ticket->tarjeta=$request->input('tipotarjeta');//VISA/MASTER
+                $Ticket->tipotarjeta=$request->input('tipotarjeta2');//DEBITO/CREDITO
+                $Ticket->voucher=$request->input('nroref');
+            }
+
+            //Solo si se llega a pagar en efectivo
+
+            if($request->input('pagar')=="S"){
+                $Ticket->situacion='C';//Pendiente => P / Cobrado => C / Boleteado => B
+            }
+
+            //Guardamos el Ticket
+
+            $Ticket->save();
+           
+            $pagohospital=$Ticket->total;
+
+            //Solo si se genera un comprobante de pago
+
+            if($request->input('comprobante')=="S" && $pagohospital>0){//Puse con pago hospital por generar F.E.            
+                //Genero Documento de Venta
+                //Boleta
+                if($request->input('tipodocumento')=="Boleta"){
+                    $tipodocumento_id=5;
+                    $codigo="03";
+                    $abreviatura="B";
+                }
+                //Factura
+                else{
+                    $tipodocumento_id=4;
+                    $codigo="01";
+                    $abreviatura="F";
+                }
+
+                //Genero venta como nuevo movimiento
+
+                $venta        = new Movimiento();
+                $venta->fecha = date("Y-m-d");
+
+                //Puede ser manual o no
+
+                $caja = Caja::find($request->input('caja_id'));
+
+                $venta->numero= Movimiento::NumeroSigue(4,5,$caja->serie,'N');
+
+                $venta->serie = '00'.$caja->serie;;
+                $venta->responsable_id=$user->person_id;
+                $venta->persona_id=$Ticket->persona_id;
+                if($request->input('tipodocumento')=="Boleta"){
+                    $venta->subtotal=number_format($pagohospital/1.18,2,'.','');
+                    $venta->igv=number_format($pagohospital - $venta->subtotal,2,'.','');
+                    $venta->total=$pagohospital;     
+                }else{
+                    $venta->subtotal=number_format($pagohospital/1.18,2,'.','');
+                    $venta->igv=number_format($pagohospital - $venta->subtotal,2,'.','');
+                    $venta->total=number_format($pagohospital,2,'.','');                     
+                }
+                $venta->tipomovimiento_id=4;
+                $venta->tipodocumento_id=$tipodocumento_id;
+                $venta->comentario='';
+                $venta->manual='N';
+                $venta->situacion='N';        
+                $venta->movimiento_id=$Ticket->id;
+                $venta->ventafarmacia='N';
+
+                //Guardamos la venta
+
+                $venta->save();
+
+                //Solo si hay pago
+                
+                if($request->input('pagar')=="S"){
+                    //guardo movimiento en caja
+                    $movimiento        = new Movimiento();
+                    $movimiento->fecha = date("Y-m-d");
+                    $movimiento->numero= Movimiento::NumeroSigue(2,2);
+                    $movimiento->responsable_id=$user->person_id;
+                    $movimiento->persona_id=$Ticket->persona_id;
+                    $movimiento->subtotal=0;
+                    $movimiento->igv=0;
+                    $movimiento->total=$Ticket->total;
+                    $movimiento->tipomovimiento_id=2;
+                    $movimiento->tipodocumento_id=2;
+                    $movimiento->conceptopago_id=3;//PAGO DE CLIENTE
+                    $movimiento->comentario='Pago de : '.substr($request->input('tipodocumento'),0,1).' '.$venta->serie.'-'.$venta->numero;
+                    $movimiento->caja_id=$request->input('caja_id');
+                    if($request->input('formapago')=="Tarjeta"){
+                        $movimiento->tipotarjeta=$request->input('tipotarjeta');
+                        $movimiento->tarjeta=$request->input('tipotarjeta2');
+                        $movimiento->voucher=$request->input('nroref');
+                        $movimiento->totalpagado=0;
+                    }else{
+                        $movimiento->totalpagado=$request->input('total',0);
+                    }
+                    $movimiento->situacion='N';
+                    $movimiento->movimiento_id=$venta->id;
+                    $movimiento->save();
+                    //
+                }
+            }
         });
+
+        ///////////////////////////////
         return is_null($error) ? "OK" : $error;
     }
 }
