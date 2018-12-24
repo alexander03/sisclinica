@@ -433,15 +433,17 @@ class CajaController extends Controller
         return is_null($error) ? "OK" : $error;
     }
 
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
         $existe = Libreria::verificarExistencia($id, 'movimiento');
         if ($existe !== true) {
             return $existe;
         }
-        $error = DB::transaction(function() use($id){
+        $comentarioa = $request->input("comentarioa");
+        $error = DB::transaction(function() use($id, $comentarioa){            
             $Caja = Movimiento::find($id);
             $Caja->situacion="A";//Anulado
+            $Caja->motivo_anul = $comentarioa;
             $Caja->save();
             if($Caja->listapago!=""){
                 $arr=explode(",",$Caja->listapago);
@@ -487,7 +489,7 @@ class CajaController extends Controller
         $entidad  = 'Caja';
         $formData = array('route' => array('caja.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton    = 'Anular';
-        return view('app.confirmar')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar'));
+        return view('app.confirmar2')->with(compact('modelo', 'id', 'formData', 'entidad', 'boton', 'listar'));
     }
     
 
