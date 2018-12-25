@@ -8,6 +8,7 @@ use Excel;
 use App\Historia;
 use App\Person;
 use App\Servicio;
+use App\Tiposervicio;
 use App\Tarifario;
 use App\Cie;
 
@@ -46,6 +47,7 @@ class ExcelController extends Controller
 			    $dat=array();
 				foreach ($data as $key => $value) {
                     $dni = trim($value->dni);
+                    $band=true;
                     if($dni!="00000000" && strlen($dni)==8){
                         $mdlPerson = new Person();
                         $resultado = Person::where('dni','LIKE',$dni);
@@ -57,11 +59,12 @@ class ExcelController extends Controller
                                 echo "Ya tiene historia ".$value->historia." -> ".$dni;
                                 $idpersona=0;
                                 $dni="";
+                                $band=false;
                             }else{//NO TIENE HISTORIA PERO SI ESTA REGISTRADO LA PERSONA COMO PROVEEDOR O PERSONAL
                                 $idpersona=$value2->id;
                             }
                         }else{
-                            $resultado = Person::where(DB::raw('concat(apellidopaterno,\' \',apellidomaterno,\' \',nombres)'), 'LIKE', '%'.strtoupper($value->paciente).'%');
+                            $resultado = Person::where(DB::raw('concat(apellidopaterno,\' \',apellidomaterno,\' \',nombres)'), 'LIKE', '%'.strtoupper(trim($value->apellidopaterno)." ".trim($value->apellidomaterno)." ".trim($value->nombres)).'%');
                             $value2     = $resultado->first();
                             if(count($value2)>0 && strlen(trim($dni))>0){
                                 $objHistoria = new Historia();
@@ -70,6 +73,7 @@ class ExcelController extends Controller
                                     echo "Ya tiene historia ".$value->historia." -> ".$dni;
                                     $idpersona=0;
                                     $dni="";
+                                    $band=false;
                                 }else{//NO TIENE HISTORIA PERO SI ESTA REGISTRADO LA PERSONA COMO PROVEEDOR O PERSONAL
                                     $idpersona=$value2->id;
                                 }
@@ -77,7 +81,7 @@ class ExcelController extends Controller
                                 $idpersona=0;
                         }        
                     }else{
-                        $resultado = Person::where(DB::raw('concat(apellidopaterno,\' \',apellidomaterno,\' \',nombres)'), 'LIKE', '%'.strtoupper($value->paciente).'%');
+                        $resultado = Person::where(DB::raw('concat(apellidopaterno,\' \',apellidomaterno,\' \',nombres)'), 'LIKE', '%'.strtoupper(trim($value->apellidopaterno)." ".trim($value->apellidomaterno)." ".trim($value->nombres)).'%');
                         $value2     = $resultado->first();
                         if(count($value2)>0){
                             $objHistoria = new Historia();
@@ -86,6 +90,7 @@ class ExcelController extends Controller
                                 echo "Ya tiene historia ".$value->historia." -> ".$dni;
                                 $idpersona=0;
                                 $dni="";
+                                $band=false;
                             }else{//NO TIENE HISTORIA PERO SI ESTA REGISTRADO LA PERSONA COMO PROVEEDOR O PERSONAL
                                 $idpersona=$value2->id;
                             }
@@ -93,61 +98,58 @@ class ExcelController extends Controller
                             $idpersona=0;
                         $dni='';
                     }
-                    $error = DB::transaction(function() use($dni,$idpersona,$value,&$dat){
-                        $Historia       = new Historia();
-                        $nom=explode(" ",$value->paciente);
-                        $nombres="";
-                        for($c=2;$c<count($nom);$c++){
-                            $nombres.=" ".$nom[$c];
-                        }
-
-                        if($idpersona==0){
-                            $person = new Person();
-                            $person->dni=$dni;
-                            $person->apellidopaterno=trim(strtoupper($nom[0]));
-                            $person->apellidomaterno=trim(strtoupper($nom[1]));
-                            $person->nombres=trim(strtoupper($nombres));
-                            $person->telefono=$value->telefono;
-                            $person->direccion=trim($value->direccion).' - '.trim($value->distrito);
-                            $person->sexo=$value->sexo;
-                            if($value->fechanac!="")    $person->fechanacimiento=$value->fechanac->format("Y-m-d");
-                            $person->save();
-                            $idpersona=$person->id;
-                        }else{
-                            $person = Person::find($idpersona);
-                            $person->dni=$dni;
-                            $person->apellidopaterno=trim(strtoupper($nom[0]));
-                            $person->apellidomaterno=trim(strtoupper($nom[1]));
-                            $person->nombres=trim(strtoupper($nombres));
-                            $person->telefono=$value->telefono;
-                            $person->direccion=trim($value->direccion).' - '.trim($value->distrito);
-                            $person->sexo=$value->sexo;
-                            if($value->fechanac!="")    $person->fechanacimiento=$value->fechanac->format("Y-m-d");
-                            $person->save();
-                            $idpersona=$person->id;
-                        }
-                        $Historia->numero = $value->historia;
-                        $Historia->person_id = $idpersona;
-                        if(trim($value->tipo_paciente)=="HOSPITAL"){
-                            $tipopaciente="Hospital";
-                        }elseif(trim($value->tipo_paciente)=="PARTICULAR"){
-                            $tipopaciente="Particular";
-                        }else{
-                            $tipopaciente="Convenio";
-                        }
-                        $Historia->tipopaciente=$tipopaciente;
-                        $Historia->fecha=$value->fechafilia->format("Y-m-d");
-                        $Historia->modo="F";
-                        $Historia->estadocivil=$value->estado_civil;
-                        if($tipopaciente=="Convenio"){
-                            $Historia->empresa=$value->empresa;
-                            $Historia->carnet=$value->carnet;
-                            $Historia->poliza=$value->poliza;
-                            $Historia->soat=$value->soat;
-                            $Historia->titular=$value->titular;
-                        }
-                        $Historia->save();
-                        $dat[]=array("respuesta"=>"OK","id"=>$Historia->id,"paciente"=>$person->apellidopaterno.' '.$person->apellidomaterno.' '.$person->nombres,"historia"=>$Historia->numero,"person_id"=>$Historia->person_id);            
+                    $error = DB::transaction(function() use($dni,$idpersona,$value,&$dat,$band){
+                        if($band){
+                            $Historia       = new Historia();
+                            if($idpersona==0){
+                                $person = new Person();
+                                $person->dni=$dni;
+                                $person->apellidopaterno=strtoupper(trim($value->apellidopaterno));
+                                $person->apellidomaterno=strtoupper(trim($value->apellidomaterno));
+                                $person->nombres=trim(strtoupper($value->nombres));
+                                $person->telefono=$value->telefono;
+                                $person->direccion=trim($value->direccion).' - '.trim($value->distrito);
+                                $person->sexo=substr($value->sexo,0,1);
+                                $person->telefono=$value->telefono;
+                                if($value->fechanacimiento!="")    $person->fechanacimiento=$value->fechanacimiento->format("Y-m-d");
+                                $person->save();
+                                $idpersona=$person->id;
+                            }else{
+                                $person = Person::find($idpersona);
+                                $person->dni=$dni;
+                                $person->apellidopaterno=strtoupper(trim($value->apellidopaterno));
+                                $person->apellidomaterno=strtoupper(trim($value->apellidomaterno));
+                                $person->nombres=trim(strtoupper($value->nombres));
+                                $person->direccion=trim($value->direccion).' - '.trim($value->distrito);
+                                $person->sexo=substr($value->sexo,0,1);
+                                $person->telefono=$value->telefono;
+                                if($value->fechanacimiento!="")    $person->fechanacimiento=$value->fechanacimiento->format("Y-m-d");
+                                $person->save();
+                                $idpersona=$person->id;
+                            }
+                            $Historia->numero = Historia::NumeroSigue();
+                            $Historia->person_id = $idpersona;
+                            /*if(trim($value->tipo_paciente)=="HOSPITAL"){
+                                $tipopaciente="Hospital";
+                            }elseif(trim($value->tipo_paciente)=="PARTICULAR"){*/
+                                $tipopaciente="Particular";
+                            /*}else{
+                                $tipopaciente="Convenio";
+                            }*/
+                            $Historia->tipopaciente=$tipopaciente;
+                            $Historia->fecha=date("Y-m-d");
+                            $Historia->modo="F";
+                            $Historia->estadocivil='';
+                            if($tipopaciente=="Convenio"){
+                                $Historia->empresa=$value->empresa;
+                                $Historia->carnet=$value->carnet;
+                                $Historia->poliza=$value->poliza;
+                                $Historia->soat=$value->soat;
+                                $Historia->titular=$value->titular;
+                            }
+                            $Historia->save();
+                            $dat[]=array("respuesta"=>"OK","id"=>$Historia->id,"paciente"=>$person->apellidopaterno.' '.$person->apellidomaterno.' '.$person->nombres,"historia"=>$Historia->numero,"person_id"=>$Historia->person_id);
+                        }            
                     });
                     if(!is_null($error)){
                         print_r($error);die();
@@ -303,5 +305,43 @@ class ExcelController extends Controller
 
     }
 
+    public function importServicio()
+    {
+        ini_set('memory_limit', -1);
+        ini_set('max_execution_time', 0);
+        if(Input::hasFile('import_file')){
+            $path = Input::file('import_file')->getRealPath();
+            $data = Excel::load($path, function($reader) {
 
+            })->get();
+            if(!empty($data) && $data->count()){
+                $dat=array();
+                foreach ($data as $key => $value) {
+                    $error = DB::transaction(function() use($value,&$dat){
+                        $servicio = new Servicio();
+                        $servicio->nombre = strtoupper($value->descripcion);
+                        $tipo = Tiposervicio::where('nombre','like',trim($value->tiposervicio))->first();
+                        if(!is_null($tipo)){
+                            $servicio->tiposervicio_id = $tipo->id;
+                        }else{
+                            $servicio->tiposervicio_id = 1;
+                        }
+                        $servicio->tipopago = 'Particular';
+                        $servicio->precio = str_replace(",","",$value->precio);
+                        $servicio->modo = 'Monto';
+                        $servicio->pagohospital = str_replace(",","",$value->precio);
+                        $servicio->pagodoctor = 0;
+                        $servicio->save();
+                        $dat[]=array("respuesta"=>"NUEVO","descripcion"=>$value->descripcion);
+                    });
+                    if(!is_null($error)){
+                        print_r($error);die();
+                    }
+                }
+                print_r($dat);
+            }
+        }
+        return view('importHistoria');;
+
+    }
 }

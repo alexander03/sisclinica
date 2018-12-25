@@ -82,7 +82,7 @@ if($servicio!=null){
 		<div class="col-lg-2 col-md-2 col-sm-2">
 			{!! Form::text('pagodoctor', null, array('class' => 'form-control input-xs', 'id' => 'pagodoctor')) !!}
 		</div>
-		{!! Form::label('pagohospital', 'Hospital :', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+		{!! Form::label('pagohospital', 'Clinica :', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 		<div class="col-lg-2 col-md-2 col-sm-2">
 			{!! Form::text('pagohospital', null, array('class' => 'form-control input-xs', 'id' => 'pagohospital')) !!}
 		</div>

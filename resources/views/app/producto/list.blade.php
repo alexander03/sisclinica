@@ -131,17 +131,27 @@ use App\Anaquel;
 		<tr>
 			<td>{{ $contador }}</td>
 			<td>{{ $value->nombre }}</td>
-			<td>{{ $principio }}</td>
+			@if($value->tipo=="F")
+				<td>{{ $principio }}</td>
+			@endif
 			<td>{{ $categoria }}</td>
-			<td>{{ $laboratorio }}</td>
+			@if($value->tipo=="F")
+				<td>{{ $laboratorio }}</td>
+			@endif
 			<td>{{ $presentacion }}</td>
-			<td>{{ $especialidadfarmacia }}</td>
+			@if($value->tipo=="F")
+				<td>{{ $especialidadfarmacia }}</td>
+			@endif
 			<td>{{ $proveedor }}</td>
-			<td><?php echo $selec; ?></td>
+			@if($value->tipo=="F")
+				<td><?php echo $selec; ?></td>
+			@endif
 			<td><?php echo $selec2; ?></td>
 			<td>{{ $value->precioventa }}</td>
 			<td>{{ $value->preciocompra }}</td>
-			<td>{{ $value->preciokayros }}</td>
+			@if($value->tipo=="F")
+				<td>{{ $value->preciokayros }}</td>
+			@endif
 			<td>{{ $value->afecto }}</td>
 			<td>{!! Form::button('<div class="glyphicon glyphicon-pencil"></div> Editar', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning')) !!}</td>
 			<td>{!! Form::button('<div class="glyphicon glyphicon-remove"></div> Eliminar', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);', 'class' => 'btn btn-xs btn-danger')) !!}</td>
@@ -152,14 +162,6 @@ use App\Anaquel;
 		?>
 		@endforeach
 	</tbody>
-	<tfoot>
-		<tr>
-			@foreach($cabecera as $key => $value)
-				<th @if((int)$value['numero'] > 1) colspan="{{ $value['numero'] }}" @endif>{!! $value['valor'] !!}</th>
-			@endforeach
-		</tr>
-	</tfoot>
 </table>
 </div>
-{!! $paginacion or '' !!}
 @endif

@@ -79,7 +79,7 @@ class ServicioController extends Controller
         $cabecera[]       = array('valor' => 'Precio', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Modo', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Pago Medico', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Pago Hospital', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Pago Clinica', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '2');
         
         $titulo_modificar = $this->tituloModificar;
@@ -165,7 +165,7 @@ class ServicioController extends Controller
         $mensajes = array(
             'precio.required'         => 'Debe ingresar el precio',
             'pagodoctor.required'         => 'Debe ingresar el pago al medico',
-            'pagohospital.required'         => 'Debe ingresar el pago al hospital'
+            'pagohospital.required'         => 'Debe ingresar el pago a la clinica'
         );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
@@ -253,7 +253,7 @@ class ServicioController extends Controller
         $mensajes = array(
             'precio.required'         => 'Debe ingresar el precio',
             'pagodoctor.required'         => 'Debe ingresar el pago al medico',
-            'pagohospital.required'         => 'Debe ingresar el pago al hospital'
+            'pagohospital.required'         => 'Debe ingresar el pago a la clinica'
         );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {

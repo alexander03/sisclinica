@@ -33,8 +33,8 @@ if(!is_null($ticket)){
     $historia_id="";
     $numero_historia="";
     $tipopaciente="";
-    $referido_id=0;
-    $referido="";
+    $referido_id=9229;
+    $referido="SIN REFERIDO";
 }
 ?>
 <style>
@@ -274,8 +274,8 @@ if(!is_null($ticket)){
                     <th class="text-center">Rubro</th>
                     <th class="text-center">Descripcion</th>
                     <th class="text-center">Precio</th>
-                    <th class="text-center">
-                        <select id='cboDescuento' name='cboDescuento' class="input-xs" style='width: 60px;display: none;'>
+                    <th class="text-center" style="display: none;">
+                        <select id='cboDescuento' name='cboDescuento' class="input-xs" style='width: 60px;'>
                             <option value='P'>%</option>
                             <option value='M'>Monto</option>
                         </select><br />&nbsp;Desc.
@@ -289,7 +289,7 @@ if(!is_null($ticket)){
                 <tfoot>
                     <th class="text-right" colspan="7" style="display:none;">Comprobante</th>
                     <th>{!! Form::text('totalboleta', null, array('class' => 'form-control input-xs', 'id' => 'totalboleta', 'size' => 3, 'readonly' => 'true', 'style' => 'width: 60px; display:none;')) !!}</th>
-                    <th class="text-right" colspan="6">Pago</th>
+                    <th class="text-right" colspan="5">Pago</th>
                     <th align="center" style="text-align:center;">{!! Form::text('total', null, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'readonly' => 'true', 'style' => 'width: 60px; display: inline-block;')) !!}</th>
                 </tfoot>
             </table>
@@ -507,7 +507,7 @@ $(document).ready(function() {
     $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="descripcion"]').on( 'keydown', function () {
         var e = window.event; 
         var keyc = e.keyCode || e.which;
-        if(this.value.length > 1 && keyc == 13){
+        if(this.value.length > 1 && keyc == 13){// && valorbusqueda!=this.value
             buscarServicio(this.value);
             valorbusqueda=this.value;
             this.focus();
@@ -774,8 +774,8 @@ function seleccionarServicio(idservicio){
                     "<td><input type='checkbox' id='chkCopiar"+datos[c].idservicio+"' onclick='checkMedico(this.checked,"+datos[c].idservicio+")' /></td>"+
                     "<td><input type='text' class='form-control input-xs' id='txtMedico"+datos[c].idservicio+"' name='txtMedico"+datos[c].idservicio+"' /><input type='hidden' id='txtIdMedico"+datos[c].idservicio+"' name='txtIdMedico"+datos[c].idservicio+"' value='0' /></td>"+
                     "<td align='center'>"+datos[c].tiposervicio+"</td><td>"+inpu+"</td>"+
-                    "<td align='center'><input type='hidden' precio="+datos[c].idservicio+" id='txtPrecio2"+datos[c].idservicio+"' name='txtPrecio2"+datos[c].idservicio+"' value='"+datos[c].precio+"' /><input type='text' size='5' class='form-control input-xs precio' readonly='readonly' data='numero' id='txtPrecio"+datos[c].idservicio+"' style='width: 60px;' name='txtPrecio"+datos[c].idservicio+"' value='"+datos[c].precio+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+datos[c].idservicio+")}\" onblur=\"calcularTotalItem("+datos[c].idservicio+")\" /></td>"+
-                    "<td align='center'><input type='text' size='5'  readonly='readonly' class='form-control input-xs' data='numero' id='txtDescuento"+datos[c].idservicio+"' style='width: 60px;' name='txtDescuento"+datos[c].idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+datos[c].idservicio+")}\" onblur=\"calcularTotalItem("+datos[c].idservicio+")\" style='width:50%' /></td>"+
+                    "<td align='center'><input type='hidden' precio="+datos[c].idservicio+" id='txtPrecio2"+datos[c].idservicio+"' name='txtPrecio2"+datos[c].idservicio+"' value='"+datos[c].precio+"' /><input type='text' size='5' class='form-control input-xs precio' data='numero' id='txtPrecio"+datos[c].idservicio+"' style='width: 60px;' name='txtPrecio"+datos[c].idservicio+"' readonly='readonly' value='"+datos[c].precio+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+datos[c].idservicio+")}\" onblur=\"calcularTotalItem("+datos[c].idservicio+")\" /></td>"+
+                    "<td align='center' style='display:none;'><input type='text' size='5' readonly='readonly' class='form-control input-xs' data='numero' id='txtDescuento"+datos[c].idservicio+"' style='width: 60px;' name='txtDescuento"+datos[c].idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+datos[c].idservicio+")}\" onblur=\"calcularTotalItem("+datos[c].idservicio+")\" style='width:50%' /></td>"+
                     "<td align='center'  style='display:none;'><input type='hidden' id='txtPrecioHospital2"+datos[c].idservicio+"' name='txtPrecioHospital2"+datos[c].idservicio+"' value='"+datos[c].preciohospital+"' /><input type='text' readonly='' size='5' class='form-control input-xs' style='width: 60px;' data='numero'  id='txtPrecioHospital"+datos[c].idservicio+"' name='txtPrecioHospital"+datos[c].idservicio+"' value='"+datos[c].preciohospital+"' onblur=\"calcularTotalItem("+datos[c].idservicio+")\" /></td>"+
                     "<td align='center'  style='display:none;'><input type='hidden' id='txtPrecioMedico2"+datos[c].idservicio+"' name='txtPrecioMedico2"+datos[c].idservicio+"' value='"+datos[c].preciomedico+"' /><input type='text' readonly='' size='5' class='form-control input-xs' data='numero' style='width: 60px;' id='txtPrecioMedico"+datos[c].idservicio+"' name='txtPrecioMedico"+datos[c].idservicio+"' value='"+datos[c].preciomedico+"' onblur=\"calcularTotalItem("+datos[c].idservicio+")\" /></td>"+
                     "<td align='center'><input type='text' readonly='' data='numero' class='form-control input-xs' size='5' name='txtTotal"+datos[c].idservicio+"' style='width: 60px;' id='txtTotal"+datos[c].idservicio+"' value='"+datos[c].precio+"' /></td>"+
@@ -827,7 +827,7 @@ function seleccionarServicioOtro(){
         "<td><input type='checkbox' id='chkCopiar"+idservicio+"' onclick=\"checkMedico(this.checked,'"+idservicio+"')\" /></td>"+
         "<td><input type='text' class='form-control input-xs' id='txtMedico"+idservicio+"' name='txtMedico"+idservicio+"' /><input type='hidden' id='txtIdMedico"+idservicio+"' name='txtIdMedico"+idservicio+"' value='0' /></td>"+
         "<td align='left'><select class='form-control input-xs' id='cboTipoServicio"+idservicio+"' name='cboTipoServicio"+idservicio+"'><option value='0' selected=''>OTROS</option>"+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tiposervicio"]').html()+"</select></td><td><textarea class='form-control input-xs txtareaa' id='txtServicio"+idservicio+"' name='txtServicio"+idservicio+"' /></td>"+
-        "<td align='center'><input type='hidden' id='txtPrecio2"+idservicio+"' name='txtPrecio2"+idservicio+"' value='0' /><input type='text' size='5' readonly='readonly' class='form-control input-xs precio' style='width: 60px;' data='numero' precio="+idservicio+" id='txtPrecio"+idservicio+"' name='txtPrecio"+idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+idservicio+"')}\" onblur=\"calcularTotalItem2('"+idservicio+"')\" /></td>"+
+        "<td align='center'><input type='hidden' id='txtPrecio2"+idservicio+"' name='txtPrecio2"+idservicio+"' value='0' /><input type='text' size='5' class='form-control input-xs precio' style='width: 60px;' data='numero' precio="+idservicio+" id='txtPrecio"+idservicio+"' name='txtPrecio"+idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+idservicio+"')}\" onblur=\"calcularTotalItem2('"+idservicio+"')\" /></td>"+
         "<td align='center'><input type='text' size='5' readonly='readonly' style='width: 60px;' class='form-control input-xs' data='numero' id='txtDescuento"+idservicio+"' name='txtDescuento"+idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+idservicio+"')}\" onblur=\"calcularTotalItem2('"+idservicio+"')\" style='width:50%' /></td>"+
         "<td align='center'  style='display:none;'><input type='hidden' id='txtPrecioHospital2"+idservicio+"' name='txtPrecioHospital2"+idservicio+"' value='0' /><input type='text' size='5' style='width: 60px;' class='form-control input-xs' data='numero'  id='txtPrecioHospital"+idservicio+"' name='txtPrecioHospital"+idservicio+"' value='0' onblur=\"calcularTotalItem2("+idservicio+")\" /></td>"+
         "<td align='center'  style='display:none;'><input type='hidden' id='txtPrecioMedico2"+idservicio+"' name='txtPrecioMedico2"+idservicio+"' value='0' /><input type='text' size='5' class='form-control input-xs' data='numero'  id='txtPrecioMedico"+idservicio+"' name='txtPrecioMedico"+idservicio+"' value='0' style='width: 60px;' /></td>"+

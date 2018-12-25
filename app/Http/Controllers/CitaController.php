@@ -73,7 +73,7 @@ class CitaController extends Controller
         $cabecera[]       = array('valor' => 'Telef.', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Historia', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Hora Inicio', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Hora Fin', 'numero' => '1');
+        //$cabecera[]       = array('valor' => 'Hora Fin', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Concepto', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Usuario', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Modifica', 'numero' => '1');
@@ -442,7 +442,7 @@ class CitaController extends Controller
                     $pdf::Cell(23,6,utf8_decode("TELEF."),1,0,'C');
                     $pdf::Cell(18,6,utf8_decode("HISTORIA"),1,0,'C');
                     $pdf::Cell(13,6,utf8_decode("INICIO"),1,0,'C');
-                    $pdf::Cell(13,6,utf8_decode("FIN"),1,0,'C');
+                    //$pdf::Cell(13,6,utf8_decode("FIN"),1,0,'C');
                     $pdf::Cell(65,6,utf8_decode("CONCEPTO"),1,0,'C');
                     $pdf::Cell(30,6,utf8_decode("FECHA CREAC."),1,0,'C');
                     $pdf::Cell(25,6,utf8_decode("USUARIO"),1,0,'C');
@@ -457,7 +457,7 @@ class CitaController extends Controller
                 $pdf::Cell(23,5,utf8_decode($value->telefono),1,0,'C');
                 $pdf::Cell(18,5,utf8_decode($value->historia),1,0,'C');
                 $pdf::Cell(13,5,utf8_decode(substr($value->horainicio,0,5)),1,0,'C');
-                $pdf::Cell(13,5,utf8_decode(substr($value->horafin,0,5)),1,0,'C');
+                //$pdf::Cell(13,5,utf8_decode(substr($value->horafin,0,5)),1,0,'C');
                 if(strlen($value->comentario)>30){
                     $x=$pdf::GetX();
                     $y=$pdf::GetY();
@@ -497,7 +497,7 @@ class CitaController extends Controller
                                 <th class='text-center' style='font-size:12px'>Paciente</th>
                                 <th class='text-center' style='font-size:12px'>Tipo Pac.</th>
                                 <th class='text-center' style='font-size:12px'>Inicio</th>
-                                <th class='text-center' style='font-size:12px'>Fin</th>
+                                <th class='text-center' style='font-size:12px;display:none;'>Fin</th>
                             </tr>
                         </thead>
                         <tbody>";
@@ -508,7 +508,7 @@ class CitaController extends Controller
                 $registro.="<td style='font-size:12px'>".$value->paciente."</td>";
                 $registro.="<td style='font-size:12px'>".$value->tipopaciente."</td>";
                 $registro.="<td style='font-size:12px'>".substr($value->horainicio,0,5)."</td>";
-                $registro.="<td style='font-size:12px'>".substr($value->horafin,0,5)."</td>";
+                $registro.="<td style='font-size:12px;display:none;'>".substr($value->horafin,0,5)."</td>";
                 $registro.="</tr>";
             }
             $registro.="</tbody></table>";
@@ -548,7 +548,7 @@ class CitaController extends Controller
                 $cabecera[] = "Telefono";
                 $cabecera[] = "Historia";
                 $cabecera[] = "Hora Inicio";
-                $cabecera[] = "Hora Fin";
+                //$cabecera[] = "Hora Fin";
                 $cabecera[] = "Concepto";
                 //$cabecera[] = "Usuario";
                 $sheet->row(1,$cabecera);
@@ -564,7 +564,7 @@ class CitaController extends Controller
                     $detalle[] = $value->telefono;
                     $detalle[] = $value->historia;
                     $detalle[] = substr($value->horainicio,0,5);
-                    $detalle[] = substr($value->fin,0,5);
+                    //$detalle[] = substr($value->fin,0,5);
                     $detalle[] = $value->comentario;
                     //$detalle[] = $value->usuario->nombres;
                     $sheet->row($c,$detalle);

@@ -36,7 +36,7 @@
 								{!! Form::selectRange('filas', 1, 30, 20, array('class' => 'form-control input-xs', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
 							</div>
 							{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar', 'onclick' => 'buscar(\''.$entidad.'\')')) !!}
-							@if($user->usertype_id==1 || $user->usertype_id==4)
+							@if($user->usertype_id==1 || $user->usertype_id==2)
 								{!! Form::button('<i class="glyphicon glyphicon-plus"></i> Nuevo', array('class' => 'btn btn-info btn-xs', 'id' => 'btnNuevo', 'onclick' => 'modal (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
 								{!! Form::button('<i class="glyphicon glyphicon-file"></i> Excel', array('class' => 'btn btn-warning btn-xs', 'id' => 'btnExcel', 'onclick' => 'excel(\''.$entidad.'\')')) !!}
 							@endif

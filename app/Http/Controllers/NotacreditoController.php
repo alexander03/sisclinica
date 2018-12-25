@@ -712,7 +712,7 @@ class NotacreditoController extends Controller
                 $pdf::AddPage();
                 $pdf::SetFont('helvetica','B',12);
                 $pdf::Cell(130,7,"",0,0,'C');
-                $pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 15, 5, 115, 30);
+                $pdf::Image("http://localhost:81/clinica/dist/img/logo2-ojos.jpg", 15, 5, 115, 30);
                 $pdf::Cell(60,7,("RUC N° 20480082673"),'RTL',0,'C');
                 $pdf::Ln();
                 $pdf::Cell(130,7,"",0,0,'C');

@@ -4897,4 +4897,74 @@ class VentaadmisionController extends Controller
             }
         }
     }
+
+    public function cola(Request $request){
+        $venta = Movimiento::where('situacion','like','N')
+                ->orderBy('id','asc');
+        $lista            = $venta->get();
+        $registro="<table width='100%'>
+                    <tr>
+                        <th class='text-center' bgcolor='#E0ECF8'>CONSULTAS</th>
+                        <th class='text-center' bgcolor='#dd4b39'>EMERGENCIAS</th>
+                    </tr>
+                    <tr>
+                        <td rowspan='3' height='800px;'>
+                            <table class='table table-bordered table-striped table-condensed table-hover'>
+                            <thead>
+                                <tr>
+                                    <th class='text-center'>Nro</th>
+                                    <th class='text-center'>Cliente</th>
+                                    <th class='text-center'>Tiempo</th>
+                                </tr>
+                            </thead>
+                            <tbody>";
+        $c=1;
+        foreach ($lista as $key => $value) {
+            $registro.= "<tr>";
+            $registro.= "<td>".$c."</td>";
+            if(!is_null($value->persona)){
+                $registro.= "<td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>";
+            }
+            $tiempo = date("H:i:s",strtotime('now') - strtotime($value->created_at));
+            $registro.= "<td>".$tiempo."</td>";
+            $registro.= "</tr>";
+            $c=$c+1;
+        }
+        $registro.="</tbody></table>
+                        </td>
+                        <td height='400px;'>
+                            <table class='table table-bordered table-striped table-condensed table-hover'>
+                            <thead>
+                                <tr>
+                                    <th class='text-center'>Nro</th>
+                                    <th class='text-center'>Cliente</th>
+                                    <th class='text-center'>Tiempo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class='text-center' bgcolor='#E0E000'>FONDO DE OJO</th>
+                    </tr>
+                    <tr>
+                        <td height='400px;'>
+                            <table class='table table-bordered table-striped table-condensed table-hover'>
+                            <thead>
+                                <tr>
+                                    <th class='text-center'>Nro</th>
+                                    <th class='text-center'>Cliente</th>
+                                    <th class='text-center'>Tiempo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    </table>";
+        return $registro;
+    }
 }

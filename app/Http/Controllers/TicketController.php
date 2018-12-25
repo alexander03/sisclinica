@@ -435,164 +435,6 @@ class TicketController extends Controller
                     $idref=$movimiento->id;
                     //
                 }
-                /*
-                //Array Insert facturacion
-                $person = Person::find($venta->persona_id);
-                $persona = Person::find($request->input('person_id'));
-                $columna1=6;
-                $columna2="20480082673";//RUC HOSPITAL
-                $columna3="HOSPITAL PRIVADO JUAN PABLO II SOCIEDAD ANONIMA CERRADA";//Razon social Hospital                
-                $columna4=$codigo;
-                $columna5=$abreviatura.str_pad($venta->serie,3,'0',STR_PAD_LEFT).'-'.$venta->numero;
-                $columna6=date('Y-m-d');
-                $columna7="sistemas@hospitaljuanpablo.pe";
-                if($codigo=="03"){//BOLETA
-                    if(strlen($person->dni)<>8 || ($request->input('total')+0)<700){
-                        $columna8=0;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                        $columna9='-';
-                        $columna10="CLIENTES VARIOS";//Razon social
-                    }else{
-                        $columna8=1;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                        $columna9=$person->dni;
-                        $columna10=trim($person->bussinesname." ".$person->apellidopaterno." ".$person->apellidomaterno." ".$person->nombres);//Razon social
-                    }
-                }else{
-                    $columna8=6;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                    $columna9=$person->ruc;
-                    $columna10=trim($person->bussinesname." ".$person->apellidopaterno." ".$person->apellidomaterno." ".$person->nombres);//Razon social
-                }
-                if(trim($person->direccion)==''){
-                    $columna101=trim('-');
-                }else{
-                    $columna101=trim($person->direccion);
-                }
-                //if(trim($person->email)!="" && trim($person->email)!="."){
-                //    $columna11=$person->email;
-                //}else{
-                    $columna11="-";    
-                //}
-                $columna12="PEN";
-                $columna13=$venta->subtotal;
-                $columna14='0.00';
-                $columna15='0.00';
-                $columna16="";
-                $columna17=$venta->igv;
-                $columna18='0.00';
-                $columna19='0.00';
-                $columna20=$venta->total;
-                $columna21=1000;
-                $letras = new EnLetras();
-                $columna22=$letras->ValorEnLetras($columna20, "SOLES" );//letras
-                $columna23='9670';
-                $columna24=substr("CONVENIO: ".$request->input('plan'),0,100);
-                $columna25='9199';
-                $columna26=substr(trim($persona->apellidopaterno." ".$persona->apellidomaterno." ".$persona->nombres),0,100);
-                $columna27='9671';                
-                $columna28='HISTORIA CLINICA: '.$request->input('numero_historia');
-                $columna29='9672';
-                $columna30='DNI: '.$request->input('dni');
-                DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER (
-                    tipoDocumentoEmisor,
-                    numeroDocumentoEmisor,
-                    razonSocialEmisor,
-                    tipoDocumento,
-                    serieNumero,
-                    fechaEmision,
-                    correoEmisor,
-                    tipoDocumentoAdquiriente,
-                    numeroDocumentoAdquiriente,
-                    razonSocialAdquiriente,
-                    correoAdquiriente,
-                    tipoMoneda,
-                    totalValorVentaNetoOpGravadas,
-                    totalValorVentaNetoOpNoGravada,
-                    totalValorVentaNetoOpExonerada,
-                    totalIgv,
-                    totalVenta,
-                    codigoLeyenda_1,
-                    textoLeyenda_1,
-                    codigoAuxiliar100_1,
-                    textoAuxiliar100_1,
-                    codigoAuxiliar100_2,
-                    textoAuxiliar100_2,
-                    codigoAuxiliar100_3,
-                    textoAuxiliar100_3,
-                    codigoAuxiliar100_4,
-                    textoAuxiliar100_4
-                    ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ? ,?, ? ,?)', 
-                    [$columna1, $columna2, $columna3, $columna4, $columna5, $columna6, $columna7, $columna8, $columna9, $columna10, $columna11, $columna12, $columna13, $columna14, $columna15, $columna17, $columna20, $columna21, $columna22, $columna23, $columna24, $columna25, $columna26, $columna27, $columna28, $columna29, $columna30]);
-                if($abreviatura=="F"){
-                    DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
-                        tipoDocumentoEmisor,
-                        numeroDocumentoEmisor,
-                        serieNumero,
-                        tipoDocumento,
-                        clave,
-                        valor) 
-                        values (?, ?, ?, ?, ?, ?)',
-                        [$columna1, $columna2, $columna5, $columna4, 'direccionAdquiriente', $columna101]);
-                }else{
-                    DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
-                        tipoDocumentoEmisor,
-                        numeroDocumentoEmisor,
-                        serieNumero,
-                        tipoDocumento,
-                        clave,
-                        valor) 
-                        values (?, ?, ?, ?, ?, ?)',
-                        [$columna1, $columna2, $columna5, $columna4, 'lugarDestino', $columna101]);
-                }
-                //---
-                
-                //Array Insert Detalle Facturacion
-                for($c=0;$c<count($arr);$c++){
-                    $columnad1=$c+1;
-                    $servicio = Servicio::find($arr[$c]);
-                    if(!is_null($servicio) && $servicio->tipopago=="Convenio"){
-                        $columnad2=$servicio->tarifario->codigo;
-                        $columnad3=$servicio->tarifario->nombre;    
-                    }else{
-                        $columnad2="-";
-                        if($request->input('txtIdTipoServicio'.$arr[$c])!="0"){
-                            $columnad3=$servicio->nombre;
-                        }else{
-                            $columnad3=trim($request->input('txtServicio'.$arr[$c]));
-                        }
-                    }
-                    $columnad4=$request->input('txtCantidad'.$arr[$c]);
-                    $columnad5="ZZ";
-                    $columnad6=round($request->input('txtPrecioHospital'.$arr[$c])/1.18,2);
-                    $columnad7=$request->input('txtPrecioHospital'.$arr[$c]);
-                    $columnad8="01";
-                    $columnad9=round($columnad4*$columnad6,2);
-                    $columnad10="10";
-                    $columnad11=round($columnad9*0.18,2);
-                    $columnad12='0.00';
-                    $columnad13='0.00';
-                    DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEDETAIL(
-                    tipoDocumentoEmisor,
-                    numeroDocumentoEmisor,
-                    tipoDocumento,
-                    serieNumero,
-                    numeroOrdenItem,
-                    codigoProducto,
-                    descripcion,
-                    cantidad,
-                    unidadMedida,
-                    importeUnitarioSinImpuesto,
-                    importeUnitarioConImpuesto,
-                    codigoImporteUnitarioConImpues,
-                    importeTotalSinImpuesto,
-                    codigoRazonExoneracion,
-                    importeIgv
-                    )
-                    values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    [$columna1, $columna2, $columna4, $columna5, $columnad1, $columnad2, $columnad3, $columnad4, $columnad5, $columnad6, $columnad7, $columnad8, $columnad9, $columnad10, $columnad11]);
-                }
-                DB::connection('sqlsrv')->update('update SPE_EINVOICEHEADER set bl_estadoRegistro = ? where serieNumero  = ?',
-                    ['A',$columna5]);
-                    */
-                //--
                 
                 ///////NOTA DE CREDITO DE GARANTIA
                 $notacredito_id=0;
@@ -668,163 +510,6 @@ class TicketController extends Controller
                             $abreviatura="FC";
                         }
                         $person = Person::find($Movimiento->persona_id);
-                        
-                        /*$columna1=6;
-                        $columna2="20480082673";//RUC HOSPITAL
-                        $columna3="HOSPITAL PRIVADO JUAN PABLO II SOCIEDAD ANONIMA CERRADA";//Razon social Hospital                
-                        $columna4="07";
-                        $columna5=$abreviatura.str_pad($Movimiento->serie,2,'0',STR_PAD_LEFT).'-'.$Movimiento->numero;
-                        $numeronc=$columna5;//PARA ANULAR POR ERROR
-                        $columna6=date('Y-m-d');
-                        $columna7="sistemas@hospitaljuanpablo.pe";
-                        if($ventaref->tipodocumento_id==5){//BOLETA
-                            if(strlen($person->dni)<>8 || $Movimiento->total<700){
-                                $columna8=0;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                                $columna9='-';
-                                $columna10="CLIENTES VARIOS";//Razon social
-                            }else{
-                                $columna8=1;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                                $columna9=$person->dni;
-                                $columna10=trim($person->bussinesname." ".$person->apellidopaterno." ".$person->apellidomaterno." ".$person->nombres);//Razon social
-                            }
-                        }else{
-                            $columna8=6;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                            $columna9=$person->ruc;
-                            $columna10=trim($person->bussinesname." ".$person->apellidopaterno." ".$person->apellidomaterno." ".$person->nombres);//Razon social
-                        }
-                        if(trim($person->direccion)!=""){
-                            $columna101=trim($person->direccion);
-                        }else{
-                            $columna101="-";
-                        }
-                        $columna11="-";    
-                        $columna12="PEN";
-                        $columna13=$Movimiento->subtotal;
-                        $columna14='0.00';
-                        $columna15='0.00';
-                        $columna16="";
-                        $columna17=$Movimiento->igv;
-                        $columna18='0.00';
-                        $columna19='0.00';
-                        $columna20=$Movimiento->total;
-                        $columna21=1000;
-                        $letras = new EnLetras();
-                        $columna22=$letras->ValorEnLetras($columna20, "SOLES" );//letras
-                        $columna23=$codigo;
-                        $columna24=($ventaref->tipodocumento_id==4?"F":"B").str_pad($ventaref->serie,3,'0',STR_PAD_LEFT).'-'.str_pad($ventaref->numero,8,'0',STR_PAD_LEFT);
-                        $columna25=$Movimiento->comentario;
-                        $columna26='01';
-                        DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER (
-                            tipoDocumentoEmisor,
-                            numeroDocumentoEmisor,
-                            razonSocialEmisor,
-                            tipoDocumento,
-                            serieNumero,
-                            fechaEmision,
-                            correoEmisor,
-                            tipoDocumentoAdquiriente,
-                            numeroDocumentoAdquiriente,
-                            razonSocialAdquiriente,
-                            correoAdquiriente,
-                            tipoMoneda,
-                            totalValorVentaNetoOpGravadas,
-                            totalValorVentaNetoOpNoGravada,
-                            totalValorVentaNetoOpExonerada,                
-                            totalIgv,
-                            totalVenta,
-                            codigoLeyenda_1,
-                            textoLeyenda_1,
-                            tipoDocumentoReferenciaPrincip,
-                            numeroDocumentoReferenciaPrinc,
-                            motivoDocumento,
-                            codigoSerieNumeroAfectado,
-                            serieNumeroAfectado 
-                            ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-                            [$columna1, $columna2, $columna3, $columna4, $columna5, $columna6, $columna7, $columna8, $columna9, $columna10, $columna11, $columna12, $columna13, $columna14, $columna15, $columna17, $columna20, $columna21, $columna22, $columna23, $columna24, $columna25, $columna26, $columna24]);
-
-                        if($abreviatura=="BC"){
-                            DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
-                                tipoDocumentoEmisor,
-                                numeroDocumentoEmisor,
-                                serieNumero,
-                                tipoDocumento,
-                                clave,
-                                valor) 
-                                values (?, ?, ?, ?, ?, ?)',
-                                [$columna1, $columna2, $columna5, $columna4, 'lugarDestino', $columna101]);
-                        }else{
-                            DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
-                                tipoDocumentoEmisor,
-                                numeroDocumentoEmisor,
-                                serieNumero,
-                                tipoDocumento,
-                                clave,
-                                valor) 
-                                values (?, ?, ?, ?, ?, ?)',
-                                [$columna1, $columna2, $columna5, $columna4, 'direccionAdquiriente', $columna101]);
-                        }
-                        //---
-                        
-                        //Array Insert Detalle Facturacion
-                        $resultado = Detallemovcaja::join('movimiento as m','m.id','=','detallemovcaja.movimiento_id')
-                                    ->join('movimiento as m2','m2.movimiento_id','=','m.id')
-                                    ->where('m2.id','=',$arrNota[$cd])
-                                    ->select('detallemovcaja.*');
-                        $lista            = $resultado->get();
-                        $c=0;
-                        foreach ($lista as $key => $value) {
-                            $c=$c+1;
-                            $columnad1=$c;
-                            if($value->servicio_id>0){
-                                $servicio = Servicio::find($value->servicio_id);
-                                if($servicio->tipopago=="Convenio"){
-                                    $columnad2=$servicio->tarifario->codigo;
-                                    $columnad3=$servicio->tarifario->nombre;    
-                                }else{
-                                    $columnad2="-";
-                                    if($vlaue->servicio_id!="0"){
-                                        $columnad3=$servicio->nombre;
-                                    }else{
-                                        $columnad3=trim($value->descripcion);
-                                    }
-                                }
-                            }else{
-                                $columnad2="-";
-                                $columnad3=trim($value->descripcion);
-                            }
-                            $columnad4=round($value->cantidad,2);
-                            $columnad5="ZZ";
-                            $columnad6=round($value->pagohospital/1.18,2);
-                            $columnad7=$value->pagohospital;
-                            $columnad8="01";
-                            $columnad9=round($columnad4*$columnad6,2);
-                            $columnad10="10";
-                            $columnad11=round($columnad9*0.18,2);
-                            $columnad12='0.00';
-                            $columnad13='0.00';
-                            DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEDETAIL(
-                            tipoDocumentoEmisor,
-                            numeroDocumentoEmisor,
-                            tipoDocumento,
-                            serieNumero,
-                            numeroOrdenItem,
-                            codigoProducto,
-                            descripcion,
-                            cantidad,
-                            unidadMedida,
-                            importeUnitarioSinImpuesto,
-                            importeUnitarioConImpuesto,
-                            codigoImporteUnitarioConImpues,
-                            importeTotalSinImpuesto,
-                            codigoRazonExoneracion,
-                            importeIgv
-                            )
-                            values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                            [$columna1, $columna2, $columna4, $columna5, $columnad1, $columnad2, $columnad3, $columnad4, $columnad5, $columnad6, $columnad7, $columnad8, $columnad9, $columnad10, $columnad11]);
-                        }
-                        DB::connection('sqlsrv')->update('update SPE_EINVOICEHEADER set bl_estadoRegistro = ? where serieNumero  = ?',
-                            ['A',$columna5]);
-                        */
                     }
                 }
                 
@@ -832,14 +517,6 @@ class TicketController extends Controller
             }
             $dat[0]=array("respuesta"=>"OK","ticket_id"=>$Ticket->id,"pagohospital"=>$pagohospital,"notacredito_id"=>$notacredito_id);
         });
-        /*if (!is_null($error)) {
-            DB::connection('sqlsrv')->delete('delete from SPE_EINVOICEHEADER where serieNumero="'.$numero.'"');
-            DB::connection('sqlsrv')->delete('delete from SPE_EINVOICEDETAIL where serieNumero="'.$numero.'"');
-            DB::connection('sqlsrv')->delete('delete from SPE_EINVOICEHEADER_ADD where serieNumero="'.$numero.'"');
-            DB::connection('sqlsrv')->delete('delete from SPE_EINVOICEHEADER where serieNumero="'.$numeronc.'"');
-            DB::connection('sqlsrv')->delete('delete from SPE_EINVOICEDETAIL where serieNumero="'.$numeronc.'"');
-            DB::connection('sqlsrv')->delete('delete from SPE_EINVOICEHEADER_ADD where serieNumero="'.$numeronc.'"');
-        }*/
         return is_null($error) ? json_encode($dat) : $error;
     }
 
@@ -1252,7 +929,7 @@ class TicketController extends Controller
                 $pdf::AddPage('');
                 $pdf::SetFont('helvetica','B',12);
                 $pdf::Cell(130,7,"",0,0,'C');
-                $pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 15, 5, 115, 30);
+                $pdf::Image("http://localhost:81/clinica/dist/img/logo2-ojos.jpg", 15, 5, 115, 30);
                 $pdf::Cell(60,7,utf8_encode("RUC N� 20480082673"),'RTL',0,'C');
                 $pdf::Ln();
                 $pdf::Cell(130,7,"",0,0,'C');
@@ -1904,7 +1581,7 @@ class TicketController extends Controller
                 $pdf::AddPage();
                 $pdf::SetFont('helvetica','B',12);
                 $pdf::Cell(130,7,"",0,0,'C');
-                $pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 45, 5, 115, 20);
+                $pdf::Image("http://localhost:81/clinica/dist/img/logo2-ojos.jpg", 45, 5, 115, 20);
                 $pdf::Ln();
                 $pdf::Ln();
                 $pdf::SetFont('helvetica','B',9);

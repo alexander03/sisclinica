@@ -38,7 +38,7 @@
             <td style='font-size:12px'>{{ $value->telefono }}</td>
             <td style='font-size:12px'>{{ $value->historia }}</td>
             <td style='font-size:12px'>{{ substr($value->horainicio,0,5) }}</td>
-            <td style='font-size:12px'>{{ substr($value->horafin,0,5) }}</td>
+            <!--td style='font-size:12px'>{{ substr($value->horafin,0,5) }}</td-->
             <td style='font-size:12px'>{{ $value->comentario }}</td>
             <td style='font-size:12px'>{{ $value->usuario->nombres }}</td>
             <td style='font-size:12px'>{{ ($value->usuario2_id>0?($value->usuario2->nombres." ".date("d/m/Y H:i:s",strtotime($value->updated_at))):'-') }}</td>

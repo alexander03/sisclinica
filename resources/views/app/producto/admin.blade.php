@@ -25,10 +25,14 @@
 							{!! Form::hidden('page', 1, array('id' => 'page')) !!}
 							{!! Form::hidden('accion', 'listar', array('id' => 'accion')) !!}
 							<div class="form-group">
+								{!! Form::label('tipo', 'Tipo:') !!}
+								{!! Form::select('tipo', $cboTipo, null, array('class' => 'form-control input-xs', 'id' => 'tipo','onchange' =>'validarTipo(this.value);buscar(\''.$entidad.'\')')) !!}
+							</div>
+							<div class="form-group">
 								{!! Form::label('nombre', 'Nombre:') !!}
 								{!! Form::text('nombre', '', array('class' => 'form-control input-xs', 'id' => 'nombre','onkeyup' => 'buscar(\''.$entidad.'\')')) !!}
 							</div>
-							<div class="form-group">
+							<div class="form-group farmacia">
 								{!! Form::label('principioactivo', 'Principio Activo:') !!}
 								{!! Form::text('principioactivo', '', array('class' => 'form-control input-xs', 'id' => 'principioactivo','onkeyup' => 'buscar(\''.$entidad.'\')')) !!}
 							</div>
@@ -36,7 +40,7 @@
 								{!! Form::label('categoria_id2', 'Clasificacion:') !!}
 								{!! Form::select('categoria_id2', $cboCategoria, null, array('class' => 'form-control input-xs', 'id' => 'categoria_id2','onchange' =>'buscar(\''.$entidad.'\')')) !!}
 							</div>
-							<div class="form-group">
+							<div class="form-group farmacia">
 								{!! Form::label('especialidadfarmacia_id2', 'Especialidad:') !!}
 								{!! Form::select('especialidadfarmacia_id2', $cboEspecialidad, null, array('class' => 'form-control input-xs', 'id' => 'especialidadfarmacia_id2','onchange' =>'buscar(\''.$entidad.'\')')) !!}
 							</div>
@@ -44,13 +48,13 @@
 								{!! Form::label('presentacion_id2', 'Presentacion:') !!}
 								{!! Form::select('presentacion_id2', $cboPresentacion, null, array('class' => 'form-control input-xs', 'id' => 'presentacion_id2','onchange' =>'buscar(\''.$entidad.'\')')) !!}
 							</div>
-							<div class="form-group">
+							<div class="form-group farmacia">
 								{!! Form::label('origen_id2', 'Origen:') !!}
 								{!! Form::select('origen_id2', $cboOrigen, null, array('class' => 'form-control input-xs', 'id' => 'origen_id2','onchange' =>'buscar(\''.$entidad.'\')')) !!}
 							</div>
 							<div class="form-group">
 								{!! Form::label('filas', 'Filas a mostrar:')!!}
-								{!! Form::selectRange('filas', 1, 30, 10, array('class' => 'form-control input-xs', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
+								{!! Form::selectRange('filas', 10, 40, 20, array('class' => 'form-control input-xs', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
 							</div>
 							{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar', 'onclick' => 'buscar(\''.$entidad.'\')')) !!}
 							{!! Form::button('<i class="glyphicon glyphicon-plus"></i> Nuevo', array('class' => 'btn btn-info btn-xs', 'id' => 'btnNuevo', 'onclick' => 'modal (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
@@ -101,4 +105,15 @@
 	        }
 	    });
     }
+    function validarTipo(tipo){
+		if(tipo=="O"){//otros
+			$(".otros").css("display","");
+			$(".farmacia").css("display","none");
+			$(".farmacia").css("display","");
+		}else{
+			$(".otros").css("display","none");
+			$("#principioactivo").val('');
+			$(".farmacia").css("display","");
+		}
+	}
 </script>

@@ -74,22 +74,35 @@ class ProductoController extends Controller
                         if ($request->input('origen_id2') !== null && $request->input('origen_id2') !== '') {
                             $query->where('origen_id', '=', $request->input('origen_id2'));
                         }
+                        if($request->input('tipo') !== null && $request->input('tipo') !== ''){
+                            $query->where('tipo','like',$request->input('tipo'));
+                        }
                     })->orderBy('nombre', 'ASC');
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Nombre', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Principio Activo', 'numero' => '1');
+        if($request->input('tipo')=="F"){
+            $cabecera[]       = array('valor' => 'Principio Activo', 'numero' => '1');
+        }
         $cabecera[]       = array('valor' => 'Clasificacion', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Laboratorio', 'numero' => '1');
+        if($request->input('tipo')=="F"){
+            $cabecera[]       = array('valor' => 'Laboratorio', 'numero' => '1');
+        }
         $cabecera[]       = array('valor' => 'Presentacion', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Especialidad', 'numero' => '1');
+        if($request->input('tipo')=="F"){
+            $cabecera[]       = array('valor' => 'Especialidad', 'numero' => '1');
+        }
         $cabecera[]       = array('valor' => 'Proveedor', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Origen', 'numero' => '1');
+        if($request->input('tipo')=="F"){
+            $cabecera[]       = array('valor' => 'Origen', 'numero' => '1');
+        }
         $cabecera[]       = array('valor' => 'Anaquel', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Precio venta', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Precio Compra', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Precio Kayros', 'numero' => '1');
+        if($request->input('tipo')=="F"){
+            $cabecera[]       = array('valor' => 'Precio Kayros', 'numero' => '1');
+        }
         $cabecera[]       = array('valor' => 'Afecto', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '2');
         
@@ -125,7 +138,8 @@ class ProductoController extends Controller
         $cboEspecialidad = array('' => 'Todos') + Especialidadfarmacia::lists('nombre', 'id')->all();
         $cboPresentacion = array('' => 'Todos') + Presentacion::lists('nombre', 'id')->all(); 
         $cboOrigen = array('' => 'Todos') + Origen::lists('nombre', 'id')->all(); 
-        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta', 'cboCategoria','cboEspecialidad','cboPresentacion', 'cboOrigen'));
+        $cboTipo = array('F' => 'Farmacia', 'O' => 'Otros');
+        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta', 'cboCategoria','cboEspecialidad','cboPresentacion', 'cboOrigen', 'cboTipo'));
     }
 
     /**
@@ -218,11 +232,13 @@ class ProductoController extends Controller
         $entidad  = 'Producto';
         $producto = null;
         $cboAfecto          = array("SI" => "SI", "NO" => "NO");
+        $cboLote          = array("SI" => "SI", "NO" => "NO");
         $formData = array('producto.store');
         $formData = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton    = 'Registrar'; 
+        $cboTipo = array('F' => 'Farmacia', 'O' => 'Otros');
         $request->session()->forget('carritoprincipio');
-        return view($this->folderview.'.mant')->with(compact('producto', 'formData', 'entidad', 'boton', 'listar','cboAfecto'));
+        return view($this->folderview.'.mant')->with(compact('producto', 'formData', 'entidad', 'boton', 'listar','cboAfecto','cboTipo','cboLote'));
     }
 
     /**
@@ -237,14 +253,12 @@ class ProductoController extends Controller
         $reglas     = array(
                 'nombre'                  => 'required|max:100',
                 'preciocompra'                 => 'required',
-                'precioventa'                 => 'required',
-                'preciokayros'                 => 'required'
+                'precioventa'                 => 'required'
                 );
         $mensajes = array(
             'nombre.required'         => 'Debe ingresar un nombre',
             'preciocompra.required'         => 'Debe ingresar precio de compra',
-            'precioventa.required'         => 'Debe ingresar precio de venta',
-            'preciokayros.required'         => 'Debe ingresar precio kayros'
+            'precioventa.required'         => 'Debe ingresar precio de venta'
             );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
@@ -252,6 +266,8 @@ class ProductoController extends Controller
         }
         $error = DB::transaction(function() use($request){
             $producto       = new Producto();
+            $producto->tipo = $request->input('tipo');
+            $producto->lote = $request->input('lote');
             $producto->nombre = strtoupper($request->input('nombre'));
             $producto->codigobarra       = $request->input('codigobarra');
             $producto->afecto       = $request->input('afecto');
@@ -268,6 +284,7 @@ class ProductoController extends Controller
             $producto->especialidadfarmacia_id = Libreria::obtenerParametro($request->input('especialidadfarmacia_id'));
             $producto->proveedor_id = Libreria::obtenerParametro($request->input('proveedor_id'));
             $producto->origen_id = Libreria::obtenerParametro($request->input('origen_id'));
+            $producto->anaquel_id = Libreria::obtenerParametro($request->input('anaquel_id'));
             $producto->save();
 
             $lista = $request->session()->get('carritoprincipio');
@@ -309,6 +326,8 @@ class ProductoController extends Controller
         $producto = Producto::find($id);
         $entidad             = 'Producto';
         $cboAfecto          = array("SI" => "SI", "NO" => "NO");
+        $cboLote          = array("SI" => "SI", "NO" => "NO");
+        $cboTipo = array('F' => 'Farmacia', 'O' => 'Otros');
         $formData            = array('producto.update', $id);
         $formData            = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton               = 'Modificar';
@@ -319,7 +338,7 @@ class ProductoController extends Controller
             $lista[]  = array('principioactivo_id' => $value2->principioactivo_id, 'nombre' => $value2->principioactivo->nombre);
         }
         $request->session()->put('carritoprincipio', $lista);
-        return view($this->folderview.'.mant')->with(compact('producto', 'formData', 'entidad', 'boton', 'listar','cboAfecto'));
+        return view($this->folderview.'.mant')->with(compact('producto', 'formData', 'entidad', 'boton', 'listar','cboAfecto','cboTipo','cboLote'));
     }
 
     /**
@@ -338,14 +357,12 @@ class ProductoController extends Controller
         $reglas     = array(
                 'nombre'                  => 'required|max:100',
                 'preciocompra'                 => 'required',
-                'precioventa'                 => 'required',
-                'preciokayros'                 => 'required'
+                'precioventa'                 => 'required'
                 );
         $mensajes = array(
             'nombre.required'         => 'Debe ingresar un nombre',
             'preciocompra.required'         => 'Debe ingresar precio de compra',
-            'precioventa.required'         => 'Debe ingresar precio de venta',
-            'preciokayros.required'         => 'Debe ingresar precio kayros'
+            'precioventa.required'         => 'Debe ingresar precio de venta'
             );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
@@ -353,6 +370,8 @@ class ProductoController extends Controller
         }
         $error = DB::transaction(function() use($request, $id){
             $producto                        = Producto::find($id);
+            $producto->tipo = $request->input('tipo');
+            $producto->lote = $request->input('lote');
             $producto->nombre = strtoupper($request->input('nombre'));
             $producto->codigobarra       = $request->input('codigobarra');
             $producto->afecto       = $request->input('afecto');
@@ -369,6 +388,7 @@ class ProductoController extends Controller
             $producto->especialidadfarmacia_id = Libreria::obtenerParametro($request->input('especialidadfarmacia_id'));
             $producto->proveedor_id = Libreria::obtenerParametro($request->input('proveedor_id'));
             $producto->origen_id = Libreria::obtenerParametro($request->input('origen_id'));
+            $producto->anaquel_id = Libreria::obtenerParametro($request->input('anaquel_id'));
             $producto->save();
 
             $lista = $request->session()->get('carritoprincipio');

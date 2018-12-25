@@ -762,7 +762,7 @@ class PagoparticularController extends Controller
         if (count($lista) > 0) {            
             $pdf::AddPage();
             $pdf::SetFont('helvetica','B',12);
-            $pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 0, 0, 70, 14);
+            $pdf::Image("http://localhost:81/clinica/dist/img/logo2-ojos.jpg", 0, 0, 70, 14);
             $pdf::Cell(0,10,utf8_decode("Reporte de Dinero Particulares por Medico al ".date("d/m/Y",strtotime($fechafinal))),0,0,'C');
             $pdf::Ln();
             $pdf::SetFont('helvetica','B',7.5);

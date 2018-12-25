@@ -433,17 +433,15 @@ class CajaController extends Controller
         return is_null($error) ? "OK" : $error;
     }
 
-    public function destroy($id, Request $request)
+    public function destroy($id)
     {
         $existe = Libreria::verificarExistencia($id, 'movimiento');
         if ($existe !== true) {
             return $existe;
         }
-        $comentarioa = $request->input("comentarioa");
-        $error = DB::transaction(function() use($id, $comentarioa){            
+        $error = DB::transaction(function() use($id){
             $Caja = Movimiento::find($id);
             $Caja->situacion="A";//Anulado
-            $Caja->motivo_anul = $comentarioa;
             $Caja->save();
             if($Caja->listapago!=""){
                 $arr=explode(",",$Caja->listapago);
@@ -5496,8 +5494,11 @@ class CajaController extends Controller
         $cboFormaPago     = array("Efectivo" => "Efectivo", "Tarjeta" => "Tarjeta");
         $cboTipoTarjeta    = array("VISA" => "VISA", "MASTER" => "MASTER");
         $cboTipoTarjeta2    = array("CREDITO" => "CREDITO", "DEBITO" => "DEBITO");
-        $cboTipoDocumento     = array("Boleta" => "Boleta", "Factura" => "Factura");        
-        return view($this->folderview.'.cobrarticket')->with(compact('Caja', 'formData', 'entidad', 'boton', 'movimiento', 'cboFormaPago', 'cboTipoTarjeta', 'cboTipoTarjeta2', 'cboCaja', 'cboTipoDocumento', 'ruta'));
+        $cboTipoDocumento     = array("Boleta" => "Boleta", "Factura" => "Factura", "Ticket" => "Ticket");
+
+        $detalles = Movimiento::select('cantidad', 'detallemovcaja.persona_id', 'descripcion', 'cantidad', 'precio', 'descuento')->join('detallemovcaja', 'movimiento.id', '=', 'detallemovcaja.movimiento_id')->where('movimiento.id', $id)->get();
+
+        return view($this->folderview.'.cobrarticket')->with(compact('Caja', 'formData', 'entidad', 'boton', 'movimiento', 'cboFormaPago', 'cboTipoTarjeta', 'cboTipoTarjeta2', 'cboCaja', 'cboTipoDocumento', 'ruta', 'detalles'));
     }
 
     public function cobrarticket2(Request $request)

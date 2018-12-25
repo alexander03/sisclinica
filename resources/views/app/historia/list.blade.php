@@ -45,7 +45,7 @@
             	<td>{!! Form::button('<i class="glyphicon glyphicon-search"></i>', array('class' => 'btn btn-success btn-xs', 'id' => 'btnSeguimiento', 'title' => 'Seguimiento', 'onclick' => 'seguimiento(\''.$entidad.'\','.$value->id.')')) !!}</td>
 	            <td>{!! Form::button('<i class="glyphicon glyphicon-print"></i>', array('class' => 'btn btn-info btn-xs', 'id' => 'btnImprimir', 'title' => 'Imprimir', 'onclick' => 'imprimirHistoria(\''.$entidad.'\','.$value->id.')')) !!}</td>
 				<td>{!! Form::button('<div class="glyphicon glyphicon-pencil"></div>', array( 'title' => 'Editar', 'onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning')) !!}</td>
-				@if($user->usertype_id==1)
+				@if($user->usertype_id==1 || $user->usertype_id==2)
 					<td>{!! Form::button('<div class="glyphicon glyphicon-trash"></div>', array( 'title' => 'Eliminar', 'onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);', 'class' => 'btn btn-xs btn-danger')) !!}</td>
 				@else
 					<td> - </td>

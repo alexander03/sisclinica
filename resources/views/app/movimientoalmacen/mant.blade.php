@@ -498,11 +498,6 @@ function generarNumero(valor){
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="numerodocumento"]').val(a);
         }
     });
-    /*if (valor == 4) {
-		modal('{{URL::route('venta.busquedaempresa')}}', '');
-	}else{
-		modal('{{URL::route('venta.busquedacliente')}}', '');
-	} */   
 }
 
 

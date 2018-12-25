@@ -386,7 +386,6 @@ class MovimientoalmacenController extends Controller
             $movimientoalmacen->fecha  = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
             $movimientoalmacen->total = $total;
             
-            
             $user = Auth::user();
             $movimientoalmacen->responsable_id = $user->person_id;
             $movimientoalmacen->save();

@@ -392,7 +392,7 @@ class HospitalizacionController extends Controller
         $pdf = new TCPDF();
         $pdf::SetTitle('Hospitalizacion');
         $pdf::AddPage('L');
-        $pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 10, 8, 50);
+        $pdf::Image("http://localhost:81/clinica/dist/img/logo2-ojos.jpg", 10, 8, 50);
         $pdf::Cell(65);;
         $pdf::Ln();
         $pdf::SetFont('helvetica','B',12);

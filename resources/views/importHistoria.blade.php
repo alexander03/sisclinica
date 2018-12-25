@@ -24,13 +24,13 @@
 
 		<a href="{{ URL::to('downloadExcel/csv') }}"><button class="btn btn-success">Download CSV</button></a>
 
-		<!--form style="border: 4px solid #a1a1a1;margin-top: 15px;padding: 10px;" action="{{ URL::to('importHistoriaExcel') }}" class="form-horizontal" method="post" enctype="multipart/form-data">
+		<form style="border: 4px solid #a1a1a1;margin-top: 15px;padding: 10px;" action="{{ URL::to('importHistoriaExcel') }}" class="form-horizontal" method="post" enctype="multipart/form-data">
 
 			<input type="file" name="import_file" />
 
 			<button class="btn btn-primary">Import File Historia</button>
 
-		</form-->
+		</form>
 
 		<!--form style="border: 4px solid #a1a1a1;margin-top: 15px;padding: 10px;" action="{{ URL::to('importApellidoExcel') }}" class="form-horizontal" method="post" enctype="multipart/form-data">
 
@@ -45,10 +45,15 @@
 			<button class="btn btn-primary">Import File Planes</button>
 		</form-->
 
-		<form style="border: 4px solid #a1a1a1;margin-top: 15px;padding: 10px;" action="{{ URL::to('importCie') }}" class="form-horizontal" method="post" enctype="multipart/form-data">
+		<!--form style="border: 4px solid #a1a1a1;margin-top: 15px;padding: 10px;" action="{{ URL::to('importCie') }}" class="form-horizontal" method="post" enctype="multipart/form-data">
 			<input type="file" name="import_file" />
 			<button class="btn btn-primary">Import File Cie10</button>
-		</form>
+		</form-->
+
+		<!--form style="border: 4px solid #a1a1a1;margin-top: 15px;padding: 10px;" action="{{ URL::to('importServicio') }}" class="form-horizontal" method="post" enctype="multipart/form-data">
+			<input type="file" name="import_file" />
+			<button class="btn btn-primary">Import File Servicio</button>
+		</form-->
 	</div>
 </body>
 </html>

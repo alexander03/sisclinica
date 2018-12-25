@@ -6,6 +6,12 @@ use App\Productoprincipio;
 	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
 	<div class="col-lg-6 col-md-6 col-sm-6">
 		<div class="form-group">
+			{!! Form::label('tipo', 'Tipo:',array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+			<div class="col-lg-7 col-md-7 col-sm-7">
+				{!! Form::select('tipo', $cboTipo, null, array('class' => 'form-control input-xs', 'id' => 'tipo','onchange' =>'validarTipo(this.value)')) !!}
+			</div>
+		</div>
+		<div class="form-group">
 			{!! Form::label('nombre', 'Nombre:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
 				{!! Form::text('nombre', null, array('class' => 'form-control input-xs', 'id' => 'nombre', 'placeholder' => 'Ingrese nombre comercial')) !!}
@@ -29,7 +35,7 @@ use App\Productoprincipio;
 				{!! Form::text('precioventa', null, array('class' => 'form-control input-xs', 'id' => 'precioventa', 'placeholder' => 'Ingrese precio de venta')) !!}
 			</div>
 		</div>
-		<div class="form-group">
+		<div class="form-group farmacia">
 			{!! Form::label('preciokayros', 'Precio Kayros:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
 				{!! Form::text('preciokayros', null, array('class' => 'form-control input-xs', 'id' => 'preciokayros', 'placeholder' => 'Ingrese precio de venta')) !!}
@@ -47,12 +53,12 @@ use App\Productoprincipio;
 				{!! Form::select('afecto', $cboAfecto, null, array('class' => 'form-control input-xs', 'id' => 'afecto')) !!}
 			</div>
 
-			{!! Form::label('codigo_producto', 'Código Producto:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+			{!! Form::label('codigo_producto', 'Código Producto:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label farmacia')) !!}
 			<div class="col-lg-3 col-md-3 col-sm-3">
-				{!! Form::text('codigo_producto', null, array('class' => 'form-control input-xs', 'id' => 'codigo_producto')) !!}
+				{!! Form::text('codigo_producto', null, array('class' => 'form-control input-xs farmacia', 'id' => 'codigo_producto')) !!}
 			</div>
 		</div>
-		<div class="form-group">
+		<div class="form-group farmacia">
 			{!! Form::label('registro_sanitario', 'Registro Sanitario:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 			<div class="col-lg-3 col-md-3 col-sm-3">
 				{!! Form::text('registro_sanitario', null, array('class' => 'form-control input-xs', 'id' => 'registro_sanitario')) !!}
@@ -134,7 +140,7 @@ use App\Productoprincipio;
                 {!! Form::button('<i class="glyphicon glyphicon-plus"></i>', array('class' => 'btn btn-info btn-xs', 'onclick' => 'modal (\''.URL::route('categoria.crearsimple', array('listar'=>'SI','modo'=>'popup')).'\', \'Nueva Clasificacion\', this);', 'title' => 'Nueva Clasificacion')) !!}
     		</div>
 		</div>
-		<div class="form-group">
+		<div class="form-group farmacia">
 			{!! Form::label('nombrelaboratorio', 'Laboratorio:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			{!! Form::hidden('laboratorio_id', null, array('id' => 'laboratorio_id')) !!}
 			<div class="col-lg-6 col-md-6 col-sm-6">
@@ -154,7 +160,7 @@ use App\Productoprincipio;
                 {!! Form::button('<i class="glyphicon glyphicon-plus"></i>', array('class' => 'btn btn-info btn-xs', 'onclick' => 'modal (\''.URL::route('presentacion.crearsimple', array('listar'=>'SI','modo'=>'popup')).'\', \'Nueva Presentacion\', this);', 'title' => 'Nueva Presentacion')) !!}
     		</div>
 		</div>
-		<div class="form-group">
+		<div class="form-group farmacia">
 			{!! Form::label('nombreespecialidadfarmacia', 'Especialidad:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			{!! Form::hidden('especialidadfarmacia_id', null, array('id' => 'especialidadfarmacia_id')) !!}
 			<div class="col-lg-6 col-md-6 col-sm-6">
@@ -174,7 +180,7 @@ use App\Productoprincipio;
                 {!! Form::button('<i class="glyphicon glyphicon-plus"></i>', array('class' => 'btn btn-info btn-xs', 'onclick' => 'modal (\''.URL::route('proveedor.crearsimple', array('listar'=>'SI','modo'=>'popup')).'\', \'Nuevo Proveedor\', this);', 'title' => 'Nuevo Proveedor')) !!}
     		</div>
 		</div>
-		<div class="form-group">
+		<div class="form-group farmacia">
 			{!! Form::label('nombreorigen', 'Origen:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			{!! Form::hidden('origen_id', null, array('id' => 'origen_id')) !!}
 			<div class="col-lg-6 col-md-6 col-sm-6">
@@ -184,7 +190,7 @@ use App\Productoprincipio;
                 {!! Form::button('<i class="glyphicon glyphicon-plus"></i>', array('class' => 'btn btn-info btn-xs', 'onclick' => 'modal (\''.URL::route('origen.crearsimple', array('listar'=>'SI','modo'=>'popup')).'\', \'Nuevo Origen\', this);', 'title' => 'Nuevo Origen')) !!}
     		</div>
 		</div>
-		<div class="form-group">
+		<div class="form-group farmacia">
 			{!! Form::label('principioactivo', 'Principio Activo:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-6 col-md-6 col-sm-6">
 				{!! Form::text('principioactivo', $principio, array('class' => 'form-control input-xs', 'id' => 'principioactivo', 'placeholder' => 'Ingrese Principio Activo', 'readonly' => '')) !!}
@@ -202,6 +208,12 @@ use App\Productoprincipio;
 			<div class="col-lg-1 col-md-1 col-sm-1">
                 {!! Form::button('<i class="glyphicon glyphicon-plus"></i>', array('class' => 'btn btn-info btn-xs', 'onclick' => 'modal (\''.URL::route('anaquel.crearsimple', array('listar'=>'SI','modo'=>'popup')).'\', \'\', this);', 'title' => 'Agregar Anaquel')) !!}
     		</div>
+		</div>
+		<div class="form-group farmacia">
+			{!! Form::label('lote', 'Lote:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
+			<div class="col-lg-3 col-md-3 col-sm-3">
+				{!! Form::select('lote', $cboLote, null, array('class' => 'form-control input-xs', 'id' => 'lote')) !!}
+			</div>
 		</div>
 	</div>
 	<div class="form-group">
@@ -677,10 +689,21 @@ function quitar (valor) {
 	var _token =$('input[name=_token]').val();
 	$.post('{{ URL::route("principioactivo.quitarprincipio")}}', {valor: valor,_token: _token} , function(data){
 		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="principioactivo"]').val(data);
-		//calculatetotal();
-		//generarSaldototal ();
-		// var totalpedido = $('#totalpedido').val();
-		// $('#total').val(totalpedido);
 	});
 }
+
+function validarTipo(tipo){
+	if(tipo=="O"){//otros
+		$(".otros").css("display","");
+		$(".farmacia").css("display","none");
+	}else{
+		$(".otros").css("display","none");
+		$(".farmacia").css("display","");
+	}
+}
+<?php
+if(!is_null($producto)){
+	echo "validarTipo('".$producto->tipo."');";
+}
+?>
 </script>

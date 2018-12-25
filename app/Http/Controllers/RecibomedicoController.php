@@ -322,8 +322,8 @@ class RecibomedicoController extends Controller
         $pdf::SetTitle('Recibo');
         $pdf::AddPage();
         $pdf::SetFont('helvetica','B',10);
-        $pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 0, 0, 35, 10);
-        $pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 105, 0, 35, 10);
+        $pdf::Image("http://localhost:81/clinica/dist/img/logo2-ojos.jpg", 0, 0, 35, 10);
+        $pdf::Image("http://localhost:81/clinica/dist/img/logo2-ojos.jpg", 105, 0, 35, 10);
         $pdf::Cell(50,10,utf8_decode("Recibo Nro. ".$lista->numero),0,0,'C');
         $pdf::Cell(50,7,utf8_decode(""),0,0,'L');
         $pdf::Cell(50,10,utf8_decode("Recibo Nro. ".$lista->numero),0,0,'C');

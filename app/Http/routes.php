@@ -58,6 +58,10 @@ Route::get('/vistamedico', function(){
     return View::make('app.producto.vistamedico');
 });
 
+Route::get('/cola', function(){
+    return View::make('app.ventaadmision.cola');
+});
+
 Route::post('/seguimiento/alerta', 'SeguimientoController@alerta')->name('seguimiento.alerta');
 
 Route::group(['middleware' => 'auth'], function () {
@@ -274,6 +278,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('movimientoalmacen/corregir/{listarluego}', 'MovimientoalmacenController@corregir')->name('movimientoalmacen.corregir');
     Route::post('movimientoalmacen/cuadrarstock', 'MovimientoalmacenController@cuadrarstock')->name('movimientoalmacen.cuadrarstock');
     Route::get('movimientoalmacen/pdfComprobante/{id}', 'MovimientoalmacenController@pdfComprobante')->name('movimientoalmacen.pdfComprobante');
+
+    /* REQUERIMIENTO */
+    Route::post('requerimiento/buscar', 'RequerimientoController@buscar')->name('requerimiento.buscar');
+    Route::get('requerimiento/eliminar/{id}/{listarluego}', 'RequerimientoController@eliminar')->name('requerimiento.eliminar');
+    Route::post('requerimiento/generarNumero', 'RequerimientoController@generarNumero')->name('requerimiento.generarNumero');
+    Route::post('requerimiento/buscarproducto', 'RequerimientoController@buscarproducto')->name('requerimiento.buscarproducto');
+    Route::resource('requerimiento', 'RequerimientoController');
+    Route::get('requerimiento/pdf/{id}', 'RequerimientoController@pdf')->name('requerimiento.pdfComprobante');
 
 
     /* MEDICO */
@@ -626,6 +638,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('ventaadmision/excelVentaBizlink', 'VentaadmisionController@excelVentaBizlink')->name('ventaadmision.excelVentaBizlink');
     Route::get('ventaadmision/excelFarmacia', 'VentaadmisionController@excelFarmacia')->name('ventaadmision.excelFarmacia');
     Route::get('ventaadmision/excelFarmacia1', 'VentaadmisionController@excelFarmacia1')->name('ventaadmision.excelFarmacia1');
+    Route::post('ventaadmision/cola', 'VentaadmisionController@cola');
  
     /* MOVIMIENTO CAJA*/
     Route::post('movimientocaja/buscar', 'MovimientocajaController@buscar')->name('movimientocaja.buscar');
@@ -982,6 +995,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('importTarifario', 'ExcelController@importTarifario');
     Route::post('importApellidoExcel', 'ExcelController@importApellidoExcel');
     Route::post('importCie', 'ExcelController@importCie');
+    Route::post('importServicio', 'ExcelController@importServicio');
     
     Route::get('/empresa', function(){
         return View::make('dashboard.empresa.admin');
