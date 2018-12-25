@@ -29,7 +29,7 @@
 						<td>{{ (integer) $detalle->cantidad }}</td>
 						<td>{{ $detalle->persona->nombres }} {{ $detalle->persona->apellidopaterno }}</td>
 						<td>{{ $detalle->descripcion }}</td>
-						<td><input name="precio{{ $i }}" id="precio{{ $i }}" class="form-control input-xs precio" type="text" value="{{ $detalle->precio }}" onkeyup="inicializarPrecios()"></td>
+						<td><input name="precio{{ $i }}" id="precio{{ $i }}" class="form-control input-xs precio" type="text" value="{{ $detalle->precio }}" onkeyup="inicializarPrecios();soloDecimal('{{$i}}');"></td>
 						<td><input name="descuento{{ $i }}" id="descuento{{ $i }}" class="form-control input-xs" type="text" value="0"></td>
 						<td><input name="subtotal{{ $i }}" id="subtotal{{ $i }}" class="form-control input-xs subtotal" type="text" readonly=""></td>
 					</tr>
@@ -186,15 +186,29 @@
 	}
 
 	function inicializarPrecios() {
-		var total = 0.00;
+		var total = 0;
 		var cont = 0;
+		var subtotal = 0;
 		$(".subtotal").each(function(){
-			$(this).val($('#precio' + cont).val());	
+			if($('#precio' + cont).val() == '') {
+				subtotal = 0;
+				subtotal = subtotal.toFixed(3);
+			} else {
+				subtotal = parseFloat($('#precio' + cont).val()).toFixed(3);
+			}			
+			$(this).val(subtotal);	
 			cont++;
 		});
 		$(".subtotal").each(function(){
 			total += parseFloat($(this).val());
 		});
 		$('#total').val(total.toFixed(3));
+	}
+
+	function soloDecimal(numero, e) {
+		var key = e.charCode;
+	    if((key >= 48 && key <= 57) || key == 46) {
+	    	$('#precio' + numero).val($('#precio' + numero).val() + key)
+	    }
 	}
 </script>
