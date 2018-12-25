@@ -46,20 +46,16 @@
 		<!-- DATOS DEL TICKET -->
 		<div id="divMensajeError{!! $entidad !!}"></div>
 		<div class="form-group">
-		    {!! Form::label('numero', 'Nro. Doc.', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
-		    {!! Form::label('numero', $movimiento->serie.'-'.$movimiento->numero, array('class' => 'col-lg-8 col-md-8 col-sm-8 control-label', 'style' => 'font-weight:normal;text-align:left;text-align:left')) !!}
+		    {!! Form::label('numero', 'Nro. Doc.', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label input-sm')) !!}
+		    {!! Form::label('numero', $movimiento->serie.'-'.$movimiento->numero, array('class' => 'col-lg-8 col-md-8 col-sm-8 control-label input-sm', 'style' => 'font-weight:normal;text-align:left;text-align:left')) !!}
 		</div>
 		<div class="form-group">
-			{!! Form::label('siniestro', 'Siniestro', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
-			{!! Form::label('siniestro', $movimiento->comentario, array('class' => 'col-lg-8 col-md-8 col-sm-8 control-label', 'style' => 'font-weight:normal;text-align:left')) !!}
+			{!! Form::label('siniestro', 'Siniestro', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label input-sm')) !!}
+			{!! Form::label('siniestro', $movimiento->comentario . ' | ' .$movimiento->fecha, array('class' => 'col-lg-8 col-md-8 col-sm-8 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
 		</div>
 		<div class="form-group">
-			{!! Form::label('fecha', 'Fecha', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
-			{!! Form::label('siniestro', $movimiento->fecha, array('class' => 'col-lg-8 col-md-8 col-sm-8 control-label', 'style' => 'font-weight:normal;text-align:left')) !!}
-		</div>
-		<div class="form-group">
-			{!! Form::label('paciente', 'Paciente', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
-			{!! Form::label('siniestro', $movimiento->persona->nombres . ' ' . $movimiento->persona->apellidopaterno . ' ' . $movimiento->persona->apellidomaterno, array('class' => 'col-lg-8 col-md-8 col-sm-8 control-label', 'style' => 'font-weight:normal;text-align:left')) !!}
+			{!! Form::label('paciente', 'Paciente', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label input-sm')) !!}
+			{!! Form::label('siniestro', $movimiento->persona->nombres . ' ' . $movimiento->persona->apellidopaterno . ' ' . $movimiento->persona->apellidomaterno, array('class' => 'col-lg-8 col-md-8 col-sm-8 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
 		</div>
 		<div class="form-group" style="display: none">
 			{!! Form::label('tipomovimiento', 'Tipo de movimiento') !!}
@@ -70,25 +66,26 @@
 			{!! Form::label('siniestro', $movimiento->total) !!}
 		</div>
 		<div class="form-group">
-			{!! Form::label('doctor', 'Referido', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
+			{!! Form::label('doctor', 'Referido', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label input-sm')) !!}
 			@if(!is_null($movimiento->doctor))
-				{!! Form::label('siniestro', ($movimiento->doctor->nombres . ' ' . $movimiento->doctor->apellidopaterno . ' ' . $movimiento->doctor->apellidomaterno), array('class' => 'col-lg-8 col-md-8 col-sm-8 control-label', 'style' => 'font-weight:normal;text-align:left')) !!}
+				{!! Form::label('siniestro', ($movimiento->doctor->nombres . ' ' . $movimiento->doctor->apellidopaterno . ' ' . $movimiento->doctor->apellidomaterno), array('class' => 'col-lg-8 col-md-8 col-sm-8 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
 			@endif
 		</div>
 		<div class="form-group">
-			{!! Form::label('plan', 'Plan', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
-			{!! Form::label('siniestro', $movimiento->plan->nombre, array('class' => 'col-lg-8 col-md-8 col-sm-8 control-label', 'style' => 'font-weight:normal;text-align:left')) !!}
+			{!! Form::label('plan', 'Plan', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label input-sm')) !!}
+			{!! Form::label('siniestro', $movimiento->plan->nombre, array('class' => 'col-lg-8 col-md-8 col-sm-8 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
 		</div>
+		<hr>
 		<!-- OPCIONES -->
 		<div class="form-group">
-	        {!! Form::label('plan', 'Generar:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+	        {!! Form::label('plan', 'Generar:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
 			<div class="col-lg-2 col-md-2 col-sm-2">
 				{!! Form::hidden('comprobante', 'S', array('id' => 'comprobante')) !!}
-	            <input readonly="readonly" disabled="disabled" checked="checked" type="checkbox" onchange="mostrarDatoCaja(0,this.checked)" id="boleta" class="col-lg-2 col-md-2 col-sm-2 control-label" />
-	            {!! Form::label('boleta', 'Comprobante', array('class' => 'col-lg-10 col-md-10 col-sm-10 control-label')) !!}
+	            <input readonly="readonly" disabled="disabled" checked="checked" type="checkbox" onchange="mostrarDatoCaja(0,this.checked)" id="boleta" class="col-lg-2 col-md-2 col-sm-2 control-label input-sm" />
+	            {!! Form::label('boleta', 'Comprobante', array('class' => 'col-lg-10 col-md-10 col-sm-10 control-label input-sm')) !!}
 	            {!! Form::hidden('pagar', 'S', array('id' => 'pagar')) !!}    
-				<input readonly="readonly" disabled="disabled" checked="checked" type="checkbox" onchange="mostrarDatoCaja(this.checked,0)" id="pago" class="col-lg-2 col-md-2 col-sm-2 control-label datocaja" />
-	            {!! Form::label('pago', 'Pago', array('class' => 'col-lg-10 col-md-10 col-sm-10 control-label datocaja')) !!}
+				<input readonly="readonly" disabled="disabled" checked="checked" type="checkbox" onchange="mostrarDatoCaja(this.checked,0)" id="pago" class="col-lg-2 col-md-2 col-sm-2 control-label input-sm datocaja" />
+	            {!! Form::label('pago', 'Pago', array('class' => 'col-lg-10 col-md-10 col-sm-10 control-label input-sm datocaja')) !!}
 			</div>
 	        {!! Form::label('formapago', 'Forma Pago:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label datocaja caja')) !!}
 			<div class="col-lg-4 col-md-4 col-sm-4">
@@ -125,7 +122,7 @@
 	        <div class="col-lg-4 col-md-4 col-sm-4">
 	            {!! Form::text('nroref', null, array('class' => 'form-control input-xs', 'id' => 'nroref')) !!}
 	        </div>
-		</div>
+		</div>		
 		{!! Form::hidden('id', $movimiento->id) !!}
 		<div class="text-right">
 			{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'data-a' => 'true', 'id' => 'btnGuardar', 'onclick' => 'guardar(\''.$entidad.'\', this)')) !!}
