@@ -5496,7 +5496,7 @@ class CajaController extends Controller
         $cboTipoTarjeta2    = array("CREDITO" => "CREDITO", "DEBITO" => "DEBITO");
         $cboTipoDocumento     = array("Boleta" => "Boleta", "Factura" => "Factura", "Ticket" => "Ticket");
 
-        $detalles = Movimiento::select('cantidad', 'detallemovcaja.persona_id', 'descripcion', 'cantidad', 'precio', 'descuento')->join('detallemovcaja', 'movimiento.id', '=', 'detallemovcaja.movimiento_id')->where('movimiento.id', $id)->get();
+        $detalles = Movimiento::select('cantidad', 'detallemovcaja.persona_id', 'descripcion', 'cantidad', 'detallemovcaja.precio', 'descuento', 'servicio.nombre')->join('detallemovcaja', 'movimiento.id', '=', 'detallemovcaja.movimiento_id')->join('servicio', 'servicio.id', '=', 'detallemovcaja.servicio_id')->where('movimiento.id', $id)->get();
 
         return view($this->folderview.'.cobrarticket')->with(compact('Caja', 'formData', 'entidad', 'boton', 'movimiento', 'cboFormaPago', 'cboTipoTarjeta', 'cboTipoTarjeta2', 'cboCaja', 'cboTipoDocumento', 'ruta', 'detalles'));
     }

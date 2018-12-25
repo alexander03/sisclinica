@@ -27,8 +27,8 @@
 				@foreach($detalles as $detalle)
 					<tr>
 						<td>{{ (integer) $detalle->cantidad }}</td>
-						<td>{{ $detalle->persona->nombres }} {{ $detalle->persona->apellidopaterno }}</td>
-						<td>{{ $detalle->descripcion }}</td>
+						<td style="font-size: 10px">{{ $detalle->persona->nombres }} {{ $detalle->persona->apellidopaterno }}</td>
+						<td style="font-size: 10px">{{ $detalle->nombre }}</td>
 						<td><input name="precio{{ $i }}" id="precio{{ $i }}" class="form-control input-xs precio" type="text" value="{{ $detalle->precio }}" onkeyup="inicializarPrecios();soloDecimal('{{$i}}');"></td>
 						<td><input name="descuento{{ $i }}" id="descuento{{ $i }}" class="form-control input-xs" type="text" value="0"></td>
 						<td><input name="subtotal{{ $i }}" id="subtotal{{ $i }}" class="form-control input-xs subtotal" type="text" readonly=""></td>
