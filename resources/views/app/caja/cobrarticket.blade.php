@@ -91,13 +91,17 @@
 					@endforeach
 				</select>
 			</div>	
-			{!! Form::label('tipodocumento', 'Tipo de documento:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label input-sm caja')) !!}
-			<div class="col-lg-4 col-md-4 col-sm-4">
+			{!! Form::label('tipodocumento', 'Tipo de documento:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label input-sm caja')) !!}
+			<div class="col-lg-2 col-md-2 col-sm-2">
 				<select name="tipodocumento" id="tipodocumento" class="form-control input-xs form-control caja">
 					<option value="Boleta">Boleta</option>
 					<option value="Factura">Factura</option>
 					<option value="Ticket">Ticket</option>
 				</select>
+			</div>
+			{!! Form::label('numcomprobante', 'N°:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
+			<div class="col-lg-2 col-md-2 col-sm-2">
+				<input type="text" name="numcomprobante" id="numcomprobante" class="form-control input-xs form-control">
 			</div>
 			<hr>
 	        {!! Form::label('formapago', 'Forma Pago:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label datocaja caja input-sm')) !!}
