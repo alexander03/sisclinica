@@ -102,14 +102,14 @@
 			<hr>
 	        {!! Form::label('formapago', 'Forma Pago:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label datocaja caja input-sm')) !!}
 			<div class="col-lg-8 col-md-8 col-sm-8">
-				<label class="checkbox-inline" onclick="divFormaPago('0', true)">
-			      	<input type="checkbox" id="cbx0">Efectivo
+				<label id="divcbx0" class="checkbox-inline" onclick="divFormaPago('0', '1')">
+			      	<input style="display: none;" type="checkbox" id="cbx0">Efectivo
 			    </label>
-			    <label class="checkbox-inline" onclick="divFormaPago('1', true)">
-			      	<input type="checkbox" id="cbx1">Visa
+			    <label id="divcbx1" class="checkbox-inline" onclick="divFormaPago('1', '1')">
+			      	<input style="display: none;" type="checkbox" id="cbx1">Visa
 			    </label>
-			    <label class="checkbox-inline" onclick="divFormaPago('2', true)">
-			      	<input type="checkbox" id="cbx2">Master
+			    <label id="divcbx2" class="checkbox-inline" onclick="divFormaPago('2', '1')">
+			      	<input style="display: none;" type="checkbox" id="cbx2">Master
 			    </label>
 			</div>        	
 	    </div>
@@ -208,12 +208,16 @@
 	}
 
 	function divFormaPago(num, mostrar) {
-		var m = false;
-		$('#cbx' + num).attr('checked', 'checked');
-		if(mostrar == false) {
-			m = true;
-			$('#cbx' + num).removeAttr('checked');
+		var m;
+		if(mostrar == '0') {
+			m = '1';
+			$('#cbx' + num).attr('checked', false);
+			$('#divcbx' + num).css('color', 'black');
+		} else {
+			m = '0';
+			$('#cbx' + num).attr('checked', true);
+			$('#divcbx' + num).css('color', 'red');
 		}
-		$('#cbx' + num).attr("onclick", "divFormaPago('" + num + "', '" + m + "');");
+		$('#divcbx' + num).attr("onclick", "divFormaPago('" + num + "', '" + m + "');");
 	}
 </script>
