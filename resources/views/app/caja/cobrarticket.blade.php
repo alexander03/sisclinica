@@ -1,5 +1,6 @@
 <div class="row">
 	{!! Form::model($movimiento, $formData) !!}
+	{!! Form::hidden('cantdetalles', count($detalles)) !!}
 	<div class="col-lg-6 col-md-6 col-sm-6">
 		<table class="table table-bordered table-responsive table-condensed table-hover dataTable no-footer" border="1" role="grid" style="width: 100%;">
 			<thead>
@@ -144,7 +145,7 @@
 		</div>
 		{!! Form::hidden('id', $movimiento->id) !!}
 		<div class="text-right">
-			{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'data-a' => 'true', 'id' => 'btnGuardar', 'onclick' => 'guardar(\''.$entidad.'\', this)')) !!}
+			{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'data-a' => 'true', 'id' => 'btnGuardar', 'onclick' => 'enviar();')) !!}
 			{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
 		</div>		
 	</div>	
@@ -293,5 +294,22 @@
 			$('#mensajeMontos').html('Los montos no coindicen.').css('color', 'red');
 			return false;
 		}
+	}
+
+	function enviar() {
+		form = $('#formMantenimientoMovimiento');
+		if(!coincidenciasMontos()) {
+			return false;
+		}
+		$.ajax({
+			url: form.attr('action'),
+			type: form.attr('method'),
+			beforeSend: function() {
+				$('#btnGuardar').html('Cargando...').attr('disabled', true);
+			},
+			success: function() {
+				//ok
+			},
+		});
 	}
 </script>
