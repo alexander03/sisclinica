@@ -8,8 +8,8 @@
 					<td colspan="4"></td>
 					<td>
 						<select class="form-control input-xs" name="tipodescuento" id="tipodescuento" onchange="inicializarPrecios()">
-							<option value="0">%</option>
-							<option value="1">S/.</option>
+							<option value="P">%</option>
+							<option value="E">S/.</option>
 						</select>
 					</td>
 					<td></td>
@@ -26,6 +26,7 @@
 			<tbody>
 				<?php $i = 0; ?>				
 				@foreach($detalles as $detalle)
+					{!! Form::hidden('detalleid' . $detalle->id, $detalle->id) !!}
 					<tr>
 						<td>{{ (integer) $detalle->cantidad }}</td>
 						<td style="font-size: 10px">
@@ -122,21 +123,21 @@
 		    <div class="col-lg-6 col-md-6 col-sm-6">	    	
 			    <div class="input-group form-control">
 					<span class="input-group-addon input-xs">EFECTIVO</span>
-					<input onkeyup="calcularTotalPago();" id="efectivo" type="text" class="form-control input-xs" readonly="">
+					<input onkeyup="calcularTotalPago();" name="formapago" id="efectivo" type="text" class="form-control input-xs" readonly="">
 				</div>
 				<div class="input-group form-control">
 					<span class="input-group-addon input-xs">VISA</span>
-					<input onkeyup="calcularTotalPago();" id="visa" type="text" class="form-control input-xs" readonly="">
+					<input onkeyup="calcularTotalPago();" name="formapago2" id="visa" type="text" class="form-control input-xs" readonly="">
 				</div>
 				<div class="input-group form-control">
 					<span class="input-group-addon input-xs">MASTER</span>
-					<input onkeyup="calcularTotalPago();" id="master" type="text" class="form-control input-xs" readonly="">
+					<input onkeyup="calcularTotalPago();" name="formapago3" id="master" type="text" class="form-control input-xs" readonly="">
 				</div>	
 			</div>	
 			<div class="col-lg-6 col-md-6 col-sm-6">	    	
 			    <div class="input-group form-control">
 					<span class="input-group-addon input-xs">TOTAL</span>
-					<input id="total2" type="text" class="form-control input-xs" readonly="" value="0.000">
+					<input name="total2" id="total2" type="text" class="form-control input-xs" readonly="" value="0.000">
 				</div>
 			</div>
 			<div class="col-lg-6 col-md-6 col-sm-6">	    	
@@ -213,7 +214,7 @@
 				subtotal = subtotal.toFixed(3);
 			} else {
 				descuento = $('#descuento' + cont).val();
-				if($('#tipodescuento').val() == 0) {
+				if($('#tipodescuento').val() == 'P') {
 					descuento = $('#descuento' + cont).val() * $('#precio' + cont).val() / 100;
 				}
 				subtotal = parseFloat($('#precio' + cont).val() - descuento).toFixed(3);
