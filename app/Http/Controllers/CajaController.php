@@ -5456,10 +5456,9 @@ class CajaController extends Controller
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
         ->where('movimiento.numero','LIKE','%'.$numero.'%')->where('movimiento.tipodocumento_id','=','1');
         if($fecha!=""){
-            $resultado = $resultado->where('movimiento.fecha', '=', ''.$fecha.'')
-                        ->where('situacion', '=', 'P');
+            $resultado = $resultado->where('movimiento.fecha', '=', ''.$fecha.'');
         }
-        $resultado        = $resultado->select('movimiento.*',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'))->orderBy('movimiento.fecha', 'ASC')->orderBy('movimiento.id','DESC');
+        $resultado        = $resultado->select('movimiento.*',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'))->orderBy('movimiento.id','DESC')->orderBy('movimiento.situacion','DESC');
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => 'Fecha', 'numero' => '1');
@@ -5534,7 +5533,7 @@ class CajaController extends Controller
                 $Ticket->totalpagado3=$request->input('formapago3');
             }
 
-            if($request->input('total')==$request->input('total2')){
+            if($request->input('total') == $request->input('total2')){
                 $Ticket->situacion='C';//Pendiente => P / Cobrado => C / Boleteado => B
             } else {
                 $Ticket->situacion='P';

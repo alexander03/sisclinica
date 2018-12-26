@@ -37,7 +37,7 @@
 							<input name="precio{{ $i }}" id="precio{{ $i }}" class="form-control input-xs precio" type="text" value="{{ $detalle->precio }}" onkeyup="inicializarPrecios();">
 						</td>
 						<td>
-							<input name="descuento{{ $i }}" id="descuento{{ $i }}" class="form-control input-xs" type="text" value="0" onkeyup="inicializarPrecios();">
+							<input name="descuento{{ $i }}" id="descuento{{ $i }}" class="form-control input-xs descuento" type="text" value="0" onkeyup="inicializarPrecios();">
 						</td>
 						<td>
 							<input name="subtotal{{ $i }}" id="subtotal{{ $i }}" class="form-control input-xs subtotal" type="text" readonly="">
@@ -292,24 +292,45 @@
 			$('#mensajeMontos').html('Los montos coindicen.').css('color', 'green');
 			return true;
 		} else {
-			$('#mensajeMontos').html('Los montos no coindicen.').css('color', 'red');
+			$('#mensajeMontos').html('Los montos no coindicen.').css('color', 'red');			
 			return false;
 		}
 	}
 
+	function camposNoVacios() {		
+		if(!$('.descuento').val()) {
+			$(this).focus();
+			alert('Ingresa un descuento.');
+			return false;
+		} else if(!$('#numcomprobante').val()) {
+			$('#numcomprobante').focus();
+			alert('Ingresa un numero de comprobante.');
+			return false;
+		} else {
+			return true;
+		}		
+	}
+
 	function enviar() {
 		form = $('#formMantenimientoMovimiento');
+		if(!camposNoVacios()) {
+			return false;
+		}
 		if(!coincidenciasMontos()) {
+			alert('Los montos no coinciden.');
 			return false;
 		}
 		$.ajax({
 			url: form.attr('action'),
 			type: form.attr('method'),
+			data: form.serialize(),
 			beforeSend: function() {
 				$('#btnGuardar').html('Cargando...').attr('disabled', true);
 			},
 			success: function() {
-				//ok
+				cerrarModal();
+				listatickestpendientes();
+				buscar('Caja');
 			},
 		});
 	}

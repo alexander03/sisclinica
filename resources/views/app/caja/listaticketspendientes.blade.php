@@ -18,10 +18,20 @@
 	            <td>{{ $value->numero }}</td>
 	            <td>{{ $value->paciente }}</td>
 	            <td align="center">{{ number_format($value->total,2,'.','') }}</td>
-	            <td style="color:blue;font-weight: bold;">PENDIENTE</td>
+	            <td style="color:blue;font-weight: bold;">
+            	@if ($value->situacion == 'P')
+            	<font color="red">PENDIENTE</font>
+            	@else
+            	<font color="green">COBRADO</font>
+            	@endif
+	            </td>
 	            <td style="color:blue;font-weight: bold;">
 	            	<center>
+	            	@if ($value->situacion == 'P')
 	            		{!! Form::button('<div class="fa fa-money"></div>', array('onclick' => 'modalCaja (\''.URL::route($ruta["cobrarticket"], array('id' => $value->id)).'\', \'Cobrar Ticket\', this);', 'class' => 'btn btn-xs btn-success')) !!}
+	            	@else
+	            	-
+	            	@endif	
 	            	</center>
 	            </td>
 		</tr>
