@@ -117,16 +117,28 @@
 			    </label>
 			</div>        	
 	    </div>
-		<div class="form-group datocaja" id="divTarjeta" style="display: none">
-	        {!! Form::label('tipotarjeta', 'Tarjeta:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-			<div class="col-lg-4 col-md-4 col-sm-4">
-				{!! Form::select('tipotarjeta', $cboTipoTarjeta, null, array('class' => 'form-control input-xs', 'id' => 'tipotarjeta')) !!}
-			</div>
-	        {!! Form::label('nroref', 'Nro. Op.:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-	        <div class="col-lg-4 col-md-4 col-sm-4">
-	            {!! Form::text('nroref', null, array('class' => 'form-control input-xs', 'id' => 'nroref')) !!}
-	        </div>
-		</div>		
+	    <div class="row">
+		    <div class="col-lg-6 col-md-6 col-sm-6">	    	
+			    <div class="input-group form-control">
+					<span class="input-group-addon input-xs">EFECTIVO</span>
+					<input id="efectivo" type="text" class="form-control input-xs" readonly="">
+				</div>
+				<div class="input-group form-control">
+					<span class="input-group-addon input-xs">VISA</span>
+					<input id="visa" type="text" class="form-control input-xs" readonly="">
+				</div>
+				<div class="input-group form-control">
+					<span class="input-group-addon input-xs">MASTER</span>
+					<input id="master" type="text" class="form-control input-xs" readonly="">
+				</div>	
+			</div>	
+			<div class="col-lg-6 col-md-6 col-sm-6">	    	
+			    <div class="input-group form-control">
+					<span class="input-group-addon input-xs">TOTAL</span>
+					<input id="total" type="text" class="form-control input-xs" readonly="" value="0.000">
+				</div>
+			</div>	
+		</div>
 		{!! Form::hidden('id', $movimiento->id) !!}
 		<div class="text-right">
 			{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'data-a' => 'true', 'id' => 'btnGuardar', 'onclick' => 'guardar(\''.$entidad.'\', this)')) !!}
@@ -217,10 +229,24 @@
 			m = '1';
 			$('#cbx' + num).attr('checked', false);
 			$('#divcbx' + num).css('color', 'black');
+			if(num == '0') {
+				$('#efectivo').attr('readonly', true).val('');
+			} else if(num == '1') {
+				$('#visa').attr('readonly', true).val('');
+			} else {
+				$('#master').attr('readonly', true).val('');
+			}
 		} else {
 			m = '0';
 			$('#cbx' + num).attr('checked', true);
 			$('#divcbx' + num).css('color', 'red');
+			if(num == '0') {
+				$('#efectivo').attr('readonly', false).focus();
+			} else if(num == '1') {
+				$('#visa').attr('readonly', false).focus();
+			} else {
+				$('#master').attr('readonly', false).focus();
+			}
 		}
 		$('#divcbx' + num).attr("onclick", "divFormaPago('" + num + "', '" + m + "');");
 	}
