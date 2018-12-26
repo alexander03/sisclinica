@@ -121,23 +121,26 @@
 		    <div class="col-lg-6 col-md-6 col-sm-6">	    	
 			    <div class="input-group form-control">
 					<span class="input-group-addon input-xs">EFECTIVO</span>
-					<input id="efectivo" type="text" class="form-control input-xs" readonly="">
+					<input onkeyup="calcularTotalPago();" id="efectivo" type="text" class="form-control input-xs" readonly="">
 				</div>
 				<div class="input-group form-control">
 					<span class="input-group-addon input-xs">VISA</span>
-					<input id="visa" type="text" class="form-control input-xs" readonly="">
+					<input onkeyup="calcularTotalPago();" id="visa" type="text" class="form-control input-xs" readonly="">
 				</div>
 				<div class="input-group form-control">
 					<span class="input-group-addon input-xs">MASTER</span>
-					<input id="master" type="text" class="form-control input-xs" readonly="">
+					<input onkeyup="calcularTotalPago();" id="master" type="text" class="form-control input-xs" readonly="">
 				</div>	
 			</div>	
 			<div class="col-lg-6 col-md-6 col-sm-6">	    	
 			    <div class="input-group form-control">
 					<span class="input-group-addon input-xs">TOTAL</span>
-					<input id="total" type="text" class="form-control input-xs" readonly="" value="0.000">
+					<input id="total2" type="text" class="form-control input-xs" readonly="" value="0.000">
 				</div>
-			</div>	
+			</div>
+			<div class="col-lg-6 col-md-6 col-sm-6">	    	
+			    <b id="mensajeMontos" style="color:red">Los montos no coinciden.</b>
+			</div>		
 		</div>
 		{!! Form::hidden('id', $movimiento->id) !!}
 		<div class="text-right">
@@ -249,5 +252,39 @@
 			}
 		}
 		$('#divcbx' + num).attr("onclick", "divFormaPago('" + num + "', '" + m + "');");
+		calcularTotalPago();
+	}
+
+	function solodecimal(numero) {
+	    var RE = /^\d*\.?\d*$/;
+	    if (RE.test(numero)) {
+	        return true;
+	    } else {
+	        return false;
+	    }
+	}
+
+	function calcularTotalPago() {
+		var efectivo = $('#efectivo').val();
+		var visa = $('#visa').val();
+		var master = $('#master').val();
+		var total = 0.000;
+		if(!solodecimal(efectivo) || efectivo == '') {
+			efectivo = 0.000;
+		} 
+		if(!solodecimal(visa) || visa == '') {
+			visa = 0.000;
+		}
+		if(!solodecimal(master) || master == '') {
+			master = 0.000;
+		}
+		total = parseFloat(efectivo) + parseFloat(visa) + parseFloat(master);
+		$('#total2').val(total.toFixed(3));
+
+		if($('#total').val() == $('#total2').val()) {
+			$('#mensajeMontos').html('Los montos coindicen.').css('color', 'green');
+		} else {
+			$('#mensajeMontos').html('Los montos no coindicen.').css('color', 'red');
+		}
 	}
 </script>
