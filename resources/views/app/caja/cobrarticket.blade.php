@@ -54,29 +54,17 @@
 		<!-- DATOS DEL TICKET -->
 		<div id="divMensajeError{!! $entidad !!}"></div>
 		<div class="form-group">
-		    {!! Form::label('numero', 'Nro. Doc.', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label input-sm')) !!}
-		    {!! Form::label('numero', $movimiento->serie.'-'.$movimiento->numero, array('class' => 'col-lg-8 col-md-8 col-sm-8 control-label input-sm', 'style' => 'font-weight:normal;text-align:left;text-align:left')) !!}
+		    {!! Form::label('numero', 'Nro. Doc.', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
+		    {!! Form::label('numero', $movimiento->serie.'-'.$movimiento->numero, array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm', 'style' => 'font-weight:normal;text-align:left;text-align:left')) !!}
+		    {!! Form::label('siniestro', 'Siniestro', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
+			{!! Form::label('siniestro', $movimiento->comentario . ' | ' .$movimiento->fecha, array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
 		</div>
 		<div class="form-group">
-			{!! Form::label('siniestro', 'Siniestro', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label input-sm')) !!}
-			{!! Form::label('siniestro', $movimiento->comentario . ' | ' .$movimiento->fecha, array('class' => 'col-lg-8 col-md-8 col-sm-8 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
-		</div>
-		<div class="form-group">
-			{!! Form::label('paciente', 'Paciente', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label input-sm')) !!}
-			{!! Form::label('siniestro', $movimiento->persona->nombres . ' ' . $movimiento->persona->apellidopaterno . ' ' . $movimiento->persona->apellidomaterno, array('class' => 'col-lg-8 col-md-8 col-sm-8 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
-		</div>
-		<div class="form-group" style="display: none">
-			{!! Form::label('tipomovimiento', 'Tipo de movimiento') !!}
-			{!! Form::label('siniestro', $movimiento->tipomovimiento->nombre) !!}
-		</div>
-		<div class="form-group" style="display:none">
-			{!! Form::label('total', 'Total') !!}
-			{!! Form::label('siniestro', $movimiento->total) !!}
-		</div>
-		<div class="form-group">
-			{!! Form::label('doctor', 'Referido', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label input-sm')) !!}
+			{!! Form::label('paciente', 'Paciente', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
+			{!! Form::label('siniestro', $movimiento->persona->nombres . ' ' . $movimiento->persona->apellidopaterno . ' ' . $movimiento->persona->apellidomaterno, array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
+			{!! Form::label('doctor', 'Referido', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
 			@if(!is_null($movimiento->doctor))
-				{!! Form::label('siniestro', ($movimiento->doctor->nombres . ' ' . $movimiento->doctor->apellidopaterno . ' ' . $movimiento->doctor->apellidomaterno), array('class' => 'col-lg-8 col-md-8 col-sm-8 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
+				{!! Form::label('siniestro', ($movimiento->doctor->nombres . ' ' . $movimiento->doctor->apellidopaterno . ' ' . $movimiento->doctor->apellidomaterno), array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
 			@endif
 		</div>
 		<div class="form-group">
@@ -122,10 +110,6 @@
 			<div class="col-lg-4 col-md-4 col-sm-4">
 				{!! Form::select('tipotarjeta', $cboTipoTarjeta, null, array('class' => 'form-control input-xs', 'id' => 'tipotarjeta')) !!}
 			</div>
-	        {!! Form::label('tipotarjeta2', 'Tipo Tarjeta:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label', 'style' => 'display:none')) !!}
-			<!--<div class="col-lg-2 col-md-2 col-sm-2">
-				{!! Form::select('tipotarjeta2', $cboTipoTarjeta2, null, array('class' => 'form-control input-xs', 'id' => 'tipotarjeta2', 'style' => 'display:none')) !!}
-			</div>-->
 	        {!! Form::label('nroref', 'Nro. Op.:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
 	        <div class="col-lg-4 col-md-4 col-sm-4">
 	            {!! Form::text('nroref', null, array('class' => 'form-control input-xs', 'id' => 'nroref')) !!}
