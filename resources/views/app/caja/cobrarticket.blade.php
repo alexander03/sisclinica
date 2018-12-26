@@ -74,7 +74,7 @@
 		<hr>
 		<!-- OPCIONES -->
 		<div class="form-group">
-	        {!! Form::label('plan', 'Generar:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
+	        <!--{!! Form::label('plan', 'Generar:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
 			<div class="col-lg-2 col-md-2 col-sm-2">
 				{!! Form::hidden('comprobante', 'S', array('id' => 'comprobante')) !!}
 	            <input readonly="readonly" disabled="disabled" checked="checked" type="checkbox" onchange="mostrarDatoCaja(0,this.checked)" id="boleta" class="col-lg-2 col-md-2 col-sm-2 control-label input-sm" />
@@ -82,13 +82,8 @@
 	            {!! Form::hidden('pagar', 'S', array('id' => 'pagar')) !!}    
 				<input readonly="readonly" disabled="disabled" checked="checked" type="checkbox" onchange="mostrarDatoCaja(this.checked,0)" id="pago" class="col-lg-2 col-md-2 col-sm-2 control-label input-sm datocaja" />
 	            {!! Form::label('pago', 'Pago', array('class' => 'col-lg-10 col-md-10 col-sm-10 control-label input-sm datocaja')) !!}
-			</div>
-	        {!! Form::label('formapago', 'Forma Pago:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label datocaja caja')) !!}
-			<div class="col-lg-4 col-md-4 col-sm-4">
-				{!! Form::select('formapago', $cboFormaPago, null, array('class' => 'form-control input-xs datocaja caja', 'id' => 'formapago', 'onchange'=>'validarFormaPago(this.value);')) !!}
-			</div>
-			<br><br><br>
-	        {!! Form::label('caja_id', 'Caja:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label datocaja caja')) !!}
+			</div>-->
+			{!! Form::label('caja_id', 'Caja:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm datocaja caja')) !!}
 			<div class="col-lg-3 col-md-3 col-sm-3">
 				<select name="caja_id" id="caja_id" class="form-control input-xs datocaja caja">
 					@foreach($cboCaja as $caja)
@@ -96,14 +91,27 @@
 					@endforeach
 				</select>
 			</div>	
-			{!! Form::label('tipodocumento', 'Tipo de documento:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label caja')) !!}
+			{!! Form::label('tipodocumento', 'Tipo de documento:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label input-sm caja')) !!}
 			<div class="col-lg-4 col-md-4 col-sm-4">
-				<select name="tipodocumento" id="tipodocumento" class="col-lg-8 col-md-8 col-sm-8 control-label input-xs form-control caja">
+				<select name="tipodocumento" id="tipodocumento" class="form-control input-xs form-control caja">
 					<option value="Boleta">Boleta</option>
 					<option value="Factura">Factura</option>
 					<option value="Ticket">Ticket</option>
 				</select>
-			</div>	
+			</div>
+			<hr>
+	        {!! Form::label('formapago', 'Forma Pago:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label datocaja caja input-sm')) !!}
+			<div class="col-lg-8 col-md-8 col-sm-8">
+				<label class="checkbox-inline" onclick="divFormaPago('0', true)">
+			      	<input type="checkbox" id="cbx0">Efectivo
+			    </label>
+			    <label class="checkbox-inline" onclick="divFormaPago('1', true)">
+			      	<input type="checkbox" id="cbx1">Visa
+			    </label>
+			    <label class="checkbox-inline" onclick="divFormaPago('2', true)">
+			      	<input type="checkbox" id="cbx2">Master
+			    </label>
+			</div>        	
 	    </div>
 		<div class="form-group datocaja" id="divTarjeta" style="display: none">
 	        {!! Form::label('tipotarjeta', 'Tarjeta:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
@@ -197,5 +205,15 @@
 			total += parseFloat($(this).val());
 		});
 		$('#total').val(total.toFixed(3));
+	}
+
+	function divFormaPago(num, mostrar) {
+		var m = false;
+		$('#cbx' + num).attr('checked', 'checked');
+		if(mostrar == false) {
+			m = true;
+			$('#cbx' + num).removeAttr('checked');
+		}
+		$('#cbx' + num).attr("onclick", "divFormaPago('" + num + "', '" + m + "');");
 	}
 </script>
