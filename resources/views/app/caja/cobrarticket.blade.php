@@ -224,6 +224,7 @@
 			total += parseFloat($(this).val());
 		});
 		$('#total').val(total.toFixed(3));
+		calcularTotalPago();
 	}
 
 	function divFormaPago(num, mostrar) {
@@ -281,10 +282,16 @@
 		total = parseFloat(efectivo) + parseFloat(visa) + parseFloat(master);
 		$('#total2').val(total.toFixed(3));
 
+		coincidenciasMontos();		
+	}
+
+	function coincidenciasMontos() {
 		if($('#total').val() == $('#total2').val()) {
 			$('#mensajeMontos').html('Los montos coindicen.').css('color', 'green');
+			return true;
 		} else {
 			$('#mensajeMontos').html('Los montos no coindicen.').css('color', 'red');
+			return false;
 		}
 	}
 </script>
