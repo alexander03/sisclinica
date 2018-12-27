@@ -114,27 +114,31 @@
 			</div>        	
 	    </div>
 	    <div class="row">
-		    <div class="col-lg-6 col-md-6 col-sm-6">	    	
+		    <div class="col-lg-8 col-md-8 col-sm-8">	    	
 			    <div class="input-group form-control">
 					<span class="input-group-addon input-xs">EFECTIVO</span>
 					<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="formapago" id="efectivo" type="text" class="form-control input-xs">
 				</div>
 				<div class="input-group form-control">
-					<span class="input-group-addon input-xs">VISA</span>
+					<span class="input-group-addon input-xs">VISA.</span>
 					<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="formapago2" id="visa" type="text" class="form-control input-xs" readonly="">
+					<span class="input-group-addon input-xs">N°</span>
+					<input onkeypress="return filterFloat(event,this);" name="numvisa" id="numvisa" type="text" class="form-control input-xs" readonly="">
 				</div>
 				<div class="input-group form-control">
-					<span class="input-group-addon input-xs">MASTER</span>
+					<span class="input-group-addon input-xs">MAST.</span>
 					<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="formapago3" id="master" type="text" class="form-control input-xs" readonly="">
+					<span class="input-group-addon input-xs">N°</span>
+					<input onkeypress="return filterFloat(event,this);" name="nummaster" id="nummaster" type="text" class="form-control input-xs" readonly="">
 				</div>	
 			</div>	
-			<div class="col-lg-6 col-md-6 col-sm-6">	    	
+			<div class="col-lg-4 col-md-4 col-sm-4">	    	
 			    <div class="input-group form-control">
 					<span class="input-group-addon input-xs">TOTAL</span>
 					<input name="total2" id="total2" type="text" class="form-control input-xs" readonly="" value="0.000">
 				</div>
 			</div>
-			<div class="col-lg-6 col-md-6 col-sm-6">	    	
+			<div class="col-lg-4 col-md-4 col-sm-4">	    	
 			    <b id="mensajeMontos" style="color:red">Los montos no coinciden.</b>
 			</div>		
 		</div>
@@ -255,8 +259,10 @@
 				$('#efectivo').attr('readonly', true).val('');
 			} else if(num == '1') {
 				$('#visa').attr('readonly', true).val('');
+				$('#numvisa').attr('readonly', true).val('');
 			} else {
 				$('#master').attr('readonly', true).val('');
+				$('#nummaster').attr('readonly', true).val('');
 			}
 		} else {
 			m = '0';
@@ -266,8 +272,10 @@
 				$('#efectivo').attr('readonly', false).focus();
 			} else if(num == '1') {
 				$('#visa').attr('readonly', false).focus();
+				$('#numvisa').attr('readonly', false);
 			} else {
 				$('#master').attr('readonly', false).focus();
+				$('#nummaster').attr('readonly', false);
 			}
 		}
 		$('#divcbx' + num).attr("onclick", "divFormaPago('" + num + "', '" + m + "');");
