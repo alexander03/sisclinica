@@ -58,20 +58,16 @@
 		<div class="form-group">
 		    {!! Form::label('numero', 'Nro. Doc.', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
 		    {!! Form::label('numero', $movimiento->serie.'-'.$movimiento->numero, array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm', 'style' => 'font-weight:normal;text-align:left;text-align:left')) !!}
-		    {!! Form::label('siniestro', 'Siniestro', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
-			{!! Form::label('siniestro', $movimiento->comentario . ' | ' .$movimiento->fecha, array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
+		    {!! Form::label('plan', 'Plan', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
+			{!! Form::label('plan', $movimiento->plan->nombre, array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
 		</div>
 		<div class="form-group">
 			{!! Form::label('paciente', 'Paciente', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
-			{!! Form::label('siniestro', $movimiento->persona->nombres . ' ' . $movimiento->persona->apellidopaterno . ' ' . $movimiento->persona->apellidomaterno, array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
+			{!! Form::label('paciente', $movimiento->persona->nombres . ' ' . $movimiento->persona->apellidopaterno . ' ' . $movimiento->persona->apellidomaterno, array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
 			{!! Form::label('doctor', 'Referido', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
 			@if(!is_null($movimiento->doctor))
-				{!! Form::label('siniestro', ($movimiento->doctor->nombres . ' ' . $movimiento->doctor->apellidopaterno . ' ' . $movimiento->doctor->apellidomaterno), array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
+				{!! Form::label('doctor', ($movimiento->doctor->nombres . ' ' . $movimiento->doctor->apellidopaterno . ' ' . $movimiento->doctor->apellidomaterno), array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
 			@endif
-		</div>
-		<div class="form-group">
-			{!! Form::label('plan', 'Plan', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label input-sm')) !!}
-			{!! Form::label('siniestro', $movimiento->plan->nombre, array('class' => 'col-lg-8 col-md-8 col-sm-8 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
 		</div>
 		<hr>
 		<!-- OPCIONES -->
@@ -88,9 +84,7 @@
 			{!! Form::label('caja_id', 'Caja:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm datocaja caja')) !!}
 			<div class="col-lg-3 col-md-3 col-sm-3">
 				<select name="caja_id" id="caja_id" class="form-control input-xs datocaja caja">
-					@foreach($cboCaja as $caja)
-					<option value="{{ $caja->id }}">{{ $caja->nombre }}</option>
-					@endforeach
+					<option value="{{ $cboCaja[0]->id }}">{{ $cboCaja[0]->nombre }}</option>
 				</select>
 			</div>	
 			{!! Form::label('tipodocumento', 'Tipo de documento:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label input-sm caja')) !!}
