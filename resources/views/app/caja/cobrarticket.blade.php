@@ -34,10 +34,10 @@
 						</td>
 						<td style="font-size: 10px">{{ $detalle->nombre }}</td>
 						<td>
-							<input name="precio{{ $i }}" id="precio{{ $i }}" class="form-control input-xs precio" type="text" value="{{ $detalle->precio }}" onkeyup="inicializarPrecios();">
+							<input name="precio{{ $i }}" id="precio{{ $i }}" class="form-control input-xs precio" type="text" value="{{ $detalle->precio }}" onkeypress="return filterFloat(event,this);" onkeyup="inicializarPrecios();">
 						</td>
 						<td>
-							<input name="descuento{{ $i }}" id="descuento{{ $i }}" class="form-control input-xs descuento" type="text" value="0" onkeyup="inicializarPrecios();">
+							<input name="descuento{{ $i }}" id="descuento{{ $i }}" class="form-control input-xs descuento" type="text" value="0" onkeypress="return filterFloat(event,this);" onkeyup="inicializarPrecios();">
 						</td>
 						<td>
 							<input name="subtotal{{ $i }}" id="subtotal{{ $i }}" class="form-control input-xs subtotal" type="text" readonly="">
@@ -102,7 +102,7 @@
 			<hr>
 	        {!! Form::label('formapago', 'Forma Pago:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label datocaja caja input-sm')) !!}
 			<div class="col-lg-8 col-md-8 col-sm-8">
-				<label id="divcbx0" class="checkbox-inline" onclick="divFormaPago('0', '1')">
+				<label id="divcbx0" class="checkbox-inline" style="color:red" onclick="divFormaPago('0', '0')">
 			      	<input style="display: none;" type="checkbox" id="cbx0">Efectivo
 			    </label>
 			    <label id="divcbx1" class="checkbox-inline" onclick="divFormaPago('1', '1')">
@@ -117,15 +117,15 @@
 		    <div class="col-lg-6 col-md-6 col-sm-6">	    	
 			    <div class="input-group form-control">
 					<span class="input-group-addon input-xs">EFECTIVO</span>
-					<input onkeyup="calcularTotalPago();" name="formapago" id="efectivo" type="text" class="form-control input-xs" readonly="">
+					<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="formapago" id="efectivo" type="text" class="form-control input-xs">
 				</div>
 				<div class="input-group form-control">
 					<span class="input-group-addon input-xs">VISA</span>
-					<input onkeyup="calcularTotalPago();" name="formapago2" id="visa" type="text" class="form-control input-xs" readonly="">
+					<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="formapago2" id="visa" type="text" class="form-control input-xs" readonly="">
 				</div>
 				<div class="input-group form-control">
 					<span class="input-group-addon input-xs">MASTER</span>
-					<input onkeyup="calcularTotalPago();" name="formapago3" id="master" type="text" class="form-control input-xs" readonly="">
+					<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="formapago3" id="master" type="text" class="form-control input-xs" readonly="">
 				</div>	
 			</div>	
 			<div class="col-lg-6 col-md-6 col-sm-6">	    	
@@ -151,6 +151,8 @@
 		configurarAnchoModal('1200');
 		init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'B', '{!! $entidad !!}');
 		inicializarPrecios();
+		cargarEfectivo();
+		calcularTotalPago();
 	}); 
 
 	function mostrarDatoCaja(check,check2){
@@ -223,6 +225,26 @@
 		calcularTotalPago();
 	}
 
+	function calcularTotalPago() {
+		var efectivo = $('#efectivo').val();
+		var visa = $('#visa').val();
+		var master = $('#master').val();
+		var total = 0.000;
+		if(efectivo == '') {
+			efectivo = 0.000;
+		} 
+		if(visa == '') {
+			visa = 0.000;
+		}
+		if(master == '') {
+			master = 0.000;
+		}
+		total = parseFloat(efectivo) + parseFloat(visa) + parseFloat(master);
+		$('#total2').val(total.toFixed(3));
+
+		coincidenciasMontos();		
+	}
+
 	function divFormaPago(num, mostrar) {
 		var m;
 		if(mostrar == '0') {
@@ -250,35 +272,6 @@
 		}
 		$('#divcbx' + num).attr("onclick", "divFormaPago('" + num + "', '" + m + "');");
 		calcularTotalPago();
-	}
-
-	function solodecimal(numero) {
-	    var RE = /^\d*\.?\d*$/;
-	    if (RE.test(numero)) {
-	        return true;
-	    } else {
-	        return false;
-	    }
-	}
-
-	function calcularTotalPago() {
-		var efectivo = $('#efectivo').val();
-		var visa = $('#visa').val();
-		var master = $('#master').val();
-		var total = 0.000;
-		if(!solodecimal(efectivo) || efectivo == '') {
-			efectivo = 0.000;
-		} 
-		if(!solodecimal(visa) || visa == '') {
-			visa = 0.000;
-		}
-		if(!solodecimal(master) || master == '') {
-			master = 0.000;
-		}
-		total = parseFloat(efectivo) + parseFloat(visa) + parseFloat(master);
-		$('#total2').val(total.toFixed(3));
-
-		coincidenciasMontos();		
 	}
 
 	function coincidenciasMontos() {
@@ -327,5 +320,42 @@
 				buscar('Caja');
 			},
 		});
+	}
+
+	function filterFloat(evt,input){
+	    var key = window.Event ? evt.which : evt.keyCode;    
+	    var chark = String.fromCharCode(key);
+	    var tempValue = input.value+chark;
+	    if(key >= 48 && key <= 57){
+	        if(filter(tempValue)=== false){
+	            return false;
+	        }else{       
+	            return true;
+	        }
+	    }else{
+	          if(key == 8 || key == 13 || key == 0) {     
+	              return true;              
+	          }else if(key == 46){
+	                if(filter(tempValue)=== false){
+	                    return false;
+	                }else{       
+	                    return true;
+	                }
+	          }else{
+	              return false;
+	          }
+	    }
+	}
+	function filter(__val__){
+	    var preg = /^([0-9]+\.?[0-9]{0,3})$/; 
+	    if(preg.test(__val__) === true){
+	        return true;
+	    }else{
+	       return false;
+	    }	    
+	}
+
+	function cargarEfectivo() {
+		$('#efectivo').val($('#total').val()).focus();
 	}
 </script>
