@@ -57,7 +57,7 @@
 		<div id="divMensajeError{!! $entidad !!}"></div>
 		<div class="form-group">
 		    {!! Form::label('numero', 'Nro. Doc.', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
-		    {!! Form::label('numero', $movimiento->serie.'-'.$movimiento->numero, array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm', 'style' => 'font-weight:normal;text-align:left;text-align:left')) !!}
+		    {!! Form::label('numero', $movimiento->numero, array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm', 'style' => 'font-weight:normal;text-align:left;text-align:left')) !!}
 		    {!! Form::label('plan', 'Plan', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
 			{!! Form::label('plan', $movimiento->plan->nombre, array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
 		</div>
@@ -302,6 +302,30 @@
 			alert('Ingresa un numero de comprobante.');
 			return false;
 		} else {
+			if(!$('#visa').attr('readonly')) {
+				if($('#visa').val().length == 0) {
+					$('#visa').focus();
+					alert('Ingresa un monto para visa.');
+					return false;
+				}
+				if($('#numvisa').val().length == 0) {
+					$('#numvisa').focus();
+					alert('Ingresa un numero para visa.');
+					return false;
+				}
+			} 
+			if(!$('#master').attr('readonly')) {
+				if($('#master').val().length == 0) {
+					$('#master').focus();
+					alert('Ingresa un monto para master.');
+					return false;
+				}
+				if($('#nummaster').val().length == 0) {
+					$('#nummaster').focus();
+					alert('Ingresa un numero para master.');
+					return false;
+				}
+			}
 			return true;
 		}		
 	}
@@ -315,6 +339,7 @@
 			alert('Los montos no coinciden.');
 			return false;
 		}
+		return false;
 		$.ajax({
 			url: form.attr('action'),
 			type: form.attr('method'),
