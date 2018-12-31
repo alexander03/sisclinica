@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 class Sucursal extends Model
 {
     use SoftDeletes;
-    protected $table = 'Sucursal';
+    protected $table = 'sucursal';
     protected $dates = ['deleted_at'];
     
 }

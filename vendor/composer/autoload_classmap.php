@@ -50,6 +50,7 @@ return array(
     'CreateTableRol' => $baseDir . '/database/migrations/2017_02_09_180639_create_table_rol.php',
     'CreateTableRolpersona' => $baseDir . '/database/migrations/2017_02_09_202107_create_table_rolpersona.php',
     'CreateTableServicio' => $baseDir . '/database/migrations/2017_02_23_205705_create_table_servicio.php',
+    'CreateTableSucursal' => $baseDir . '/database/migrations/2018_12_28_135511_create_table_sucursal.php',
     'CreateTableTipodocumento' => $baseDir . '/database/migrations/2017_02_23_193505_create_table_tipodocumento.php',
     'CreateTableTipoexamen' => $baseDir . '/database/migrations/2017_11_30_132343_create_table_tipoexamen.php',
     'CreateTableTipomovimiento' => $baseDir . '/database/migrations/2017_02_23_192807_create_table_tipomovimiento.php',

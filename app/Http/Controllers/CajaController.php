@@ -190,7 +190,12 @@ class CajaController extends Controller
         $title            = $this->tituloAdmin;
         $ruta             = $this->rutas;
         $cboCaja          = array();
-        $rs        = Caja::where('id','<>',6)->where('id','<>',7)->orderBy('nombre','ASC')->get();
+        $user = Auth::user();
+        if($user->sucursal_id != null){
+            $rs        = Caja::where('id','<>',6)->where('id','<>',7)->where('sucursal_id', '=', $user->sucursal_id)->orderBy('nombre','ASC')->get();
+        }else{
+            $rs        = Caja::where('id','<>',6)->where('id','<>',7)->orderBy('nombre','ASC')->get();
+        }
         $caja=0;
         foreach ($rs as $key => $value) {
             $cboCaja = $cboCaja + array($value->id => $value->nombre);
@@ -203,7 +208,6 @@ class CajaController extends Controller
             $serie=3;
             $caja=1;
         }
-        $user = Auth::user();
         if($user->usertype_id==11){
             $serie=4;
             $caja=4;
@@ -776,7 +780,7 @@ class CajaController extends Controller
         }
         if (isset($lista)) {            
             $pdf = new TCPDF();
-            //$pdf::SetImaº
+            //$pdf::SetImaï¿½
             $pdf::SetTitle('Detalle Cierre de '.$caja->nombre);
             $pdf::AddPage('L');
             $pdf::SetFont('helvetica','B',12);
@@ -2257,7 +2261,7 @@ class CajaController extends Controller
             $listConcepto3[]   = 25;//PAGO DE SOCIO
             $listConcepto[]   = 20;//TRANSF BOLETEO EGRESO
             $listConcepto[]   = 21;//TRANSF BOLETEO INGRESO
-            //$listConcepto[]   = 30;//DEVOLUCION GARANTÍA CONTROL REMOTO
+            //$listConcepto[]   = 30;//DEVOLUCION GARANTï¿½A CONTROL REMOTO
             $listConcepto4[]   = 31;//TRANSF FARMACIA EGRESO
             $listConcepto4[]   = 32;//TRANSF FARMACiA INGRESO
             $lista            = $resultado->get();

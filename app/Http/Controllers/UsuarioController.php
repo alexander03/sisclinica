@@ -9,6 +9,7 @@ use Validator;
 use App\Http\Requests;
 use App\User;
 use App\Usertype;
+use App\Sucursal;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -101,10 +102,11 @@ class UsuarioController extends Controller
         $entidad        = 'Usuario';
         $usuario        = null;
         $cboTipousuario = array('' => 'Seleccione') + Usertype::lists('name', 'id')->all();
+        $cboSucursal = array('' => 'Seleccione') + Sucursal::lists('razonsocial', 'id')->all();
         $formData       = array('usuario.store');
         $formData       = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton          = 'Registrar'; 
-        return view($this->folderview.'.mant')->with(compact('usuario', 'formData', 'entidad', 'boton', 'listar', 'cboTipousuario'));
+        return view($this->folderview.'.mant')->with(compact('usuario', 'formData', 'entidad', 'boton', 'listar', 'cboSucursal' , 'cboTipousuario'));
     }
 
     /**
@@ -132,6 +134,11 @@ class UsuarioController extends Controller
             $usuario->password     = Hash::make($request->input('password'));
             $usuario->usertype_id  = $request->input('usertype_id');
             $usuario->person_id    = $request->input('person_id');
+            $sucursal_id = $request->input('sucursal_id');
+            if($sucursal_id == ""){
+                $sucursal_id = null;
+            }
+            $usuario->sucursal_id  = $sucursal_id;
             $usuario->save();
         });
         return is_null($error) ? "OK" : $error;
@@ -162,12 +169,13 @@ class UsuarioController extends Controller
         }
         $listar         = Libreria::getParam($request->input('listar'), 'NO');
         $cboTipousuario = array('' => 'Seleccione') + Usertype::lists('name', 'id')->all();
+        $cboSucursal = array('' => 'Seleccione') + Sucursal::lists('razonsocial', 'id')->all();
         $usuario        = User::find($id);
         $entidad        = 'Usuario';
         $formData       = array('usuario.update', $id);
         $formData       = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton          = 'Modificar';
-        return view($this->folderview.'.mant')->with(compact('usuario', 'formData', 'entidad', 'boton', 'listar', 'cboTipousuario'));
+        return view($this->folderview.'.mant')->with(compact('usuario', 'formData', 'entidad', 'boton', 'listar', 'cboSucursal' , 'cboTipousuario'));
     }
 
     /**
@@ -198,6 +206,11 @@ class UsuarioController extends Controller
                 $usuario->password = Hash::make($request->input('password'));
             }
             $usuario->usertype_id = $request->input('usertype_id');
+            $sucursal_id = $request->input('sucursal_id');
+            if($sucursal_id == ""){
+                $sucursal_id = null;
+            }
+            $usuario->sucursal_id  = $sucursal_id;
             $usuario->save();
         });
         return is_null($error) ? "OK" : $error;
