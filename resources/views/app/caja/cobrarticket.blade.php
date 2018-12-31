@@ -87,7 +87,7 @@
 					<option value="{{ $cboCaja[0]->id }}">{{ $cboCaja[0]->nombre }}</option>
 				</select>
 			</div>	
-			{!! Form::label('tipodocumento', 'Tipo de documento:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label input-sm caja')) !!}
+			{!! Form::label('tipodocumento', 'Tipo de doc.:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm caja')) !!}
 			<div class="col-lg-2 col-md-2 col-sm-2">
 				<select name="tipodocumento" id="tipodocumento" class="form-control input-xs form-control caja">
 					<option value="Boleta">Boleta</option>
@@ -97,9 +97,11 @@
 			</div>
 			{!! Form::label('numcomprobante', 'N°:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
 			<div class="col-lg-2 col-md-2 col-sm-2">
-				<input type="text" name="numcomprobante" id="numcomprobante" class="form-control input-xs form-control">
-			</div>
-			<hr>
+    			{!! Form::text('serieventa', $movimiento->serie, array('class' => 'form-control input-xs datocaja', 'id' => 'serieventa')) !!}
+    		</div>
+            <div class="col-lg-2 col-md-2 col-sm-2">
+    		{!! Form::text('numeroventa', $movimiento->numero, array('class' => 'form-control input-xs', 'id' => 'numeroventa', 'readonly' => 'true')) !!}
+        		</div>
 	        {!! Form::label('formapago', 'Forma Pago:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label datocaja caja input-sm')) !!}
 			<div class="col-lg-8 col-md-8 col-sm-8">
 				<label id="divcbx0" class="checkbox-inline" style="color:red" onclick="divFormaPago('0', '0')">
@@ -390,5 +392,21 @@
 
 	function cargarEfectivo() {
 		$('#efectivo').val($('#total').val()).focus();
+	}
+
+	function generarNumero(){
+	    $.ajax({
+	        type: "POST",
+	        url: "ticket/generarNumero",
+	        data: "tipodocumento="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="tipodocumento"]').val()+"&serie="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="serieventa"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
+	        success: function(a) {
+	            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="numeroventa"]').val(a);
+	            if($(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="tipodocumento"]').val()=="Factura"){
+	                $(".datofactura").css("display","");
+	            }else{
+	                $(".datofactura").css("display","none");
+	            }
+	        }
+	    });
 	}
 </script>
