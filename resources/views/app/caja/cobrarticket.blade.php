@@ -89,7 +89,7 @@
 			</div>	
 			{!! Form::label('tipodocumento', 'Tipo de doc.:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm caja')) !!}
 			<div class="col-lg-2 col-md-2 col-sm-2">
-				<select name="tipodocumento" id="tipodocumento" class="form-control input-xs form-control caja">
+				<select name="tipodocumento" id="tipodocumento" class="form-control input-xs form-control caja" onchange="generarNumero();">
 					<option value="Boleta">Boleta</option>
 					<option value="Factura">Factura</option>
 					<option value="Ticket">Ticket</option>
