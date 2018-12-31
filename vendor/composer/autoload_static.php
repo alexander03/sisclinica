@@ -383,6 +383,7 @@ class ComposerStaticInit9538a1ea16f4d27e5f9e368489f02672
         'CreateTableRol' => __DIR__ . '/../..' . '/database/migrations/2017_02_09_180639_create_table_rol.php',
         'CreateTableRolpersona' => __DIR__ . '/../..' . '/database/migrations/2017_02_09_202107_create_table_rolpersona.php',
         'CreateTableServicio' => __DIR__ . '/../..' . '/database/migrations/2017_02_23_205705_create_table_servicio.php',
+        'CreateTableSucursal' => __DIR__ . '/../..' . '/database/migrations/2018_12_28_135511_create_table_sucursal.php',
         'CreateTableTipodocumento' => __DIR__ . '/../..' . '/database/migrations/2017_02_23_193505_create_table_tipodocumento.php',
         'CreateTableTipoexamen' => __DIR__ . '/../..' . '/database/migrations/2017_11_30_132343_create_table_tipoexamen.php',
         'CreateTableTipomovimiento' => __DIR__ . '/../..' . '/database/migrations/2017_02_23_192807_create_table_tipomovimiento.php',
