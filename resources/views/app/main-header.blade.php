@@ -2,7 +2,17 @@
 use App\User;
 use App\Person;
 use App\Usertype;
+use App\Sucursal;
 use Jenssegers\Date\Date;
+use Illuminate\Support\Facades\Session;
+
+$sucursal_id = Session::get('sucursal_id');
+$sucursal = null;
+if($sucursal_id != null){
+    $sucursal = Sucursal::find($sucursal_id);
+}
+
+
 Date::setLocale('es');
 $user     = Auth::user();
 $person   = Person::find($user->person_id);
@@ -39,6 +49,13 @@ $date     = Date::instance($usertype->created_at)->format('l j F Y');
         <div id='divAlerta' class='enlaces' style='color:red;font-weight: bold;'></div>
         <div class="navbar-custom-menu">
             <ul class="nav navbar-nav">
+                <li>
+                @if($sucursal == null)
+                    <div id="sucursalsession" style="margin-top: 15px; margin-right: 15px;"></div>
+                @else
+                    <div id="sucursalsession" style="margin-top: 15px; margin-right: 15px;">SUCURSAL: {{ $sucursal->razonsocial }}</div>
+                @endif
+                </li>
                 <!-- User Account: style can be found in dropdown.less -->
                 <li class="dropdown user user-menu">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">

@@ -20,13 +20,6 @@
                 </ul>
             </div>
             @endif
-            <div class="form-group has-feedback">
-                <select class="form-control" id="sucursal" name="sucursal">
-                    <option value="N">SELECCIONE SUCURSAL</option>
-					<option value="1">CLINICA DE OJOS</option>
-					<option value="2">CLINICA DE ESPECIALIDADES</option>
-                </select>
-            </div>
             <div class="form-group{{ $errors->has('login') ? ' has-error' : '' }} has-feedback">
                 <input id="login" name="login" type="text" class="form-control" placeholder="Usuario" value="{{ old('login') }}" required autofocus>
                 <span class="glyphicon glyphicon-user form-control-feedback"></span>

@@ -16,7 +16,7 @@
 							{!! Form::hidden('page', 1, array('id' => 'page')) !!}
 							{!! Form::hidden('accion', 'listar', array('id' => 'accion')) !!}
                             <div class="form-group" <?php if($user->usertype_id==5 || $user->usertype_id==6 || $user->usertype_id==11) echo "style='display:none'";?>>
-								{!! Form::label('caja_id', 'Caja:') !!}
+								{!! Form::label('caja_id', 'Sucursal:') !!}
 								{!! Form::select('caja_id', $cboCaja, $caja, array('class' => 'form-control input-xs', 'id' => 'caja_id', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
 							</div>
 							<div class="form-group">
