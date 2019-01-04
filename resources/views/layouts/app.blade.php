@@ -1,3 +1,11 @@
+<?php
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
+use App\Sucursal;
+$user = Auth::user();
+$sucursal_id = Session::get('sucursal_id');
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -246,5 +254,42 @@
     {!! HTML::script('dist/js/typeahead.bundle.min.js') !!}
     {!! HTML::script('dist/js/bloodhound.min.js') !!}
     
+
+    @if($user->sucursal_id == null && $sucursal_id == null)
+
+    <script>
+    $(document).ready(function() {
+        cargarRuta('usuario/escogerSucursal', 'container');
+    });
+    </script>
+
+    @endif
+
+    @if($user->sucursal_id != null && $sucursal_id == null)
+
+        <script>
+        $(document).ready(function() {
+            
+            var sucursal_id = "{{ $user->sucursal_id }}";
+            var respuesta="";
+            var ajax = $.ajax({
+                "method": "POST",
+                "url": "{{ url('/usuario/guardarSucursal') }}",
+                "data": {
+                    "sucursal_id" : sucursal_id, 
+                    "_token": "{{ csrf_token() }}",
+                    }
+            }).done(function(info){
+                respuesta = info;
+            }).always(function(){
+                $("#container").html("");
+                $("#sucursalsession").html("SUCURSAL: " + respuesta);
+            });
+
+        });
+        </script>
+
+    @endif
+
 </body>
 </html>

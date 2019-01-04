@@ -13,6 +13,7 @@ use App\Sucursal;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class UsuarioController extends Controller
 {
@@ -22,6 +23,8 @@ class UsuarioController extends Controller
     protected $tituloModificar = 'Modificar usuario';
     protected $tituloEliminar  = 'Eliminar usuario';
     protected $rutas           = array('create' => 'usuario.create', 
+            'guardarSucursal' => 'usuario.guardarSucursal',
+            'escogerSucursal' => 'usuario.escogerSucursal',
             'edit'   => 'usuario.edit', 
             'delete' => 'usuario.eliminar',
             'search' => 'usuario.buscar',
@@ -257,4 +260,29 @@ class UsuarioController extends Controller
         $boton    = 'Eliminar';
         return view('app.confirmarEliminar')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar'));
     }
+
+    public function escogerSucursal(Request $request)
+    {
+        $entidad          = 'Usuario';
+        $title            = 'Escoger Sucursal';
+        $ruta             = $this->rutas;
+        $user = Auth::user();
+        $empresa_id = $user->empresa_id;
+        $cboSucursal      = Sucursal::lists('razonsocial', 'id')->all();
+        $sucursal_session = $request->session()->get('sucursal_id');
+        return view($this->folderview.'.escogerSucursal')->with(compact('cboSucursal','entidad', 'sucursal_session', 'title', 'ruta'));
+    }
+
+    public function guardarSucursal(Request $request)
+    {
+        $sucursal_id = $request->input('sucursal_id');
+
+        $sucursal = Sucursal::find($sucursal_id);
+
+        $request->session()->put('sucursal_id', $sucursal_id );
+
+        return $sucursal->razonsocial;
+
+    }
+
 }

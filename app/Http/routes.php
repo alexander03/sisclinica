@@ -99,6 +99,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::post('usuario/buscar', 'UsuarioController@buscar')->name('usuario.buscar');
     Route::get('usuario/eliminar/{id}/{listarluego}', 'UsuarioController@eliminar')->name('usuario.eliminar');
+    Route::get('usuario/escogerSucursal','UsuarioController@escogerSucursal')->name('usuario.escogerSucursal');
+    Route::post('usuario/guardarSucursal','UsuarioController@guardarSucursal')->name('usuario.guardarSucursal');
     Route::resource('usuario', 'UsuarioController', array('except' => array('show')));
 
     /* DISTRIBUIDORA */
