@@ -14,6 +14,7 @@ use App\Person;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 use Elibyy\TCPDF\Facades\TCPDF;
 use Illuminate\Support\Facades\Auth;
 
@@ -40,7 +41,7 @@ class SalaoperacionController extends Controller
     }
 
     /**
-     * Mostrar el resultado de búsquedas
+     * Mostrar el resultado de bï¿½squedas
      * 
      * @return Response 
      */
@@ -53,11 +54,16 @@ class SalaoperacionController extends Controller
         $doctor           = Libreria::getParam($request->input('doctor'),'');
         $fecha            = Libreria::getParam($request->input('fecha'));
         $sala             = $request->input('sala');
+        
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $resultado        = Salaoperacion::leftjoin('historia','historia.id','=','salaoperacion.historia_id')
                             ->join('person as doctor', 'doctor.id', '=', 'salaoperacion.medico_id')
                             ->leftjoin('person as usuario', 'usuario.id', '=', 'salaoperacion.usuario_id')
                             ->join('especialidad','especialidad.id','=','doctor.especialidad_id')
                             ->leftjoin('person as paciente', 'paciente.id', '=', 'historia.person_id')
+                            ->where('sucursal_id','=',$sucursal_id)
                             ->where(DB::raw('concat(doctor.apellidopaterno,\' \',doctor.apellidomaterno,\' \',doctor.nombres)'), 'LIKE', '%'.strtoupper($doctor).'%');
         if($paciente!=""){
             //$resultado = $resultado->where('Salaoperacion.paciente', 'LIKE', '%'.strtoupper($paciente).'%');
@@ -195,8 +201,13 @@ class SalaoperacionController extends Controller
             return json_encode($dat);
         }
         $user = Auth::user();
-        $error = DB::transaction(function() use($request, $user){
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
+        $error = DB::transaction(function() use($request, $user, $sucursal_id){
             $Salaoperacion       = new Salaoperacion();
+            $Salaoperacion->sucursal_id = $sucursal_id;
             $Salaoperacion->fecha = $request->input('fecha');
             $person_id = $request->input('person_id');
             if($person_id==""){

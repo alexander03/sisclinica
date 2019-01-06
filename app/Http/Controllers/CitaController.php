@@ -13,6 +13,7 @@ use App\Person;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 use Elibyy\TCPDF\Facades\TCPDF;
 use Illuminate\Support\Facades\Auth;
 use Excel;
@@ -40,7 +41,7 @@ class CitaController extends Controller
     }
 
     /**
-     * Mostrar el resultado de búsquedas
+     * Mostrar el resultado de bï¿½squedas
      * 
      * @return Response 
      */
@@ -52,11 +53,16 @@ class CitaController extends Controller
         $paciente         = Libreria::getParam($request->input('paciente'),'');
         $doctor           = Libreria::getParam($request->input('doctor'),'');
         $fecha            = Libreria::getParam($request->input('fecha'));
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $resultado        = Cita::leftjoin('person as paciente', 'paciente.id', '=', 'cita.paciente_id')
                             ->join('person as doctor', 'doctor.id', '=', 'cita.doctor_id')
                             ->join('especialidad','especialidad.id','=','doctor.especialidad_id')
                             ->leftjoin('historia','historia.id','=','cita.historia_id')
                             ->where('cita.paciente', 'LIKE', '%'.strtoupper($paciente).'%')
+                            ->where('sucursal_id','=',$sucursal_id)
                             ->where(DB::raw('concat(doctor.apellidopaterno,\' \',doctor.apellidomaterno,\' \',doctor.nombres)'), 'LIKE', '%'.strtoupper($doctor).'%');
         if($fecha!=""){
             $resultado = $resultado->where('cita.fecha', '=', ''.$fecha.'');
@@ -160,8 +166,13 @@ class CitaController extends Controller
         }       
 
         $user = Auth::user();
-        $error = DB::transaction(function() use($request,$user){
+        
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
+        $error = DB::transaction(function() use($request,$user, $sucursal_id){
             $Cita       = new Cita();
+            $Cita->sucursal_id = $sucursal_id;
             $Cita->fecha = $request->input('fecha');
             $person_id = $request->input('person_id');
             if($person_id==""){

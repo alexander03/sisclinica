@@ -18,6 +18,7 @@ use App\Detallemovcaja;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 use Jenssegers\Date\Date;
 use Elibyy\TCPDF\Facades\TCPDF;
 use Illuminate\Support\Facades\Auth;
@@ -90,13 +91,17 @@ class CajaController extends Controller
         }else{
             $movimiento_mayor = 0;
         }
-        
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
                             ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
                             ->leftjoin('movimiento as m2','movimiento.id','=','m2.movimiento_id')
                             ->where('movimiento.caja_id', '=', $caja_id)
                             ->whereNull('movimiento.cajaapertura_id')
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.id', '>=', $movimiento_mayor)
                             ->where(function($query){
                                 $query
@@ -107,13 +112,14 @@ class CajaController extends Controller
         $lista            = $resultado->get();
         $listapendiente = array();
 
-        if ($caja_id == 4) {
+        if ($caja_id == 3 || $caja_id == 4) {
             $resultado2        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->leftjoin('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
                             ->leftjoin('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
                             ->leftjoin('movimiento as m2','movimiento.id','=','m2.movimiento_id')
                             ->where('movimiento.serie', '=', $caja_id)
                             ->where('movimiento.estadopago', '=', 'PP')
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.id', '>=', $movimiento_mayor);
             $resultado2        = $resultado2->select('movimiento.*','m2.situacion as situacion2',DB::raw('CONCAT(paciente.apellidopaterno," ",paciente.apellidomaterno," ",paciente.nombres) as paciente'),DB::raw('responsable.nombres as responsable'))->orderBy('movimiento.id', 'desc');
             $listapendiente            = $resultado2->get();
@@ -191,11 +197,8 @@ class CajaController extends Controller
         $ruta             = $this->rutas;
         $cboCaja          = array();
         $user = Auth::user();
-        if($user->sucursal_id != null){
-            $rs        = Caja::where('id','<>',6)->where('id','<>',7)->where('sucursal_id', '=', $user->sucursal_id)->orderBy('nombre','ASC')->get();
-        }else{
-            $rs        = Caja::where('id','<>',6)->where('id','<>',7)->orderBy('nombre','ASC')->get();
-        }
+        $sucursal_id = Session::get('sucursal_id');
+        $rs        = Caja::where('id','<>',6)->where('id','<>',7)->where('sucursal_id', '=', $sucursal_id)->orderBy('nombre','ASC')->get();
         $caja=0;
         foreach ($rs as $key => $value) {
             $cboCaja = $cboCaja + array($value->id => $value->nombre);
@@ -238,7 +241,11 @@ class CajaController extends Controller
             $cboCaja = $cboCaja + array($value->id => $value->nombre);
         }
         $cboTipo = array('RH' => 'RH', 'FT' => 'FT', 'BV' => 'BV', 'TK' => 'TK', 'VR' => 'VR');
-        $numero              = Movimiento::NumeroSigue(2,2);//movimiento caja y documento ingreso
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
+        $numero              = Movimiento::NumeroSigue($caja2->id,$sucursal_id,2,2);//movimiento caja y documento ingreso
         $formData            = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
 
         $boton               = 'Registrar '.$caja2->nombre; 
@@ -259,8 +266,13 @@ class CajaController extends Controller
             return $validacion->messages()->toJson();
         }
         $user = Auth::user();
-        $error = DB::transaction(function() use($request,$user){
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
+        $error = DB::transaction(function() use($request,$user,$sucursal_id){
             $movimiento        = new Movimiento();
+            $movimiento->sucursal_id = $sucursal_id;
             $movimiento->fecha = date("Y-m-d H:i:s");
             $movimiento->numero= $request->input('numero');
             $movimiento->responsable_id=$user->person_id;
@@ -298,8 +310,9 @@ class CajaController extends Controller
             if($request->input('concepto')==7 || $request->input('concepto')==16 || $request->input('concepto')==14 || $request->input('concepto')==18 || $request->input('concepto')==20 || $request->input('concepto')==31){//Transferencia de Caja y Socio y Tarjeta y atencion por convenio y boleteo y farmacia
                 $caja = Caja::find($request->input('caja_id'));
                 $movimiento        = new Movimiento();
+                $movimiento->sucursal_id = $sucursal_id;
                 $movimiento->fecha = date("Y-m-d H:i:s");
-                $numero              = Movimiento::NumeroSigue(2,2);
+                $numero              = Movimiento::NumeroSigue($caja->id,$sucursal_id,2,2);
                 $movimiento->numero= $numero;
                 $movimiento->responsable_id=$user->person_id;
                 if($request->input('concepto')==7 || $request->input('concepto')==14 || $request->input('concepto')==20){//caja y tarjeta y boleteo
@@ -498,14 +511,16 @@ class CajaController extends Controller
    	public function pdfCierre(Request $request){
         $caja                = Caja::find($request->input('caja_id'));
         $caja_id          = Libreria::getParam($request->input('caja_id'),'1');
-        $rst  = Movimiento::where('tipomovimiento_id','=',2)->where('caja_id','=',$caja_id)->orderBy('movimiento.id','DESC')->limit(1)->first();
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+        $rst  = Movimiento::where('sucursal_id','=',$sucursal_id)->where('tipomovimiento_id','=',2)->where('caja_id','=',$caja_id)->orderBy('movimiento.id','DESC')->limit(1)->first();
         if(count($rst)==0){
             $conceptopago_id=2;
         }else{
             $conceptopago_id=$rst->conceptopago_id;
         }
         
-        $rst              = Movimiento::where('tipomovimiento_id','=',2)->where('caja_id','=',$caja_id)->where('conceptopago_id','=',1)->orderBy('id','DESC')->limit(1)->first();
+        $rst              = Movimiento::where('sucursal_id','=',$sucursal_id)->where('tipomovimiento_id','=',2)->where('caja_id','=',$caja_id)->where('conceptopago_id','=',1)->orderBy('id','DESC')->limit(1)->first();
         if(count($rst)>0){
             $movimiento_mayor = $rst->id;    
         }else{
@@ -517,7 +532,8 @@ class CajaController extends Controller
                             ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
                             ->leftjoin('movimiento as m2','m2.movimiento_id','=','movimiento.id')
                             ->where('movimiento.caja_id', '=', $caja_id)
-                            ->where('movimiento.id', '>=', $movimiento_mayor);
+                            ->where('movimiento.id', '>=', $movimiento_mayor)
+                            ->where('movimiento.sucursal_id','=',$sucursal_id);
         $resultado        = $resultado->select('movimiento.*','m2.situacion as situacion2')->orderBy('movimiento.id', 'desc');
         $lista            = $resultado->get();
         if (count($lista) > 0) {            
@@ -716,14 +732,18 @@ class CajaController extends Controller
     public function pdfDetalleCierre(Request $request){
         $caja                = Caja::find($request->input('caja_id'));
         $caja_id          = Libreria::getParam($request->input('caja_id'),'1');
-        $rst  = Movimiento::where('tipomovimiento_id','=',2)->where('caja_id','=',$caja_id)->orderBy('movimiento.id','DESC')->limit(1)->first();
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
+        $rst  = Movimiento::where('sucursal_id','=',$sucursal_id)->where('tipomovimiento_id','=',2)->where('caja_id','=',$caja_id)->orderBy('movimiento.id','DESC')->limit(1)->first();
         if(count($rst)==0){
             $conceptopago_id=2;
         }else{
             $conceptopago_id=$rst->conceptopago_id;
         }
         
-        $rst              = Movimiento::where('tipomovimiento_id','=',2)->where('caja_id','=',$caja_id)->where('conceptopago_id','=',1)->orderBy('id','DESC')->limit(1)->first();
+        $rst              = Movimiento::where('sucursal_id','=',$sucursal_id)->where('tipomovimiento_id','=',2)->where('caja_id','=',$caja_id)->where('conceptopago_id','=',1)->orderBy('id','DESC')->limit(1)->first();
         if(count($rst)>0){
             $movimiento_mayor = $rst->id;    
         }else{
@@ -735,6 +755,7 @@ class CajaController extends Controller
                             ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
                             ->leftjoin('movimiento as m2','m2.movimiento_id','=','movimiento.id')
                             ->where('movimiento.caja_id', '=', $caja_id)
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.id', '>', $movimiento_mayor)
                             ->whereNull('movimiento.cajaapertura_id')
                             ->where(function($query){
@@ -771,6 +792,7 @@ class CajaController extends Controller
                             ->leftjoin('movimiento as m2','movimiento.id','=','m2.movimiento_id')
                             ->where('movimiento.ventafarmacia', '=', 'S')
                             ->where('movimiento.estadopago', '=', 'PP')
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.id', '>=', $movimiento_mayor)
                             ->where('movimiento.situacion', '<>', 'A')
                             ->where('movimiento.situacion', '<>', 'U')->where('movimiento.situacion', '<>', 'R')
@@ -817,13 +839,14 @@ class CajaController extends Controller
                             ->where('movimiento.tipomovimiento_id', '=', 4)
                             ->where('movimiento.situacion', '=', 'P')
                             ->where('movimiento.id', '>=', $movimiento_mayor)
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.situacion', '<>', 'U')
                             ->where('movimiento.situacion', '<>', 'A')
                             ->where('movimiento.situacion', '<>', 'R');
             $resultado1       = $resultado1->select('movimiento.*','m2.situacion as situacion2',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente2'),'responsable.nombres as responsable2')->orderBy('movimiento.numero', 'asc');
             
             $lista1           = $resultado1->get();
-            if ($caja_id == 4) {
+            if ($caja_id == 3 || $caja_id == 4) {
                 $pendiente = 0;
                 foreach ($listapendiente as $key => $value) {
                     if($pendiente==0 && $value->tipodocumento_id != 15){
@@ -978,7 +1001,7 @@ class CajaController extends Controller
                 if($value->conceptopago_id==3 && $value->tipotarjeta==''){
 
 
-                    if ($caja_id == 4) {
+                    if ($caja_id == 3 || $caja_id == 4) {
                         $rs = Detallemovcaja::where("movimiento_id",'=',DB::raw('(select movimiento_id from movimiento where id='.$value->movimiento_id.')'))->get();
                         //echo $value->movimiento_id."|".$value->id."@";
                         foreach ($rs as $k => $v) {
@@ -1134,7 +1157,7 @@ class CajaController extends Controller
                         }
                     }
                 }elseif($value->conceptopago_id==3 && $value->tipotarjeta!=''){//PARA PAGO DE CLIENTE, BUSCO TICKET CON TARJETA
-                    if ($caja_id == 4) {
+                    if ($caja_id == 3 || $caja_id == 4) {
                         $rs = Detallemovcaja::where("movimiento_id",'=',DB::raw('(select movimiento_id from movimiento where id='.$value->movimiento_id.')'))->get();
                         foreach ($rs as $k => $v){
                             $pdf::SetTextColor(0,0,0);
@@ -1541,7 +1564,7 @@ class CajaController extends Controller
                     $pdf::Ln();
                     $egreso1 = $egreso1 + $value->total;
                 }elseif($value->conceptopago_id==23 || $value->conceptopago_id == 32){//COBRANZA
-                    if ($caja_id == 4 && $value->conceptopago_id == 32) {
+                    if ($caja_id == 3 || $caja_id == 4 && $value->conceptopago_id == 32) {
                         if($pago>0 && $bandpago){
                             $pdf::SetFont('helvetica','B',8.5);
                             $pdf::Cell(223,7,'TOTAL',1,0,'R');
@@ -1603,7 +1626,7 @@ class CajaController extends Controller
                             $cobranza=$cobranza + $value6->total;
                             $pdf::Ln();
                         }
-                    }elseif($caja_id == 4 && $value->conceptopago_id == 23){
+                    }elseif($caja_id == 3 || $caja_id == 4 && $value->conceptopago_id == 23){
                         if($pago>0 && $bandpago){
                             $pdf::SetFont('helvetica','B',8.5);
                             $pdf::Cell(223,7,'TOTAL',1,0,'R');
@@ -1905,7 +1928,7 @@ class CajaController extends Controller
                         if($value->conceptopago_id==31){
                             $pdf::Cell(8,7,'T',1,0,'C');
                         }else{
-                            if ($caja_id == 4) {
+                            if ($caja_id == 3 || $caja_id == 4) {
                                 if ($value->tipodocumento_id == 7) {
                                     $pdf::Cell(8,7,'BV',1,0,'C');
                                 }elseif($value->tipodocumento_id == 6){
@@ -1998,7 +2021,7 @@ class CajaController extends Controller
                     }
                 }
                 $res=$value->responsable2;
-                if ($caja_id == 4) {
+                if ($caja_id == 3 || $caja_id == 4) {
                     /*if($tarjeta>0 && $bandtarjeta){
                         $pdf::SetFont('helvetica','B',8.5);
                         $pdf::Cell(223,7,'TOTAL',1,0,'R');
@@ -2064,6 +2087,7 @@ class CajaController extends Controller
                                 ->where('movimiento.serie', '=', $serie)
                                 ->where('movimiento.tipomovimiento_id', '=', 4)
                                 ->where('movimiento.tipodocumento_id', '<>', 15)
+                                ->where('movimiento.sucursal_id','=',$sucursal_id)
                                 ->where('movimiento.id', '>', $movimiento_mayor)
                                 ->where('movimiento.situacion','like','U');
             $resultado1       = $resultado1->select('movimiento.*','m2.situacion as situacion2',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente2'))->orderBy('movimiento.numero', 'asc');
@@ -2181,12 +2205,14 @@ class CajaController extends Controller
 
         $caja_id          = Libreria::getParam($request->input('caja_id'),'1');
         
-        
-        $rst        = Movimiento::where('tipomovimiento_id','=',2)->where('caja_id','=',$caja_id)->where('conceptopago_id','=',1)->where('movimiento.fecha', '>=', $f_inicial)->where('movimiento.fecha', '<=', $f_final)->orderBy('id','ASC')->get();
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
+        $rst        = Movimiento::where('sucursal_id','=',$sucursal_id)->where('tipomovimiento_id','=',2)->where('caja_id','=',$caja_id)->where('conceptopago_id','=',1)->where('movimiento.fecha', '>=', $f_inicial)->where('movimiento.fecha', '<=', $f_final)->orderBy('id','ASC')->get();
         if(count($rst)>0){
             foreach ($rst as $key => $rvalue) {
                 array_push($aperturas,$rvalue->id);
-                $svalue       = Movimiento::where('tipomovimiento_id','=',2)->where('caja_id','=',$caja_id)->where('conceptopago_id','=',2)->where('movimiento.fecha', '>=', $f_inicial)->where('movimiento.fecha', '<=', $f_final)
+                $svalue       = Movimiento::where('sucursal_id','=',$sucursal_id)->where('tipomovimiento_id','=',2)->where('caja_id','=',$caja_id)->where('conceptopago_id','=',2)->where('movimiento.fecha', '>=', $f_inicial)->where('movimiento.fecha', '<=', $f_final)
                 ->where('movimiento.id', '>=', $rvalue->id)
                 ->orderBy('id','ASC')->first();
                 if(!is_null($svalue)){
@@ -2227,6 +2253,7 @@ class CajaController extends Controller
                                 ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
                                 ->leftjoin('movimiento as m2','m2.movimiento_id','=','movimiento.id')
                                 ->where('movimiento.caja_id', '=', $caja_id)
+                                ->where('movimiento.sucursal_id','=',$sucursal_id)
                                 ->where(function ($query) use($aperturas,$cierres,$valor) {
                                     $query->where(function($q) use($aperturas,$cierres,$valor){
                                             $q->where('movimiento.id', '>', $aperturas[$valor])
@@ -2269,13 +2296,14 @@ class CajaController extends Controller
             //dd($lista);
             //if($aperturas[$valor]==290049){dd($lista);}
 
-            if ($caja_id == 4) {
+            if ($caja_id == 3 || $caja_id == 4) {
                 $resultado2        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                                 ->leftjoin('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
                                 ->leftjoin('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
                                 ->leftjoin('movimiento as m2','movimiento.id','=','m2.movimiento_id')
                                 //->where('movimiento.serie', '=', $caja_id)
                                 ->where('movimiento.estadopago', '=', 'PP')
+                                ->where('movimiento.sucursal_id','=',$sucursal_id)
                                 ->where('movimiento.tipomovimiento_id', '=', '4')
                                 ->where(function ($query) use($aperturas,$cierres,$valor) {
                                     $query->where(function($q) use($aperturas,$cierres,$valor){
@@ -2330,6 +2358,7 @@ class CajaController extends Controller
                                 ->leftjoin('person as paciente', 'paciente.id', '=', 'm2.persona_id')
                                 ->where('movimiento.serie', '=', $serie)
                                 ->where('movimiento.tipomovimiento_id', '=', 4)
+                                ->where('movimiento.sucursal_id','=',$sucursal_id)
                                 ->where('movimiento.id', '>', $aperturas[$valor])
                                 ->where('movimiento.id', '<', $cierres[$valor])
                                 ->where('m2.situacion','like','B');
@@ -2340,7 +2369,7 @@ class CajaController extends Controller
                 
                 $lista1           = $resultado1->get();
                 //ECHO $aperturas[$valor]."-".$cierres[$valor]."-";
-            if ($caja_id == 4) {
+            if ($caja_id == 3 || $caja_id == 4) {
                 $pendiente = 0;
                 foreach ($listapendiente as $key => $value) {
                     if($pendiente==0 && $value->tipodocumento_id != 15){
@@ -2508,7 +2537,7 @@ class CajaController extends Controller
                 }
                 if($value->conceptopago_id==3 && $value->tipotarjeta==''){
                     
-                    if ($caja_id == 4) {
+                    if ($caja_id == 3 || $caja_id == 4) {
                         //echo $value->movimiento_id."<br />";
                         $rs = Detallemovcaja::where("movimiento_id",'=',DB::raw('(select movimiento_id from movimiento where id='.$value->movimiento_id.')'))->get();
                         //echo $value->movimiento_id."|".$value->id."@";
@@ -2676,7 +2705,7 @@ class CajaController extends Controller
                         //}
                     }
                 }elseif($value->conceptopago_id==3 && $value->tipotarjeta!=''){//PARA PAGO DE CLIENTE, BUSCO TICKET CON TARJETA
-                    if ($caja_id == 4) {
+                    if ($caja_id == 3 || $caja_id == 4) {
                         $rs = Detallemovcaja::where("movimiento_id",'=',DB::raw('(select movimiento_id from movimiento where id='.$value->movimiento_id.')'))->get();
                         foreach ($rs as $k => $v){
                             $pdf::SetTextColor(0,0,0);
@@ -3134,7 +3163,7 @@ class CajaController extends Controller
                     $pdf::Ln();
                     $egreso1 = $egreso1 + round($value->total,2);
                 }elseif($value->conceptopago_id==23 || $value->conceptopago_id == 32){//COBRANZA
-                    if ($caja_id == 4 && $value->conceptopago_id == 32) {//print_r($value->id.'@');
+                    if ($caja_id == 3 || $caja_id == 4 && $value->conceptopago_id == 32) {//print_r($value->id.'@');
                         if($pago>0 && $bandpago){
                             $pdf::SetFont('helvetica','B',8.5);
                             $pdf::Cell(223,7,'TOTAL',1,0,'R');
@@ -3209,7 +3238,7 @@ class CajaController extends Controller
                             }
                             $pdf::Ln();
                         }
-                    }elseif($caja_id == 4 && $value->conceptopago_id == 23){
+                    }elseif($caja_id == 3 || $caja_id == 4 && $value->conceptopago_id == 23){
                         if($pago>0 && $bandpago){
                             $pdf::SetFont('helvetica','B',8.5);
                             $pdf::Cell(223,7,'TOTAL',1,0,'R');
@@ -3533,7 +3562,7 @@ class CajaController extends Controller
                         if($value->conceptopago_id==31){
                             $pdf::Cell(8,7,'T',1,0,'C');
                         }else{
-                            if ($caja_id == 4) {
+                            if ($caja_id == 3 || $caja_id == 4) {
                                 if ($value->tipodocumento_id == 7) {
                                     $pdf::Cell(8,7,'BV',1,0,'C');
                                 }elseif($value->tipodocumento_id == 6){
@@ -3637,7 +3666,7 @@ class CajaController extends Controller
                     }
                 }
                 $res=$value->responsable2;
-                if ($caja_id == 4) {
+                if ($caja_id == 3 ||$caja_id == 4) {
                     /*if($tarjeta>0 && $bandtarjeta){
                         $pdf::SetFont('helvetica','B',8.5);
                         $pdf::Cell(223,7,'TOTAL',1,0,'R');
@@ -3701,6 +3730,7 @@ class CajaController extends Controller
                                 ->leftjoin('person as paciente', 'paciente.id', '=', 'm2.persona_id')
                                 ->where('movimiento.serie', '=', $serie)
                                 ->where('movimiento.tipomovimiento_id', '=', 4)
+                                ->where('movimiento.sucursal_id','=',$sucursal_id)
                                 ->where('movimiento.tipodocumento_id', '<>', 15)
                                 ->where(function ($query) use($aperturas,$cierres,$valor) {
                                     $query->where(function($q) use($aperturas,$cierres,$valor){
@@ -3836,7 +3866,9 @@ class CajaController extends Controller
         $formData            = array('caja.aperturar');
         $listar              = $request->input('listar');
         $caja                = Caja::find($request->input('caja_id'));
-        $numero              = Movimiento::NumeroSigue(2,2);//movimiento caja y documento ingreso
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+        $numero              = Movimiento::NumeroSigue($caja->id,$sucursal_id,2,2);//movimiento caja y documento ingreso
         $formData            = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton               = 'Aperturar '.$caja->nombre;
         return view($this->folderview.'.apertura')->with(compact('caja', 'formData', 'entidad', 'boton', 'listar', 'numero'));
@@ -3855,8 +3887,13 @@ class CajaController extends Controller
             return $validacion->messages()->toJson();
         }
         $user = Auth::user();
-        $error = DB::transaction(function() use($request, $user){
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
+        $error = DB::transaction(function() use($request, $user, $sucursal_id){
             $movimiento        = new Movimiento();
+            $movimiento->sucursal_id = $sucursal_id;
             $movimiento->fecha = date("Y-m-d H:i:s");
             $movimiento->numero= $request->input('numero');
             $movimiento->responsable_id=$user->person_id;
@@ -3908,7 +3945,10 @@ class CajaController extends Controller
     public function generarNumero(Request $request)
     {
         $tipodoc = $request->input("tipodocumento_id");
-        $numero  = Movimiento::NumeroSigue(2,$tipodoc);
+        $caja_id = $request->input('caja_id');
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+        $numero  = Movimiento::NumeroSigue($caja_id, $sucursal_id,2,$tipodoc);
         return $numero;
     }
     
@@ -3940,7 +3980,9 @@ class CajaController extends Controller
         $listar              = $request->input('listar');
         $caja                = Caja::find($request->input('caja_id'));
         $saldo                = Caja::find($request->input('saldo'));
-        $numero              = Movimiento::NumeroSigue(2,3);//movimiento caja y documento egreso
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+        $numero              = Movimiento::NumeroSigue($caja->id, $sucursal_id,2,3);//movimiento caja y documento egreso
         $rst              = Movimiento::where('tipomovimiento_id','=',2)
                             ->where('caja_id','=',$caja->id)->where('conceptopago_id','=',1)
                             ->orderBy('id','DESC')->limit(1)->first();
@@ -4030,8 +4072,13 @@ class CajaController extends Controller
             return $validacion->messages()->toJson();
         }
         $user = Auth::user();
-        $error = DB::transaction(function() use($request, $user){
+        
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
+        $error = DB::transaction(function() use($request, $user, $sucursal_id){
             $movimiento        = new Movimiento();
+            $movimiento->sucursal_id = $sucursal_id;
             $movimiento->fecha = date("Y-m-d H:i:s");
             $movimiento->numero= $request->input('numero');
             $movimiento->responsable_id=$user->person_id;
@@ -4641,12 +4688,16 @@ class CajaController extends Controller
         }else{
             $movimiento_mayor = 0;
         }
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
         
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
                             ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
                             ->leftjoin('movimiento as m2','m2.movimiento_id','=','movimiento.id')
                             ->where('movimiento.caja_id', '=', $caja_id)
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.id', '>=', $movimiento_mayor)
                             ->where('movimiento.situacion','<>','A')
                             ->whereNull('movimiento.cajaapertura_id')
@@ -4659,6 +4710,7 @@ class CajaController extends Controller
                             ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
                             ->leftjoin('movimiento as m2','m2.movimiento_id','=','movimiento.id')
                             ->where('movimiento.caja_id', '=', $caja_id)
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.id', '>=', $movimiento_mayor)
                             ->where('movimiento.conceptopago_id', '=', 10)
                             ->where('movimiento.situacion', '<>', 'A');
@@ -4727,6 +4779,7 @@ class CajaController extends Controller
                                         ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
                                         ->leftjoin('movimiento as m2','m2.movimiento_id','=','movimiento.id')
                                         ->where('movimiento.caja_id', '=', $caja_id)
+                                        ->where('movimiento.sucursal_id','=',$sucursal_id)
                                         ->where('movimiento.id', '>=', $movimiento_mayor)
                                         ->where('movimiento.situacion','<>','A')
                                         ->whereNull('movimiento.cajaapertura_id')
@@ -4844,12 +4897,16 @@ class CajaController extends Controller
         }else{
             $movimiento_mayor = 0;
         }
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
         
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
                             ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
                             ->leftjoin('movimiento as m2','m2.movimiento_id','=','movimiento.id')
                             ->where('movimiento.caja_id', '=', $caja_id)
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.fecha', '=', $fecha)
                             ->where('movimiento.situacion','<>','A')
                             ->where('movimiento.conceptopago_id', '=', 8);
@@ -4861,6 +4918,7 @@ class CajaController extends Controller
                             ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
                             ->leftjoin('movimiento as m2','m2.movimiento_id','=','movimiento.id')
                             ->where('movimiento.caja_id', '=', $caja_id)
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.fecha', '=', $fecha)
                             ->where('movimiento.conceptopago_id', '=', 10)
                             ->where('movimiento.situacion', '<>', 'A');
@@ -4980,6 +5038,7 @@ class CajaController extends Controller
                             ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
                             ->leftjoin('movimiento as m2','m2.movimiento_id','=','movimiento.id')
                             ->where('movimiento.caja_id', '=', $caja_id)
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.id', '>=', $movimiento_mayor)
                             ->where('movimiento.situacion','<>','A')
                             ->where('movimiento.conceptopago_id', '=', 8);
@@ -4991,6 +5050,7 @@ class CajaController extends Controller
                             ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
                             ->leftjoin('movimiento as m2','m2.movimiento_id','=','movimiento.id')
                             ->where('movimiento.caja_id', '=', $caja_id)
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.id', '>=', $movimiento_mayor)
                             ->where('movimiento.conceptopago_id', '=', 10)
                             ->where('movimiento.situacion', '<>', 'A');
@@ -5059,6 +5119,7 @@ class CajaController extends Controller
                                         ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
                                         ->leftjoin('movimiento as m2','m2.movimiento_id','=','movimiento.id')
                                         ->where('movimiento.caja_id', '=', $caja_id)
+                                        ->where('movimiento.sucursal_id','=',$sucursal_id)
                                         ->where('movimiento.id', '>=', $movimiento_mayor)
                                         ->where('movimiento.situacion','<>','A')
                                         ->whereNull('movimiento.cajaapertura_id')
@@ -5154,12 +5215,17 @@ class CajaController extends Controller
     public function venta(Request $request)
     {//PAGO PARTICULAR
         $user = Auth::user();
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $resultado  = Movimiento::join('detallemovcaja as dmc','dmc.movimiento_id','=','movimiento.id')
                         ->join('person as medico','medico.id','=','dmc.persona_id')
                         ->join('movimiento as mref','mref.movimiento_id','=','movimiento.id')
                         ->leftjoin('servicio as s','s.id','=','dmc.servicio_id')
                         ->where(DB::raw('concat(medico.apellidopaterno,\' \',medico.apellidomaterno,\' \',medico.nombres)'),'like','%'.$request->input('busqueda').'%')
                         ->where('movimiento.tipomovimiento_id','=',1)
+                        ->where('movimiento.sucursal_id','=',$sucursal_id)
                         ->whereNull('movimiento.tarjeta')
                         ->where('dmc.situacion','LIKE','N')
                         ->where('movimiento.plan_id','=',6)
@@ -5201,6 +5267,10 @@ class CajaController extends Controller
     public function ventasocio(Request $request)
     {
         $user = Auth::user();
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $resultado        = Movimiento::join('detallemovcaja as dmc','dmc.movimiento_id','=','movimiento.id')
                             ->join('person as medico','medico.id','=','dmc.persona_id')
                             ->join('movimiento as mref','mref.movimiento_id','=','movimiento.id')
@@ -5208,6 +5278,7 @@ class CajaController extends Controller
                             ->leftjoin('servicio as s','s.id','=','dmc.servicio_id')
                             ->where(DB::raw('concat(medico.apellidopaterno,\' \',medico.apellidomaterno,\' \',medico.nombres)'),'like','%'.$request->input('busqueda').'%')
                             ->where('movimiento.tipomovimiento_id','=',1)
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->whereNull('dmc.medicosocio_id')
                             ->Where(function($query){
                                 $query->whereNull('dmc.situacionboleteo')
@@ -5252,6 +5323,10 @@ class CajaController extends Controller
     public function ventatarjeta(Request $request)
     {
         $user = Auth::user();
+        
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $resultado        = Movimiento::join('detallemovcaja as dmc','dmc.movimiento_id','=','movimiento.id')
                             ->join('person as medico','medico.id','=','dmc.persona_id')
                             ->join('movimiento as mref','mref.movimiento_id','=','movimiento.id')
@@ -5259,6 +5334,7 @@ class CajaController extends Controller
                             ->leftjoin('servicio as s','s.id','=','dmc.servicio_id')
                             ->where(DB::raw('concat(medico.apellidopaterno,\' \',medico.apellidomaterno,\' \',medico.nombres)'),'like','%'.$request->input('busqueda').'%')
                             ->where('movimiento.tipomovimiento_id','=',1)
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->whereNotNull('movimiento.tarjeta')
                             ->whereNull('dmc.medicosocio_id')
                             ->whereNull('dmc.situaciontarjeta');
@@ -5299,6 +5375,10 @@ class CajaController extends Controller
     public function ventaboleteo(Request $request)
     {
         $user = Auth::user();
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $resultado        = Movimiento::join('detallemovcaja as dmc','dmc.movimiento_id','=','movimiento.id')
                             ->join('person as medico','medico.id','=','dmc.persona_id')
                             ->join('movimiento as mref','mref.movimiento_id','=','movimiento.id')
@@ -5306,6 +5386,7 @@ class CajaController extends Controller
                             ->leftjoin('servicio as s','s.id','=','dmc.servicio_id')
                             ->where(DB::raw('concat(medico.apellidopaterno,\' \',medico.apellidomaterno,\' \',medico.nombres)'),'like','%'.$request->input('busqueda').'%')
                             ->where('movimiento.tipomovimiento_id','=',1)
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('dmc.pagodoctor','=',0)
                             ->where('dmc.situacion','LIKE','N');
                             //->where('movimiento.plan_id','=',6);
@@ -5346,12 +5427,17 @@ class CajaController extends Controller
     public function ventapago(Request $request)
     {
         $user = Auth::user();
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+        
         $resultado        = Movimiento::join('detallemovcaja as dmc','dmc.movimiento_id','=','movimiento.id')
                             ->join('person as medico','medico.id','=','dmc.persona_id')
                             ->join('movimiento as mref','mref.movimiento_id','=','movimiento.id')
                             ->leftjoin('servicio as s','s.id','=','dmc.servicio_id')
                             ->where(DB::raw('concat(medico.apellidopaterno,\' \',medico.apellidomaterno,\' \',medico.nombres)'),'like','%'.$request->input('busqueda').'%')
                             ->where('movimiento.tipomovimiento_id','=',1)
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.situacion','<>','U')
                             ->where('dmc.pagodoctor','>',0)
                             ->whereIn('dmc.situacion',['N','C'])
@@ -5506,8 +5592,11 @@ class CajaController extends Controller
     public function cobrarticket2(Request $request)
     {
         $user = Auth::user();
+        
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
 
-        $error = DB::transaction(function() use($request,$user,&$dat,&$numeronc){
+        $error = DB::transaction(function() use($request,$user, $sucursal_id,&$dat,&$numeronc){
             $Ticket = Movimiento::find($request->input('id'));
 
             //Actualizamos precios de detalles del ticket
@@ -5573,13 +5662,14 @@ class CajaController extends Controller
                 //Genero venta como nuevo movimiento
 
                 $venta        = new Movimiento();
+                $venta->sucursal_id = $sucursal_id;
                 $venta->fecha = date("Y-m-d");
 
                 //Puede ser manual o no
 
                 $caja = Caja::find($request->input('caja_id'));
 
-                $venta->numero= Movimiento::NumeroSigue(4,5,$caja->serie,'N');
+                $venta->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,4,5,$caja->serie,'N');
 
                 $venta->serie = '00'.$caja->serie;;
                 $venta->responsable_id=$user->person_id;
@@ -5611,8 +5701,9 @@ class CajaController extends Controller
 
                 //Solo si hay pago, guardo movimiento en caja
                 $movimiento        = new Movimiento();
+                $movimiento->sucursal_id = $sucursal_id;
                 $movimiento->fecha = date("Y-m-d");
-                $movimiento->numero= Movimiento::NumeroSigue(2,2);
+                $movimiento->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,2,2);
                 $movimiento->responsable_id=$user->person_id;
                 $movimiento->persona_id=$Ticket->persona_id;
                 $movimiento->subtotal=0;
