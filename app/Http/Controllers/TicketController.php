@@ -1701,8 +1701,10 @@ class TicketController extends Controller
         $sucursal_id = Session::get('sucursal_id');
         if($request->input('tipodocumento')=="Boleta"){
             $tipodocumento_id=5;
-        }else{
+        }else if($request->input('tipodocumento')=="Factura"){
             $tipodocumento_id=4;
+        } else {
+            $tipodocumento_id=1;
         }
         $serie = $request->input('serie') + 0;
         $numeroventa = Movimiento::NumeroSigue(1,$sucursal_id,2,$tipodocumento_id,$serie,'N');

@@ -119,17 +119,17 @@
 		    <div class="col-lg-8 col-md-8 col-sm-8">	    	
 			    <div class="input-group form-control">
 					<span class="input-group-addon input-xs">EFECTIVO</span>
-					<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="formapago" id="efectivo" type="text" class="form-control input-xs">
+					<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="efectivo" id="efectivo" type="text" class="form-control input-xs">
 				</div>
 				<div class="input-group form-control">
 					<span class="input-group-addon input-xs">VISA.</span>
-					<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="formapago2" id="visa" type="text" class="form-control input-xs" readonly="">
+					<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="visa" id="visa" type="text" class="form-control input-xs" readonly="">
 					<span class="input-group-addon input-xs">N°</span>
 					<input onkeypress="return filterFloat(event,this);" name="numvisa" id="numvisa" type="text" class="form-control input-xs" readonly="">
 				</div>
 				<div class="input-group form-control">
 					<span class="input-group-addon input-xs">MAST.</span>
-					<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="formapago3" id="master" type="text" class="form-control input-xs" readonly="">
+					<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="master" id="master" type="text" class="form-control input-xs" readonly="">
 					<span class="input-group-addon input-xs">N°</span>
 					<input onkeypress="return filterFloat(event,this);" name="nummaster" id="nummaster" type="text" class="form-control input-xs" readonly="">
 				</div>	
@@ -163,6 +163,8 @@
     	$('#numeroventa').val(pad($('#numeroventa').val(), 8));
 		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="serieventa"]').inputmask("999");
     	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="numeroventa"]').inputmask("99999999");
+    	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="numvisa"]').inputmask("9999999999999999");
+    	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="nummaster"]').inputmask("9999999999999999");
 	}); 
 
 	function pad (str, max) {
@@ -297,8 +299,11 @@
 		if($('#total').val() == $('#total2').val()) {
 			$('#mensajeMontos').html('Los montos coindicen.').css('color', 'green');
 			return true;
-		} else {
-			$('#mensajeMontos').html('Los montos no coindicen.').css('color', 'red');			
+		} else if($('#total').val() > $('#total2').val()) {
+			$('#mensajeMontos').html('Es un monto menor.').css('color', 'orange');			
+			return true;
+		} else if($('#total').val() < $('#total2').val()) {
+			$('#mensajeMontos').html('Es un monto mayor.').css('color', 'red');			
 			return false;
 		}
 	}
@@ -308,8 +313,8 @@
 			$(this).focus();
 			alert('Ingresa un descuento.');
 			return false;
-		} else if(!$('#numcomprobante').val()) {
-			$('#numcomprobante').focus();
+		} else if(!$('#numeroventa').val() || !$('#serieventa').val()) {
+			$('#serieventa').focus();
 			alert('Ingresa un numero de comprobante.');
 			return false;
 		} else {
@@ -345,25 +350,27 @@
 		form = $('#formMantenimientoMovimiento');
 		if(!camposNoVacios()) {
 			return false;
+		} else {
+			if(!coincidenciasMontos()) {
+				$('#efectivo').focus();
+				alert('Los montos no coinciden.');
+				return false;
+			} else {
+				$.ajax({
+					url: form.attr('action'),
+					type: form.attr('method'),
+					data: form.serialize(),
+					beforeSend: function() {
+						$('#btnGuardar').html('Cargando...').attr('disabled', true);
+					},
+					success: function() {
+						cerrarModal();
+						listatickestpendientes();
+						buscar('Caja');
+					},
+				});
+			}				
 		}
-		if(!coincidenciasMontos()) {
-			alert('Los montos no coinciden.');
-			return false;
-		}
-		return false;
-		$.ajax({
-			url: form.attr('action'),
-			type: form.attr('method'),
-			data: form.serialize(),
-			beforeSend: function() {
-				$('#btnGuardar').html('Cargando...').attr('disabled', true);
-			},
-			success: function() {
-				cerrarModal();
-				listatickestpendientes();
-				buscar('Caja');
-			},
-		});
 	}
 
 	function filterFloat(evt,input){
