@@ -183,7 +183,7 @@ if(!is_null($ticket)){
             </div>
          </div>
          <div class="col-lg-6 col-md-6 col-sm-6">
-            <div class="form-group datocaja">
+            <div class="form-group datocaja" style="display:none">
                 {!! Form::label('tipodocumento', 'Tipo Doc.:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
         		<div class="col-lg-3 col-md-3 col-sm-3">
         			{!! Form::select('tipodocumento', $cboTipoDocumento, null, array('class' => 'form-control input-xs', 'id' => 'tipodocumento', 'onchange' => 'generarNumero()')) !!}
