@@ -5549,7 +5549,7 @@ class CajaController extends Controller
         }
         $ruta = $this->rutas;
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
-        ->where('movimiento.numero','LIKE','%'.$numero.'%')->where('movimiento.tipodocumento_id','=','1')->where('situacion', '<>', 'D');
+        ->where('movimiento.numero','LIKE','%'.$numero.'%')->where('movimiento.tipodocumento_id','=','1');
         if($fecha!=""){
             $resultado = $resultado->where('movimiento.fecha', '=', ''.$fecha.'');
         }
@@ -5629,7 +5629,7 @@ class CajaController extends Controller
                 $Ticket->numvisa = $request->input('numvisa');
                 $Ticket->nummaster = $request->input('nummaster');
             } else {
-                $Ticket->situacion='P';
+                $Ticket->situacion='D';
             }
 
             //Guardamos el Ticket
@@ -5733,25 +5733,8 @@ class CajaController extends Controller
             //SOLO SI HAY UN CRÉDITO
 
             else if($request->input('total') > $request->input('total2')){
-                if($pagohospital>0){//Puse con pago hospital por generar F.E.            
-                    //Genero Documento de Venta
-                    //Boleta
-                    if($request->input('tipodocumento')=="Boleta"){
-                        $tipodocumento_id=5;
-                        $codigo="03";
-                        $abreviatura="B";
-                    }
-                    //Factura
-                    else if($request->input('tipodocumento')=="Factura"){
-                        $tipodocumento_id=4;
-                        $codigo="01";
-                        $abreviatura="F";
-                    } else {
-                        $tipodocumento_id=1;
-                        //$codigo="01";
-                        $abreviatura="T";
-                    }
-
+                if($pagohospital>0){//Puse con pago hospital por generar F.E.  
+                    
                     //Genero venta como nuevo movimiento
 
                     $venta        = new Movimiento();
@@ -5767,21 +5750,7 @@ class CajaController extends Controller
                     $venta->serie = '00'.$caja->serie;;
                     $venta->responsable_id=$user->person_id;
                     $venta->persona_id=$Ticket->persona_id;
-                    if($request->input('tipodocumento')=="Boleta"){
-                        $venta->subtotal=number_format($pagohospital/1.18,2,'.','');
-                        $venta->igv=number_format($pagohospital - $venta->subtotal,2,'.','');
-                        $venta->total=$pagohospital;     
-                    }else if($request->input('tipodocumento')=="Factura"){
-                        $venta->subtotal=number_format($pagohospital/1.18,2,'.','');
-                        $venta->igv=number_format($pagohospital - $venta->subtotal,2,'.','');
-                        $venta->total=number_format($pagohospital,2,'.','');                     
-                    } else {
-                        $venta->subtotal=number_format($pagohospital,'.','');
-                        $venta->igv=0;
-                        $venta->total=number_format($pagohospital,2,'.','');  
-                    }
                     $venta->tipomovimiento_id=4;
-                    $venta->tipodocumento_id=$tipodocumento_id;
                     $venta->comentario='';
                     $venta->manual='N';
                     $venta->situacion='N';        
@@ -5807,18 +5776,10 @@ class CajaController extends Controller
                     $movimiento->conceptopago_id=3;//PAGO DE CLIENTE
                     $movimiento->comentario='Pago de : '.substr($request->input('tipodocumento'),0,1).' '.$venta->serie.'-'.$venta->numero;
                     $movimiento->caja_id=$request->input('caja_id');
-                    //if($request->input('formapago')=="Tarjeta"){
-                        //$movimiento->tipotarjeta=$request->input('tipotarjeta');
-                        //$movimiento->tarjeta=$request->input('tipotarjeta2');
-                        //$movimiento->voucher=$request->input('nroref');
-                        //$movimiento->totalpagado=0;
-                    //}else{
-                        $movimiento->totalpagado=$request->input('total2',0);
-                    //}
+                    $movimiento->totalpagado=$request->input('total2',0);
                     $movimiento->situacion='N';
                     $movimiento->movimiento_id=$venta->id;
                     $movimiento->save();
-                    //
                 }
             }
         });
@@ -5857,9 +5818,9 @@ class CajaController extends Controller
         
         //$conf = DB::connection('sqlsrv')->table('BL_CONFIGURATION')->get();
         if (count($lista) > 0) {
-            return view($this->folderview.'.cuentaspendientes')->with(compact('lista', 'cabecera', 'ruta'));
+            return view($this->folderview.'.listacuentaspendientes')->with(compact('lista', 'cabecera', 'ruta'));
         }
-        return view($this->folderview.'.cuentaspendientes')->with(compact('lista', 'ruta'));
+        return view($this->folderview.'.listacuentaspendientes')->with(compact('lista', 'ruta'));
     }
 
     public function cobrarcuentapendiente() {
