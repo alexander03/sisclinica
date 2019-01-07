@@ -1698,13 +1698,14 @@ class TicketController extends Controller
     }
 
     public function generarNumero(Request $request){
+        $sucursal_id = Session::get('sucursal_id');
         if($request->input('tipodocumento')=="Boleta"){
             $tipodocumento_id=5;
         }else{
             $tipodocumento_id=4;
         }
         $serie = $request->input('serie') + 0;
-        $numeroventa = Movimiento::NumeroSigue(4,$tipodocumento_id,$serie,'N');
+        $numeroventa = Movimiento::NumeroSigue(1,$sucursal_id,2,$tipodocumento_id,$serie,'N');
         echo $numeroventa;
     }
     

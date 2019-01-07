@@ -97,7 +97,7 @@
 			</div>
 			{!! Form::label('numcomprobante', 'N°:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
 			<div class="col-lg-2 col-md-2 col-sm-2">
-    			{!! Form::text('serieventa', $movimiento->serie, array('class' => 'form-control input-xs datocaja', 'id' => 'serieventa')) !!}
+    			{!! Form::text('serieventa', $serie, array('class' => 'form-control input-xs datocaja', 'id' => 'serieventa')) !!}
     		</div>
             <div class="col-lg-2 col-md-2 col-sm-2">
     		{!! Form::text('numeroventa', $movimiento->numero, array('class' => 'form-control input-xs', 'id' => 'numeroventa', 'readonly' => 'true')) !!}
@@ -159,7 +159,16 @@
 		inicializarPrecios();
 		cargarEfectivo();
 		calcularTotalPago();
+		$('#serieventa').val(pad($('#serieventa').val(), 3));
+    	$('#numeroventa').val(pad($('#numeroventa').val(), 8));
+		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="serieventa"]').inputmask("999");
+    	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="numeroventa"]').inputmask("99999999");
 	}); 
+
+	function pad (str, max) {
+  		str = str.toString();
+  		return str.length < max ? pad("0" + str, max) : str;
+	}
 
 	function mostrarDatoCaja(check,check2){
 	    if(check==0){
