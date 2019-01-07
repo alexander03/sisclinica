@@ -159,7 +159,7 @@ class TicketController extends Controller
             $idcaja=1;
         }
         $sucursal_id = Session::get('sucursal_id');
-        $numero = Movimiento::NumeroSigue(1, $sucursal_id, 1);
+        $numero = Movimiento::NumeroSigue(null, $sucursal_id, 1);
         $user = Auth::user();
         //|| $user->usertype_id == 5 || $user->usertype_id == 6
         if($serie=='8'){
@@ -242,7 +242,7 @@ class TicketController extends Controller
             $Ticket       = new Movimiento();
             $Ticket->fecha = $request->input('fecha');
             $sucursal_id = Session::get('sucursal_id');
-            $Ticket->numero = Movimiento::NumeroSigue(1, $sucursal_id, 1);
+            $Ticket->numero = Movimiento::NumeroSigue(null, $sucursal_id, 1);
             $Ticket->subtotal = $request->input('coa');//COASEGURO
             $Ticket->sucursal_id = $sucursal_id;//SUCURSAL
             $Ticket->igv = $request->input('deducible');//DEDUCIBLE
