@@ -5621,13 +5621,15 @@ class CajaController extends Controller
 
             //Solo si se paga
 
+            $Ticket->total = $request->input('total');
+            $Ticket->totalpagado = $request->input('efectivo');
+            $Ticket->totalpagadovisa = $request->input('visa');
+            $Ticket->totalpagadomaster = $request->input('master');
+            $Ticket->numvisa = $request->input('numvisa');
+            $Ticket->nummaster = $request->input('nummaster');
+
             if($request->input('total') == $request->input('total2')){
-                $Ticket->situacion='C';//Pendiente => P / Cobrado => C / Boleteado => B
-                $Ticket->totalpagado = $request->input('efectivo');
-                $Ticket->totalpagadovisa = $request->input('visa');
-                $Ticket->totalpagadomaster = $request->input('master');
-                $Ticket->numvisa = $request->input('numvisa');
-                $Ticket->nummaster = $request->input('nummaster');
+                $Ticket->situacion='C';//Pendiente => P / Cobrado => C / Boleteado => B                
             } else {
                 $Ticket->situacion='D';
             }
@@ -5740,6 +5742,11 @@ class CajaController extends Controller
                     $venta        = new Movimiento();
                     $venta->sucursal_id = $sucursal_id;
                     $venta->fecha = date("Y-m-d");
+                    $venta->totalpagado = $request->input('efectivo');
+                    $venta->totalpagadovisa = $request->input('visa');
+                    $venta->totalpagadomaster = $request->input('master');
+                    $venta->numvisa = $request->input('numvisa');
+                    $venta->nummaster = $request->input('nummaster');
 
                     //Puede ser manual o no
 
@@ -5770,14 +5777,14 @@ class CajaController extends Controller
                     $movimiento->persona_id=$Ticket->persona_id;
                     $movimiento->subtotal=0;
                     $movimiento->igv=0;
-                    $movimiento->total=$Ticket->total;
+                    $movimiento->total=$request->input('total2',0);
+                    $movimiento->totalpagado=$request->input('total2',0);
                     $movimiento->tipomovimiento_id=2;
                     $movimiento->tipodocumento_id=2;
                     $movimiento->conceptopago_id=3;//PAGO DE CLIENTE
                     $movimiento->comentario='Pago de : '.substr($request->input('tipodocumento'),0,1).' '.$venta->serie.'-'.$venta->numero;
                     $movimiento->caja_id=$request->input('caja_id');
-                    $movimiento->totalpagado=$request->input('total2',0);
-                    $movimiento->situacion='N';
+                    $movimiento->situacion='D';
                     $movimiento->movimiento_id=$venta->id;
                     $movimiento->save();
                 }
@@ -5802,11 +5809,11 @@ class CajaController extends Controller
         }
         $ruta = $this->rutas;
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
-        ->where('movimiento.numero','LIKE','%'.$numero.'%')->where('movimiento.tipodocumento_id','=','1')->where('situacion', 'D');
+        ->where('movimiento.numero','LIKE','%'.$numero.'%')->where('movimiento.tipodocumento_id','=','2')->where('situacion', 'D');
         if($fecha!=""){
             $resultado = $resultado->where('movimiento.fecha', '=', ''.$fecha.'');
         }
-        $resultado        = $resultado->select('movimiento.*',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'), DB::raw('(total-totalpagado-totalpagadovisa-totalpagadomaster) as pendiente'))->orderBy('movimiento.id','DESC')->orderBy('movimiento.situacion','DESC');
+        $resultado        = $resultado->select('movimiento.*',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'), DB::raw('(total - totalpagado) as pendiente'))->orderBy('movimiento.id','DESC')->orderBy('movimiento.situacion','DESC');
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => 'Fecha', 'numero' => '1');

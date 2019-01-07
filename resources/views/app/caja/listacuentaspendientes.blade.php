@@ -19,7 +19,7 @@
             <td>{{ $value->paciente }}</td>
             <td align="center">{{ number_format($value->total,2,'.','') }}</td>
             <td style="color:blue;font-weight: bold;">
-            	<font color="red">{{ number_format($value->pendiente,2,'.','') }}</font>
+            	<font color="red">{{ number_format($value->movimiento->movimiento->total - $value->total,2,'.','') }}</font>
             </td>
             <td style="color:blue;font-weight: bold;"></td>
 		</tr>

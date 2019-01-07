@@ -296,13 +296,13 @@
 	}
 
 	function coincidenciasMontos() {
-		if($('#total').val() == $('#total2').val()) {
+		if(parseFloat($('#total').val()) == parseFloat($('#total2').val())) {
 			$('#mensajeMontos').html('Los montos coindicen.').css('color', 'green');
 			return true;
-		} else if($('#total').val() > $('#total2').val()) {
+		} else if(parseFloat($('#total').val()) > parseFloat($('#total2').val())) {
 			$('#mensajeMontos').html('Es un monto menor.').css('color', 'orange');			
 			return true;
-		} else if($('#total').val() < $('#total2').val()) {
+		} else if(parseFloat($('#total').val()) < parseFloat($('#total2').val())) {
 			$('#mensajeMontos').html('Es un monto mayor.').css('color', 'red');			
 			return false;
 		}
