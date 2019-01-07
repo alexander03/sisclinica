@@ -23,6 +23,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Elibyy\TCPDF\Facades\TCPDF;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class TicketController extends Controller
 {
@@ -157,7 +158,8 @@ class TicketController extends Controller
             $serie=3;
             $idcaja=1;
         }
-        $numero = Movimiento::NumeroSigue(1);
+        $sucursal_id = Session::get('sucursal_id');
+        $numero = Movimiento::NumeroSigue(1, $sucursal_id, 1);
         $user = Auth::user();
         //|| $user->usertype_id == 5 || $user->usertype_id == 6
         if($serie=='8'){
@@ -166,7 +168,7 @@ class TicketController extends Controller
             $cboTipoDocumento     = array("Boleta" => "Boleta", "Factura" => "Factura");
         }
         //$cboTipoDocumento     = array("Boleta" => "Boleta", "Factura" => "Factura");
-        $numeroventa = Movimiento::NumeroSigue(4,5,$serie,'N');
+        $numeroventa = Movimiento::NumeroSigue(4,$sucursal_id,$serie,'N');
         $serie='00'.$serie;
         $formData            = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton               = 'Registrar'; 
@@ -239,8 +241,10 @@ class TicketController extends Controller
         $error = DB::transaction(function() use($request,$user,&$dat,&$numeronc){
             $Ticket       = new Movimiento();
             $Ticket->fecha = $request->input('fecha');
-            $Ticket->numero = Movimiento::NumeroSigue(1);
+            $sucursal_id = Session::get('sucursal_id');
+            $Ticket->numero = Movimiento::NumeroSigue(1, $sucursal_id, 1);
             $Ticket->subtotal = $request->input('coa');//COASEGURO
+            $Ticket->sucursal_id = $sucursal_id;//SUCURSAL
             $Ticket->igv = $request->input('deducible');//DEDUCIBLE
             $Ticket->total = $request->input('total');
             $Ticket->tipomovimiento_id=1;//TICKET
