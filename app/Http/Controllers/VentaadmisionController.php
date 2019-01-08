@@ -4899,7 +4899,10 @@ class VentaadmisionController extends Controller
     }
 
     public function cola(Request $request){
-        $consultas = Movimiento::where('situacion','like','C')->where('tipodocumento_id', '1')->orWhere('situacion','like','D')->orderBy('id','asc');
+        $consultas = Movimiento::where('clasificacionconsulta','like','C')->orderBy('id','ASC')
+        ->where(function($q) {            
+            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
+        });
         $lista = $consultas->get();
         $registro="<table width='100%'>
                     <tr>
@@ -4930,10 +4933,16 @@ class VentaadmisionController extends Controller
             $c=$c+1;
         }
 
-        $emergencias = Movimiento::where('situacion','like','C')->where('tipodocumento_id', '1')->orWhere('situacion','like','D')->orderBy('id','asc');
+        $emergencias = Movimiento::where('clasificacionconsulta','like','E')->orderBy('id','ASC')
+        ->where(function($q) {            
+            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
+        });
         $lista = $emergencias->get();
 
-        $fondos = Movimiento::where('situacion','like','C')->where('tipodocumento_id', '1')->orWhere('situacion','like','D')->orderBy('id','asc');
+        $fondos = Movimiento::where('clasificacionconsulta','like','F')->orderBy('id','ASC')
+        ->where(function($q) {            
+            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
+        });
         $lista = $fondos->get();
 
         $registro.="</tbody></table>

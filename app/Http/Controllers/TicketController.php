@@ -253,7 +253,8 @@ class TicketController extends Controller
             $Ticket->plan_id = $request->input('plan_id');
             $Ticket->soat = $request->input('soat');
             $Ticket->sctr = $request->input('sctr');
-
+            $Ticket->clasificacionconsulta = $request->input('clasificacionconsulta');
+            
             //Solo si la forma de pago es con tarjeta
 
             if($request->input('formapago')=="Tarjeta"){

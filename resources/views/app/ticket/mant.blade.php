@@ -61,6 +61,14 @@ if(!is_null($ticket)){
         			{!! Form::text('numero', $numero, array('class' => 'form-control input-xs', 'id' => 'numero', 'readonly' => 'true')) !!}
         		</div>
                 {!! Form::label('manual', 'Manual:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label',  'style' => 'display:none;')) !!}
+                <label for="clasificacionconsulta" class="col-lg-1 col-md-1 col-sm-1 control-label">Tipo</label>
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    <select class="form-control input-xs" name="clasificacionconsulta" id="clasificacionconsulta">
+                        <option value="C">CONSULTA</option>
+                        <option value="E">EMERGENCIA</option>
+                        <option value="F">FONDO DE OJOS</option>
+                    </select>
+                </div>
                 <div class="col-lg-1 col-md-1 col-sm-1" style="display:none;">
                     {!! Form::hidden('manual', 'N', array('id' => 'manual')) !!}
                     <input type="checkbox" onclick="Manual(this.checked)" />
