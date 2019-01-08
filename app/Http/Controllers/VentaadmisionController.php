@@ -4899,9 +4899,8 @@ class VentaadmisionController extends Controller
     }
 
     public function cola(Request $request){
-        $venta = Movimiento::where('situacion','like','C')->where('tipodocumento_id', '1')->orWhere('situacion','like','D')
-                ->orderBy('id','asc');
-        $lista            = $venta->get();
+        $consultas = Movimiento::where('situacion','like','C')->where('tipodocumento_id', '1')->orWhere('situacion','like','D')->orderBy('id','asc');
+        $lista = $consultas->get();
         $registro="<table width='100%'>
                     <tr>
                         <th class='text-center' bgcolor='#E0ECF8' width='50%'>CONSULTAS</th>
@@ -4930,6 +4929,13 @@ class VentaadmisionController extends Controller
             $registro.= "</tr>";
             $c=$c+1;
         }
+
+        $emergencias = Movimiento::where('situacion','like','C')->where('tipodocumento_id', '1')->orWhere('situacion','like','D')->orderBy('id','asc');
+        $lista = $emergencias->get();
+
+        $fondos = Movimiento::where('situacion','like','C')->where('tipodocumento_id', '1')->orWhere('situacion','like','D')->orderBy('id','asc');
+        $lista = $fondos->get();
+
         $registro.="</tbody></table>
                         </td>
                         <td>
