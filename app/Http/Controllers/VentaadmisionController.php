@@ -4998,6 +4998,7 @@ class VentaadmisionController extends Controller
     }
 
     public function cola(Request $request){
+<<<<<<< HEAD
         //sucursal_id
         $sucursal_id = Session::get('sucursal_id');
 
@@ -5005,13 +5006,17 @@ class VentaadmisionController extends Controller
                 ->where('sucursal_id','=',$sucursal_id)
                 ->orderBy('id','asc');
         $lista            = $venta->get();
+=======
+        $consultas = Movimiento::where('situacion','like','C')->where('tipodocumento_id', '1')->orWhere('situacion','like','D')->orderBy('id','asc');
+        $lista = $consultas->get();
+>>>>>>> 7a73f4734cec4cff6a56d3e5c4aeeb51cf803bc5
         $registro="<table width='100%'>
                     <tr>
-                        <th class='text-center' bgcolor='#E0ECF8'>CONSULTAS</th>
-                        <th class='text-center' bgcolor='#dd4b39'>EMERGENCIAS</th>
+                        <th class='text-center' bgcolor='#E0ECF8' width='50%'>CONSULTAS</th>
+                        <th class='text-center' bgcolor='#FC350A'>EMERGENCIAS</th>
                     </tr>
                     <tr>
-                        <td rowspan='3' height='800px;'>
+                        <td rowspan='6'>
                             <table class='table table-bordered table-striped table-condensed table-hover'>
                             <thead>
                                 <tr>
@@ -5033,9 +5038,16 @@ class VentaadmisionController extends Controller
             $registro.= "</tr>";
             $c=$c+1;
         }
+
+        $emergencias = Movimiento::where('situacion','like','C')->where('tipodocumento_id', '1')->orWhere('situacion','like','D')->orderBy('id','asc');
+        $lista = $emergencias->get();
+
+        $fondos = Movimiento::where('situacion','like','C')->where('tipodocumento_id', '1')->orWhere('situacion','like','D')->orderBy('id','asc');
+        $lista = $fondos->get();
+
         $registro.="</tbody></table>
                         </td>
-                        <td height='400px;'>
+                        <td>
                             <table class='table table-bordered table-striped table-condensed table-hover'>
                             <thead>
                                 <tr>
@@ -5053,7 +5065,7 @@ class VentaadmisionController extends Controller
                         <th class='text-center' bgcolor='#E0E000'>FONDO DE OJO</th>
                     </tr>
                     <tr>
-                        <td height='400px;'>
+                        <td>
                             <table class='table table-bordered table-striped table-condensed table-hover'>
                             <thead>
                                 <tr>

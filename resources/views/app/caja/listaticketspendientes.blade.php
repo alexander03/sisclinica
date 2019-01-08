@@ -20,7 +20,9 @@
 	            <td align="center">{{ number_format($value->total,2,'.','') }}</td>
 	            <td style="color:blue;font-weight: bold;">
             	@if ($value->situacion == 'P')
-            	<font color="red">PENDIENTE</font>
+            	<font color="orange">PENDIENTE</font>
+            	@elseif($value->situacion == 'D')
+            	<font color="red">DEBE</font>
             	@else
             	<font color="green">COBRADO</font>
             	@endif
