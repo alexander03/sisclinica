@@ -28,6 +28,7 @@ use App\Librerias\EnLetras;
 use App\Librerias\phpJson;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 use Jenssegers\Date\Date;
 use Elibyy\TCPDF\Facades\TCPDF;
 use Illuminate\Support\Facades\Auth;
@@ -185,12 +186,17 @@ class VentaController extends Controller
         $pagina           = $request->input('page');
         $filas            = $request->input('filas');
         $entidad          = 'Venta';
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $fechainicio             = Libreria::getParam($request->input('fechainicio'));
         $fechafin             = Libreria::getParam($request->input('fechafin'));
         $numero             = Libreria::getParam($request->input('numero'));
         $paciente             = Libreria::getParam($request->input('paciente'));
         $resultado        = Venta::leftjoin('person','person.id','=','movimiento.persona_id')
                                 ->where('tipomovimiento_id', '=', '4')
+                                ->where('movimiento.sucursal_id','=',$sucursal_id)
                                 ->where('ventafarmacia','=','S')//where('serie','=','4')->
                                 ->where(function($query) use ($numero){   
                                 if (!is_null($numero) && $numero !== '') {
@@ -252,6 +258,10 @@ class VentaController extends Controller
         $pagina           = $request->input('page');
         $filas            = $request->input('filas');
         $entidad          = 'Venta';
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $fechainicio             = Libreria::getParam($request->input('fechainicial'));
         $fechafin             = Libreria::getParam($request->input('fechafinal'));
         $numero             = Libreria::getParam($request->input('numero'));
@@ -260,6 +270,7 @@ class VentaController extends Controller
                                 ->where('tipomovimiento_id', '=', '4')
                                 ->where('movimiento.situacion','not like','U')
                                 ->where('movimiento.formapago','like','P')
+                                ->where('movimiento.sucursal_id','=',$sucursal_id)
                                 ->where('ventafarmacia','=','S')//where('serie','=','4')->
                                 ->where(function($query) use ($numero){   
                                 if (!is_null($numero) && $numero !== '') {
@@ -344,12 +355,17 @@ class VentaController extends Controller
         $pagina           = $request->input('page');
         $filas            = $request->input('filas');
         $entidad          = 'Venta';
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $fechainicio             = Libreria::getParam($request->input('fechainicio'));
         $fechafin             = Libreria::getParam($request->input('fechafin'));
         $numero             = Libreria::getParam($request->input('numero'));
         $paciente             = Libreria::getParam($request->input('paciente'));
         $resultado        = Venta::leftjoin('person','person.id','=','movimiento.persona_id')
                                 ->where('tipomovimiento_id', '=', '4')
+                                ->where('movimiento.sucursal_id','=',$sucursal_id)
                                 ->where('ventafarmacia','=','S')//where('serie','=','4')->
                                 ->where(function($query) use ($numero){   
                                 if (!is_null($numero) && $numero !== '') {
@@ -422,9 +438,13 @@ class VentaController extends Controller
         $pagina           = $request->input('page');
         $filas            = $request->input('filas');
         $entidad          = 'Venta';
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $fechainicio             = Libreria::getParam($request->input('fechainicio'));
         $fechafin             = Libreria::getParam($request->input('fechafin'));
-        $resultado        = Venta::where('tipomovimiento_id', '=', '8')->where('ventafarmacia','=','S')->where(function($query) use ($fechainicio,$fechafin){   
+        $resultado        = Venta::where('tipomovimiento_id', '=', '8')->where('sucursal_id','=',$sucursal_id)->where('ventafarmacia','=','S')->where(function($query) use ($fechainicio,$fechafin){   
                                 if (!is_null($fechainicio) && $fechainicio !== '') {
                                     $begindate   = Date::createFromFormat('d/m/Y', $fechainicio)->format('Y-m-d');
                                     $query->where('fecha', '>=', $begindate);
@@ -1321,7 +1341,10 @@ class VentaController extends Controller
             }
         //}
 
-        $error = DB::transaction(function() use($request,&$dat){
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
+        $error = DB::transaction(function() use($request, $sucursal_id ,&$dat){
             $validar = Venta::where('serie','=','4')->where('manual','like','N')->where('tipodocumento_id','=',$request->input('documento'))->where('numero','=',$request->input('numerodocumento'))->first();
             if ($validar == null) {
                 # code...
@@ -1353,6 +1376,7 @@ class VentaController extends Controller
             if ($ind == 0) {
                 $total = str_replace(',', '', $request->input('totalventa'));
                 $venta                 = new Venta();
+                $venta->sucursal_id = $sucursal_id;
                 $venta->serie = '004';
                 $venta->tipodocumento_id          = $request->input('documento');
                 if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
@@ -1508,6 +1532,7 @@ class VentaController extends Controller
                     if ( ($request->input('documento') == 15 && $venta->copago > 0 ) || ($request->input('documento') != 15)) {
                         $total = str_replace(',', '', $request->input('totalventa'));
                         $movimiento                 = new Movimiento();
+                        $movimiento->sucursal_id = $sucursal_id;
                         $movimiento->tipodocumento_id          = $request->input('documento');
                         if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
                             $movimiento->persona_id = $request->input('person_id');
@@ -1577,6 +1602,7 @@ class VentaController extends Controller
 
                     $total = str_replace(',', '', $request->input('totalventa'));
                     $venta                 = new Venta();
+                    $venta->sucursal_id = $sucursal_id;
                     $venta->serie = '004';
                     $venta->tipodocumento_id          = $request->input('documento');
                     if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
@@ -1737,6 +1763,7 @@ class VentaController extends Controller
                         if ( ($request->input('documento') == 15 && $venta->copago > 0) || ($request->input('documento') != 15)) {
                             $total = str_replace(',', '', $request->input('totalventa'));
                             $movimiento                 = new Movimiento();
+                            $movimiento->sucursal_id = $sucursal_id;
                             $movimiento->tipodocumento_id          = $request->input('documento');
                             if ($request->input('documento') == '5') {
                                 if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
@@ -1798,6 +1825,7 @@ class VentaController extends Controller
 
                 $total = str_replace(',', '', $request->input('totalventa'));
                 $venta2                 = new Venta();
+                $venta2->sucursal_id = $sucursal_id;
                 $venta2->serie = '004';
                 $venta2->tipodocumento_id          = $request->input('documento');
                 if ($request->input('documento') == '5' || $request->input('documento') == '14' ) {
@@ -1952,6 +1980,7 @@ class VentaController extends Controller
                         if ( ($request->input('documento') == 15 && $venta2->copago > 0 ) || ($request->input('documento') != 15)) {
                             $total = str_replace(',', '', $request->input('totalventa'));
                             $movimiento                 = new Movimiento();
+                            $movimiento->sucursal_id = $sucursal_id;
                             $movimiento->tipodocumento_id          = $request->input('documento');
                             if ($request->input('documento') == '5') {
                                 if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
@@ -2623,9 +2652,11 @@ class VentaController extends Controller
         }
 
         $dat=array();
-        
 
-        $error = DB::transaction(function() use($request,&$dat){
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
+        $error = DB::transaction(function() use($request, $sucursal_id,&$dat){
             $ind = 0;
             $montoafecto = 0;
             $montonoafecto = 0;
@@ -2646,6 +2677,7 @@ class VentaController extends Controller
             if ($ind == 0) {
                 $total = str_replace(',', '', $request->input('totalventa'));
                 $venta                 = new Venta();
+                $venta->sucursal_id = $sucursal_id;
                 $venta->serie = '004';
                 $venta->tipodocumento_id          = $request->input('documento');
                 if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
@@ -2791,10 +2823,15 @@ class VentaController extends Controller
 
         $dat=array();
 
-        $error = DB::transaction(function() use($request,&$dat){
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
+
+        $error = DB::transaction(function() use($request, $sucursal_id, &$dat){
             $lista = $request->session()->get('carritoventa');
             $total = str_replace(',', '', $request->input('totalventa'));
             $venta                 = new Venta();
+            $venta->sucursal_id = $sucursal_id;
 
             $venta->tipomovimiento_id          = 8;
             $venta->almacen_id          = 1;
@@ -2923,10 +2960,15 @@ class VentaController extends Controller
         if ($existe !== true) {
             return $existe;
         }
-        $error = DB::transaction(function() use($id,$request){
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
+        $error = DB::transaction(function() use($id, $sucursal_id, $request){
             $venta = Venta::find($id);
             $total = $venta->total;
             $movimiento = new Movimiento();
+            $movimiento->sucursal_id = $sucursal_id;
             $movimiento->tipodocumento_id          = $venta->tipodocumento_id;
             if ($venta->persona_id !== '' && $venta->persona_id !== NULL) {
                 $movimiento->persona_id = $venta->persona_id;
@@ -3076,8 +3118,10 @@ class VentaController extends Controller
     {
         $dat=array();
         
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
 
-        $error = DB::transaction(function() use($request,&$dat){
+        $error = DB::transaction(function() use($request, $sucursal_id,&$dat){
             $user = Auth::user();
             $ind = 0;
             $montoafecto = 0;
@@ -3110,6 +3154,7 @@ class VentaController extends Controller
                 $Venta = Movimiento::find($request->input('movimiento_id'));
                 $total = str_replace(',', '', $request->input('totalventa'));
                 $Movimiento = new Movimiento();
+                $movimiento->sucursal_id = $sucursal_id;
                 $Movimiento->fecha = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
                 $Movimiento->serie = $request->input('serie');
                 //$numero              = Movimiento::NumeroSigue(6,13,2,'N');
@@ -3222,6 +3267,7 @@ class VentaController extends Controller
                 //CAJA
                 if($request->input('pagar')=='S'){
                     $movimiento        = new Movimiento();
+                    $movimiento->sucursal_id = $sucursal_id;
                     $movimiento->fecha = date("Y-m-d");
                     $movimiento->numero= $request->input('numerodocumento');
                     $movimiento->responsable_id=$user->person_id;
@@ -3517,9 +3563,14 @@ class VentaController extends Controller
         $entidad          = 'Venta';
         $id               = Libreria::getParam($request->input('venta_id'),'');
         $guia = $request->input('guia');
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+        
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->leftjoin('person as responsable','responsable.id','=','movimiento.responsable_id')
                             ->join('tipodocumento','tipodocumento.id','=','movimiento.tipodocumento_id')
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.id', '=', $id);
         $resultado        = $resultado->select('movimiento.*','tipodocumento.nombre as tipodocumento');
         $lista            = $resultado->get();
@@ -3915,9 +3966,14 @@ class VentaController extends Controller
         $entidad          = 'Venta';
         $id               = Libreria::getParam($request->input('venta_id'),'');
         $guia = $request->input('guia');
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->leftjoin('person as responsable','responsable.id','=','movimiento.responsable_id')
                             ->join('tipodocumento','tipodocumento.id','=','movimiento.tipodocumento_id')
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.id', '=', $id);
         $resultado        = $resultado->select('movimiento.*','tipodocumento.nombre as tipodocumento');
         $lista            = $resultado->get();
@@ -4278,9 +4334,14 @@ class VentaController extends Controller
         $entidad          = 'Venta';
         $id               = Libreria::getParam($request->input('venta_id'),'');
         $guia = $request->input('guia');
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->leftjoin('person as responsable','responsable.id','=','movimiento.responsable_id')
                             ->join('tipodocumento','tipodocumento.id','=','movimiento.tipodocumento_id')
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.id', '=', $id);
         $resultado        = $resultado->select('movimiento.*','tipodocumento.nombre as tipodocumento');
         $lista            = $resultado->get();
@@ -4649,10 +4710,15 @@ class VentaController extends Controller
         $id               = Libreria::getParam($request->input('venta_id'),'');
         $guia = $request->input('guia');
         $tipousuario = $user->usertype_id; 
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         if ($tipousuario == 11) {
             $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->leftjoin('person as responsable','responsable.id','=','movimiento.responsable_id')
                             ->join('tipodocumento','tipodocumento.id','=','movimiento.tipodocumento_id')
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.id', '=', $id);
             $resultado        = $resultado->select('movimiento.*','tipodocumento.nombre as tipodocumento');
             $lista            = $resultado->get();
@@ -5034,6 +5100,7 @@ class VentaController extends Controller
             $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->leftjoin('person as responsable','responsable.id','=','movimiento.responsable_id')
                             ->join('tipodocumento','tipodocumento.id','=','movimiento.tipodocumento_id')
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.id', '=', $id);
             $resultado        = $resultado->select('movimiento.*','tipodocumento.nombre as tipodocumento');
             $lista            = $resultado->get();
@@ -5444,10 +5511,15 @@ class VentaController extends Controller
     public function procesar(Request $request)
     {
         $error = DB::transaction(function() use($request){
+            
+            //sucursal_id
+            $sucursal_id = Session::get('sucursal_id');
+
             $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
                             ->where('movimiento.tipomovimiento_id','=',4)
                             ->where('movimiento.ventafarmacia','=','S')
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.tipodocumento_id','<>',15);
 
             if($request->input('fechainicial')!=""){
