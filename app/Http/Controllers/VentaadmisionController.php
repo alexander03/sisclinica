@@ -4937,13 +4937,13 @@ class VentaadmisionController extends Controller
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
         });
-        $lista = $emergencias->get();
+        $lista2 = $emergencias->get();
 
         $fondos = Movimiento::where('clasificacionconsulta','like','F')->orderBy('id','ASC')
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
         });
-        $lista = $fondos->get();
+        $lista3 = $fondos->get();
 
         $registro.="</tbody></table>
                         </td>
@@ -4956,8 +4956,21 @@ class VentaadmisionController extends Controller
                                     <th class='text-center'>Tiempo</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                            </tbody>
+                            <tbody>";
+        $c=1;
+        foreach ($lista2 as $key => $value) {
+            $registro.= "<tr>";
+            $registro.= "<td>".$c."</td>";
+            if(!is_null($value->persona)){
+                $registro.= "<td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>";
+            }
+            $tiempo = date("H:i:s",strtotime('now') - strtotime($value->created_at));
+            $registro.= "<td>".$tiempo."</td>";
+            $registro.= "</tr>";
+            $c=$c+1;
+        }
+                            
+        $registro.="</tbody>
                             </table>
                         </td>
                     </tr>
@@ -4974,8 +4987,20 @@ class VentaadmisionController extends Controller
                                     <th class='text-center'>Tiempo</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                            </tbody>
+                            <tbody>";
+        $c=1;
+        foreach ($lista3 as $key => $value) {
+            $registro.= "<tr>";
+            $registro.= "<td>".$c."</td>";
+            if(!is_null($value->persona)){
+                $registro.= "<td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>";
+            }
+            $tiempo = date("H:i:s",strtotime('now') - strtotime($value->created_at));
+            $registro.= "<td>".$tiempo."</td>";
+            $registro.= "</tr>";
+            $c=$c+1;
+        }
+        $registro.="</tbody>
                             </table>
                         </td>
                     </tr>
