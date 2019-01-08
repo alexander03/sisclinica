@@ -4908,7 +4908,7 @@ class VentaadmisionController extends Controller
                         <th class='text-center' bgcolor='#dd4b39'>EMERGENCIAS</th>
                     </tr>
                     <tr>
-                        <td rowspan='3' height='800px;'>
+                        <td rowspan='3'>
                             <table class='table table-bordered table-striped table-condensed table-hover'>
                             <thead>
                                 <tr>
@@ -4932,7 +4932,7 @@ class VentaadmisionController extends Controller
         }
         $registro.="</tbody></table>
                         </td>
-                        <td height='400px;'>
+                        <td>
                             <table class='table table-bordered table-striped table-condensed table-hover'>
                             <thead>
                                 <tr>
@@ -4950,7 +4950,7 @@ class VentaadmisionController extends Controller
                         <th class='text-center' bgcolor='#E0E000'>FONDO DE OJO</th>
                     </tr>
                     <tr>
-                        <td height='400px;'>
+                        <td>
                             <table class='table table-bordered table-striped table-condensed table-hover'>
                             <thead>
                                 <tr>

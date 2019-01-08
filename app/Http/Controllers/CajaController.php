@@ -5781,8 +5781,8 @@ class CajaController extends Controller
                     $movimiento->totalpagado=$request->input('total2',0);
                     $movimiento->tipomovimiento_id=2;
                     $movimiento->tipodocumento_id=2;
-                    $movimiento->conceptopago_id=3;//PAGO DE CLIENTE
-                    $movimiento->comentario='Pago de : '.substr($request->input('tipodocumento'),0,1).' '.$venta->serie.'-'.$venta->numero;
+                    $movimiento->conceptopago_id=134;//PAGO DE CLIENTE
+                    $movimiento->comentario='PAGO DE CLIENTE A CREDITO';
                     $movimiento->caja_id=$request->input('caja_id');
                     $movimiento->situacion='D';
                     $movimiento->movimiento_id=$venta->id;

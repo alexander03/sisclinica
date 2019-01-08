@@ -53,16 +53,16 @@ $entidad='Producto';
 			<!-- /.row -->
 		</section>
 		<!-- /.content -->	
-    </div>
         <!-- /.content-wrapper -->
-        <footer class="main-footer" style="margin-left: 10px !important">
-			<div class="pull-right hidden-xs">
-				<b>Version</b> 2.3.8
-			</div>
-			<strong>Copyright © 2018 <a href="#">GARZATEC</a>.</strong> All rights
-			reserved.
+        <footer class="navbar-default navbar-fixed-bottom" style="padding-left: 20px !important; padding-bottom: 20px; padding-top: 20px; padding-right: 20px;">
+            <div class="container-fluid">
+    			<div class="pull-right hidden-xs">
+    				<b>Version</b> 2.3.8
+    			</div>
+    			<strong>Copyright © 2018 <a href="#">GARZATEC</a>.</strong> All rights
+    			reserved.
+            </div>
 		</footer>
-    </div>
     <!-- ./wrapper -->
     <!-- jQuery 2.2.3 -->
     {!! Html::script('plugins/jQuery/jquery-2.2.3.min.js') !!}
