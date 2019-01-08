@@ -19,6 +19,7 @@ use App\Venta;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 use Elibyy\TCPDF\Facades\TCPDF;
 use App\Detallemovcaja;
 use App\Librerias\EnLetras;
@@ -57,6 +58,10 @@ class VentaadmisionController extends Controller
      */
     public function buscar(Request $request)
     {
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $pagina           = $request->input('page');
         $filas            = $request->input('filas');
         $entidad          = 'Ventaadmision';
@@ -65,6 +70,7 @@ class VentaadmisionController extends Controller
                             ->leftjoin('movimiento as m2','m2.id','=','movimiento.movimiento_id')
                             ->where('movimiento.tipomovimiento_id','=',4)
                             ->where('movimiento.ventafarmacia','=','N')
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             //->where('movimiento.situacion','<>','U')
                             ->where('m2.tipomovimiento_id','=',1);
         if($request->input('fechainicial')!=""){
@@ -187,9 +193,13 @@ class VentaadmisionController extends Controller
         if ($validacion->fails()) {
             return $validacion->messages()->toJson();
         }       
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
         
         $error = DB::transaction(function() use($request){
             $Venta       = new Venta();
+            $venta->sucursal_id = $sucursal_id;
             $Venta->fecha = $request->input('fecha');
             $person_id = $request->input('person_id');
             if($person_id==""){
@@ -327,13 +337,17 @@ class VentaadmisionController extends Controller
             $dat[0]=array("respuesta"=>"ERROR","msg"=>"Caja cerrada");
             return json_encode($dat);
         }
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
     
-        $error = DB::transaction(function() use($request, $user){
+        $error = DB::transaction(function() use($request,$sucursal_id, $user){
             $Venta = Movimiento::find($request->input('id'));
             $Venta->situacion ='N';
             $Venta->save();
 
             $movimiento        = new Movimiento();
+            $movimiento->sucursal_id = $sucursal_id;
             $movimiento->fecha = date("Y-m-d");
             $movimiento->numero= Movimiento::NumeroSigue(2,2);
             $movimiento->responsable_id=$user->person_id;
@@ -439,9 +453,14 @@ class VentaadmisionController extends Controller
         $id            = Libreria::getParam($request->input('id'),'');
         //$rst              = Movimiento::find($idref);
         //$id = $rst->movimiento_id;
+        
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $resultado        = Movimiento::join('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->leftjoin('person as responsable','responsable.id','=','movimiento.responsable_id')
                             ->join('tipodocumento','tipodocumento.id','=','movimiento.tipodocumento_id')
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.id', '=', $id);
         $resultado        = $resultado->select('movimiento.*','tipodocumento.nombre as tipodocumento');
         $lista            = $resultado->get();
@@ -740,11 +759,16 @@ class VentaadmisionController extends Controller
     public function procesar(Request $request)
     {
         $error = DB::transaction(function() use($request){
+
+            //sucursal_id
+            $sucursal_id = Session::get('sucursal_id');
+
             $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
                             ->leftjoin('movimiento as m2','m2.id','=','movimiento.movimiento_id')
                             ->where('movimiento.tipomovimiento_id','=',4)
                             ->where('movimiento.ventafarmacia','=','N')
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('m2.tipomovimiento_id','=',1);
             if($request->input('fechainicial')!=""){
                 $resultado = $resultado->where('movimiento.fecha','>=',$request->input('fechainicial'));
@@ -813,9 +837,14 @@ class VentaadmisionController extends Controller
                         ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
                         [$columna1, $columna2, $columna3, $columna4, $columna5, $columna6, $columna7, $columna8, $columna9, $columna10]);
 
+
+                    //sucursal_id
+                    $sucursal_id = Session::get('sucursal_id');
+
                     //DETALLES POR SERIE
                     $rs=Movimiento::where('movimiento.tipomovimiento_id','=',4)
                                     ->where('movimiento.ventafarmacia','=','N')
+                                    ->where('movimiento.sucursal_id','=',$sucursal_id)
                                     ->where('movimiento.fecha','>=',$fechainicial)
                                     ->where('movimiento.fecha','<=',$fechainicial)
                                     ->orderBy('movimiento.tipodocumento_id','desc')
@@ -979,6 +1008,7 @@ class VentaadmisionController extends Controller
 
                     $rs=Movimiento::where('movimiento.tipomovimiento_id','=',4)
                                     ->where('movimiento.ventafarmacia','=','S')
+                                    ->where('movimiento.sucursal_id','=',$sucursal_id)
                                     ->where('movimiento.tipodocumento_id','<>',15)
                                     ->where('movimiento.fecha','>=',$fechainicial)
                                     ->where('movimiento.fecha','<=',$fechainicial)
@@ -1313,10 +1343,15 @@ class VentaadmisionController extends Controller
                 $value->situacion='U';
                 $value->save();
             }*/
+
+            //sucursal_id
+            $sucursal_id = Session::get('sucursal_id');
+
             for($c=617;$c<=865;$c++){
                 $nota = Movimiento::join('movimiento as m2','m2.id','=','movimiento.movimiento_id')
                         ->where('movimiento.numero','=',$c)
                         ->where('movimiento.serie','=',2)
+                        ->where('movimiento.sucursal_id','=',$sucursal_id)
                         ->where('movimiento.tipodocumento_id','=',13)
                         ->whereIn('m2.tipodocumento_id',[4,17])
                         ->whereIn('m2.tipomovimiento_id',[4,9])
@@ -1364,8 +1399,14 @@ class VentaadmisionController extends Controller
 
     public function ventaautocompletar($searching)
     {
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
+
         $resultado        = Movimiento::where(DB::raw('CONCAT(case when tipodocumento_id=4 or tipodocumento_id=17 then "F" else "B" end,serie,"-",numero)'), 'LIKE', '%'.trim($searching).'%')
                             ->where('ventafarmacia','=','N')
+                            ->where('sucursal_id','=',$sucursal_id)
                             ->whereNotIn('situacion',['A','U'])
                             ->orderBy('serie', 'ASC')
                             ->orderBy('numero', 'ASC');
@@ -1401,10 +1442,14 @@ class VentaadmisionController extends Controller
 
     public function excelConcar(Request $request){
         setlocale(LC_TIME, 'spanish');
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
                             ->leftjoin('movimiento as m2','m2.id','=','movimiento.movimiento_id')
                             ->where('movimiento.tipomovimiento_id','=',4)
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
+                            ->where('m2.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.ventafarmacia','=','N')
                             ->where('m2.tipomovimiento_id','=',1);
         if($request->input('fechainicial')!=""){
@@ -1639,11 +1684,15 @@ class VentaadmisionController extends Controller
                     $d=$d+1;
                 }
 
+                //sucursal_id
+                $sucursal_id = Session::get('sucursal_id');
+
                 $resultado2        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
                             ->leftjoin('movimiento as m2','m2.id','=','movimiento.movimiento_id')
                             ->where('movimiento.tipomovimiento_id','=',4)
                             ->where('movimiento.ventafarmacia','=','S')
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('m2.tipomovimiento_id','=',2);
                 if($request->input('fechainicial')!=""){
                     $resultado2 = $resultado2->where('movimiento.fecha','>=',$request->input('fechainicial').' 00:00:00');
@@ -1838,8 +1887,13 @@ class VentaadmisionController extends Controller
 
     public function excelSunatConvenio(Request $request){
         setlocale(LC_TIME, 'spanish');
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.tipodocumento_id','=',14);
         if($request->input('fechainicial')!=""){
             $resultado = $resultado->where('movimiento.fecha','>=',$request->input('fechainicial').' 00:00:00');
@@ -1930,9 +1984,14 @@ class VentaadmisionController extends Controller
 
     public function excelVentaConvenio(Request $request){
         setlocale(LC_TIME, 'spanish');
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
                             ->leftjoin('person as empresa','empresa.id','=','movimiento.empresa_id')
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.tipodocumento_id','=',17);
         if($request->input('fechainicial')!=""){
             $resultado = $resultado->where('movimiento.fecha','>=',$request->input('fechainicial').' 00:00:00');
@@ -2180,11 +2239,16 @@ class VentaadmisionController extends Controller
 
     public function excelSunat(Request $request){
         setlocale(LC_TIME, 'spanish');
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
                             ->leftjoin('movimiento as m2','m2.id','=','movimiento.movimiento_id')
                             ->where('movimiento.tipomovimiento_id','=',4)
                             ->where('movimiento.ventafarmacia','=','N')
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('m2.tipomovimiento_id','=',1);
         if($request->input('fechainicial')!=""){
             $resultado = $resultado->where('movimiento.fecha','>=',$request->input('fechainicial').' 00:00:00');
@@ -2229,6 +2293,7 @@ class VentaadmisionController extends Controller
                 $resultado2        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
                             ->leftjoin('movimiento as m2','m2.id','=','movimiento.movimiento_id')
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.tipomovimiento_id','=',6);
                             //->where('movimiento.situacion','<>','U')
                             //->where('movimiento.situacion','<>','A');
@@ -2295,6 +2360,9 @@ class VentaadmisionController extends Controller
                     //}
                 }
 
+                //sucursal_id
+                $sucursal_id = Session::get('sucursal_id');
+
                 foreach ($resultado as $key => $value){
                     if (($value->serie==7 || $value->serie==9) && $band) {
                         $resultado2        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
@@ -2302,6 +2370,7 @@ class VentaadmisionController extends Controller
                             ->leftjoin('movimiento as m2','m2.id','=','movimiento.movimiento_id')
                             ->where('movimiento.tipomovimiento_id','=',4)
                             ->where('movimiento.tipodocumento_id','<>',15)
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.ventafarmacia','=','S');
                             //->where('m2.tipomovimiento_id','=',2);
                         if($request->input('fechainicial')!=""){
@@ -3727,11 +3796,16 @@ class VentaadmisionController extends Controller
 
     public function excelVentaBizlink(Request $request){
         setlocale(LC_TIME, 'spanish');
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
                             ->leftjoin('movimiento as m2','m2.id','=','movimiento.movimiento_id')
                             ->where('movimiento.tipomovimiento_id','=',4)
                             ->where('movimiento.ventafarmacia','=','N')
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('m2.tipomovimiento_id','=',1)
                             ->whereNotIn('movimiento.situacionsunat',['P']);
         if($request->input('fechainicial')!=""){
@@ -3743,9 +3817,9 @@ class VentaadmisionController extends Controller
 
         $resultado        = $resultado->select('movimiento.*','m2.situacion as situacion2','m2.tarjeta as tarjeta2',DB::raw('CONCAT(case when movimiento.tipodocumento_id=4 then "F" else "B" end,movimiento.serie,"-",movimiento.numero) as numero2'),'responsable.nombres as responsable2')->orderBy('movimiento.serie', 'ASC')->orderBy('movimiento.numero', 'ASC')->orderBy('movimiento.fecha', 'ASC')->get();
 
-        Excel::create('ExcelVentaBizlink', function($excel) use($resultado,$request) {
+        Excel::create('ExcelVentaBizlink', function($excel) use($resultado,$sucursal_id,$request) {
             
-            $excel->sheet('VentasBizlink', function($sheet) use($resultado,$request) {
+            $excel->sheet('VentasBizlink', function($sheet) use($resultado,$sucursal_id,$request) {
  
                 $array = array();
                 $cabecera = array();
@@ -3770,6 +3844,7 @@ class VentaadmisionController extends Controller
                             ->leftjoin('movimiento as m2','m2.id','=','movimiento.movimiento_id')
                             ->where('movimiento.tipomovimiento_id','=',4)
                             ->where('movimiento.ventafarmacia','=','S')
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.tipodocumento_id','<>',15)
                             ->whereNotIn('movimiento.situacionsunat',['P']);
                         if($request->input('fechainicial')!=""){
@@ -3918,12 +3993,17 @@ class VentaadmisionController extends Controller
         }*/
         //die();
         //ADMISION
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
                             ->leftjoin('movimiento as m2','m2.id','=','movimiento.movimiento_id')
                             ->where('movimiento.tipomovimiento_id','=',4)
                             //->where('movimiento.tipodocumento_id','=',4)
                             ->where('movimiento.ventafarmacia','=','N')
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.fecha','>=',$request->input('fechainicial'))
                             ->where('movimiento.fecha','<=',$request->input('fechafinal'))
                             ->where('m2.tipomovimiento_id','=',1)
@@ -4109,12 +4189,17 @@ class VentaadmisionController extends Controller
             }
         } 
         
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         //FARMACIA
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
                             ->where('movimiento.tipomovimiento_id','=',4)
                             ->where('movimiento.tipodocumento_id','<>',15)
                             ->where('movimiento.ventafarmacia','=','S')
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.fecha','>=',$request->input('fechainicial'))
                             ->where('movimiento.fecha','<=',$request->input('fechafinal'))
                             ->where('movimiento.manual','like','N')
@@ -4338,12 +4423,16 @@ class VentaadmisionController extends Controller
             }
 
         } 
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
         
         //NOTA DE CREDITO
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
                             ->join('movimiento as m2','m2.id','=','movimiento.movimiento_id')
                             ->where('movimiento.tipomovimiento_id','=',6)
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.fecha','>=',$request->input('fechainicial'))
                             ->where('movimiento.fecha','<=',$request->input('fechafinal'))
                             //->where('m2.fecha','>=','2018-01-01')
@@ -4642,8 +4731,13 @@ class VentaadmisionController extends Controller
         $fechafin             = Libreria::getParam($request->input('fechafin'));
         $numero             = Libreria::getParam($request->input('numero'));
         $paciente             = Libreria::getParam($request->input('paciente'));
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $resultado        = Venta::leftjoin('person','person.id','=','movimiento.persona_id')
                                 ->where('tipomovimiento_id', '=', '4')
+                                ->where('sucursal_id','=',$sucursal_id)
                                 ->where('ventafarmacia','=','S')//where('serie','=','4')->
                                 ->where(function($query) use ($numero){   
                                 if (!is_null($numero) && $numero !== '') {
@@ -4715,9 +4809,14 @@ class VentaadmisionController extends Controller
         setlocale(LC_TIME, 'spanish');
         $id               = Libreria::getParam($request->input('venta_id'),'');
         $guia = $request->input('guia');
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->leftjoin('person as responsable','responsable.id','=','movimiento.responsable_id')
                             ->join('tipodocumento','tipodocumento.id','=','movimiento.tipodocumento_id')
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.id', '=', $id);
         $resultado        = $resultado->select('movimiento.*','tipodocumento.nombre as tipodocumento');
         $lista            = $resultado->get();
@@ -4899,7 +4998,11 @@ class VentaadmisionController extends Controller
     }
 
     public function cola(Request $request){
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $venta = Movimiento::where('situacion','like','N')
+                ->where('sucursal_id','=',$sucursal_id)
                 ->orderBy('id','asc');
         $lista            = $venta->get();
         $registro="<table width='100%'>

@@ -20,6 +20,7 @@ use App\Person;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 use Jenssegers\Date\Date;
 use Elibyy\TCPDF\Facades\TCPDF;
 use Illuminate\Support\Facades\Auth;
@@ -94,12 +95,17 @@ class CompraController extends Controller
         $pagina           = $request->input('page');
         $filas            = $request->input('filas');
         $entidad          = 'Compra';
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $nombre             = Libreria::getParam($request->input('nombre'));
         $fechainicio             = Libreria::getParam($request->input('fechainicio'));
         $fechafin             = Libreria::getParam($request->input('fechafin'));
         $tipodoc             = Libreria::getParam($request->input('tipodocumento'));
         $resultado        = Compra::join('person','movimiento.persona_id','=','person.id')
                                 ->leftJoin('tipodocumento','movimiento.tipodocumento_id','=','tipodocumento.id')
+                                ->where('movimiento.sucursal_id','=',$sucursal_id)
                                 ->where('movimiento.tipomovimiento_id', '=', '3')->where(function($query) use ($nombre){
                     if (!is_null($nombre) && $nombre !== '') {
                         
@@ -502,11 +508,15 @@ class CompraController extends Controller
 
         $dat=array();
 
-        $error = DB::transaction(function() use($request,&$dat){
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
+        $error = DB::transaction(function() use($request,$sucursal_id,&$dat){
             $lista = $request->session()->get('carritocompra');
             $total = str_replace(',', '', $request->input('total'));
             $igv = str_replace(',', '', $request->input('igv'));
             $compra                 = new Compra();
+            $compra->sucursal_id    = $sucursal_id; 
             $compra->tipodocumento_id          = $request->input('tipodocumento_id');
             $compra->tipomovimiento_id          = 3;
             $compra->persona_id = $request->input('person_id');
@@ -657,6 +667,7 @@ class CompraController extends Controller
                 if ($request->input('cajafamarcia')  == 'S') {
                     $total = str_replace(',', '', $request->input('total'));
                     $movimiento                 = new Movimiento();
+                    $movimiento->sucursal_id = $sucursal_id;
                     $movimiento->tipodocumento_id          = $request->input('tipodocumento_id');
                     $movimiento->tipomovimiento_id          = 2;
                     $movimiento->persona_id = $request->input('person_id');
@@ -695,9 +706,14 @@ class CompraController extends Controller
         $entidad          = 'Venta';
         $id               = Libreria::getParam($request->input('movimiento_id'),'');
         $guia = $request->input('guia');
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+        
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->leftjoin('person as responsable','responsable.id','=','movimiento.responsable_id')
                             ->join('tipodocumento','tipodocumento.id','=','movimiento.tipodocumento_id')
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.id', '=', $id);
         $resultado        = $resultado->select('movimiento.*','tipodocumento.nombre as tipodocumento');
         $resultado = Movimiento::where('id','=',$id);
