@@ -109,5 +109,5 @@ $entidad='Producto';
 	        }
 	    });
 	}
-	buscar2();
+    setInterval(buscar2, 1000);
 </script>

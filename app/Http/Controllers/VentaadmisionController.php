@@ -4899,16 +4899,16 @@ class VentaadmisionController extends Controller
     }
 
     public function cola(Request $request){
-        $venta = Movimiento::where('situacion','like','N')
+        $venta = Movimiento::where('situacion','like','C')->where('tipodocumento_id', '1')->orWhere('situacion','like','D')
                 ->orderBy('id','asc');
         $lista            = $venta->get();
         $registro="<table width='100%'>
                     <tr>
-                        <th class='text-center' bgcolor='#E0ECF8'>CONSULTAS</th>
-                        <th class='text-center' bgcolor='#dd4b39'>EMERGENCIAS</th>
+                        <th class='text-center' bgcolor='#E0ECF8' width='50%'>CONSULTAS</th>
+                        <th class='text-center' bgcolor='#FC350A'>EMERGENCIAS</th>
                     </tr>
                     <tr>
-                        <td rowspan='3'>
+                        <td rowspan='6'>
                             <table class='table table-bordered table-striped table-condensed table-hover'>
                             <thead>
                                 <tr>
