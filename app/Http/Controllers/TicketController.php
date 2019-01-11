@@ -168,7 +168,7 @@ class TicketController extends Controller
             $cboTipoDocumento     = array("Boleta" => "Boleta", "Factura" => "Factura");
         }
         //$cboTipoDocumento     = array("Boleta" => "Boleta", "Factura" => "Factura");
-        $numeroventa = Movimiento::NumeroSigue(4,$sucursal_id,$serie,'N');
+        $numeroventa = Movimiento::NumeroSigue($idcaja,$sucursal_id,$serie,'N');
         $serie='00'.$serie;
         $formData            = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton               = 'Registrar'; 
@@ -358,8 +358,12 @@ class TicketController extends Controller
 
                 //Puede ser manual o no
 
+                $caja = Caja::find($request->input('caja_id'));
+
+                $sucursal_id = Session::get('sucursal_id');
+
                 if($request->input('manual')=='N'){
-                    $venta->numero= Movimiento::NumeroSigue(4,$tipodocumento_id,$request->input('serieventa'),'N');
+                    $venta->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id, 4,$tipodocumento_id,$request->input('serieventa'),'N');
                 }else{
                     $venta->numero= $request->input('numeroventa');
                 }
@@ -584,7 +588,9 @@ class TicketController extends Controller
         $numero = $ticket->numero;
         $user = Auth::user();
 
-        $numeroventa = Movimiento::NumeroSigue(4,5,$serie,'N');
+        $sucursal_id = Session::get('sucursal_id');
+
+        $numeroventa = Movimiento::NumeroSigue($idcaja,$sucursal_id,$serie,'N');
         $serie='00'.$serie;
 
         $formData            = array('ticket.update', $id);
@@ -1700,6 +1706,7 @@ class TicketController extends Controller
 
     public function generarNumero(Request $request){
         $sucursal_id = Session::get('sucursal_id');
+        $caja = Caja::find($request->input('caja_id'));
         if($request->input('tipodocumento')=="Boleta"){
             $tipodocumento_id=5;
         }else if($request->input('tipodocumento')=="Factura"){
@@ -1708,7 +1715,7 @@ class TicketController extends Controller
             $tipodocumento_id=1;
         }
         $serie = $request->input('serie') + 0;
-        $numeroventa = Movimiento::NumeroSigue(1,$sucursal_id,2,$tipodocumento_id,$serie,'N');
+        $numeroventa = Movimiento::NumeroSigue($caja->id,$sucursal_id,2,$tipodocumento_id,$serie,'N');
         echo $numeroventa;
     }
     
