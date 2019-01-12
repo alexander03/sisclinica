@@ -569,6 +569,11 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('caja/cobrarticket/{id}', 'CajaController@cobrarticket')->name('caja.cobrarticket');
     Route::post('caja/cobrarticket2', 'CajaController@cobrarticket2')->name('caja.cobrarticket2');
+
+    //COBRAR CUENTA PENDIENTE
+
+    Route::get('caja/cobrarcuentapendiente/{id}', 'CajaController@cobrarcuentapendiente')->name('caja.cobrarcuentapendiente');
+    Route::post('caja/cobrarcuentapendiente2', 'CajaController@cobrarcuentapendiente2')->name('caja.cobrarcuentapendiente2');
     
     /* CAJA TESORERIA*/
     Route::post('cajatesoreria/buscar', 'CajatesoreriaController@buscar')->name('cajatesoreria.buscar');

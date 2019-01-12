@@ -5830,8 +5830,36 @@ class CajaController extends Controller
         return view($this->folderview.'.listacuentaspendientes')->with(compact('lista', 'ruta'));
     }
 
-    public function cobrarcuentapendiente() {
+    public function cobrarcuentapendiente($id) {
+        $id = explode('&', $id)[0];
+        $existe = Libreria::verificarExistencia($id, 'Movimiento');
+        $ruta = $this->rutas;
+        if ($existe !== true) {
+            return $existe;
+        }
+        //cuenta por cobrar
+        $cuenta = Movimiento::find($id);
+        //Primera cuota pagada
+        $cuota0 = Movimiento::find($cuenta->movimiento_id);  
+        //Ticket      
+        $movimiento = Movimiento::find($cuota0->movimiento_id);
+        //Todas las cuotas que se han pagado
+        $cuotas = Movimiento::where('movimiento_id', $movimiento->id)->get();
+        $serie=3;
+        $entidad    = 'Movimiento';
+        
+        $formData   = array('caja.cobrarcuentapendiente2');
+        $formData   = array('route' => $formData, 'method' => 'POST', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $boton      = 'Registrar';
+        $cboCaja = Caja::where('nombre', '<>', 'TESORERIA')->where('nombre', '<>', 'FARMACIA')->where('nombre', '<>', 'TESORERIA - FARMACIA')->get();
+        $cboFormaPago     = array("Efectivo" => "Efectivo", "Tarjeta" => "Tarjeta");
+        $cboTipoTarjeta    = array("VISA" => "VISA", "MASTER" => "MASTER");
+        $cboTipoTarjeta2    = array("CREDITO" => "CREDITO", "DEBITO" => "DEBITO");
+        $cboTipoDocumento     = array("Boleta" => "Boleta", "Factura" => "Factura", "Ticket" => "Ticket");
 
+        $detalles = Movimiento::select('detallemovcaja.id', 'movimiento.serie', 'movimiento.numero', 'cantidad', 'detallemovcaja.persona_id', 'descripcion', 'cantidad', 'detallemovcaja.precio', 'descuento', 'servicio.nombre', 'movimiento.movimiento_id')->join('detallemovcaja', 'movimiento.id', '=', 'detallemovcaja.movimiento_id')->join('servicio', 'servicio.id', '=', 'detallemovcaja.servicio_id')->where('movimiento.id', $movimiento->id)->where('detallemovcaja.deleted_at', '=', null)->get();
+
+        return view($this->folderview.'.cobrarcuentapendiente')->with(compact('Caja', 'formData', 'entidad', 'boton', 'movimiento', 'cboFormaPago', 'cboTipoTarjeta', 'cboTipoTarjeta2', 'cboCaja', 'cboTipoDocumento', 'ruta', 'detalles', 'serie', 'cuotas'));
     }
 
     public function cobrarcuentapendiente2() {

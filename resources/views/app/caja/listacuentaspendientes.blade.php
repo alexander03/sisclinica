@@ -21,7 +21,14 @@
             <td style="color:blue;font-weight: bold;">
             	<font color="red">{{ number_format($value->movimiento->movimiento->total - $value->total,2,'.','') }}</font>
             </td>
-            <td style="color:blue;font-weight: bold;"></td>
+            <td style="color:blue;font-weight: bold;">
+            	<center>
+	            	@if ($value->situacion == 'D')
+	            		{!! Form::button('<div class="fa fa-money"></div>', array('onclick' => 'modalCaja (\''.URL::route($ruta["cobrarcuentapendiente"], array('id' => $value->id)).'\', \'Cobrar Cuenta Pendiente\', this);', 'class' => 'btn btn-xs btn-success')) !!}
+	            	@else
+	            	-
+	            	@endif	</center>
+            </td>
 		</tr>
 		@endforeach
 	</tbody>
