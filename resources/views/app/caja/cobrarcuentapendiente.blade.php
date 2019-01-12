@@ -101,48 +101,16 @@
 		</div>		
 	</div>	
 	<div class="col-lg-6 col-md-6 col-sm-6">
-		<h4>DETALLES DE SERVICIOS</h4>
 		<table class="table table-bordered table-responsive table-condensed table-hover dataTable no-footer" border="1" role="grid" style="width: 100%;">
 			<thead>
 				<tr>
-					<th>Cant.</th>
-					<th>Medico</th>
-					<th>Descrip.</th>
-					<th>Subtot.</th>
-				</tr>					
-			</thead>
-			<tbody>
-				<?php $i = 0; $pago = 0; ?>				
-				@foreach($detalles as $detalle)
-					{!! Form::hidden('detalleid' . $detalle->id, $detalle->id) !!}
-					<tr>
-						<td>{{ (integer) $detalle->cantidad }}</td>
-						<td style="font-size: 10px">
-							{{ $detalle->persona->nombres }} {{ $detalle->persona->apellidopaterno }}
-						</td>
-						<td style="font-size: 10px">{{ $detalle->nombre }}</td>
-						<td>
-							<input name="subtotal{{ $i }}" id="subtotal{{ $i }}" class="form-control input-xs subtotal" type="text" readonly="">
-						</td>
-					</tr>
-					<?php $i++;?>
-				@endforeach
-				<tr>
-					<th colspan="3" class="text-right">Pago</th>
-					<td>{{ $movimiento->total }}</td>
-				</tr>
-			</tbody>
-		</table>
-		<h4>HISTORIAL DE PAGOS</h4>
-		<table class="table table-bordered table-responsive table-condensed table-hover dataTable no-footer" border="1" role="grid" style="width: 100%;">
-			<thead>
-				<tr>
-					<td colspan="4"></td>
+					<td colspan="4">DETALLES DE SERVICIOS</td>
 					<td>
-						<select class="form-control input-xs" name="tipodescuento" id="tipodescuento" onchange="inicializarPrecios()">
+						<select class="form-control input-xs" disabled="" value="{{ $detalles[0]->tipodescuento }}">
 							<option value="P">%</option>
 							<option value="E">S/.</option>
 						</select>
+						<input type="hidden" name="tipodescuento" id="tipodescuento" value="{{ $detalles[0]->tipodescuento }}">
 					</td>
 					<td></td>
 				</tr>
@@ -166,20 +134,64 @@
 						</td>
 						<td style="font-size: 10px">{{ $detalle->nombre }}</td>
 						<td>
-							<input name="precio{{ $i }}" id="precio{{ $i }}" class="form-control input-xs precio" type="text" value="{{ $detalle->precio }}" onkeypress="return filterFloat(event,this);" onkeyup="inicializarPrecios();">
+							<input name="precio{{ $i }}" id="precio{{ $i }}" class="form-control input-xs precio" type="text" value="{{ $detalle->precio }}" onkeypress="return filterFloat(event,this);" onkeyup="inicializarPrecios();" readonly="">
 						</td>
 						<td>
-							<input name="descuento{{ $i }}" id="descuento{{ $i }}" class="form-control input-xs descuento" type="text" value="0" onkeypress="return filterFloat(event,this);" onkeyup="inicializarPrecios();">
+							<input name="descuento{{ $i }}" id="descuento{{ $i }}" class="form-control input-xs descuento" type="text" value="{{ $detalle->descuento }}" onkeypress="return filterFloat(event,this);" onkeyup="inicializarPrecios();" readonly="">
 						</td>
 						<td>
-							<input name="subtotal{{ $i }}" id="subtotal{{ $i }}" class="form-control input-xs subtotal" type="text" readonly="">
+							<input name="subtotal{{ $i }}" id="subtotal{{ $i }}" class="form-control input-xs subtotal" type="text" readonly="" value="">
 						</td>
 					</tr>
 					<?php $i++; ?>
 				@endforeach
 				<tr>
 					<th colspan="5" class="text-right">Pago</th>
-					<td><input name="total" id="total" class="form-control input-xs" type="text" readonly=""></td>
+					<td><input name="total" class="form-control input-xs" type="text" readonly="" value="{{ $movimiento->total }}"></td>
+				</tr>
+			</tbody>
+		</table>
+		<h4>HISTORIAL DE PAGOS</h4>
+		<table class="table table-bordered table-responsive table-condensed table-hover dataTable no-footer" border="1" role="grid" style="width: 100%;">
+			<thead>
+				<tr>
+					<th width="30%">Fecha</th>
+					<th width="10%">Numero</th>
+					<th width="15%">Efectivo</th>
+					<th width="15%">Visa</th>
+					<th width="15%">Master</th>
+					<th width="15%">Subtotal</th>
+				</tr>					
+			</thead>
+			<tbody>
+				<?php $i = 0; $totaltotal = 0; ?>				
+				@foreach($cuotas as $cuota)
+					<tr>
+						<td>{{ $cuota->fecha }}</td>
+						<td>
+							{{ $cuota->numero }}
+						</td>
+						<td>
+							<input readonly="" class="form-control input-xs precio" type="text" value="{{ $cuota->totalpagado }}">
+						</td>
+						<td>
+							<input readonly="" class="form-control input-xs precio" type="text" value="{{ $cuota->totalpagadovisa }}">
+						</td>
+						<td>
+							<input readonly="" class="form-control input-xs precio" type="text" value="{{ $cuota->totalpagadomaster }}">
+						</td>
+						<?php $subtot = $cuota->totalpagado + $cuota->totalpagadovisa + $cuota->totalpagadomaster; 
+								$totaltotal += $subtot;
+							?>
+						<td>
+							<input readonly="" class="form-control input-xs precio" type="text" value="{{ round($subtot,3) }}">
+						</td>
+					</tr>
+					<?php $i++; ?>
+				@endforeach
+				<tr>
+					<th colspan="5" class="text-right">Pago</th>
+					<td><input class="form-control input-xs" type="text" readonly="" value="{{ $totaltotal }}"></td>
 				</tr>
 			</tbody>
 		</table>

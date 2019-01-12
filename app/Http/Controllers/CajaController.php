@@ -5819,7 +5819,7 @@ class CajaController extends Controller
         $cabecera[]       = array('valor' => 'Fecha', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Nro', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Paciente', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Total', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Total Pagado', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Pendiente', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Operacion', 'numero' => '1');
         
@@ -5857,7 +5857,7 @@ class CajaController extends Controller
         $cboTipoTarjeta2    = array("CREDITO" => "CREDITO", "DEBITO" => "DEBITO");
         $cboTipoDocumento     = array("Boleta" => "Boleta", "Factura" => "Factura", "Ticket" => "Ticket");
 
-        $detalles = Movimiento::select('detallemovcaja.id', 'movimiento.serie', 'movimiento.numero', 'cantidad', 'detallemovcaja.persona_id', 'descripcion', 'cantidad', 'detallemovcaja.precio', 'descuento', 'servicio.nombre', 'movimiento.movimiento_id')->join('detallemovcaja', 'movimiento.id', '=', 'detallemovcaja.movimiento_id')->join('servicio', 'servicio.id', '=', 'detallemovcaja.servicio_id')->where('movimiento.id', $movimiento->id)->where('detallemovcaja.deleted_at', '=', null)->get();
+        $detalles = Movimiento::select('detallemovcaja.id', 'movimiento.serie', 'movimiento.numero', 'cantidad', 'detallemovcaja.persona_id', 'descripcion', 'cantidad', 'detallemovcaja.precio', 'descuento', 'servicio.nombre', 'movimiento.movimiento_id', 'tipodescuento', 'descuento')->join('detallemovcaja', 'movimiento.id', '=', 'detallemovcaja.movimiento_id')->join('servicio', 'servicio.id', '=', 'detallemovcaja.servicio_id')->where('movimiento.id', $movimiento->id)->where('detallemovcaja.deleted_at', '=', null)->get();
 
         return view($this->folderview.'.cobrarcuentapendiente')->with(compact('Caja', 'formData', 'entidad', 'boton', 'movimiento', 'cboFormaPago', 'cboTipoTarjeta', 'cboTipoTarjeta2', 'cboCaja', 'cboTipoDocumento', 'ruta', 'detalles', 'serie', 'cuotas'));
     }
