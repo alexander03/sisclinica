@@ -4901,7 +4901,7 @@ class VentaadmisionController extends Controller
     public function cola(Request $request){
         $consultas = Movimiento::where('clasificacionconsulta','like','C')->where('situacion2', 'like', 'C')->orderBy('id','ASC')
         ->where(function($q) {            
-            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
+            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
         });
         $lista = $consultas->get();
         $registro="<table width='100%'>
@@ -5013,6 +5013,6 @@ class VentaadmisionController extends Controller
     }
 
     public function llamarAtender() {
-        
+
     }
 }

@@ -5627,7 +5627,7 @@ class CajaController extends Controller
             $Ticket->totalpagadomaster = $request->input('master');
             $Ticket->numvisa = $request->input('numvisa');
             $Ticket->nummaster = $request->input('nummaster');
-            $Ticket->situacion2 = $request->input('C');
+            $Ticket->situacion2 = 'C';
 
             if($request->input('total') == $request->input('total2')){
                 $Ticket->situacion='C';//Pendiente => P / Cobrado => C / Boleteado => B                
