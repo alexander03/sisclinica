@@ -22,6 +22,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Jenssegers\Date\Date;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Elibyy\TCPDF\Facades\TCPDF;
 
 ini_set('memory_limit', '512M'); //Raise to 512 MB
@@ -80,7 +81,12 @@ class RequerimientoController extends Controller
         $entidad          = 'Requerimiento';
         $fechainicio             = Libreria::getParam($request->input('fechainicio'));
         $fechafin             = Libreria::getParam($request->input('fechafin'));
-        $resultado        = Movimientoalmacen::where('tipomovimiento_id', '=', '15')->where(function($query) use ($fechainicio,$fechafin){   
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
+        
+        $resultado        = Movimientoalmacen::where('tipomovimiento_id', '=', '15')->where('sucursal_id','=',$sucursal_id)->where(function($query) use ($fechainicio,$fechafin){   
                                 if (!is_null($fechainicio) && $fechainicio !== '') {
                                     $query->where('fecha', '>=', $fechainicio);
                                 }
@@ -155,9 +161,14 @@ class RequerimientoController extends Controller
             return $validacion->messages()->toJson();
         }
         $dat=array();
-        $error = DB::transaction(function() use($request,&$dat){
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
+        $error = DB::transaction(function() use($request, $sucursal_id ,&$dat){
             $total = 0;
             $movimientoalmacen                 = new Movimiento();
+            $movimientoalmacen->sucursal_id = $sucursal_id;
             $movimientoalmacen->tipodocumento_id = 24;
             $movimientoalmacen->tipomovimiento_id = 15;
             $movimientoalmacen->comentario   = Libreria::obtenerParametro($request->input('comentario'));
@@ -289,7 +300,7 @@ class RequerimientoController extends Controller
         $pdf::SetFont('helvetica','B',12);
         $pdf::Cell(0,7,$dato->tipodocumento->nombre.' '.str_pad($dato->numero,8,'0',STR_PAD_LEFT),0,0,'C');        
         $pdf::Ln();
-        $pdf::Image("http://localhost:81/clinica/dist/img/logo2-ojos.jpg", 20, 7, 50, 15);
+        //$pdf::Image("http://localhost:81/clinica/dist/img/logo2-ojos.jpg", 20, 7, 50, 15);
         $pdf::Ln();
         $pdf::SetFont('helvetica','B',10);
         $pdf::Cell(15,7,"Fecha: ",0,0,'L');        
