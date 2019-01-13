@@ -71,7 +71,7 @@
 		</div>
 		<hr>
 		<!-- OPCIONES -->
-		<div class="form-group">
+		<div class="form-group" id="genComp">
 	        <!--{!! Form::label('plan', 'Generar:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
 			<div class="col-lg-2 col-md-2 col-sm-2">
 				{!! Form::hidden('comprobante', 'S', array('id' => 'comprobante')) !!}
@@ -298,12 +298,15 @@
 	function coincidenciasMontos() {
 		if(parseFloat($('#total').val()) == parseFloat($('#total2').val())) {
 			$('#mensajeMontos').html('Los montos coindicen.').css('color', 'green');
+			$('#genComp').css('display', '');
 			return true;
 		} else if(parseFloat($('#total').val()) > parseFloat($('#total2').val())) {
-			$('#mensajeMontos').html('Es un monto menor.').css('color', 'orange');			
+			$('#mensajeMontos').html('Es un monto menor.').css('color', 'orange');	
+			$('#genComp').css('display', 'none');		
 			return true;
 		} else if(parseFloat($('#total').val()) < parseFloat($('#total2').val())) {
-			$('#mensajeMontos').html('Es un monto mayor.').css('color', 'red');			
+			$('#mensajeMontos').html('Es un monto mayor.').css('color', 'red');	
+			$('#genComp').css('display', 'none');		
 			return false;
 		}
 	}

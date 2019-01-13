@@ -117,7 +117,7 @@
 		</div>
 		<hr>
 		<!-- OPCIONES -->
-		<div class="form-group">
+		<div class="form-group" id="genComp">
 	        <!--{!! Form::label('plan', 'Generar:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
 			<div class="col-lg-2 col-md-2 col-sm-2">
 				{!! Form::hidden('comprobante', 'S', array('id' => 'comprobante')) !!}
@@ -319,12 +319,15 @@
 	function coincidenciasMontos() {
 		if(parseFloat($('#total2').val()) == parseFloat($('#pendiente').val())) {
 			$('#quedan').css('color', 'green').css('font-weight', 'bold');
-			return true;
-		} else if(parseFloat($('#total2').val()) > parseFloat($('#pendiente').val())) {
-			$('#quedan').css('color', 'orange').css('font-weight', 'bold');			
+			$('#genComp').css('display', '');
 			return true;
 		} else if(parseFloat($('#total2').val()) < parseFloat($('#pendiente').val())) {
-			$('#quedan').css('color', 'red').css('font-weight', 'bold');			
+			$('#quedan').css('color', 'orange').css('font-weight', 'bold');	
+			$('#genComp').css('display', 'none');		
+			return true;
+		} else if(parseFloat($('#total2').val()) > parseFloat($('#pendiente').val())) {
+			$('#quedan').css('color', 'red').css('font-weight', 'bold');
+			$('#genComp').css('display', 'none');		
 			return false;
 		}
 	}
@@ -374,7 +377,7 @@
 		} else {
 			if(!coincidenciasMontos()) {
 				$('#efectivo').focus();
-				alert('Los montos no coinciden.');
+				alert('No puedes registrar más de la cuenta pendiente.');
 				return false;
 			} else {
 				$.ajax({
@@ -386,7 +389,7 @@
 					},
 					success: function() {
 						cerrarModal();
-						listatickestpendientes();
+						listacuentaspendientes();
 						buscar('Caja');
 					},
 				});
