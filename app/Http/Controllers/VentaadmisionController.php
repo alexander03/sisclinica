@@ -4899,7 +4899,7 @@ class VentaadmisionController extends Controller
     }
 
     public function cola(Request $request){
-        $consultas = Movimiento::where('clasificacionconsulta','like','C')->orderBy('id','ASC')
+        $consultas = Movimiento::where('clasificacionconsulta','like','C')->where('situacion2', 'like', 'C')->orderBy('id','ASC')
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
         });
@@ -4933,13 +4933,13 @@ class VentaadmisionController extends Controller
             $c=$c+1;
         }
 
-        $emergencias = Movimiento::where('clasificacionconsulta','like','E')->orderBy('id','ASC')
+        $emergencias = Movimiento::where('clasificacionconsulta','like','E')->where('situacion2', 'like', 'C')->orderBy('id','ASC')
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
         });
         $lista2 = $emergencias->get();
 
-        $fondos = Movimiento::where('clasificacionconsulta','like','F')->orderBy('id','ASC')
+        $fondos = Movimiento::where('clasificacionconsulta','like','F')->where('situacion2', 'like', 'C')->orderBy('id','ASC')
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
         });
@@ -4989,6 +4989,10 @@ class VentaadmisionController extends Controller
                             </thead>
                             <tbody>";
         $c=1;
+
+        //fondos 
+
+
         foreach ($lista3 as $key => $value) {
             $registro.= "<tr>";
             $registro.= "<td>".$c."</td>";
@@ -5007,4 +5011,6 @@ class VentaadmisionController extends Controller
                     </table>";
         return $registro;
     }
+
+    public function llamarAtender()
 }

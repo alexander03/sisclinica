@@ -47,11 +47,12 @@ $entidad='Producto';
 			</h1>
 		</section>
 		<ul class="nav nav-tabs">
-		  <li class="active"><a data-toggle="tab" href="#Farmacia">Farmacia</a></li>
+		  <li><a data-toggle="tab" href="#Farmacia">Farmacia</a></li>
 		  <li><a data-toggle="tab" href="#cie">CIE 10</a></li>
+		  <li class="active"><a data-toggle="tab" href="#cola">Atención Cola</a></li>
 		</ul>
 		<div class="tab-content">
-  			<div id="Farmacia" class="tab-pane fade in active">
+  			<div id="Farmacia" class="tab-pane fade">
 				<!-- Main content -->
 				<section class="content">
 					<div class="row">
@@ -101,6 +102,37 @@ $entidad='Producto';
 											</div>
 											{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar2', 'onclick' => 'buscar3(\''.$entidad.'\')')) !!}
 											{!! Form::close() !!}
+										</div>
+									</div>
+								</div>
+								<!-- /.box-header -->
+								<div class="box-body" id="listado2{{ $entidad }}">
+								</div>
+								<!-- /.box-body -->
+							</div>
+							<!-- /.box -->
+						</div>
+						<!-- /.col -->
+					</div>
+					<!-- /.row -->
+				</section>
+				<!-- /.content -->	
+			</div>
+
+			<div id="cola" class="tab-pane fade in active">
+				<!-- Main content -->
+				<section class="content">
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="box">
+								<div class="box-header">
+									<div class="row">
+										<div class="col-xs-8">
+											<div class="box-body" id="listado">
+											</div>
+										</div>
+										<div class="col-xs-4">
+											<h5>SIGUIENTE PACIENTE: </h5>
 										</div>
 									</div>
 								</div>
@@ -199,4 +231,16 @@ $entidad='Producto';
 	        }
 	    });
 	}
+
+	function buscar4(){
+		$.ajax({
+	        type: "POST",
+	        url: "ventaadmision/cola",
+	        data: "_token=<?php echo csrf_token(); ?>",
+	        success: function(a) {
+	        	$("#listado").html(a);
+	        }
+	    });
+	}
+    setInterval(buscar4, 1000);
 </script>
