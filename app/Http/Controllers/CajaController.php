@@ -5953,6 +5953,11 @@ class CajaController extends Controller
                     $movimiento        = new Movimiento();
                     $movimiento->sucursal_id = $sucursal_id;
                     $movimiento->fecha = date("Y-m-d");
+                    $venta->totalpagado = $request->input('efectivo');
+                    $venta->totalpagadovisa = $request->input('visa');
+                    $venta->totalpagadomaster = $request->input('master');
+                    $venta->numvisa = $request->input('numvisa');
+                    $venta->nummaster = $request->input('nummaster');
                     $movimiento->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,2,2);
                     $movimiento->responsable_id=$user->person_id;
                     $movimiento->persona_id=$Ticket->persona_id;
@@ -5981,7 +5986,7 @@ class CajaController extends Controller
 
             //SOLO SI HAY UN CRÉDITO
 
-            else if($request->input('quedan') > 0){
+            else if($request->input('quedan') != '0.000'){
                 if($pagohospital>0){//Puse con pago hospital por generar F.E.  
                     
                     //Genero venta como nuevo movimiento
