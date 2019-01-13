@@ -5012,5 +5012,7 @@ class VentaadmisionController extends Controller
         return $registro;
     }
 
-    public function llamarAtender()
+    public function llamarAtender() {
+        
+    }
 }
