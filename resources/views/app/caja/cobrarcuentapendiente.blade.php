@@ -2,6 +2,102 @@
 	{!! Form::model($movimiento, $formData) !!}
 	{!! Form::hidden('cantdetalles', count($detalles)) !!}
 	
+	<div class="col-lg-6 col-md-6 col-sm-6">
+		<table class="table table-bordered table-responsive table-condensed table-hover dataTable no-footer" border="1" role="grid" style="width: 100%;">
+			<thead>
+				<tr>
+					<td colspan="4">DETALLES DE SERVICIOS</td>
+					<td>
+						<select class="form-control input-xs" disabled="" value="{{ $detalles[0]->tipodescuento }}">
+							<option value="P">%</option>
+							<option value="E">S/.</option>
+						</select>
+						<input type="hidden" name="tipodescuento" id="tipodescuento" value="{{ $detalles[0]->tipodescuento }}">
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<th>Cant.</th>
+					<th>Medico</th>
+					<th>Descrip.</th>
+					<th>Precio</th>
+					<th>Desc.</th>
+					<th>Subtot.</th>
+				</tr>					
+			</thead>
+			<tbody>
+				<?php $i = 0; ?>				
+				@foreach($detalles as $detalle)
+					{!! Form::hidden('detalleid' . $detalle->id, $detalle->id) !!}
+					<tr>
+						<td>{{ (integer) $detalle->cantidad }}</td>
+						<td style="font-size: 10px">
+							{{ $detalle->persona->nombres }} {{ $detalle->persona->apellidopaterno }}
+						</td>
+						<td style="font-size: 10px">{{ $detalle->nombre }}</td>
+						<td>
+							<input name="precio{{ $i }}" id="precio{{ $i }}" class="form-control input-xs precio" type="text" value="{{ $detalle->precio }}" readonly="">
+						</td>
+						<td>
+							<input name="descuento{{ $i }}" id="descuento{{ $i }}" class="form-control input-xs descuento" type="text" value="{{ $detalle->descuento }}" readonly="">
+						</td>
+						<td>
+							<input name="subtotal{{ $i }}" id="subtotal{{ $i }}" class="form-control input-xs subtotal" type="text" readonly="" value="">
+						</td>
+					</tr>
+					<?php $i++; ?>
+				@endforeach
+				<tr>
+					<th colspan="5" class="text-right">Total</th>
+					<td><input name="total" id="total" class="form-control input-xs" type="text" readonly="" value="{{ $movimiento->total }}"></td>
+				</tr>
+			</tbody>
+		</table>
+		<h4>HISTORIAL DE PAGOS</h4>
+		<table class="table table-bordered table-responsive table-condensed table-hover dataTable no-footer" border="1" role="grid" style="width: 100%;">
+			<thead>
+				<tr>
+					<th width="30%">Fecha</th>
+					<th width="10%">Numero</th>
+					<th width="15%">Efectivo</th>
+					<th width="15%">Visa</th>
+					<th width="15%">Master</th>
+					<th width="15%">Subtotal</th>
+				</tr>					
+			</thead>
+			<tbody>
+				<?php $i = 0; $totaltotal = 0; ?>				
+				@foreach($cuotas as $cuota)
+					<tr>
+						<td>{{ $cuota->fecha }}</td>
+						<td>
+							{{ $cuota->numero }}
+						</td>
+						<td>
+							<input readonly="" class="form-control input-xs precio" type="text" value="{{ $cuota->totalpagado }}">
+						</td>
+						<td>
+							<input readonly="" class="form-control input-xs precio" type="text" value="{{ $cuota->totalpagadovisa }}">
+						</td>
+						<td>
+							<input readonly="" class="form-control input-xs precio" type="text" value="{{ $cuota->totalpagadomaster }}">
+						</td>
+						<?php $subtot = $cuota->totalpagado + $cuota->totalpagadovisa + $cuota->totalpagadomaster; 
+								$totaltotal += $subtot;
+							?>
+						<td>
+							<input readonly="" class="form-control input-xs precio" type="text" value="{{ round($subtot,3) }}">
+						</td>
+					</tr>
+					<?php $i++; ?>
+				@endforeach
+				<tr>
+					<th colspan="5" class="text-right">Total Pago</th>
+					<td><input name="totalpago" id="totalpago" class="form-control input-xs" type="text" readonly="" value="{{ $totaltotal }}"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 	<div class="col-lg-6 col-md-6 col-sm-6">			
 		<!-- DATOS DEL TICKET -->
 		<div id="divMensajeError{!! $entidad !!}"></div>
@@ -86,13 +182,18 @@
 			</div>	
 			<div class="col-lg-4 col-md-4 col-sm-4">	    	
 			    <div class="input-group form-control">
-					<span class="input-group-addon input-xs">TOTAL</span>
-					<input name="total2" id="total2" type="text" class="form-control input-xs" readonly="" value="0.000">
+					<span class="input-group-addon input-xs">PENDIENTE</span>
+					<input name="pendiente" id="pendiente" type="text" class="form-control input-xs" readonly="" value="{{ $movimiento->total - $totaltotal }}">
+				</div>
+				<div class="input-group form-control">
+					<span class="input-group-addon input-xs">CUOTA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+					<input name="total2" id="total2" type="text" class="form-control input-xs" readonly="" value="{{ $movimiento->total - $totaltotal }}">
+				</div>
+				<div class="input-group form-control">
+					<span class="input-group-addon input-xs">QUEDAN&nbsp;&nbsp;&nbsp;&nbsp;</span>
+					<input name="quedan" id="quedan" type="text" class="form-control input-xs" readonly="" value="{{ $movimiento->total - $totaltotal }}">
 				</div>
 			</div>
-			<div class="col-lg-4 col-md-4 col-sm-4">	    	
-			    <b id="mensajeMontos" style="color:red">Los montos no coinciden.</b>
-			</div>		
 		</div>
 		{!! Form::hidden('id', $movimiento->id) !!}
 		<div class="text-right">
@@ -100,102 +201,6 @@
 			{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
 		</div>		
 	</div>	
-	<div class="col-lg-6 col-md-6 col-sm-6">
-		<table class="table table-bordered table-responsive table-condensed table-hover dataTable no-footer" border="1" role="grid" style="width: 100%;">
-			<thead>
-				<tr>
-					<td colspan="4">DETALLES DE SERVICIOS</td>
-					<td>
-						<select class="form-control input-xs" disabled="" value="{{ $detalles[0]->tipodescuento }}">
-							<option value="P">%</option>
-							<option value="E">S/.</option>
-						</select>
-						<input type="hidden" name="tipodescuento" id="tipodescuento" value="{{ $detalles[0]->tipodescuento }}">
-					</td>
-					<td></td>
-				</tr>
-				<tr>
-					<th>Cant.</th>
-					<th>Medico</th>
-					<th>Descrip.</th>
-					<th>Precio</th>
-					<th>Desc.</th>
-					<th>Subtot.</th>
-				</tr>					
-			</thead>
-			<tbody>
-				<?php $i = 0; ?>				
-				@foreach($detalles as $detalle)
-					{!! Form::hidden('detalleid' . $detalle->id, $detalle->id) !!}
-					<tr>
-						<td>{{ (integer) $detalle->cantidad }}</td>
-						<td style="font-size: 10px">
-							{{ $detalle->persona->nombres }} {{ $detalle->persona->apellidopaterno }}
-						</td>
-						<td style="font-size: 10px">{{ $detalle->nombre }}</td>
-						<td>
-							<input name="precio{{ $i }}" id="precio{{ $i }}" class="form-control input-xs precio" type="text" value="{{ $detalle->precio }}" onkeypress="return filterFloat(event,this);" onkeyup="inicializarPrecios();" readonly="">
-						</td>
-						<td>
-							<input name="descuento{{ $i }}" id="descuento{{ $i }}" class="form-control input-xs descuento" type="text" value="{{ $detalle->descuento }}" onkeypress="return filterFloat(event,this);" onkeyup="inicializarPrecios();" readonly="">
-						</td>
-						<td>
-							<input name="subtotal{{ $i }}" id="subtotal{{ $i }}" class="form-control input-xs subtotal" type="text" readonly="" value="">
-						</td>
-					</tr>
-					<?php $i++; ?>
-				@endforeach
-				<tr>
-					<th colspan="5" class="text-right">Pago</th>
-					<td><input name="total" class="form-control input-xs" type="text" readonly="" value="{{ $movimiento->total }}"></td>
-				</tr>
-			</tbody>
-		</table>
-		<h4>HISTORIAL DE PAGOS</h4>
-		<table class="table table-bordered table-responsive table-condensed table-hover dataTable no-footer" border="1" role="grid" style="width: 100%;">
-			<thead>
-				<tr>
-					<th width="30%">Fecha</th>
-					<th width="10%">Numero</th>
-					<th width="15%">Efectivo</th>
-					<th width="15%">Visa</th>
-					<th width="15%">Master</th>
-					<th width="15%">Subtotal</th>
-				</tr>					
-			</thead>
-			<tbody>
-				<?php $i = 0; $totaltotal = 0; ?>				
-				@foreach($cuotas as $cuota)
-					<tr>
-						<td>{{ $cuota->fecha }}</td>
-						<td>
-							{{ $cuota->numero }}
-						</td>
-						<td>
-							<input readonly="" class="form-control input-xs precio" type="text" value="{{ $cuota->totalpagado }}">
-						</td>
-						<td>
-							<input readonly="" class="form-control input-xs precio" type="text" value="{{ $cuota->totalpagadovisa }}">
-						</td>
-						<td>
-							<input readonly="" class="form-control input-xs precio" type="text" value="{{ $cuota->totalpagadomaster }}">
-						</td>
-						<?php $subtot = $cuota->totalpagado + $cuota->totalpagadovisa + $cuota->totalpagadomaster; 
-								$totaltotal += $subtot;
-							?>
-						<td>
-							<input readonly="" class="form-control input-xs precio" type="text" value="{{ round($subtot,3) }}">
-						</td>
-					</tr>
-					<?php $i++; ?>
-				@endforeach
-				<tr>
-					<th colspan="5" class="text-right">Pago</th>
-					<td><input class="form-control input-xs" type="text" readonly="" value="{{ $totaltotal }}"></td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
 	{!! Form::close() !!}
 </div>
 <script type="text/javascript">
@@ -211,55 +216,20 @@
     	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="numeroventa"]').inputmask("99999999");
     	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="numvisa"]').inputmask("9999999999999999");
     	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="nummaster"]').inputmask("9999999999999999");
+    	$('#totalpago').val(parseFloat($('#totalpago').val()).toFixed(3));
+    	$(".precio").each(function(){
+    	    $(this).val(parseFloat($(this).val()).toFixed(3));
+    	});
+    	$('#total2').val(parseFloat($('#total').val() - $('#totalpago').val()).toFixed(3));
+    	$('#efectivo').val(parseFloat($('#total2').val()).toFixed(3));
+    	$('#pendiente').val(parseFloat($('#pendiente').val()).toFixed(3));
+    	quedan();
+    	coincidenciasMontos();
 	}); 
 
 	function pad (str, max) {
   		str = str.toString();
   		return str.length < max ? pad("0" + str, max) : str;
-	}
-
-	function mostrarDatoCaja(check,check2){
-	    if(check==0){
-	        check = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="pago"]').is(":checked");
-	    }
-	    if(check2==0){
-	        check2 = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="boleta"]').is(":checked");
-	    }
-	    if(check2){//CON BOLETA
-	        $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="comprobante"]').val('S');
-	        $(".datocaja").css("display","");
-	        if($(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="tipodocumento"]').val()=="Factura"){
-	            $(".datofactura").css("display","");
-	        }else{
-	            $(".datofactura").css("display","none");
-	        }
-	        if(check){
-	            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="pagar"]').val('S');
-	            $(".caja").css("display","");
-	            $(".descuento").css("display","none");
-	            $(".descuentopersonal").css('display','none');
-	            $("#descuentopersonal").val('N');
-	        }else{
-	            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="pagar"]').val('N');
-	            $(".caja").css("display","none");
-	            $(".descuento").css("display","");
-	        }
-	        validarFormaPago($(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="formapago"]').val());
-	    }else{
-	        $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="comprobante"]').val('N');
-	        $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="pagar"]').val('N');
-	        $(".datocaja").css("display","none");
-	        $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="pago"]').attr("checked",true);
-	        validarFormaPago($(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="formapago"]').val());
-	    }
-	}
-
-	function validarFormaPago(forma){
-	    if(forma=="Tarjeta"){
-	        $(IDFORMMANTENIMIENTO + '{!! $entidad !!} div[id="divTarjeta"]').css("display","");
-	    }else{
-	        $(IDFORMMANTENIMIENTO + '{!! $entidad !!} div[id="divTarjeta"]').css("display","none");
-	    }
 	}
 
 	function inicializarPrecios() {
@@ -305,7 +275,12 @@
 		total = parseFloat(efectivo) + parseFloat(visa) + parseFloat(master);
 		$('#total2').val(total.toFixed(3));
 
-		coincidenciasMontos();		
+		coincidenciasMontos();	
+		quedan();	
+	}
+
+	function quedan() {
+		$('#quedan').val(parseFloat($('#pendiente').val() - $('#total2').val()).toFixed(3));
 	}
 
 	function divFormaPago(num, mostrar) {
@@ -342,14 +317,14 @@
 	}
 
 	function coincidenciasMontos() {
-		if(parseFloat($('#total').val()) == parseFloat($('#total2').val())) {
-			$('#mensajeMontos').html('Los montos coindicen.').css('color', 'green');
+		if(parseFloat($('#total2').val()) == parseFloat($('#pendiente').val())) {
+			$('#quedan').css('color', 'green').css('font-weight', 'bold');
 			return true;
-		} else if(parseFloat($('#total').val()) > parseFloat($('#total2').val())) {
-			$('#mensajeMontos').html('Es un monto menor.').css('color', 'orange');			
+		} else if(parseFloat($('#total2').val()) > parseFloat($('#pendiente').val())) {
+			$('#quedan').css('color', 'orange').css('font-weight', 'bold');			
 			return true;
-		} else if(parseFloat($('#total').val()) < parseFloat($('#total2').val())) {
-			$('#mensajeMontos').html('Es un monto mayor.').css('color', 'red');			
+		} else if(parseFloat($('#total2').val()) < parseFloat($('#pendiente').val())) {
+			$('#quedan').css('color', 'red').css('font-weight', 'bold');			
 			return false;
 		}
 	}
