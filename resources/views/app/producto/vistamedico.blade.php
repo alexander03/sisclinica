@@ -220,6 +220,8 @@ $entidad='Producto';
 													<div class="col-sm-4">
 														<!-- Lista de historias clinicas anteriores -->
 														<strong>LISTA DE CITAS ANTERIORES:</strong>
+														<div id="tablaCita">
+														</div>
 														<!-- Fin historias clinicas anteriores -->	
 													</div>
 												
@@ -242,6 +244,20 @@ $entidad='Producto';
 				</div>
 				
 	        </div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body" id="verCita">
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
 	        <!-- /.content-wrapper -->
 	        <footer class="navbar-default navbar-fixed-bottom" style="padding-left: 20px !important; padding-bottom: 20px; padding-top: 20px; padding-right: 20px;">
 	            <div class="container-fluid">
@@ -346,7 +362,21 @@ $entidad='Producto';
 	        }
 	    });
 	}	
-    setInterval(buscar4, 1000);
+    //setInterval(buscar4, 1000);
+
+	
+	function tablaCita(historia_id){
+		$.ajax({
+			"method": "POST",
+			"url": "{{ url('/historiaclinica/tablaCita') }}",
+			"data": {
+				"historia_id" : historia_id, 
+				"_token": "{{ csrf_token() }}",
+				}
+		}).done(function(info){
+			$('#tablaCita').html(info);
+		});
+	}	
 
     $(document).on('click', '.btnLlamarPaciente', function(event) {
     	event.preventDefault();
@@ -366,6 +396,7 @@ $entidad='Producto';
   				$("#pestanaAtencion").css('display', '').addClass('active');
   				$("#pestanaPacienteCola").removeClass('active');	
   				$('#historia_id').val(a.historia_id);
+				tablaCita(a.historia_id);
   				$('#ticket_id').val(a.ticket_id);
   				$('#historia').val(a.numhistoria);
   				$('#paciente').val(a.paciente);
@@ -419,4 +450,17 @@ $entidad='Producto';
 	        }
 	    });
 	}
+
+	function ver(cita_id){
+		$.ajax({
+			"method": "POST",
+			"url": "{{ url('/historiaclinica/ver') }}",
+			"data": {
+				"cita_id" : cita_id, 
+				"_token": "{{ csrf_token() }}",
+				}
+		}).done(function(info){
+			$('#verCita').html(info);
+		});
+	}	
 </script>
