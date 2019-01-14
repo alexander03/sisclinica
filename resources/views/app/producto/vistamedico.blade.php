@@ -38,210 +38,227 @@ $entidad='Producto';
 
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
-    <div class="wrapper">
-		<!-- Content Header (Page header) -->
-		<section class="content-header">
-			<h1>
-				VISTA MEDICO
-				{{-- <small>Descripción</small> --}}
-			</h1>
-		</section>
-		<ul class="nav nav-tabs">
-		  <li><a data-toggle="tab" href="#Farmacia">Farmacia</a></li>
-		  <li><a data-toggle="tab" href="#cie">CIE 10</a></li>
-		  <li class="active"><a data-toggle="tab" href="#cola">Pacientes en cola</a></li>
-		  <li style=""><a data-toggle="tab" href="#atencion">Atención de Paciente</a></li>
-		</ul>
-		<div class="tab-content">
-  			<div id="Farmacia" class="tab-pane fade">
-				<!-- Main content -->
-				<section class="content">
-					<div class="row">
-						<div class="col-xs-12">
-							<div class="box">
-								<div class="box-header">
-									<div class="row">
-										<div class="col-xs-12">
-											{!! Form::open(['method' => 'POST' ,'onsubmit' => 'return false;', 'class' => 'form-inline', 'role' => 'form', 'autocomplete' => 'off', 'id' => 'formBusqueda'.$entidad]) !!}
-											{!! Form::hidden('page', 1, array('id' => 'page')) !!}
-											{!! Form::hidden('accion', 'listar', array('id' => 'accion')) !!}
-											<div class="form-group">
-												{!! Form::label('nombre', 'Nombre:') !!}
-												{!! Form::text('nombre', '', array('class' => 'form-control input-xs', 'id' => 'nombre')) !!}
+	<form action="#" id="formHistoriaClinica">
+		@if(isset($historia))
+		{!! Form::hidden('historia_id', $historia->id, array('id' => 'historia_id')) !!}
+		@endif
+		@if(isset($ticket_id))
+		{!! Form::hidden('ticket_id', $ticket_id, array('id' => 'ticket_id')) !!}
+		@endif
+	    <div class="wrapper">
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>
+					VISTA MEDICO
+					{{-- <small>Descripción</small> --}}
+				</h1>
+			</section>
+			<ul class="nav nav-tabs">
+			  <li><a data-toggle="tab" href="#Farmacia">Farmacia</a></li>
+			  <li><a data-toggle="tab" href="#cie">CIE 10</a></li>
+			  <li class="active"><a data-toggle="tab" href="#cola" id="pestanaPacienteCola">Pacientes en cola</a></li>
+			  <li style="" id="pestanaAtencion"><a data-toggle="tab" href="#atencion">Atención de Paciente</a></li>
+			</ul>
+			<div class="tab-content">
+	  			<div id="Farmacia" class="tab-pane fade">
+					<!-- Main content -->
+					<section class="content">
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="box">
+									<div class="box-header">
+										<div class="row">
+											<div class="col-xs-12">
+												{!! Form::open(['method' => 'POST' ,'onsubmit' => 'return false;', 'class' => 'form-inline', 'role' => 'form', 'autocomplete' => 'off', 'id' => 'formBusqueda'.$entidad]) !!}
+												{!! Form::hidden('page', 1, array('id' => 'page')) !!}
+												{!! Form::hidden('accion', 'listar', array('id' => 'accion')) !!}
+												<div class="form-group">
+													{!! Form::label('nombre', 'Nombre:') !!}
+													{!! Form::text('nombre', '', array('class' => 'form-control input-xs', 'id' => 'nombre')) !!}
+												</div>
+												{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar', 'onclick' => 'buscar2(\''.$entidad.'\')')) !!}
+												{!! Form::close() !!}
 											</div>
-											{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar', 'onclick' => 'buscar2(\''.$entidad.'\')')) !!}
-											{!! Form::close() !!}
 										</div>
 									</div>
+									<!-- /.box-header -->
+									<div class="box-body" id="listado{{ $entidad }}">
+									</div>
+									<!-- /.box-body -->
 								</div>
-								<!-- /.box-header -->
-								<div class="box-body" id="listado{{ $entidad }}">
-								</div>
-								<!-- /.box-body -->
+								<!-- /.box -->
 							</div>
-							<!-- /.box -->
+							<!-- /.col -->
 						</div>
-						<!-- /.col -->
-					</div>
-					<!-- /.row -->
-				</section>
-				<!-- /.content -->	
-			</div>
-			<div id="cie" class="tab-pane fade">
-				<!-- Main content -->
-				<section class="content">
-					<div class="row">
-						<div class="col-xs-12">
-							<div class="box">
-								<div class="box-header">
-									<div class="row">
-										<div class="col-xs-12">
-											{!! Form::open(['method' => 'POST' ,'onsubmit' => 'return false;', 'class' => 'form-inline', 'role' => 'form', 'autocomplete' => 'off', 'id' => 'formBusqueda'.$entidad]) !!}
-											<div class="form-group">
-												{!! Form::label('cie10', 'Cie10:') !!}
-												{!! Form::text('cie10', '', array('class' => 'form-control input-xs', 'id' => 'cie10')) !!}
+						<!-- /.row -->
+					</section>
+					<!-- /.content -->	
+				</div>
+				<div id="cie" class="tab-pane fade">
+					<!-- Main content -->
+					<section class="content">
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="box">
+									<div class="box-header">
+										<div class="row">
+											<div class="col-xs-12">
+												{!! Form::open(['method' => 'POST' ,'onsubmit' => 'return false;', 'class' => 'form-inline', 'role' => 'form', 'autocomplete' => 'off', 'id' => 'formBusqueda'.$entidad]) !!}
+												<div class="form-group">
+													{!! Form::label('cie10', 'Cie10:') !!}
+													{!! Form::text('cie10', '', array('class' => 'form-control input-xs', 'id' => 'cie10')) !!}
+												</div>
+												{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar2', 'onclick' => 'buscar3(\''.$entidad.'\')')) !!}
+												{!! Form::close() !!}
 											</div>
-											{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar2', 'onclick' => 'buscar3(\''.$entidad.'\')')) !!}
-											{!! Form::close() !!}
 										</div>
 									</div>
+									<!-- /.box-header -->
+									<div class="box-body" id="listado2{{ $entidad }}">
+									</div>
+									<!-- /.box-body -->
 								</div>
-								<!-- /.box-header -->
-								<div class="box-body" id="listado2{{ $entidad }}">
-								</div>
-								<!-- /.box-body -->
+								<!-- /.box -->
 							</div>
-							<!-- /.box -->
+							<!-- /.col -->
 						</div>
-						<!-- /.col -->
-					</div>
-					<!-- /.row -->
-				</section>
-				<!-- /.content -->	
-			</div>
+						<!-- /.row -->
+					</section>
+					<!-- /.content -->	
+				</div>
 
-			<div id="cola" class="tab-pane fade in active">
-				<!-- Main content -->
-				<section class="content">
-					<div class="row">
-						<div class="col-xs-12">
-							<div class="box">
-								<div class="box-header">
-									<div class="row">
-										<div class="col-xs-8">
-											<div class="box-body" id="listado">
+				<div id="cola" class="tab-pane fade in active">
+					<!-- Main content -->
+					<section class="content">
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="box">
+									<div class="box-header">
+										<div class="row">
+											<div class="col-xs-8">
+												<div class="box-body" id="listado">
+												</div>
 											</div>
-										</div>
-										<div class="col-xs-4">
-											<strong>SIGUIENTE PACIENTE: </strong>
-											<div class="box-body" id="atender">
+											<div class="col-xs-4">
+												<strong>SIGUIENTE PACIENTE: </strong>
+												<div class="box-body" id="atender">
+												</div>
 											</div>
 										</div>
 									</div>
+									<!-- /.box-header -->
+									<div class="box-body" id="listado2{{ $entidad }}">
+									</div>
+									<!-- /.box-body -->
 								</div>
-								<!-- /.box-header -->
-								<div class="box-body" id="listado2{{ $entidad }}">
-								</div>
-								<!-- /.box-body -->
+								<!-- /.box -->
 							</div>
-							<!-- /.box -->
+							<!-- /.col -->
 						</div>
-						<!-- /.col -->
-					</div>
-					<!-- /.row -->
-				</section>
-				<!-- /.content -->	
-			</div>
+						<!-- /.row -->
+					</section>
+					<!-- /.content -->	
+				</div>
 
-
-			<div id="atencion" class="tab-pane fade">
-				<!-- Main content -->
-				<section class="content">
-					<div class="row">
-						<div class="col-xs-12">
-							<div class="box">
-								<div class="box-header">
-									<div class="row">
-										<div class="col-xs-12">
-											{!! Form::open(['method' => 'POST' ,'onsubmit' => 'return false;', 'class' => 'form-horizontal', 'role' => 'form', 'autocomplete' => 'off', 'id' => 'formBusqueda'.$entidad]) !!}
-											<div class="col-sm-4">
-												<?php
-												$hoy = date("Y-m-d");
-												?>
-												<div class="form-group">
-													{!! Form::label('fecha', 'Fecha:', array('class' => 'col-sm-2 control-label')) !!}
-													<div class="col-sm-5">
-														{!! Form::date('fecha', $hoy, array('class' => 'form-control input-xs col-sm-3', 'id' => 'fecha')) !!}
+				<div id="atencion" class="tab-pane fade">
+					<!-- Main content -->
+					<section class="content">
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="box">
+									<div class="box-header">
+										<div class="row">
+											<div class="col-xs-12">
+												{!! Form::open(['method' => 'POST' ,'onsubmit' => 'return false;', 'class' => 'form-horizontal', 'role' => 'form', 'autocomplete' => 'off', 'id' => 'formBusqueda'.$entidad]) !!}
+												<div class="col-sm-4">
+													<?php
+													$hoy = date("Y-m-d");
+													?>
+													<div class="form-group">
+														{!! Form::label('fecha', 'Fecha:', array('class' => 'col-sm-2 control-label')) !!}
+														<div class="col-sm-5">
+															{!! Form::date('fecha', $hoy, array('class' => 'form-control input-xs col-sm-3', 'id' => 'fecha')) !!}
+														</div>
+													</div>
+													<div class="form-group">
+														{!! Form::label('paciente', 'Paciente:', array('class' => 'col-sm-2 control-label')) !!}
+														<div class="col-sm-10">
+															@if(isset($historia))
+													            {!! Form::text('paciente', $historia, array('class' => 'form-control input-xs', 'id' => 'paciente')) !!}
+													        @else
+															{!! Form::text('paciente', '', array('class' => 'form-control input-xs', 'id' => 'paciente')) !!}
+															@endif
+														</div>
+													</div>
+													<div class="form-group">
+														{!! Form::label('historia', 'Historia:', array('class' => 'col-sm-2 control-label')) !!}
+														<div class="col-sm-5">
+															@if(isset($historia))
+															{!! Form::text('historia', $historia->numero, array('class' => 'form-control input-xs', 'id' => 'historia')) !!}
+															@else
+															{!! Form::text('historia', '', array('class' => 'form-control input-xs', 'id' => 'historia')) !!}
+															@endif
+														</div>
+													</div>
+													<div class="form-group">
+														{!! Form::label('cie102', 'Cie10:', array('class' => 'col-sm-2 control-label')) !!}
+														<div class="col-sm-5">
+															{!! Form::text('cie102', '', array('class' => 'form-control input-xs', 'id' => 'cie102')) !!}
+														</div>
+													</div>
+													{!! Form::button('<i class="glyphicon glyphicon-check"></i> Guardar', array('class' => 'btn btn-success btn-sm', 'id' => 'btnBuscar2', 'onclick' => 'buscar3(\''.$entidad.'\')')) !!}
+												</div>
+												<div class="col-sm-4">
+													<div class="form-group">
+														{!! Form::label('sintomas', 'Sintomas:') !!}
+														<textarea class="form-control input-xs" id="sintomas" cols="10" rows="5" name="sintomas"></textarea>
+													</div>
+													<div class="form-group">
+														{!! Form::label('diagnostico', 'Diagnostico:') !!}
+														<textarea class="form-control input-xs" id="diagnostico" cols="10" rows="5" name="diagnostico"></textarea>
+													</div>
+													<div class="form-group">
+														{!! Form::label('tratamiento', 'Tratamiento:') !!}
+														<textarea class="form-control input-xs" id="tratamiento" cols="10" rows="5" name="tratamiento"></textarea>
 													</div>
 												</div>
-												<div class="form-group">
-													{!! Form::label('paciente', 'Paciente:', array('class' => 'col-sm-2 control-label')) !!}
-													<div class="col-sm-10">
-														{!! Form::text('paciente', '', array('class' => 'form-control input-xs', 'id' => 'paciente')) !!}
-													</div>
+												<div class="col-sm-4">
+													<!-- Lista de historias clinicas anteriores -->
+													<strong>LISTA DE CITAS ANTERIORES:</strong>
+													<!-- Fin historias clinicas anteriores -->	
 												</div>
-												<div class="form-group">
-													{!! Form::label('historia', 'Historia:', array('class' => 'col-sm-2 control-label')) !!}
-													<div class="col-sm-5">
-														{!! Form::text('historia', '', array('class' => 'form-control input-xs', 'id' => 'historia')) !!}
-													</div>
-												</div>
-												<div class="form-group">
-													{!! Form::label('cie10', 'Cie10:', array('class' => 'col-sm-2 control-label')) !!}
-													<div class="col-sm-5">
-														{!! Form::text('cie10', '', array('class' => 'form-control input-xs', 'id' => 'cie10')) !!}
-													</div>
-												</div>
-												{!! Form::button('<i class="glyphicon glyphicon-check"></i> Guardar', array('class' => 'btn btn-success btn-sm', 'id' => 'btnBuscar2', 'onclick' => 'buscar3(\''.$entidad.'\')')) !!}
+												
+												{!! Form::close() !!}
 											</div>
-											<div class="col-sm-4">
-												<div class="form-group">
-													{!! Form::label('sintomas', 'Sintomas:') !!}
-													<textarea class="form-control input-xs" id="sintomas" cols="10" rows="5" name="sintomas"></textarea>
-												</div>
-												<div class="form-group">
-													{!! Form::label('diagnostico', 'Diagnostico:') !!}
-													<textarea class="form-control input-xs" id="diagnostico" cols="10" rows="5" name="diagnostico"></textarea>
-												</div>
-												<div class="form-group">
-													{!! Form::label('tratamiento', 'Tratamiento:') !!}
-													<textarea class="form-control input-xs" id="tratamiento" cols="10" rows="5" name="tratamiento"></textarea>
-												</div>
-											</div>
-											<div class="col-sm-4">
-												<!-- Lista de historias clinicas anteriores -->
-												<strong>LISTA DE CITAS ANTERIORES:</strong>
-												<!-- Fin historias clinicas anteriores -->	
-											</div>
-											
-											{!! Form::close() !!}
 										</div>
 									</div>
+									<!-- /.box-header -->
+									<div class="box-body" id="listado2{{ $entidad }}">
+									</div>
+									<!-- /.box-body -->
 								</div>
-								<!-- /.box-header -->
-								<div class="box-body" id="listado2{{ $entidad }}">
-								</div>
-								<!-- /.box-body -->
+								<!-- /.box -->
 							</div>
-							<!-- /.box -->
+							<!-- /.col -->
 						</div>
-						<!-- /.col -->
-					</div>
-					<!-- /.row -->
-				</section>
-				<!-- /.content -->	
-			</div>
-			
-        </div>
-        <!-- /.content-wrapper -->
-        <footer class="main-footer" style="margin-left: 10px !important">
-			<div class="pull-right hidden-xs">
-				<b>Version</b> 2.3.8
-			</div>
-			<strong>Copyright © 2016 <a href="#">GARZATEC</a>.</strong> All rights
-			reserved.
-		</footer>
-    </div>
+						<!-- /.row -->
+					</section>
+					<!-- /.content -->	
+				</div>
+				
+	        </div>
+	        <!-- /.content-wrapper -->
+	        <footer class="navbar-default navbar-fixed-bottom" style="padding-left: 20px !important; padding-bottom: 20px; padding-top: 20px; padding-right: 20px;">
+	            <div class="container-fluid">
+	    			<div class="pull-right hidden-xs">
+	    				<b>Version</b> 2.3.8
+	    			</div>
+	    			<strong>Copyright © 2018 <a href="#">GARZATEC</a>.</strong> All rights
+	    			reserved.
+	            </div>
+			</footer>
+	    </div>
+	</form>
     <!-- ./wrapper -->
     <!-- jQuery 2.2.3 -->
     {!! Html::script('plugins/jQuery/jquery-2.2.3.min.js') !!}
@@ -293,6 +310,7 @@ $entidad='Producto';
 			}
 		});
 		buscar4();
+		$('#pestanaAtencion').css('display', 'none');
 	});
 	function buscar2(){
 		$.ajax({
@@ -333,5 +351,36 @@ $entidad='Producto';
 	        }
 	    });
 	}
+
+	function registrarHistoriaClinica(){
+		$.ajax({
+	        type: "POST",
+	        url: "historiaclinica/registrarHistoriaClinica",
+	        data: $('#formHistoriaClinica').serialize() + "_token=<?php echo csrf_token(); ?>",
+	        success: function(a) {
+	        	// inhabilito pestaña $("#listado").html(a);
+	        }
+	    });
+	}
     setInterval(buscar4, 1000);
+
+    $(document).on('click', '.btnLlamarPaciente', function(event) {
+    	event.preventDefault();
+    	var paciente_id = $(this).data('paciente_id');
+    	var ticket_id = $(this).data('ticket_id');
+    	$.ajax({
+	        type: "POST",
+	        url: "historiaclinica/nuevaHistoriaClinica/" + paciente_id + "/" + ticket_id,
+	        data: "_token=<?php echo csrf_token(); ?>",
+	        success: function(a) {
+	        	$("li").removeClass('in active');
+	        	$('#Farmacia').removeClass('in active');
+				$('#cie').removeClass('in active');
+				$('#cola').removeClass('in active');
+				$('#atencion').addClass('in active');
+  				$("#pestanaAtencion").css('display', '').addClass('active');
+  				$("#pestanaPacienteCola").removeClass('active');			
+	        }
+	    });
+    });
 </script>

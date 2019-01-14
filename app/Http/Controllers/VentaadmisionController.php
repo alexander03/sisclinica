@@ -5118,7 +5118,7 @@ class VentaadmisionController extends Controller
                             </tr>
                             <tr>
                                 <td>".$consulta->persona->apellidopaterno." ".$consulta->persona->apellidomaterno." ".$consulta->persona->nombres."</td>
-                                <td align='right'><button class='btn btn-success btn-sm' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
+                                <td align='right'><button data-paciente_id = '" . $consulta->persona->id . "' data-ticket_id = '" . $consulta->id . "' class='btn btn-success btn-sm btnLlamarPaciente' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
                             </tr>";
         }
 

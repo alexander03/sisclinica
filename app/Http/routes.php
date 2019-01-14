@@ -998,6 +998,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('aperturacierrecaja/cerrar', 'AperturacierrecajaController@cerrar')->name('aperturacierrecaja.cerrar');
     Route::resource('aperturacierrecaja', 'AperturacierrecajaController', array('except' => array('show')));
 
+    //Historias Clinicas
+
+    Route::post('historiaclinica/nuevaHistoriaClinica/{paciente_id}/{ticket_id}', 'HistoriaClinicaController@nuevaHistoriaClinica')->name('historiaclinica.nuevaHistoriaClinica');
+
       /* MIGRAR EXCEL*/
     Route::get('importHistoria', 'ExcelController@importHistoria');
     Route::get('downloadExcel/{type}', 'ExcelController@downloadExcel');
