@@ -19,15 +19,12 @@
             <td>{{ $value->paciente }}</td>
             <td align="center">{{ number_format($value->total,2,'.','') }}</td>
             <td style="color:blue;font-weight: bold;">
-            	<font color="red">{{ number_format($value->movimiento->movimiento->total - $value->total,2,'.','') }}</font>
+            	<font color="red">{{ number_format($value->movimiento->total - $value->total,2,'.','') }}</font>
             </td>
             <td style="color:blue;font-weight: bold;">
             	<center>
-	            	@if ($value->situacion == 'D')
-	            		{!! Form::button('<div class="fa fa-money"></div>', array('onclick' => 'modalCaja (\''.URL::route($ruta["cobrarcuentapendiente"], array('id' => $value->id)).'\', \'Cobrar Cuenta Pendiente\', this);', 'class' => 'btn btn-xs btn-success')) !!}
-	            	@else
-	            	-
-	            	@endif	</center>
+	            	{!! Form::button('<div class="fa fa-money"></div>', array('onclick' => 'modalCaja (\''.URL::route($ruta["cobrarcuentapendiente"], array('id' => $value->id)).'\', \'Cobrar Cuenta Pendiente\', this);', 'class' => 'btn btn-xs btn-success')) !!}
+	            </center>
             </td>
 		</tr>
 		@endforeach

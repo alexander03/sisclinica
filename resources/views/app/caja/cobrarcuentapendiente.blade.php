@@ -116,89 +116,96 @@
 			@endif
 		</div>
 		<hr>
+		
 		<!-- OPCIONES -->
-		<div class="form-group" id="genComp">
-	        <!--{!! Form::label('plan', 'Generar:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
-			<div class="col-lg-2 col-md-2 col-sm-2">
-				{!! Form::hidden('comprobante', 'S', array('id' => 'comprobante')) !!}
-	            <input readonly="readonly" disabled="disabled" checked="checked" type="checkbox" onchange="mostrarDatoCaja(0,this.checked)" id="boleta" class="col-lg-2 col-md-2 col-sm-2 control-label input-sm" />
-	            {!! Form::label('boleta', 'Comprobante', array('class' => 'col-lg-10 col-md-10 col-sm-10 control-label input-sm')) !!}
-	            {!! Form::hidden('pagar', 'S', array('id' => 'pagar')) !!}    
-				<input readonly="readonly" disabled="disabled" checked="checked" type="checkbox" onchange="mostrarDatoCaja(this.checked,0)" id="pago" class="col-lg-2 col-md-2 col-sm-2 control-label input-sm datocaja" />
-	            {!! Form::label('pago', 'Pago', array('class' => 'col-lg-10 col-md-10 col-sm-10 control-label input-sm datocaja')) !!}
-			</div>-->
-			{!! Form::label('caja_id', 'Caja:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm datocaja caja')) !!}
-			<div class="col-lg-3 col-md-3 col-sm-3">
-				<select name="caja_id" id="caja_id" class="form-control input-xs datocaja caja">
-					<option value="{{ $cboCaja[0]->id }}">{{ $cboCaja[0]->nombre }}</option>
-				</select>
-			</div>	
-			{!! Form::label('tipodocumento', 'Tipo de doc.:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm caja')) !!}
-			<div class="col-lg-2 col-md-2 col-sm-2">
-				<select name="tipodocumento" id="tipodocumento" class="form-control input-xs form-control caja" onchange="generarNumero();">
-					<option value="Boleta">Boleta</option>
-					<option value="Factura">Factura</option>
-					<option value="Ticket">Ticket</option>
-				</select>
-			</div>
-			{!! Form::label('numcomprobante', 'N°:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
-			<div class="col-lg-2 col-md-2 col-sm-2">
-    			{!! Form::text('serieventa', $serie, array('class' => 'form-control input-xs datocaja', 'id' => 'serieventa')) !!}
-    		</div>
-            <div class="col-lg-2 col-md-2 col-sm-2">
-    		{!! Form::text('numeroventa', $movimiento->numero, array('class' => 'form-control input-xs', 'id' => 'numeroventa', 'readonly' => 'true')) !!}
-        		</div>
-	        {!! Form::label('formapago', 'Forma Pago:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label datocaja caja input-sm')) !!}
-			<div class="col-lg-8 col-md-8 col-sm-8">
-				<label id="divcbx0" class="checkbox-inline" style="color:red" onclick="divFormaPago('0', '0')">
-			      	<input style="display: none;" type="checkbox" id="cbx0">Efectivo
-			    </label>
-			    <label id="divcbx1" class="checkbox-inline" onclick="divFormaPago('1', '1')">
-			      	<input style="display: none;" type="checkbox" id="cbx1">Visa
-			    </label>
-			    <label id="divcbx2" class="checkbox-inline" onclick="divFormaPago('2', '1')">
-			      	<input style="display: none;" type="checkbox" id="cbx2">Master
-			    </label>
-			</div>        	
-	    </div>
-	    <div class="row">
-		    <div class="col-lg-8 col-md-8 col-sm-8">	    	
-			    <div class="input-group form-control">
-					<span class="input-group-addon input-xs">EFECTIVO</span>
-					<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="efectivo" id="efectivo" type="text" class="form-control input-xs">
-				</div>
-				<div class="input-group form-control">
-					<span class="input-group-addon input-xs">VISA.</span>
-					<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="visa" id="visa" type="text" class="form-control input-xs" readonly="">
-					<span class="input-group-addon input-xs">N°</span>
-					<input onkeypress="return filterFloat(event,this);" name="numvisa" id="numvisa" type="text" class="form-control input-xs" readonly="">
-				</div>
-				<div class="input-group form-control">
-					<span class="input-group-addon input-xs">MAST.</span>
-					<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="master" id="master" type="text" class="form-control input-xs" readonly="">
-					<span class="input-group-addon input-xs">N°</span>
-					<input onkeypress="return filterFloat(event,this);" name="nummaster" id="nummaster" type="text" class="form-control input-xs" readonly="">
+		<div class="opciones"  @if($resumen->total == $movimiento->total) style="display: none;" @endif>
+			<div class="form-group" id="genComp">
+		        <!--{!! Form::label('plan', 'Generar:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
+				<div class="col-lg-2 col-md-2 col-sm-2">
+					{!! Form::hidden('comprobante', 'S', array('id' => 'comprobante')) !!}
+		            <input readonly="readonly" disabled="disabled" checked="checked" type="checkbox" onchange="mostrarDatoCaja(0,this.checked)" id="boleta" class="col-lg-2 col-md-2 col-sm-2 control-label input-sm" />
+		            {!! Form::label('boleta', 'Comprobante', array('class' => 'col-lg-10 col-md-10 col-sm-10 control-label input-sm')) !!}
+		            {!! Form::hidden('pagar', 'S', array('id' => 'pagar')) !!}    
+					<input readonly="readonly" disabled="disabled" checked="checked" type="checkbox" onchange="mostrarDatoCaja(this.checked,0)" id="pago" class="col-lg-2 col-md-2 col-sm-2 control-label input-sm datocaja" />
+		            {!! Form::label('pago', 'Pago', array('class' => 'col-lg-10 col-md-10 col-sm-10 control-label input-sm datocaja')) !!}
+				</div>-->
+				{!! Form::label('caja_id', 'Caja:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm datocaja caja')) !!}
+				<div class="col-lg-3 col-md-3 col-sm-3">
+					<select name="caja_id" id="caja_id" class="form-control input-xs datocaja caja">
+						<option value="{{ $cboCaja[0]->id }}">{{ $cboCaja[0]->nombre }}</option>
+					</select>
 				</div>	
-			</div>	
-			<div class="col-lg-4 col-md-4 col-sm-4">	    	
-			    <div class="input-group form-control">
-					<span class="input-group-addon input-xs">PENDIENTE</span>
-					<input name="pendiente" id="pendiente" type="text" class="form-control input-xs" readonly="" value="{{ $movimiento->total - $totaltotal }}">
+				{!! Form::label('tipodocumento', 'Tipo de doc.:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm caja')) !!}
+				<div class="col-lg-2 col-md-2 col-sm-2">
+					<select name="tipodocumento" id="tipodocumento" class="form-control input-xs form-control caja" onchange="generarNumero();">
+						<option value="Boleta">Boleta</option>
+						<option value="Factura">Factura</option>
+						<option value="Ticket">Ticket</option>
+					</select>
 				</div>
-				<div class="input-group form-control">
-					<span class="input-group-addon input-xs">CUOTA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-					<input name="total2" id="total2" type="text" class="form-control input-xs" readonly="" value="{{ $movimiento->total - $totaltotal }}">
-				</div>
-				<div class="input-group form-control">
-					<span class="input-group-addon input-xs">QUEDAN&nbsp;&nbsp;&nbsp;&nbsp;</span>
-					<input name="quedan" id="quedan" type="text" class="form-control input-xs" readonly="" value="{{ $movimiento->total - $totaltotal }}">
+				{!! Form::label('numcomprobante', 'N°:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
+				<div class="col-lg-2 col-md-2 col-sm-2">
+	    			{!! Form::text('serieventa', $serie, array('class' => 'form-control input-xs datocaja', 'id' => 'serieventa')) !!}
+	    		</div>
+	            <div class="col-lg-2 col-md-2 col-sm-2">
+	    		{!! Form::text('numeroventa', $movimiento->numero, array('class' => 'form-control input-xs', 'id' => 'numeroventa', 'readonly' => 'true')) !!}
+	        		</div>
+		        {!! Form::label('formapago', 'Forma Pago:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label datocaja caja input-sm')) !!}
+				<div class="col-lg-8 col-md-8 col-sm-8">
+					<label id="divcbx0" class="checkbox-inline" style="color:red" onclick="divFormaPago('0', '0')">
+				      	<input style="display: none;" type="checkbox" id="cbx0">Efectivo
+				    </label>
+				    <label id="divcbx1" class="checkbox-inline" onclick="divFormaPago('1', '1')">
+				      	<input style="display: none;" type="checkbox" id="cbx1">Visa
+				    </label>
+				    <label id="divcbx2" class="checkbox-inline" onclick="divFormaPago('2', '1')">
+				      	<input style="display: none;" type="checkbox" id="cbx2">Master
+				    </label>
+				</div>        	
+		    </div>
+		    <div class="row">
+			    <div class="col-lg-8 col-md-8 col-sm-8">	    	
+				    <div class="input-group form-control">
+						<span class="input-group-addon input-xs">EFECTIVO</span>
+						<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="efectivo" id="efectivo" type="text" class="form-control input-xs">
+					</div>
+					<div class="input-group form-control">
+						<span class="input-group-addon input-xs">VISA.</span>
+						<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="visa" id="visa" type="text" class="form-control input-xs" readonly="">
+						<span class="input-group-addon input-xs">N°</span>
+						<input onkeypress="return filterFloat(event,this);" name="numvisa" id="numvisa" type="text" class="form-control input-xs" readonly="">
+					</div>
+					<div class="input-group form-control">
+						<span class="input-group-addon input-xs">MAST.</span>
+						<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="master" id="master" type="text" class="form-control input-xs" readonly="">
+						<span class="input-group-addon input-xs">N°</span>
+						<input onkeypress="return filterFloat(event,this);" name="nummaster" id="nummaster" type="text" class="form-control input-xs" readonly="">
+					</div>	
+				</div>	
+				<div class="col-lg-4 col-md-4 col-sm-4">	    	
+				    <div class="input-group form-control">
+						<span class="input-group-addon input-xs">PENDIENTE</span>
+						<input name="pendiente" id="pendiente" type="text" class="form-control input-xs" readonly="" value="{{ $movimiento->total - $totaltotal }}">
+					</div>
+					<div class="input-group form-control">
+						<span class="input-group-addon input-xs">CUOTA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+						<input name="total2" id="total2" type="text" class="form-control input-xs" readonly="" value="{{ $movimiento->total - $totaltotal }}">
+					</div>
+					<div class="input-group form-control">
+						<span class="input-group-addon input-xs">QUEDAN&nbsp;&nbsp;&nbsp;&nbsp;</span>
+						<input name="quedan" id="quedan" type="text" class="form-control input-xs" readonly="" value="{{ $movimiento->total - $totaltotal }}">
+					</div>
 				</div>
 			</div>
 		</div>
-		{!! Form::hidden('id', $movimiento->id) !!}
+		{!! Form::hidden('id', $movimiento->id) !!}	
 		<div class="text-right">
+			@if($resumen->total != $movimiento->total)
 			{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'data-a' => 'true', 'id' => 'btnGuardar', 'onclick' => 'enviar();')) !!}
-			{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
+			@else
+			{!! Form::button('<i class="fa fa-check fa-lg"></i> Cuenta Cobrada', array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar')) !!}
+			@endif
+			{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cerrar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}			
 		</div>		
 	</div>	
 	{!! Form::close() !!}
