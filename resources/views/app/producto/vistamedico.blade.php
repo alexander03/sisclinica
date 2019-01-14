@@ -410,7 +410,6 @@ $entidad='Producto';
     	if($('#cie102').val() == '') {
     		$('#cie102').focus();
     		$('#mensajeHistoriaClinica').html('Debes ingresar un CIE 10.');
-    		alert($('#formHistoriaClinica').serialize());
     		return 0;
     	}
     	if($('#sintomas').val() == '') {
