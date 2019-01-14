@@ -86,7 +86,7 @@ class HistoriaClinicaController extends Controller
 
         $historia_id = $request->input('historia_id');
 
-        $resultado = HistoriaClinica::where('historia_id', '=', $historia_id)->orderBy('numero', 'ASC')->get();
+        $resultado = HistoriaClinica::where('historia_id', '=', $historia_id)->orderBy('numero', 'DESC')->get();
 
         $tabla = "<table class='table table-bordered table-striped table-condensed table-hover'>
                             <thead>
