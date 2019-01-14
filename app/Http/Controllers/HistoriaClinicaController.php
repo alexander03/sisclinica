@@ -36,14 +36,13 @@ class HistoriaClinicaController extends Controller
     public function nuevaHistoriaClinica($paciente_id, $ticket_id)
     {
         $historia = Historia::where('person_id', $paciente_id)->first();
-        echo $ticket_id;
         $jsondata = array(
             'historia_id' => $historia->id,
             'ticket_id' => $ticket_id,
             'paciente' => $historia->persona->apellidopaterno . ' ' . $historia->persona->apellidomaterno . ' ' . $historia->persona->nombres,
             'numhistoria' => $historia->numero,
         );
-        echo json_encode($jsondata, JSON_FORCE_OBJECT);
+        return json_encode($jsondata);
     }
 
     public function registrarHistoriaClinica(Request $request)
