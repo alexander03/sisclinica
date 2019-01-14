@@ -632,12 +632,13 @@ class TicketController extends Controller
             return $validacion->messages()->toJson();
         }
         $error = DB::transaction(function() use($request, $id){
-            $Ticket                        = Movimiento::find($id);
+            $Ticket = Movimiento::find($id);
             $Ticket->persona_id = $request->input('person_id');
             $Ticket->plan_id = $request->input('plan_id');
             $Ticket->soat = $request->input('soat');
             $Ticket->sctr = $request->input('sctr');
             $Ticket->total = $request->input('total');
+            $Ticket->clasificacionconsulta = $request->input('clasificacionconsulta');
             $Ticket->save();
             $arr2 = array();
             $arr=explode(",",$request->input('listServicio'));
