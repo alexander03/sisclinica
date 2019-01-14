@@ -4934,7 +4934,7 @@ class VentaadmisionController extends Controller
             $horaTermino = new DateTime(date("H:i:s", strtotime('now')));
 
             $interval = $horaInicio->diff($horaTermino);
-            $registro.= "<td>".$interval->format('%H horas %i minutos %s seconds')."</td>";
+            $registro.= "<td>".$interval->format('%H horas %i minutos %s segundos')."</td>";
             $registro.= "</tr>";
             $c=$c+1;
         }
