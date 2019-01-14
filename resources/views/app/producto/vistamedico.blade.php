@@ -49,7 +49,8 @@ $entidad='Producto';
 		<ul class="nav nav-tabs">
 		  <li><a data-toggle="tab" href="#Farmacia">Farmacia</a></li>
 		  <li><a data-toggle="tab" href="#cie">CIE 10</a></li>
-		  <li class="active"><a data-toggle="tab" href="#cola">Atención Cola</a></li>
+		  <li class="active"><a data-toggle="tab" href="#cola">Pacientes en cola</a></li>
+		  <li style=""><a data-toggle="tab" href="#atencion">Atención de Paciente</a></li>
 		</ul>
 		<div class="tab-content">
   			<div id="Farmacia" class="tab-pane fade">
@@ -132,9 +133,88 @@ $entidad='Producto';
 											</div>
 										</div>
 										<div class="col-xs-4">
-											<h5>SIGUIENTE PACIENTE: </h5>
+											<strong>SIGUIENTE PACIENTE: </strong>
 											<div class="box-body" id="atender">
 											</div>
+										</div>
+									</div>
+								</div>
+								<!-- /.box-header -->
+								<div class="box-body" id="listado2{{ $entidad }}">
+								</div>
+								<!-- /.box-body -->
+							</div>
+							<!-- /.box -->
+						</div>
+						<!-- /.col -->
+					</div>
+					<!-- /.row -->
+				</section>
+				<!-- /.content -->	
+			</div>
+
+
+			<div id="atencion" class="tab-pane fade">
+				<!-- Main content -->
+				<section class="content">
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="box">
+								<div class="box-header">
+									<div class="row">
+										<div class="col-xs-12">
+											{!! Form::open(['method' => 'POST' ,'onsubmit' => 'return false;', 'class' => 'form-horizontal', 'role' => 'form', 'autocomplete' => 'off', 'id' => 'formBusqueda'.$entidad]) !!}
+											<div class="col-sm-4">
+												<?php
+												$hoy = date("Y-m-d");
+												?>
+												<div class="form-group">
+													{!! Form::label('fecha', 'Fecha:', array('class' => 'col-sm-2 control-label')) !!}
+													<div class="col-sm-5">
+														{!! Form::date('fecha', $hoy, array('class' => 'form-control input-xs col-sm-3', 'id' => 'fecha')) !!}
+													</div>
+												</div>
+												<div class="form-group">
+													{!! Form::label('paciente', 'Paciente:', array('class' => 'col-sm-2 control-label')) !!}
+													<div class="col-sm-10">
+														{!! Form::text('paciente', '', array('class' => 'form-control input-xs', 'id' => 'paciente')) !!}
+													</div>
+												</div>
+												<div class="form-group">
+													{!! Form::label('historia', 'Historia:', array('class' => 'col-sm-2 control-label')) !!}
+													<div class="col-sm-5">
+														{!! Form::text('historia', '', array('class' => 'form-control input-xs', 'id' => 'historia')) !!}
+													</div>
+												</div>
+												<div class="form-group">
+													{!! Form::label('cie10', 'Cie10:', array('class' => 'col-sm-2 control-label')) !!}
+													<div class="col-sm-5">
+														{!! Form::text('cie10', '', array('class' => 'form-control input-xs', 'id' => 'cie10')) !!}
+													</div>
+												</div>
+												{!! Form::button('<i class="glyphicon glyphicon-check"></i> Guardar', array('class' => 'btn btn-success btn-sm', 'id' => 'btnBuscar2', 'onclick' => 'buscar3(\''.$entidad.'\')')) !!}
+											</div>
+											<div class="col-sm-4">
+												<div class="form-group">
+													{!! Form::label('sintomas', 'Sintomas:') !!}
+													<textarea class="form-control input-xs" id="sintomas" cols="10" rows="5" name="sintomas"></textarea>
+												</div>
+												<div class="form-group">
+													{!! Form::label('diagnostico', 'Diagnostico:') !!}
+													<textarea class="form-control input-xs" id="diagnostico" cols="10" rows="5" name="diagnostico"></textarea>
+												</div>
+												<div class="form-group">
+													{!! Form::label('tratamiento', 'Tratamiento:') !!}
+													<textarea class="form-control input-xs" id="tratamiento" cols="10" rows="5" name="tratamiento"></textarea>
+												</div>
+											</div>
+											<div class="col-sm-4">
+												<!-- Lista de historias clinicas anteriores -->
+												<strong>LISTA DE CITAS ANTERIORES:</strong>
+												<!-- Fin historias clinicas anteriores -->	
+											</div>
+											
+											{!! Form::close() !!}
 										</div>
 									</div>
 								</div>
