@@ -407,6 +407,7 @@ $entidad='Producto';
 	        		$('#cie102').focus();
 	        	}
 	        	if(a == 'OK') {
+	        		alert('TRATAMIENTO REGISTRADO CORRECTAMENTE...');
 	        		$("li").removeClass('in active');
 		        	$('#Farmacia').removeClass('in active');
 					$('#cie').removeClass('in active');
