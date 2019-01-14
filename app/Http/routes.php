@@ -648,6 +648,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('ventaadmision/excelFarmacia', 'VentaadmisionController@excelFarmacia')->name('ventaadmision.excelFarmacia');
     Route::get('ventaadmision/excelFarmacia1', 'VentaadmisionController@excelFarmacia1')->name('ventaadmision.excelFarmacia1');
     Route::post('ventaadmision/cola', 'VentaadmisionController@cola');
+    Route::post('ventaadmision/llamarAtender', 'VentaadmisionController@llamarAtender');
  
     /* MOVIMIENTO CAJA*/
     Route::post('movimientocaja/buscar', 'MovimientocajaController@buscar')->name('movimientocaja.buscar');

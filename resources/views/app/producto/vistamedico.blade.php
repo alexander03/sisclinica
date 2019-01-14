@@ -133,6 +133,8 @@ $entidad='Producto';
 										</div>
 										<div class="col-xs-4">
 											<h5>SIGUIENTE PACIENTE: </h5>
+											<div class="box-body" id="atender">
+											</div>
 										</div>
 									</div>
 								</div>
@@ -210,6 +212,7 @@ $entidad='Producto';
 				buscar3('{{ $entidad }}');
 			}
 		});
+		buscar4();
 	});
 	function buscar2(){
 		$.ajax({
@@ -239,6 +242,14 @@ $entidad='Producto';
 	        data: "_token=<?php echo csrf_token(); ?>",
 	        success: function(a) {
 	        	$("#listado").html(a);
+	        }
+	    });
+		$.ajax({
+	        type: "POST",
+	        url: "ventaadmision/llamarAtender",
+	        data: "_token=<?php echo csrf_token(); ?>",
+	        success: function(a) {
+	        	$("#atender").html(a);
 	        }
 	    });
 	}
