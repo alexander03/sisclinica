@@ -39,12 +39,8 @@ $entidad='Producto';
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 	<form action="#" id="formHistoriaClinica">
-		@if(isset($historia))
-		{!! Form::hidden('historia_id', $historia->id, array('id' => 'historia_id')) !!}
-		@endif
-		@if(isset($ticket_id))
-		{!! Form::hidden('ticket_id', $ticket_id, array('id' => 'ticket_id')) !!}
-		@endif
+		{!! Form::hidden('historia_id', '', array('id' => 'historia_id')) !!}
+		{!! Form::hidden('ticket_id', '', array('id' => 'ticket_id')) !!}
 	    <div class="wrapper">
 			<!-- Content Header (Page header) -->
 			<section class="content-header">
@@ -183,21 +179,13 @@ $entidad='Producto';
 													<div class="form-group">
 														{!! Form::label('paciente', 'Paciente:', array('class' => 'col-sm-2 control-label')) !!}
 														<div class="col-sm-10">
-															@if(isset($historia))
-													            {!! Form::text('paciente', $historia, array('class' => 'form-control input-xs', 'id' => 'paciente')) !!}
-													        @else
 															{!! Form::text('paciente', '', array('class' => 'form-control input-xs', 'id' => 'paciente')) !!}
-															@endif
 														</div>
 													</div>
 													<div class="form-group">
 														{!! Form::label('historia', 'Historia:', array('class' => 'col-sm-2 control-label')) !!}
 														<div class="col-sm-5">
-															@if(isset($historia))
-															{!! Form::text('historia', $historia->numero, array('class' => 'form-control input-xs', 'id' => 'historia')) !!}
-															@else
 															{!! Form::text('historia', '', array('class' => 'form-control input-xs', 'id' => 'historia')) !!}
-															@endif
 														</div>
 													</div>
 													<div class="form-group">
@@ -372,6 +360,7 @@ $entidad='Producto';
 	        type: "POST",
 	        url: "historiaclinica/nuevaHistoriaClinica/" + paciente_id + "/" + ticket_id,
 	        data: "_token=<?php echo csrf_token(); ?>",
+	        dataType: "json",
 	        success: function(a) {
 	        	$("li").removeClass('in active');
 	        	$('#Farmacia').removeClass('in active');
@@ -379,7 +368,11 @@ $entidad='Producto';
 				$('#cola').removeClass('in active');
 				$('#atencion').addClass('in active');
   				$("#pestanaAtencion").css('display', '').addClass('active');
-  				$("#pestanaPacienteCola").removeClass('active');			
+  				$("#pestanaPacienteCola").removeClass('active');	
+  				$('#historia_id').val(a.historia_id);
+  				$('#ticket_id').val(a.ticket_id);
+  				$('#historia').val(a.numhistoria);
+  				$('#paciente').val(a.paciente);
 	        }
 	    });
     });

@@ -5134,7 +5134,7 @@ class VentaadmisionController extends Controller
                             </tr>
                             <tr>
                                 <td>".$emergencia->persona->apellidopaterno." ".$emergencia->persona->apellidomaterno." ".$emergencia->persona->nombres."</td>
-                                <td align='right'><button class='btn btn-success btn-sm' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
+                                <td align='right'><button data-paciente_id = '" . $emergencia->persona->id . "' data-ticket_id = '" . $emergencia->id . "' class='btn btn-success btn-sm btnLlamarPaciente' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
                             </tr>";
         }
 
@@ -5158,7 +5158,7 @@ class VentaadmisionController extends Controller
                             </tr>
                             <tr>
                                 <td>".$fondo->persona->apellidopaterno." ".$fondo->persona->apellidomaterno." ".$fondo->persona->nombres."</td>
-                                <td align='right'><button class='btn btn-success btn-sm' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
+                                <td align='right'><button data-paciente_id = '" . $fondo->persona->id . "' data-ticket_id = '" . $fondo->id . "' class='btn btn-success btn-sm btnLlamarPaciente' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
                             </tr>";
 
             }
