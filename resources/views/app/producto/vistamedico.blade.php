@@ -65,15 +65,15 @@ $entidad='Producto';
 									<div class="box-header">
 										<div class="row">
 											<div class="col-xs-12">
-												{!! Form::open(['method' => 'POST' ,'onsubmit' => 'return false;', 'class' => 'form-inline', 'role' => 'form', 'autocomplete' => 'off', 'id' => 'formBusqueda'.$entidad]) !!}
-												{!! Form::hidden('page', 1, array('id' => 'page')) !!}
-												{!! Form::hidden('accion', 'listar', array('id' => 'accion')) !!}
-												<div class="form-group">
-													{!! Form::label('nombre', 'Nombre:') !!}
-													{!! Form::text('nombre', '', array('class' => 'form-control input-xs', 'id' => 'nombre')) !!}
+												<div class="form-inline">
+													{!! Form::hidden('page', 1, array('id' => 'page')) !!}
+													{!! Form::hidden('accion', 'listar', array('id' => 'accion')) !!}
+													<div class="form-group">
+														{!! Form::label('nombrep', 'Nombre:') !!}
+														{!! Form::text('nombrep', '', array('class' => 'form-control input-xs', 'id' => 'nombrep')) !!}
+													</div>
+													{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar', 'onclick' => 'buscar2(\''.$entidad.'\')')) !!}
 												</div>
-												{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar', 'onclick' => 'buscar2(\''.$entidad.'\')')) !!}
-												{!! Form::close() !!}
 											</div>
 										</div>
 									</div>
@@ -99,13 +99,13 @@ $entidad='Producto';
 									<div class="box-header">
 										<div class="row">
 											<div class="col-xs-12">
-												{!! Form::open(['method' => 'POST' ,'onsubmit' => 'return false;', 'class' => 'form-inline', 'role' => 'form', 'autocomplete' => 'off', 'id' => 'formBusqueda'.$entidad]) !!}
-												<div class="form-group">
-													{!! Form::label('cie10', 'Cie10:') !!}
-													{!! Form::text('cie10', '', array('class' => 'form-control input-xs', 'id' => 'cie10')) !!}
+												<div class="form-inline">
+													<div class="form-group">
+														{!! Form::label('cie10', 'Cie10:') !!}
+														{!! Form::text('cie10', '', array('class' => 'form-control input-xs', 'id' => 'cie10')) !!}
+													</div>
+													{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar2', 'onclick' => 'buscar3(\''.$entidad.'\')')) !!}
 												</div>
-												{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar2', 'onclick' => 'buscar3(\''.$entidad.'\')')) !!}
-												{!! Form::close() !!}
 											</div>
 										</div>
 									</div>
@@ -308,7 +308,7 @@ $entidad='Producto';
 <script>
 	$(document).ready(function () {
 		//buscar('{{ $entidad }}');
-		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="nombre"]').keyup(function (e) {
+		$("#nombre").keyup(function (e) {
 			var key = window.event ? e.keyCode : e.which;
 			if (key == '13') {
 				buscar2('{{ $entidad }}');
@@ -327,7 +327,7 @@ $entidad='Producto';
 		$.ajax({
 	        type: "POST",
 	        url: "producto/vistamedico",
-	        data: "producto="+$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="nombre"]').val()+"&_token=<?php echo csrf_token(); ?>",
+	        data: "producto="+$("#nombrep").val()+"&_token=<?php echo csrf_token(); ?>",
 	        success: function(a) {
 	        	$("#listado{{ $entidad }}").html(a);
 	        }
