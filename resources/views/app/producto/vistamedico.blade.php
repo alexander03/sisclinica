@@ -362,7 +362,7 @@ $entidad='Producto';
 	        }
 	    });
 	}	
-    //setInterval(buscar4, 1000);
+    setInterval(buscar4, 1000);
 
 	
 	function tablaCita(historia_id){
