@@ -24,6 +24,7 @@ use App\Detallemovcaja;
 use App\Librerias\EnLetras;
 use Illuminate\Support\Facades\Auth;
 use Excel;
+use DateTime;
 
 class VentaadmisionController extends Controller
 {
@@ -4899,6 +4900,7 @@ class VentaadmisionController extends Controller
     }
 
     public function cola(Request $request){
+        date_default_timezone_set('America/Lima');
         $consultas = Movimiento::where('clasificacionconsulta','like','C')->where('situacion2', 'like', 'C')->orderBy('id','ASC')
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
@@ -4927,8 +4929,12 @@ class VentaadmisionController extends Controller
             if(!is_null($value->persona)){
                 $registro.= "<td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>";
             }
-            $tiempo = date("H:i:s",strtotime('now') - strtotime($value->created_at));
-            $registro.= "<td>".$tiempo."</td>";
+
+            $horaInicio = new DateTime($value->created_at);
+            $horaTermino = new DateTime(date("H:i:s", strtotime('now')));
+
+            $interval = $horaInicio->diff($horaTermino);
+            $registro.= "<td>".$interval->format('%H horas %i minutos %s seconds')."</td>";
             $registro.= "</tr>";
             $c=$c+1;
         }
