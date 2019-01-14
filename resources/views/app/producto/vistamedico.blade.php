@@ -52,7 +52,7 @@ $entidad='Producto';
 			<ul class="nav nav-tabs">
 			  <li><a data-toggle="tab" href="#Farmacia">Farmacia</a></li>
 			  <li><a data-toggle="tab" href="#cie">CIE 10</a></li>
-			  <li class="active"><a data-toggle="tab" href="#cola" id="pestanaPacienteCola">Pacientes en cola</a></li>
+			  <li class="active" id="pestanaPacienteCola"><a data-toggle="tab" href="#cola">Pacientes en cola</a></li>
 			  <li style="" id="pestanaAtencion"><a data-toggle="tab" href="#atencion">Atención de Paciente</a></li>
 			</ul>
 			<div class="tab-content">
@@ -165,58 +165,65 @@ $entidad='Producto';
 									<div class="box-header">
 										<div class="row">
 											<div class="col-xs-12">
-												{!! Form::open(['method' => 'POST' ,'onsubmit' => 'return false;', 'class' => 'form-horizontal', 'role' => 'form', 'autocomplete' => 'off', 'id' => 'formBusqueda'.$entidad]) !!}
-												<div class="col-sm-4">
-													<?php
-													$hoy = date("Y-m-d");
-													?>
-													<div class="form-group">
-														{!! Form::label('fecha', 'Fecha:', array('class' => 'col-sm-2 control-label')) !!}
-														<div class="col-sm-5">
-															{!! Form::date('fecha', $hoy, array('class' => 'form-control input-xs col-sm-3', 'id' => 'fecha')) !!}
+												<div class="form-horizontal">
+													<div class="col-sm-4">
+														<?php
+														$hoy = date("Y-m-d");
+														?>
+														<div class="form-group">
+															{!! Form::label('fecha', 'Fecha:', array('class' => 'col-sm-2 control-label')) !!}
+															<div class="col-sm-5">
+																{!! Form::date('fecha', $hoy, array('class' => 'form-control input-xs col-sm-3', 'id' => 'fecha', 'readonly' => 'readonly')) !!}
+															</div>
 														</div>
-													</div>
-													<div class="form-group">
-														{!! Form::label('paciente', 'Paciente:', array('class' => 'col-sm-2 control-label')) !!}
-														<div class="col-sm-10">
-															{!! Form::text('paciente', '', array('class' => 'form-control input-xs', 'id' => 'paciente')) !!}
+														<div class="form-group">
+															{!! Form::label('paciente', 'Paciente:', array('class' => 'col-sm-2 control-label')) !!}
+															<div class="col-sm-10">
+																{!! Form::text('paciente', '', array('class' => 'form-control input-xs', 'id' => 'paciente', 'readonly' => 'readonly')) !!}
+															</div>
 														</div>
-													</div>
-													<div class="form-group">
-														{!! Form::label('historia', 'Historia:', array('class' => 'col-sm-2 control-label')) !!}
-														<div class="col-sm-5">
-															{!! Form::text('historia', '', array('class' => 'form-control input-xs', 'id' => 'historia')) !!}
+														<div class="form-group">
+															{!! Form::label('historia', 'Historia:', array('class' => 'col-sm-2 control-label')) !!}
+															<div class="col-sm-5">
+																{!! Form::text('historia', '', array('class' => 'form-control input-xs', 'id' => 'historia', 'readonly' => 'readonly')) !!}
+															</div>
 														</div>
-													</div>
-													<div class="form-group">
-														{!! Form::label('cie102', 'Cie10:', array('class' => 'col-sm-2 control-label')) !!}
-														<div class="col-sm-5">
-															{!! Form::text('cie102', '', array('class' => 'form-control input-xs', 'id' => 'cie102')) !!}
+														<div class="form-group">
+															{!! Form::label('numero', 'Tratam.:', array('class' => 'col-sm-2 control-label')) !!}
+															<div class="col-sm-5">
+																{!! Form::text('numero', '', array('class' => 'form-control input-xs', 'id' => 'numero', 'readonly' => 'readonly')) !!}
+															</div>
 														</div>
+														<div class="form-group">
+															{!! Form::label('cie102', 'Cie10:', array('class' => 'col-sm-2 control-label')) !!}
+															<div class="col-sm-5">
+																{!! Form::text('cie102', '', array('class' => 'form-control input-xs', 'id' => 'cie102')) !!}
+															</div>
+														</div>
+														{!! Form::button('<i class="glyphicon glyphicon-check"></i> Guardar', array('class' => 'btn btn-success btn-sm', 'id' => 'btnBuscar2', 'onclick' => 'registrarHistoriaClinica();')) !!}
+														<h5 style="color: red; font-weight: bold;" id="mensajeHistoriaClinica"></h5>
 													</div>
-													{!! Form::button('<i class="glyphicon glyphicon-check"></i> Guardar', array('class' => 'btn btn-success btn-sm', 'id' => 'btnBuscar2', 'onclick' => 'buscar3(\''.$entidad.'\')')) !!}
-												</div>
-												<div class="col-sm-4">
-													<div class="form-group">
-														{!! Form::label('sintomas', 'Sintomas:') !!}
-														<textarea class="form-control input-xs" id="sintomas" cols="10" rows="5" name="sintomas"></textarea>
+													<div class="col-sm-4">
+														<div class="form-group">
+															{!! Form::label('sintomas', 'Sintomas:') !!}
+															<textarea class="form-control input-xs" id="sintomas" cols="10" rows="5" name="sintomas"></textarea>
+														</div>
+														<div class="form-group">
+															{!! Form::label('diagnostico', 'Diagnostico:') !!}
+															<textarea class="form-control input-xs" id="diagnostico" cols="10" rows="5" name="diagnostico"></textarea>
+														</div>
+														<div class="form-group">
+															{!! Form::label('tratamiento', 'Tratamiento:') !!}
+															<textarea class="form-control input-xs" id="tratamiento" cols="10" rows="5" name="tratamiento"></textarea>
+														</div>												
 													</div>
-													<div class="form-group">
-														{!! Form::label('diagnostico', 'Diagnostico:') !!}
-														<textarea class="form-control input-xs" id="diagnostico" cols="10" rows="5" name="diagnostico"></textarea>
+													<div class="col-sm-4">
+														<!-- Lista de historias clinicas anteriores -->
+														<strong>LISTA DE CITAS ANTERIORES:</strong>
+														<!-- Fin historias clinicas anteriores -->	
 													</div>
-													<div class="form-group">
-														{!! Form::label('tratamiento', 'Tratamiento:') !!}
-														<textarea class="form-control input-xs" id="tratamiento" cols="10" rows="5" name="tratamiento"></textarea>
-													</div>
-												</div>
-												<div class="col-sm-4">
-													<!-- Lista de historias clinicas anteriores -->
-													<strong>LISTA DE CITAS ANTERIORES:</strong>
-													<!-- Fin historias clinicas anteriores -->	
-												</div>
 												
-												{!! Form::close() !!}
+												</div>
 											</div>
 										</div>
 									</div>
@@ -338,18 +345,7 @@ $entidad='Producto';
 	        	$("#atender").html(a);
 	        }
 	    });
-	}
-
-	function registrarHistoriaClinica(){
-		$.ajax({
-	        type: "POST",
-	        url: "historiaclinica/registrarHistoriaClinica",
-	        data: $('#formHistoriaClinica').serialize() + "_token=<?php echo csrf_token(); ?>",
-	        success: function(a) {
-	        	// inhabilito pestaña $("#listado").html(a);
-	        }
-	    });
-	}
+	}	
     setInterval(buscar4, 1000);
 
     $(document).on('click', '.btnLlamarPaciente', function(event) {
@@ -373,7 +369,53 @@ $entidad='Producto';
   				$('#ticket_id').val(a.ticket_id);
   				$('#historia').val(a.numhistoria);
   				$('#paciente').val(a.paciente);
+  				$('#numero').val(a.numero);
+  				$('#cie102').focus();
 	        }
 	    });
     });
+
+    function registrarHistoriaClinica(){
+    	if($('#cie102').val() == '') {
+    		$('#cie102').focus();
+    		$('#mensajeHistoriaClinica').html('Debes ingresar un CIE 10.');
+    		alert($('#formHistoriaClinica').serialize());
+    		return 0;
+    	}
+    	if($('#sintomas').val() == '') {
+    		$('#sintomas').focus();
+    		$('#mensajeHistoriaClinica').html('Debes ingresar síntomas.');
+    		return 0;
+    	}
+    	if($('#diagnostico').val() == '') {
+    		$('#diagnostico').focus();
+    		$('#mensajeHistoriaClinica').html('Debes ingresar un diagnostico.');
+    		return 0;
+    	}
+    	if($('#tratamiento').val() == '') {
+    		$('#tratamiento').focus();
+    		$('#mensajeHistoriaClinica').html('Debes ingresar un tratamiento.');
+    		return 0;
+    	}
+		$.ajax({
+	        type: "POST",
+	        url: "historiaclinica/registrarHistoriaClinica",
+	        data: $('#formHistoriaClinica').serialize() + "&_token=<?php echo csrf_token(); ?>",
+	        success: function(a) {
+	        	if(a == 'El Código CIE no existe') {
+	        		$('#mensajeHistoriaClinica').html(a);
+	        		$('#cie102').focus();
+	        	}
+	        	if(a == 'OK') {
+	        		$("li").removeClass('in active');
+		        	$('#Farmacia').removeClass('in active');
+					$('#cie').removeClass('in active');
+					$('#cola').addClass('in active');
+					$('#atencion').removeClass('in active');
+	  				$("#pestanaAtencion").css('display', 'none').removeClass('active');
+	  				$("#pestanaPacienteCola").addClass('active');	
+	        	}
+	        }
+	    });
+	}
 </script>
