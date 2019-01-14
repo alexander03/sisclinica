@@ -19,7 +19,6 @@ class HistoriaClinicaController extends Controller
     protected $folderview      = 'app.producto';
     protected $rutas           = array('create' => 'historiaclinica.create', 
             'buscar' => 'historiaclinica.buscar',
-            'ver' => 'historiaclinica.ver',
         );
 
 
@@ -45,7 +44,7 @@ class HistoriaClinicaController extends Controller
             'ticket_id' => $ticket_id,
             'paciente' => $historia->persona->apellidopaterno . ' ' . $historia->persona->apellidomaterno . ' ' . $historia->persona->nombres,
             'numhistoria' => $historia->numero,
-            'numero' => HistoriaClinica::NumeroSigue($historia->id),
+            'numero' => HistoriaClinica::numeroSigue($historia->id),
         );
         return json_encode($jsondata);
     }
@@ -59,8 +58,8 @@ class HistoriaClinicaController extends Controller
                 return 'El Código CIE no existe';
             }
             $historiaclinica                 = new HistoriaClinica();
-            $historiaclinica->numero         = strtoupper($request->input('numero'));
-            $historiaclinica->historia_id    = strtoupper($request->input('historia_id'));
+            $historiaclinica->numero         = (int) $request->input('numero');
+            $historiaclinica->historia_id    = $request->input('historia_id');
             $historiaclinica->tratamiento    = strtoupper($request->input('tratamiento'));
             $historiaclinica->sintomas       = strtoupper($request->input('sintomas'));
             $historiaclinica->diagnostico   = strtoupper($request->input('diagnostico'));
@@ -86,7 +85,7 @@ class HistoriaClinicaController extends Controller
 
         $historia_id = $request->input('historia_id');
 
-        $resultado = HistoriaClinica::where('historia_id', '=', $historia_id)->orderBy('numero', 'DESC')->get();
+        $resultado = HistoriaClinica::where('historia_id', '=', $historia_id)->orderBy('numero', 'ASC')->get();
 
         $tabla = "<table class='table table-bordered table-striped table-condensed table-hover'>
                             <thead>
@@ -98,11 +97,15 @@ class HistoriaClinicaController extends Controller
                             </thead>
                             <tbody>";
 
-        foreach($resultado as $value){
+        if(count($resultado) == '0') {
+            $tabla .= '<tr><td colspan="3"><center>No Hay Historias Antiguas</center></td></tr>';
+        } else {
+            foreach($resultado as $value){
 
-            $tabla = $tabla . "<tr><td>" . $value->numero . "</td><td>" . date('d-m-Y',strtotime($value->fecha_atencion)) . "</td><td><button class='btn btn-success btn-sm btnVerCita' id='btnVerCita' onclick='ver(".$value->id.")' data-toggle='modal' data-target='#exampleModal' type='button'><i class='fa fa-eye fa-lg'></i> Ver Cita</button></td></tr>";
+                $tabla = $tabla . "<tr><td>" . $value->numero . "</td><td>" . date('d-m-Y',strtotime($value->fecha_atencion)) . "</td><td><button class='btn btn-success btn-sm btnVerCita' id='btnVerCita' onclick='ver(".$value->id.")' data-toggle='modal' data-target='#exampleModal' type='button'><i class='fa fa-eye fa-lg'></i> Ver Cita</button></td></tr>";
 
-        }
+            }
+        }           
 
         $tabla = $tabla . "</tbody></table>";
 

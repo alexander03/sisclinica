@@ -12,7 +12,7 @@ class HistoriaClinica extends Model
     protected $table = 'historiaclinica';
     protected $dates = ['deleted_at'];
     
-    public function persona()
+    public function historia()
     {
         return $this->belongsTo('App\Historia', 'historia_id');
     }
@@ -21,11 +21,9 @@ class HistoriaClinica extends Model
     {
         return $this->belongsTo('App\Cie', 'cie_id');
     }
-
     public function scopeNumeroSigue($query, $historia_id){
         $rs=$query->select(DB::raw("max((CASE WHEN numero IS NULL THEN 0 ELSE numero END)*1) AS maximo"))->where('historia_id', $historia_id)->first();
-        return $rs->maximo + 1;    
-        //return str_pad($rs->maximo + 1,8,'0',STR_PAD_LEFT);    
+        return str_pad($rs->maximo+1,8,'0',STR_PAD_LEFT);    
     }
 
 }

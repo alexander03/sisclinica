@@ -206,15 +206,15 @@ $entidad='Producto';
 													<div class="col-sm-4">
 														<div class="form-group">
 															{!! Form::label('sintomas', 'Sintomas:') !!}
-															<textarea class="form-control input-xs" id="sintomas" cols="10" rows="5" name="sintomas"></textarea>
+															<textarea class="form-control input-xs" id="sintomas" cols="10" rows="5"></textarea>
 														</div>
 														<div class="form-group">
 															{!! Form::label('diagnostico', 'Diagnostico:') !!}
-															<textarea class="form-control input-xs" id="diagnostico" cols="10" rows="5" name="diagnostico"></textarea>
+															<textarea class="form-control input-xs" id="diagnostico" cols="10" rows="5"></textarea>
 														</div>
 														<div class="form-group">
 															{!! Form::label('tratamiento', 'Tratamiento:') !!}
-															<textarea class="form-control input-xs" id="tratamiento" cols="10" rows="5" name="tratamiento"></textarea>
+															<textarea class="form-control input-xs" id="tratamiento" cols="10" rows="5"></textarea>
 														</div>												
 													</div>
 													<div class="col-sm-4">
@@ -427,10 +427,13 @@ $entidad='Producto';
     		$('#mensajeHistoriaClinica').html('Debes ingresar un tratamiento.');
     		return 0;
     	}
+    	var tratamiento = $('#tratamiento').val().replace(/\r?\n/g, "<br>");
+    	var sintomas = $('#sintomas').val().replace(/\r?\n/g, "<br>");
+    	var diagnostico = $('#diagnostico').val().replace(/\r?\n/g, "<br>");
 		$.ajax({
 	        type: "POST",
 	        url: "historiaclinica/registrarHistoriaClinica",
-	        data: $('#formHistoriaClinica').serialize() + "&_token=<?php echo csrf_token(); ?>",
+	        data: $('#formHistoriaClinica').serialize() + "&_token=<?php echo csrf_token(); ?>&tratamiento=" + tratamiento + "&sintomas=" + sintomas + "&diagnostico=" + diagnostico,
 	        success: function(a) {
 	        	if(a == 'El Código CIE no existe') {
 	        		$('#mensajeHistoriaClinica').html(a);
@@ -445,6 +448,10 @@ $entidad='Producto';
 					$('#atencion').removeClass('in active');
 	  				$("#pestanaAtencion").css('display', 'none').removeClass('active');
 	  				$("#pestanaPacienteCola").addClass('active');	
+	  				$('#cie102').val('');
+	  				$('#tratamiento').val('');
+	  				$('#sintomas').val('');
+	  				$('#diagnostico').val('');
 	        	}
 	        }
 	    });
