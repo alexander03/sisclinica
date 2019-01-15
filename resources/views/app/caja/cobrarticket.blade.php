@@ -101,9 +101,11 @@
     		</div>
             <div class="col-lg-2 col-md-2 col-sm-2">
     		{!! Form::text('numeroventa', $movimiento->numero, array('class' => 'form-control input-xs', 'id' => 'numeroventa', 'readonly' => 'true')) !!}
-        		</div>
-	        {!! Form::label('formapago', 'Forma Pago:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label datocaja caja input-sm')) !!}
-			<div class="col-lg-8 col-md-8 col-sm-8">
+        		</div>	        
+	    </div>
+	    <div class="form-group">
+			<div class="col-lg-12 col-md-12 col-sm-12">
+				{!! Form::label('formapago', 'Forma Pago:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label datocaja caja input-sm')) !!}
 				<label id="divcbx0" class="checkbox-inline" style="color:red" onclick="divFormaPago('0', '0')">
 			      	<input style="display: none;" type="checkbox" id="cbx0">Efectivo
 			    </label>

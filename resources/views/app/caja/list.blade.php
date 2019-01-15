@@ -35,7 +35,9 @@ $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
 	</thead>
 	<tbody>
 		<?php
-		$contador = $inicio + 1;
+        $contador = $inicio + 1;
+        $visa2 = 0;
+		$master2 = 0;
 		?>
 		@foreach ($lista as $key => $value)
         <?php
@@ -128,11 +130,25 @@ $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
                     <td align="center" style='{{ $color2 }}'>{{ number_format($value->total,2,'.','') }}</td>
                 @endif
             @endif 
-            @if($value->tipotarjeta!="")
-                <td align="center">{{ $value->tipotarjeta.' - '.$value->tarjeta.' - '.$value->voucher}}</td>
-            @else
-                <td align="center"> - </td>
-            @endif 
+            <?php $formapago = ''; ?>
+            @if($value->totalpagado!=0 || $value->totalpagado!=null)
+                <?php 
+                    $formapago .= '&nbsp;&nbsp;E&nbsp;&nbsp;';
+                ?>
+            @endif
+            @if($value->totalpagadovisa!=0)
+                <?php 
+                    $formapago .= '&nbsp;&nbsp;V&nbsp;&nbsp;'; 
+                    $visa2 += $value->totalpagadovisa;
+                ?>
+            @endif
+            @if($value->totalpagadomaster!=0)
+                <?php 
+                    $formapago .= '&nbsp;&nbsp;M&nbsp;&nbsp;'; 
+                    $master2 += $value->totalpagadomaster;
+                ?>
+            @endif
+            <td align="center">{{ $formapago }}</td>
             <td>{{ $value->comentario }}</td>
             <td>{{ $value->responsable }}</td>
             <?php //echo $value->conceptopago_id; ?>
@@ -191,15 +207,15 @@ $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
         </tr>
         <tr>
             <td>Efectivo :</td>
-            <td align="right">{{ number_format($efectivo,2,'.','') }}</td>
+            <td align="right">{{ number_format($efectivo-$visa2-$master2,2,'.','') }}</td>
         </tr>
         <tr>
             <td>VISA :</td>
-            <td align="right">{{ number_format($visa,2,'.','') }}</td>
+            <td align="right">{{ number_format($visa+$visa2,2,'.','') }}</td>
         </tr>
         <tr>
             <td>MASTER :</td>
-            <td align="right">{{ number_format($master,2,'.','') }}</td>
+            <td align="right">{{ number_format($master+$master2,2,'.','') }}</td>
         </tr>
 
         <tr>

@@ -141,7 +141,7 @@ class CajaController extends Controller
         $cabecera[]       = array('valor' => 'Persona', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Ingreso', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Egreso', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Tarjeta', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Forma Pago', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Comentario', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Usuario', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '3');
@@ -5717,6 +5717,9 @@ class CajaController extends Controller
                     $movimiento->subtotal=0;
                     $movimiento->igv=0;
                     $movimiento->total=$Ticket->total;
+                    $movimiento->totalpagado = $request->input('efectivo', 0);
+                    $movimiento->totalpagadovisa = $request->input('visa', 0);
+                    $movimiento->totalpagadomaster = $request->input('master', 0);
                     $movimiento->tipomovimiento_id=2;
                     $movimiento->tipodocumento_id=2;
                     $movimiento->conceptopago_id=3;//PAGO DE CLIENTE
@@ -6005,6 +6008,13 @@ class CajaController extends Controller
             }
 
             $rescuotas->save();
+
+            if($request->input('quedan') == '0.000'){
+                $movimiento->totalpagado = $rescuotas->totalpagado;
+                $movimiento->totalpagadovisa = $rescuotas->totalpagadovisa;
+                $movimiento->totalpagadomaster = $rescuotas->totalpagadomaster;
+                $movimiento->save();
+            }
 
             //Creo una nueva cuota
 

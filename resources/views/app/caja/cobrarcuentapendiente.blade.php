@@ -149,9 +149,11 @@
 	    		</div>
 	            <div class="col-lg-2 col-md-2 col-sm-2">
 	    		{!! Form::text('numeroventa', $movimiento->numero, array('class' => 'form-control input-xs', 'id' => 'numeroventa', 'readonly' => 'true')) !!}
-	        		</div>
-		        {!! Form::label('formapago', 'Forma Pago:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label datocaja caja input-sm')) !!}
-				<div class="col-lg-8 col-md-8 col-sm-8">
+	        	</div>   	
+		    </div>
+		    <div class="form-group">
+				<div class="col-lg-12 col-md-12 col-sm-12">
+					{!! Form::label('formapago', 'Forma Pago:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label datocaja caja input-sm')) !!}
 					<label id="divcbx0" class="checkbox-inline" style="color:red" onclick="divFormaPago('0', '0')">
 				      	<input style="display: none;" type="checkbox" id="cbx0">Efectivo
 				    </label>
@@ -172,14 +174,14 @@
 					<div class="input-group form-control">
 						<span class="input-group-addon input-xs">VISA.</span>
 						<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="visa" id="visa" type="text" class="form-control input-xs" readonly="">
-						<span class="input-group-addon input-xs">N°</span>
-						<input onkeypress="return filterFloat(event,this);" name="numvisa" id="numvisa" type="text" class="form-control input-xs" readonly="">
+						<span class="input-group-addon input-xs" style="display: none;">N°</span>
+						<input style="display: none;" onkeypress="return filterFloat(event,this);" name="numvisa" id="numvisa" type="text" class="form-control input-xs" readonly="">
 					</div>
 					<div class="input-group form-control">
 						<span class="input-group-addon input-xs">MAST.</span>
 						<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="master" id="master" type="text" class="form-control input-xs" readonly="">
-						<span class="input-group-addon input-xs">N°</span>
-						<input onkeypress="return filterFloat(event,this);" name="nummaster" id="nummaster" type="text" class="form-control input-xs" readonly="">
+						<span class="input-group-addon input-xs" style="display: none;">N°</span>
+						<input style="display: none;" onkeypress="return filterFloat(event,this);" name="nummaster" id="nummaster" type="text" class="form-control input-xs" readonly="">
 					</div>	
 				</div>	
 				<div class="col-lg-4 col-md-4 col-sm-4">	    	
@@ -355,11 +357,12 @@
 					alert('Ingresa un monto para visa.');
 					return false;
 				}
+				/*
 				if($('#numvisa').val().length == 0) {
 					$('#numvisa').focus();
 					alert('Ingresa un numero para visa.');
 					return false;
-				}
+				}*/
 			} 
 			if(!$('#master').attr('readonly')) {
 				if($('#master').val().length == 0) {
@@ -367,11 +370,12 @@
 					alert('Ingresa un monto para master.');
 					return false;
 				}
+				/*
 				if($('#nummaster').val().length == 0) {
 					$('#nummaster').focus();
 					alert('Ingresa un numero para master.');
 					return false;
-				}
+				}*/
 			}
 			return true;
 		}		
