@@ -41,6 +41,9 @@ $sucursal_id = Session::get('sucursal_id');
     {{-- typeahead.js-bootstrap: para autocompletar --}}
     {!! HTML::style('dist/css/typeahead.js-bootstrap.css', array('media' => 'screen')) !!}
 
+    {{-- para los select pequeños con busqueda rápida --}}
+    {!! HTML::style('dist/css/chosen.min.css') !!}
+
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
     <div class="wrapper">
@@ -253,6 +256,7 @@ $sucursal_id = Session::get('sucursal_id');
     {{-- typeahead.js-bootstrap: para autocompletar --}}
     {!! HTML::script('dist/js/typeahead.bundle.min.js') !!}
     {!! HTML::script('dist/js/bloodhound.min.js') !!}
+    {!! HTML::script('dist/js/chosen.jquery.js') !!}
     
 
     @if($user->sucursal_id == null && $sucursal_id == null)

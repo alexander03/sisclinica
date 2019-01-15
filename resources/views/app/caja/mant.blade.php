@@ -199,6 +199,9 @@ $(document).ready(function() {
     });  
     
     $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="persona"]').focus();
+    $('#concepto').chosen({
+        width: "100%",
+    });
 }); 
 
 var carro = new Array();
@@ -258,7 +261,8 @@ function generarConcepto(valor){
         success: function(a) {
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="concepto"]').html(a);
             generarNumero(valor);
-            transferencia($("#concepto").val());
+            $('#concepto').trigger("chosen:updated");
+            transferencia($("#concepto").val()); 
         }
     });
 }
