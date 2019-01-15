@@ -5677,7 +5677,7 @@ class CajaController extends Controller
 
                     //Puede ser manual o no
 
-                    $venta->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,4,5,$caja->serie,'N');
+                    $venta->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,4,$tipodocumento_id,$caja->serie,'N');
 
                     $venta->serie = '00'.$caja->serie;;
                     $venta->responsable_id=$user->person_id;
@@ -5916,7 +5916,7 @@ class CajaController extends Controller
 
                     //Puede ser manual o no
 
-                    $venta->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,4,5,$caja->serie,'N');
+                    $venta->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,4,$tipodocumento_id,$caja->serie,'N');
 
                     $venta->serie = '00'.$caja->serie;;
                     $venta->responsable_id=$user->person_id;
