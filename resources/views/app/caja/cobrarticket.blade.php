@@ -327,11 +327,11 @@
 					alert('Ingresa un monto para visa.');
 					return false;
 				}
-				if($('#numvisa').val().length == 0) {
+				/*if($('#numvisa').val().length == 0) {
 					$('#numvisa').focus();
 					alert('Ingresa un numero para visa.');
 					return false;
-				}
+				}*/
 			} 
 			if(!$('#master').attr('readonly')) {
 				if($('#master').val().length == 0) {
@@ -339,11 +339,11 @@
 					alert('Ingresa un monto para master.');
 					return false;
 				}
-				if($('#nummaster').val().length == 0) {
+				/*if($('#nummaster').val().length == 0) {
 					$('#nummaster').focus();
 					alert('Ingresa un numero para master.');
 					return false;
-				}
+				}*/
 			}
 			return true;
 		}		
