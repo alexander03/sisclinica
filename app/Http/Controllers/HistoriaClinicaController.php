@@ -120,19 +120,69 @@ class HistoriaClinicaController extends Controller
         $historia            = Historia::find($cita->historia_id);
         $cie10 = Cie::find($cita->cie_id);
 
-        $texto = "<h1>Tratamiento N°". $cita->numero ." - ". date('d-m-Y',strtotime($cita->fecha_atencion)) ."</h1>
-                    <strong>Paciente:</strong>
-                    </br>" . $historia->persona->apellidopaterno . ' ' . $historia->persona->apellidomaterno . ' ' . $historia->persona->nombres .
-                    "</br><strong>Historia:</strong>
-                    </br>" . $historia->numero .
-                    "</br><strong>Cie10:</strong>
-                    </br>" . $cie10->codigo . " - " . $cie10->descripcion .
-                    "</br><strong>Sintomas:</strong>
-                    </br>" . $cita->sintomas . 
-                    "</br><strong>Diagnóstico:</strong>
-                    </br>" . $cita->diagnostico . 
-                    "</br><strong>Tratamiento:</strong>
-                    </br>" . $cita->tratamiento;
+        $texto = "<table class='table table-responsive table-hover'>
+            <thead>
+                <tr>
+                    <td colspan='2'>
+                        <center style='color:red'>
+                            <h3>
+                                Tratamiento N°". $cita->numero ." - ". date('d-m-Y',strtotime($cita->fecha_atencion)) ."
+                            </h3>
+                        </center>
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td width='15%'>
+                        <strong><font style='color:blue'>Paciente</font></strong>
+                    </td>
+                    <td width='85%'>"
+                        . $historia->persona->apellidopaterno . ' ' . $historia->persona->apellidomaterno . ' ' . $historia->persona->nombres .
+                    "</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong><font style='color:blue'>Historia</font></strong><br>
+                    </td>
+                    <td>"
+                        . $historia->numero .
+                    "</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong><font style='color:blue'>Cie 10</font></strong><br>
+                    </td>
+                    <td>"
+                        . $cie10->codigo . " - " . $cie10->descripcion .
+                    "</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong><font style='color:blue'>Síntomas</font></strong><br>
+                    </td>
+                    <td>"
+                        . $cita->sintomas .
+                    "</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong><font style='color:blue'>Diagnóstico</font></strong><br>
+                    </td>
+                    <td>"
+                        . $cita->diagnostico .
+                    "</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong><font style='color:blue'>Tratamiento</font></strong><br>
+                    </td>
+                    <td>"
+                        . $cita->tratamiento .
+                    "</td>
+                </tr>
+            </tbody>
+        </table>";
 
         return $texto;
     }

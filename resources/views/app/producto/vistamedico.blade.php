@@ -245,19 +245,17 @@ $entidad='Producto';
 				
 	        </div>
 
-<!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-body" id="verCita">
-
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-      </div>
-    </div>
-  </div>
-</div>
+			<!-- Modal -->
+			<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+				<div class="modal-dialog" role="document">
+				    <div class="modal-content">
+					    <div class="modal-body" id="verCita"></div>
+				        <div class="modal-footer">
+				            <button type="button" class="btn btn-success" data-dismiss="modal">Cerrar</button>
+				        </div>
+				    </div>
+				</div>
+			</div>
 	        <!-- /.content-wrapper -->
 	        <footer class="navbar-default navbar-fixed-bottom" style="padding-left: 20px !important; padding-bottom: 20px; padding-top: 20px; padding-right: 20px;">
 	            <div class="container-fluid">
