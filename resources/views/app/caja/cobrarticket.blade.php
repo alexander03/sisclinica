@@ -124,14 +124,14 @@
 				<div class="input-group form-control">
 					<span class="input-group-addon input-xs">VISA.</span>
 					<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="visa" id="visa" type="text" class="form-control input-xs" readonly="">
-					<span class="input-group-addon input-xs">N°</span>
-					<input onkeypress="return filterFloat(event,this);" name="numvisa" id="numvisa" type="text" class="form-control input-xs" readonly="">
+					<span style="display:none;" class="input-group-addon input-xs">N°</span>
+					<input style="display:none;" onkeypress="return filterFloat(event,this);" name="numvisa" id="numvisa" type="text" class="form-control input-xs" readonly="">
 				</div>
 				<div class="input-group form-control">
 					<span class="input-group-addon input-xs">MAST.</span>
 					<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="master" id="master" type="text" class="form-control input-xs" readonly="">
-					<span class="input-group-addon input-xs">N°</span>
-					<input onkeypress="return filterFloat(event,this);" name="nummaster" id="nummaster" type="text" class="form-control input-xs" readonly="">
+					<span style="display:none;" class="input-group-addon input-xs">N°</span>
+					<input style="display:none;" onkeypress="return filterFloat(event,this);" name="nummaster" id="nummaster" type="text" class="form-control input-xs" readonly="">
 				</div>	
 			</div>	
 			<div class="col-lg-4 col-md-4 col-sm-4">	    	
