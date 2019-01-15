@@ -5711,7 +5711,7 @@ class CajaController extends Controller
                     $movimiento        = new Movimiento();
                     $movimiento->sucursal_id = $sucursal_id;
                     $movimiento->fecha = date("Y-m-d");
-                    $movimiento->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,2,2);
+                    $movimiento->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,2,$tipodocumento_id);
                     $movimiento->responsable_id=$user->person_id;
                     $movimiento->persona_id=$Ticket->persona_id;
                     $movimiento->subtotal=0;
@@ -5953,7 +5953,7 @@ class CajaController extends Controller
                     $movimiento        = new Movimiento();
                     $movimiento->sucursal_id = $sucursal_id;
                     $movimiento->fecha = date("Y-m-d");
-                    $movimiento->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,2,2);
+                    $movimiento->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,2,$tipodocumento_id);
                     $movimiento->responsable_id=$user->person_id;
                     $movimiento->persona_id=$Ticket->persona_id;
                     $movimiento->subtotal=0;
