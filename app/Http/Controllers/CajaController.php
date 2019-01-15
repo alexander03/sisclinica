@@ -5543,7 +5543,7 @@ class CajaController extends Controller
         return view($this->folderview.'.ticketspendientes')->with(compact('entidad', 'ruta'));
     }
 
-    public function listaticketspendientes($numero, $fecha) {
+    public function listaticketspendientes($numero, $fecha, $paciente) {
         if($numero == '0') {
             $numero = '';
         }
@@ -5552,6 +5552,9 @@ class CajaController extends Controller
         ->where('movimiento.numero','LIKE','%'.$numero.'%')->where('movimiento.tipodocumento_id','=','1');
         if($fecha!=""){
             $resultado = $resultado->where('movimiento.fecha', '=', ''.$fecha.'');
+        }
+        if($paciente!="0"){
+            $resultado = $resultado->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'), 'LIKE', '%'.$paciente.'%');
         }
         $resultado        = $resultado->select('movimiento.*',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'))->orderBy('movimiento.id','DESC')->orderBy('movimiento.situacion','DESC');
         $lista            = $resultado->get();
@@ -5794,12 +5797,15 @@ class CajaController extends Controller
         return view($this->folderview.'.cuentaspendientes')->with(compact('entidad', 'ruta'));
     }
 
-    public function listacuentaspendientes($numero, $fecha) {
+    public function listacuentaspendientes($numero, $fecha, $paciente) {
         $ruta = $this->rutas;
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id');
         if($fecha!=""){
             $resultado = $resultado->where('movimiento.fecha', '=', ''.$fecha.'')
         ->where('movimiento.tipomovimiento_id','=','14')->where('movimiento.comentario', 'TOTAL DE CUOTAS');
+        }
+        if($paciente!="0"){
+            $resultado = $resultado->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'), 'LIKE', '%'.$paciente.'%');
         }
         $resultado        = $resultado->select('movimiento.*',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'), DB::raw('total as pendiente'))->orderBy('movimiento.id','DESC')->orderBy('movimiento.situacion','DESC');
         $lista            = $resultado->get();
