@@ -126,7 +126,7 @@ class HistoriaClinicaController extends Controller
                     <td colspan='2'>
                         <center style='color:red'>
                             <h3>
-                                Tratamiento N°". $cita->numero ." - ". date('d-m-Y',strtotime($cita->fecha_atencion)) ."
+                                Tratamiento N°". $cita->numero ." / ". date('d-m-Y',strtotime($cita->fecha_atencion)) ."
                             </h3>
                         </center>
                     </td>
