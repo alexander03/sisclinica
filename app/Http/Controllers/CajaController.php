@@ -507,9 +507,10 @@ class CajaController extends Controller
         }
         $modelo   = Caja::find($id);
         $entidad  = 'Caja';
+        $ticket  = 'Ticket';
         $formData = array('route' => array('caja.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        $boton    = 'Anular';
-        return view('app.confirmar2')->with(compact('modelo', 'id', 'formData', 'entidad', 'boton', 'listar'));
+        $boton    = 'Anular';        
+        return view('app.confirmar2')->with(compact('modelo', 'id', 'formData', 'entidad', 'boton', 'listar', 'ticket'));
     }
     
 
@@ -5777,7 +5778,7 @@ class CajaController extends Controller
                     $primeracuota->numvisa = $request->input('numvisa');
                     $primeracuota->nummaster = $request->input('nummaster');
                     $primeracuota->tipomovimiento_id=14;//EN BLANCO, EL INGRESO SE HARÁ AL COMPLETAR LA BOLETA
-                    $primeracuota->comentario='PAGO DE CLIENTE A CREDITO';
+                    $primeracuota->comentario='PAGO DE CUOTA A CRÉDITO DE CLIENTE';
                     $primeracuota->caja_id=$request->input('caja_id');
                     $primeracuota->movimiento_id=$rescuotas->id;
                     $primeracuota->save();                    
@@ -6022,7 +6023,7 @@ class CajaController extends Controller
             $cuota->numvisa = $request->input('numvisa');
             $cuota->nummaster = $request->input('nummaster');
             $cuota->tipomovimiento_id=14;//EN BLANCO, EL INGRESO SE HARÁ AL COMPLETAR LA BOLETA
-            $cuota->comentario='ULTIMO PAGO DE CLIENTE A CREDITO';
+            $cuota->comentario='PAGO DE CUOTA A CRÉDITO DE CLIENTE';
             $cuota->caja_id=$request->input('caja_id');
             $cuota->movimiento_id=$rescuotas->id;
             $cuota->save();  
@@ -6030,5 +6031,14 @@ class CajaController extends Controller
 
         ///////////////////////////////
         return is_null($error) ? "OK" : $error;
+    }
+
+    public function anularmovimiento($id) {
+        $Movcaja = Movimiento::find($id);
+        $Tras = Movimiento::find($Movcaja->movimiento_id);
+        $Ticket = Movimiento::find($Tras->movimiento_id);
+        $Ticket->situacion = 'P';
+        $Ticket->save();
+        echo $Ticket->id;
     }
 }
