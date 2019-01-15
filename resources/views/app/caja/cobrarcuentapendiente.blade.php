@@ -8,11 +8,11 @@
 				<tr>
 					<td colspan="4">DETALLES DE SERVICIOS</td>
 					<td>
-						<select class="form-control input-xs" disabled="" value="{{ $detalles[0]->tipodescuento }}">
+						<select class="form-control input-xs" name="tipodescuento2" id="tipodescuento2">
 							<option value="P">%</option>
 							<option value="E">S/.</option>
 						</select>
-						<input type="hidden" name="tipodescuento" id="tipodescuento" value="{{ $detalles[0]->tipodescuento }}">
+						<input type="hidden" name="tipodescuento" id="tipodescuento">
 					</td>
 					<td></td>
 				</tr>
@@ -57,8 +57,7 @@
 		<table class="table table-bordered table-responsive table-condensed table-hover dataTable no-footer" border="1" role="grid" style="width: 100%;">
 			<thead>
 				<tr>
-					<th width="30%">Fecha</th>
-					<th width="10%">Numero</th>
+					<th width="40%">Fecha</th>
 					<th width="15%">Efectivo</th>
 					<th width="15%">Visa</th>
 					<th width="15%">Master</th>
@@ -70,9 +69,6 @@
 				@foreach($cuotas as $cuota)
 					<tr>
 						<td>{{ $cuota->fecha }}</td>
-						<td>
-							{{ $cuota->numero }}
-						</td>
 						<td>
 							<input readonly="" class="form-control input-xs precio" type="text" value="{{ $cuota->totalpagado }}">
 						</td>
@@ -92,7 +88,7 @@
 					<?php $i++; ?>
 				@endforeach
 				<tr>
-					<th colspan="5" class="text-right">Total Pago</th>
+					<th colspan="4" class="text-right">Total Pago</th>
 					<td><input name="totalpago" id="totalpago" class="form-control input-xs" type="text" readonly="" value="{{ $totaltotal }}"></td>
 				</tr>
 			</tbody>
@@ -214,6 +210,8 @@
 </div>
 <script type="text/javascript">
 	$(document).ready(function() {
+		$('#tipodescuento').val('{{ $detalles[0]->tipodescuento }}');
+		$('#tipodescuento2').val('{{ $detalles[0]->tipodescuento }}').attr('disabled', 'disabled');
 		configurarAnchoModal('1200');
 		init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'B', '{!! $entidad !!}');
 		inicializarPrecios();
