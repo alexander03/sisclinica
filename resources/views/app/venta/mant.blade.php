@@ -3,6 +3,7 @@
 	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
 	{!! Form::hidden('total', '0', array( 'id' => 'total')) !!}
 	{!! Form::hidden('detalle', 'false', array( 'id' => 'detalle')) !!}
+	<input type="hidden" name="cantproductos" id="cantproductos">
 	<div class="col-lg-4 col-md-4 col-sm-4">
 		<div class="form-group" style="height: 12px;">
 			{!! Form::label('documento', 'Documento:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
@@ -170,7 +171,7 @@
 		       {-- Form::button('<i class="glyphicon glyphicon-plus"></i> Agregar', array('class' => 'btn btn-info btn-xs', 'id' => 'btnAgregar', 'onclick' => 'ventanaproductos();')) --}   
 		    	
 		    	</div>-->
-				{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => 'guardarVenta(\''.$entidad.'\', this)')) !!}
+				{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar')) !!}
 				{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
 			</div>
 		</div>
@@ -187,26 +188,33 @@
 	<div class="row">
 		<div class="col-lg-12 col-md-12 col-sm-12">
 			<div id="divDetail" class="table-responsive" style="overflow:auto; height:220px; padding-right:10px; border:1px outset">
-		        <table style="width: 100%;" class="table-condensed table-striped">
+		        <table style="width: 100%;" class="table-condensed table-striped" border="1">
 		            <thead>
 		                <tr>
-		                    <th bgcolor="#E0ECF8" class='text-center'>Producto</th>
-		                    <th bgcolor="#E0ECF8" class='text-center'>Cantidad</th>
-		                    <th bgcolor="#E0ECF8" class="text-center">Precio</th>
-		                    <th bgcolor="#E0ECF8" class="text-center">Subtotal</th>
+		                    <th bgcolor="#E0ECF8" class='text-center'>N°</th>
+		                    <th bgcolor="#E0ECF8" class='text-center' style="width:750px;">Producto</th>
+		                    <th bgcolor="#E0ECF8" class='text-center' style="width:100px;">Cantidad</th>
+		                    <th bgcolor="#E0ECF8" class="text-center" style="width:100px;">Precio Unit</th>
+		                    <th bgcolor="#E0ECF8" class="text-center" style="width:90px;">Dscto</th>
+		                    <th bgcolor="#E0ECF8" class="text-center" style="width:90px;">Subtotal</th>
 		                    <th bgcolor="#E0ECF8" class='text-center'>Quitar</th>
 		                </tr>
 		            </thead>
-		            <tbody>
-		            	
+		            <tbody id="detallesVenta">
+		            </tbody>
+		            <tbody border="1">
+		            	<tr>
+		            		<th colspan="5" style="text-align: right;">TOTAL</th>
+		            		<td class="text-center">
+		            			<center id="totalventa2">0</center><input type="hidden" id="totalventa" readonly="" name="totalventa" value="0">
+		            		</td>
+		            	</tr>
 		            </tbody>
 		        </table>
 		    </div>
 		</div>
 	 </div>
     <br>
-	
-	
 {!! Form::close() !!}
 <style type="text/css">
 tr.resaltar {
@@ -219,6 +227,8 @@ var valorbusqueda="";
 var indice = -1;
 var anterior = -1;
 $(document).ready(function() {
+	$('#detallesVenta').html('');
+	$('#cantproductos').val('0');
 	configurarAnchoModal('1300');
 	init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'B', '{!! $entidad !!}');
 
@@ -633,27 +643,58 @@ function retornarFloat (value) {
 	return retorno;
 }
 
-function quitar (valor) {
-	var _token =$('input[name=_token]').val();
-	$.post('{{ URL::route("venta.quitarcarritoventa")}}', {valor: valor,_token: _token} , function(data){
+$(document).on('click', '.quitarFila', function(event) {
+	event.preventDefault();
+	$(this).parent('span').parent('td').parent('tr').remove();
+	calculatetotal();
+});
+
+function quitar(btn) {
+	
+	/*var _token =$('input[name=_token]').val();
+	$.post('{ URL::route("venta.quitarcarritoventa")}}', {valor: valor,_token: _token} , function(data){
 		$('#divDetail').html(data);
 		calculatetotal();
 		//generarSaldototal ();
 		// var totalpedido = $('#totalpedido').val();
 		// $('#total').val(totalpedido);
-	});
+	});*/
 }
 
 function calculatetotal () {
-	var _token =$('input[name=_token]').val();
+	/*var _token =$('input[name=_token]').val();
 	var valor =0;
-	$.post('{{ URL::route("venta.calculartotal")}}', {valor: valor,_token: _token} , function(data){
+	$.post('{ URL::route("venta.calculartotal")}}', {valor: valor,_token: _token} , function(data){
 		valor = retornarFloat(data);
 		$("#total").val(valor);
 		//generarSaldototal();
 		// var totalpedido = $('#totalpedido').val();
 		// $('#total').val(totalpedido);
+	});*/
+	//Reorganizamos los nombres y números de las filas de la tabla
+	var i = 1;
+	var total = 0;
+	$('#detallesVenta tr .numeration').each(function() {
+		$(this).html(i);
+		i++;
 	});
+	i = 1;
+	$('#detallesVenta tr .infoProducto').each(function() {
+		$(this).find('.producto_id').attr('name', '').attr('name', 'producto_id' + i);
+		$(this).find('.codigobarra').attr('name', '').attr('name', 'codigobarra' + i);
+		$(this).find('.tipoventa').attr('name', '').attr('name', 'tipoventa' + i);
+		$(this).find('.descuentokayros').attr('name', '').attr('name', 'descuentokayros' + i);
+		$(this).find('.copago').attr('name', '').attr('name', 'copago' + i);
+		$(this).find('.cantidad').attr('name', '').attr('name', 'cantidad' + i);
+		$(this).find('.precio').attr('name', '').attr('name', 'precio' + i);
+		$(this).find('.dscto').attr('name', '').attr('name', 'dscto' + i);
+		$(this).find('.subtotal').attr('name', '').attr('name', 'subtotal' + i);
+		total += parseFloat($(this).find('.subtotal').val());
+		i++;
+	});
+	$('#cantproductos').val(i-1);
+	$('#totalventa2').html(total);
+	$('#totalventa').val(total);
 }
 
 function comprobarproducto () {
@@ -818,8 +859,12 @@ function addpurchasecart(elemento){
 		var detalle = $('#detalle').val();
 		$('#detalle').val(true);
 		$.post('{{ URL::route("venta.agregarcarritoventa")}}', {cantidad: cantidad,precio: price, producto_id: product_id, tipoventa: tipoventa, descuentokayros: descuentokayros, copago: copago, preciokayros: preciokayros, conveniofarmacia_id: conveniofarmacia_id, detalle: detalle,idsesioncarrito:idsesioncarrito,_token: _token} , function(data){
-			$('#detalle').val(true);
-			$('#divDetail').html(data);
+			var producto_id = $('#producto_id').val();
+			if ($("#Product" + producto_id)[0]) {
+				$("#Product" + producto_id).html(data);
+			} else {
+				$('#detallesVenta').append('<tr id="Product' + producto_id + '">' + data + '</tr>');
+			}			
 			calculatetotal();
 			/*bootbox.alert("Producto Agregado");
             setTimeout(function () {
@@ -1008,6 +1053,17 @@ function validarFormaPago(formapago){
 		$(".tarjeta").css("display","none");
 	}
 }
+
+$(document).on('click', '#btnGuardar', function(event) {
+	event.preventDefault();
+	var i = $('.numeration').length;
+	if(i == 0) {
+		alert('Debes seleccionar al menos un producto.');
+	} else {		
+		//alert($('#cantproductos').val());
+		guardarVenta('Venta', this);
+	}	
+});
 
 validarFormaPago($("#formapago").val());
 </script>
