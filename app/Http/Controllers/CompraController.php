@@ -205,96 +205,55 @@ class CompraController extends Controller
 
     public function agregarcarritocompra(Request $request)
     {
-        $lista = array();
-        if($request->input('detalle')=='false'){
-            $request->session()->put('carritocompra', $lista);
-        }
         $cadena = '';
-        if ($request->session()->get('carritocompra') !== null) {
-            $lista          = $request->session()->get('carritocompra');
-            $cantidad       = Libreria::getParam($request->input('cantidad'));
-            $producto_id       = Libreria::getParam($request->input('producto_id'));
-            $precio       = Libreria::getParam($request->input('precio'));
-            $preciokayros       = Libreria::getParam($request->input('preciokayros'));
-            $precioventa       = Libreria::getParam($request->input('precioventa'));
-            $fechavencimiento       = Libreria::getParam($request->input('fechavencimiento'));
-            $lote       = Libreria::getParam($request->input('lote'));
-            $distribuidora_id       = Libreria::getParam($request->input('distribuidora_id'));
-            $producto   = Producto::find($producto_id);
-            $estaPresente   = false;
-            $indicepresente = '';
-            for ($i=0; $i < count($lista); $i++) { 
-                if ($lista[$i]['producto_id'] == $producto_id) {
-                    $estaPresente   = true;
-                    $indicepresente = $i;
-                }
-            }
-            if ($estaPresente === true) {
-                $lista[$indicepresente]  = array('cantidad' => $cantidad, 'precio' => $precio, 'productonombre' => $producto->nombre,'producto_id' => $producto_id,'fechavencimiento' => $fechavencimiento,'lote' => $lote,'distribuidora_id' => $distribuidora_id, 'codigobarra' => $producto->codigobarra, 'preciokayros' => $preciokayros, 'precioventa' => $precioventa);
-            }else{
-                $lista[]  = array('cantidad' => $cantidad, 'precio' => $precio, 'productonombre' => $producto->nombre,'producto_id' => $producto_id,'fechavencimiento' => $fechavencimiento,'lote' => $lote,'distribuidora_id' => $distribuidora_id, 'codigobarra' => $producto->codigobarra, 'preciokayros' => $preciokayros, 'precioventa' => $precioventa);
-            }
-            
-            $cadena   .= '<table style="width: 100%;" border="1">';
-            $cadena   .= '<thead>
-                                <tr>
-                                    <th bgcolor="#E0ECF8" class="text-center">Producto</th>
-                                    <th bgcolor="#E0ECF8" class="text-center">Cantidad</th>
-                                    <th bgcolor="#E0ECF8" class="text-center">Precio</th>
-                                    <th bgcolor="#E0ECF8" class="text-center">Subtotal</th>
-                                    <th bgcolor="#E0ECF8" class="text-center">Quitar</th>                            
-                                </tr>
-                            </thead>';
-            
-            $total = 0;
-            
-            for ($i=0; $i < count($lista); $i++) {
-                $subtotal = round(($lista[$i]['cantidad']*$lista[$i]['precio']), 2);
-                $total    += $subtotal;
-                $cadena   .= '<tr><td class="text-center" style="width:750px;">'.$lista[$i]['productonombre'].'</td>';
-                $cadena   .= '<td class="text-center" style="width:100px;">'.$lista[$i]['cantidad'].'</td>';
-                $cadena   .= '<td class="text-center" style="width:100px;">'.$lista[$i]['precio'].'</td>';
-                $cadena   .= '<td class="text-center" style="width:90px;">'.$subtotal.'</td>';
-                $cadena   .= '<td class="text-center"><a class="btn btn-xs btn-danger" onclick="quitar(\''.$i.'\');">Quitar</a></td></tr>';
-            }
-            $cadena  .= '<tr><th colspan="3" style="text-align: right;">TOTAL</th><td class="text-center">'.$total.'<input type ="hidden" id="totalcompra" readonly=""  name="totalcompra" value="'.$total.'"></td></tr></tr>';
-            $cadena .= '</table>';
-            $request->session()->put('carritocompra', $lista);
+        $cantidad       = Libreria::getParam($request->input('cantidad'));
+        $producto_id       = Libreria::getParam($request->input('producto_id'));
+        $precio       = Libreria::getParam($request->input('precio'));
+        $preciokayros       = Libreria::getParam($request->input('preciokayros'));
+        $precioventa       = Libreria::getParam($request->input('precioventa'));
+        $fechavencimiento       = Libreria::getParam($request->input('fechavencimiento'));
+        $lote       = Libreria::getParam($request->input('lote'));
+        $distribuidora_id       = Libreria::getParam($request->input('person_id'));
+        $producto   = Producto::find($producto_id);
+        
+        $subtotal = round($cantidad*$precio, 2);
 
-        }else{
-            $cantidad       = Libreria::getParam($request->input('cantidad'));
-            $producto_id       = Libreria::getParam($request->input('producto_id'));
-            $precio       = Libreria::getParam($request->input('precio'));
-            $preciokayros       = Libreria::getParam($request->input('preciokayros'));
-            $precioventa       = Libreria::getParam($request->input('precioventa'));
-            $producto   = Producto::find($producto_id);
-            $fechavencimiento       = Libreria::getParam($request->input('fechavencimiento'));
-            $lote       = Libreria::getParam($request->input('lote'));
-            $distribuidora_id       = Libreria::getParam($request->input('distribuidora_id'));
-            $subtotal       = round(($cantidad*$precio), 2);
-            $cadena   .= '<table style="width: 100%;" border="1">';
-            $cadena   .= '<thead>
-                                <tr>
-                                    <th bgcolor="#E0ECF8" class="text-center">Producto</th>
-                                    <th bgcolor="#E0ECF8" class="text-center">Cantidad</th>
-                                    <th bgcolor="#E0ECF8" class="text-center">Precio</th>
-                                    <th bgcolor="#E0ECF8" class="text-center">Subtotal</th>
-                                    <th bgcolor="#E0ECF8" class="text-center">Quitar</th>                            
-                                </tr>
-                            </thead>';
-            $cadena         .= '<tr><td class="text-center" style="width:550px;">'.$producto->nombre.'</td>';
-            $cadena         .= '<td class="text-center" style="width:100px;">'.$cantidad.'</td>';
-            $cadena         .= '<td class="text-center" style="width:100px;">'.$precio.'</td>';
-            $cadena         .= '<td class="text-center" style="width:90px;">'.$subtotal.'</td>';
-            $cadena         .= '<td class="text-center"><a class="btn btn-xs btn-danger" onclick="quitar(\'0\');">Quitar</a></td><tr>';
-            $cadena         .= '<tr><th colspan="3" style="text-align: right;">TOTAL</th><td class="text-center">'.$subtotal.'<input type ="hidden" id="totalcompra" readonly=""  name="totalcompra" value="'.$subtotal.'"></td></tr></tr>';
-            $cadena         .= '</table>';
-            $lista[]  = array('cantidad' => $cantidad, 'precio' => $precio, 'productonombre' => $producto->nombre,'producto_id' => $producto_id,'fechavencimiento' => $fechavencimiento,'lote' => $lote,'distribuidora_id' => $distribuidora_id, 'codigobarra' => $producto->codigobarra, 'preciokayros' => $preciokayros, 'precioventa' => $precioventa);
-            $request->session()->put('carritocompra', $lista);
+        $cadena .= '<td class="numeration"></td>
+                    <td class="text-center infoProducto">
+                        <span style="display: block; font-size:.7em">'.$producto->nombre.'</span>
+                        <input type ="hidden" class="producto_id"  value="'.$producto_id.'">
+                        <input type ="hidden" class="productonombre"  value="'.$producto->nombre.'">
+                        <input type ="hidden" class="cantidad" value="'.$cantidad.'">
+                        <input type ="hidden" class="fechavencimiento" value="'.$fechavencimiento.'">
+                        <input type ="hidden" class="lote" value="'.$lote.'">
+                        <input type ="hidden" class="distribuidora_id" value="'.$distribuidora_id.'">
+                        <input type ="hidden" class="codigobarra" value="'.$producto->codigobarra.'">
+                        <input type ="hidden" class="preciokayros" value="'.$preciokayros.'">
+                        <input type ="hidden" class="precioventa" value="'.$precioventa.'">
+                        <input type ="hidden" class="preciocompra" value="'.$precio.'">
+                        <input type ="hidden" class="subtotal" value="'.$subtotal.'">
+                    </td>';
+        if($lote == '') {
+            $lote = '-';
         }
+        $cadena .= '<td class="text-center">
+                    <span style="display: block; font-size:.7em">'.$lote.'</span>                    
+                </td>';
+        $cadena .= '<td class="text-center">
+                    <span style="display: block; font-size:.7em">'.$cantidad.'</span>                    
+                </td>';
+        $cadena .= '<td class="text-center">
+                    <span style="display: block; font-size:.7em">'.$precio.'</span>                    
+                </td>';
+        $cadena .= '<td class="text-center">
+                    <span style="display: block; font-size:.7em">'.$subtotal.'</span>                    
+                </td>';
+        $cadena .= '<td class="text-center">
+                    <span style="display: block; font-size:.7em">
+                    <a class="btn btn-xs btn-danger quitarFila">Quitar</a></span>
+                </td>';
+
         return $cadena; 
-
-
     }
 
     public function quitarcarritocompra(Request $request)
@@ -478,15 +437,6 @@ class CompraController extends Controller
             'numerodocumento.required'         => 'Debe ingresar un numero de documento',
             'fecha.required'         => 'Debe ingresar fecha'
             );
-        
-
-        if (is_null($request->session()->get('carritocompra')) || count($request->session()->get('carritocompra')) === 0) {
-            $error = array(
-                'total' => array(
-                    'Debe agregar al menos un producto'
-                    ));
-            return json_encode($error);
-        }
 
         if ($request->input('credito') !== NULL && $request->input('credito') !== '' ) {
             if ( ($request->input('numerodias') === '' || $request->input('numerodias') === null ) && $request->input('credito') === 'S') {
@@ -497,9 +447,7 @@ class CompraController extends Controller
                     );
                 return json_encode($error);
             }
-        }
-
-        
+        }        
 
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
@@ -512,8 +460,7 @@ class CompraController extends Controller
         $sucursal_id = Session::get('sucursal_id');
 
         $error = DB::transaction(function() use($request,$sucursal_id,&$dat){
-            $lista = $request->session()->get('carritocompra');
-            $total = str_replace(',', '', $request->input('total'));
+            $total = str_replace(',', '', $request->input('totalcompra'));
             $igv = str_replace(',', '', $request->input('igv'));
             $compra                 = new Compra();
             $compra->sucursal_id    = $sucursal_id; 
@@ -546,9 +493,10 @@ class CompraController extends Controller
             $tipodoc_id = $request->input('tipodocumento_id');
 
             $movimiento_id = $compra->id;
-            for ($i=0; $i < count($lista); $i++) {
-                $cantidad  = str_replace(',', '',$lista[$i]['cantidad']);
-                $precio    = str_replace(',', '',$lista[$i]['precio']);
+            $lista = (int) $request->input('cantproductos');
+            for ($i=1; $i <= $lista; $i++) {
+                $cantidad  = $request->input('cantidad'.$i);
+                $precio    = $request->input('preciocompra'.$i);
                 $subtotal  = round(($cantidad*$precio), 2);
                 if($tipodoc_id==11){
                     $cantidad = floatval($cantidad) * -1;
@@ -558,23 +506,23 @@ class CompraController extends Controller
                 $detalleCompra->precio = $precio;
                 $detalleCompra->subtotal = $subtotal;
                 $detalleCompra->movimiento_id = $movimiento_id;
-                $detalleCompra->producto_id = $lista[$i]['producto_id'];
+                $detalleCompra->producto_id = $request->input('producto_id'.$i);
                 $detalleCompra->save();
-                $producto = Producto::find($lista[$i]['producto_id']);
-                $producto->preciocompra = str_replace(',', '',$lista[$i]['precio']);
-                $producto->precioventa = str_replace(',', '',$lista[$i]['precioventa']);
-                $producto->preciokayros = str_replace(',', '',$lista[$i]['preciokayros']);
+                $producto = Producto::find($request->input('producto_id'.$i));
+                $producto->preciocompra = $request->input('preciocompra'.$i);
+                $producto->precioventa = $request->input('precioventa'.$i);
+                $producto->preciokayros = $request->input('preciokayros'.$i);
                 $producto->save();
-                $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $lista[$i]['producto_id'])->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
+                $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=',$request->input('producto_id'.$i))->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
                 //$ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->where('promarlab_id', '=', $lista[$i]['promarlab_id'])->where('kardex.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
 
                 // Creamos el lote para el producto
                 $lote = new Lote();
-                $lote->nombre  = $lista[$i]['lote'];
-                $lote->fechavencimiento  = Date::createFromFormat('d/m/Y', $lista[$i]['fechavencimiento'])->format('Y-m-d');
+                $lote->nombre  = $request->input('lote'.$i);
+                $lote->fechavencimiento  = Date::createFromFormat('d/m/Y', $request->input('fechavencimiento'.$i))->format('Y-m-d');
                 $lote->cantidad = $cantidad;
                 $lote->queda = $cantidad;
-                $lote->producto_id = $lista[$i]['producto_id'];
+                $lote->producto_id = $request->input('producto_id'.$i);
                 $lote->almacen_id = 1;
                 $lote->save();
 
@@ -665,7 +613,7 @@ class CompraController extends Controller
             }else{
 
                 if ($request->input('cajafamarcia')  == 'S') {
-                    $total = str_replace(',', '', $request->input('total'));
+                    $total = str_replace(',', '', $request->input('totalcompra'));
                     $movimiento                 = new Movimiento();
                     $movimiento->sucursal_id = $sucursal_id;
                     $movimiento->tipodocumento_id          = $request->input('tipodocumento_id');

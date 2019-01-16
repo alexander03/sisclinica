@@ -647,7 +647,7 @@ class VentaController extends Controller
             $stock=$currentstock->stockactual;
         }
 
-        return $producto->id.'@'.$producto->preciokayros.'@'.$producto->precioventa.'@'.$stock.'@'.$producto->preciocompra;
+        return $producto->id.'@'.$producto->preciokayros.'@'.$producto->precioventa.'@'.$stock.'@'.$producto->preciocompra.'@'.$producto->lote;
     }
 
     public function agregarcarritoventa(Request $request)
@@ -698,7 +698,7 @@ class VentaController extends Controller
         }else{
             $subtotal = round(($cantidad*$precio), 2);
         }
-        $cadena .= '<td class="numeration"></td>
+        $cadena .= '<td class="numeration2"></td>
                     <td class="text-center infoProducto">
                         <span style="display: block; font-size:.7em">'.$producto->nombre.'</span>
                         <input type ="hidden" class="producto_id"  value="'.$producto_id.'">
@@ -1243,17 +1243,6 @@ class VentaController extends Controller
             'numerodocumento.required'         => 'Debe ingresar un numero de documento',
             'fecha.required'         => 'Debe ingresar fecha'
             );
-        
-        /*
-        if (is_null($request->session()->get('carritoventa')) || count($request->session()->get('carritoventa')) === 0) {
-            $error = array(
-                'total' => array(
-                    'Debe agregar al menos un producto'
-                    ));
-            return json_encode($error);
-        }
-        */
-
 
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {

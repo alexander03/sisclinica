@@ -661,7 +661,7 @@ function quitar(btn) {
 	});*/
 }
 
-function calculatetotal () {
+function calculatetotal () {	
 	/*var _token =$('input[name=_token]').val();
 	var valor =0;
 	$.post('{ URL::route("venta.calculartotal")}}', {valor: valor,_token: _token} , function(data){
@@ -674,7 +674,7 @@ function calculatetotal () {
 	//Reorganizamos los nombres y números de las filas de la tabla
 	var i = 1;
 	var total = 0;
-	$('#detallesVenta tr .numeration').each(function() {
+	$('#detallesVenta tr .numeration2').each(function() {
 		$(this).html(i);
 		i++;
 	});
@@ -951,7 +951,7 @@ function guardarEmpresa (entidad, idboton) {
 }
 
 var contador=0;
-function guardarVenta (entidad, idboton, entidad2) {
+function guardarVenta (entidad, idboton) {
 	var total = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="totalventa"]').val();
 	var mensaje = '<h3 align = "center">Total = '+total+'</h3>';
 	/*if (typeof mensajepersonalizado != 'undefined' && mensajepersonalizado !== '') {
@@ -1056,11 +1056,11 @@ function validarFormaPago(formapago){
 
 $(document).on('click', '#btnGuardar', function(event) {
 	event.preventDefault();
-	var i = $('.numeration').length;
+	var i = $('.numeration2').length;
 	if(i == 0) {
 		alert('Debes seleccionar al menos un producto.');
 	} else {		
-		//alert($('#cantproductos').val());
+		alert($('#cantproductos').val());
 		guardarVenta('Venta', this);
 	}	
 });
