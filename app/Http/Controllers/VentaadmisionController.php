@@ -5206,7 +5206,7 @@ class VentaadmisionController extends Controller
         if($fondo != null){
                 
             $date1 = new \DateTime(date("H:i:s",strtotime('now')));
-            $date2 = new \DateTime(date("H:i:s",strtotime($fondo->created_at)));
+            $date2 = new \DateTime(date("H:i:s",strtotime($fondo->tiempo_cola)));
 
             $diff = abs($date2->getTimestamp() - $date1->getTimestamp())/60;
 
