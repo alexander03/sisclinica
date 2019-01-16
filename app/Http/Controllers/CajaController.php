@@ -5626,12 +5626,13 @@ class CajaController extends Controller
             //Solo si se paga
 
             $Ticket->total = $request->input('total');
+            $Ticket->tiempo_cola = date('Y-m-d H:i:s');
             $Ticket->totalpagado = $request->input('efectivo');
             $Ticket->totalpagadovisa = $request->input('visa');
             $Ticket->totalpagadomaster = $request->input('master');
             $Ticket->numvisa = $request->input('numvisa');
             $Ticket->nummaster = $request->input('nummaster');
-            $Ticket->situacion2 = 'C';
+            $Ticket->situacion2 = 'C'; // Cola
 
             if($request->input('total') == $request->input('total2')){
                 $Ticket->situacion='C';//Pendiente => P / Cobrado => C / Boleteado => B                

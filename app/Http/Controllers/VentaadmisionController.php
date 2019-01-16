@@ -4901,7 +4901,29 @@ class VentaadmisionController extends Controller
 
     public function cola(Request $request){
         date_default_timezone_set('America/Lima');
-        $consultas = Movimiento::where('clasificacionconsulta','like','C')->where('situacion2', 'like', 'C')->orderBy('id','ASC')
+
+        $ticket_id = null;
+
+        if($request->input('ticket_id') != null){
+            $ticket_id = $request->input('ticket_id');
+            $error = DB::transaction(function() use($request,$ticket_id){
+                $Ticket = Movimiento::find($ticket_id);
+                $Ticket->situacion2 = 'L'; // Llamando
+                $Ticket->save();
+            });
+        }
+
+        /*if($this->ticket_id == $value->id){
+            $registro.= "<tr style ='color: white; background-color:green;' id = '" . $value->id . "' >";
+        }else{
+            $registro.= "<tr id = '" . $value->id . "' >";
+        }*/
+
+
+        $consultas = Movimiento::where('clasificacionconsulta','like','C')->orderBy('id','ASC')
+        ->where(function($q) {            
+            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'L');
+        })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
         });
@@ -4924,14 +4946,19 @@ class VentaadmisionController extends Controller
                             <tbody>";
         $c=1;
         foreach ($lista as $key => $value) {
-            $registro.= "<tr>";
+            if( $value->situacion2 == 'L'){
+                $registro.= "<tr class='llamando' style ='color: white; background-color:green;' id = '" . $value->id . "' >";
+            }else{
+                $registro.= "<tr id = '" . $value->id . "' >";
+            }
+            //$registro.= "<tr id = '" . $value->id . "' >";
             $registro.= "<td>".$c."</td>";
             if(!is_null($value->persona)){
                 $registro.= "<td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>";
             }
             
             $date1 = new \DateTime(date("H:i:s",strtotime('now')));
-            $date2 = new \DateTime(date("H:i:s",strtotime($value->created_at)));
+            $date2 = new \DateTime(date("H:i:s",strtotime($value->tiempo_cola)));
 
             $diff = $date2->diff($date1);
 
@@ -4964,13 +4991,19 @@ class VentaadmisionController extends Controller
             $c=$c+1;
         }
 
-        $emergencias = Movimiento::where('clasificacionconsulta','like','E')->where('situacion2', 'like', 'C')->orderBy('id','ASC')
+        $emergencias = Movimiento::where('clasificacionconsulta','like','E')->orderBy('id','ASC')
+        ->where(function($q) {            
+            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'L');
+        })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
         });
         $lista2 = $emergencias->get();
 
-        $fondos = Movimiento::where('clasificacionconsulta','like','F')->where('situacion2', 'like', 'C')->orderBy('id','ASC')
+        $fondos = Movimiento::where('clasificacionconsulta','like','F')->orderBy('id','ASC')
+        ->where(function($q) {            
+            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'L');
+        })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
         });
@@ -4990,14 +5023,18 @@ class VentaadmisionController extends Controller
                             <tbody>";
         $c=1;
         foreach ($lista2 as $key => $value) {
-            $registro.= "<tr>";
+            if( $value->situacion2 == 'L'){
+                $registro.= "<tr class='llamando' style ='color: white; background-color:green;' id = '" . $value->id . "' >";
+            }else{
+                $registro.= "<tr id = '" . $value->id . "' >";
+            }
             $registro.= "<td>".$c."</td>";
             if(!is_null($value->persona)){
                 $registro.= "<td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>";
             }
             
             $date1 = new \DateTime(date("H:i:s",strtotime('now')));
-            $date2 = new \DateTime(date("H:i:s",strtotime($value->created_at)));
+            $date2 = new \DateTime(date("H:i:s",strtotime($value->tiempo_cola)));
 
             $diff = $date2->diff($date1);
 
@@ -5054,14 +5091,18 @@ class VentaadmisionController extends Controller
 
 
         foreach ($lista3 as $key => $value) {
-            $registro.= "<tr>";
+            if( $value->situacion2 == 'L'){
+                $registro.= "<tr class='llamando' style ='color: white; background-color:green;' id = '" . $value->id . "' >";
+            }else{
+                $registro.= "<tr id = '" . $value->id . "' >";
+            }
             $registro.= "<td>".$c."</td>";
             if(!is_null($value->persona)){
                 $registro.= "<td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>";
             }
 
             $date1 = new \DateTime(date("H:i:s",strtotime('now')));
-            $date2 = new \DateTime(date("H:i:s",strtotime($value->created_at)));
+            $date2 = new \DateTime(date("H:i:s",strtotime($value->tiempo_cola)));
 
             $diff = $date2->diff($date1);
 
@@ -5099,6 +5140,24 @@ class VentaadmisionController extends Controller
                     </tr>
                     </table>";
         return $registro;
+    }
+
+    public function pacienteEstado(Request $request){
+        $estado = $request->input('estado');
+        $ticket_id = $request->input('ticket_id');
+        if($estado == "SI"){
+            $error = DB::transaction(function() use($request,$ticket_id){
+                $Ticket = Movimiento::find($ticket_id);
+                $Ticket->situacion2 = 'E'; // Atendiendo
+                $Ticket->save();
+            });
+        }else{
+            $error = DB::transaction(function() use($request,$ticket_id){
+                $Ticket = Movimiento::find($ticket_id);
+                $Ticket->situacion2 = 'N'; // No está
+                $Ticket->save();
+            });
+        }
     }
 
     public function llamarAtender(Request $request){

@@ -72,7 +72,7 @@ class HistoriaClinicaController extends Controller
             $historiaclinica->save();
 
             $Ticket   = Movimiento::find($request->input('ticket_id'));
-            $Ticket->situacion2 = 'L';
+            $Ticket->situacion2 = 'A'; //Atendido
             $Ticket->save();
 
         });

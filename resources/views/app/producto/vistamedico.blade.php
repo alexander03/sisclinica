@@ -167,6 +167,11 @@ $entidad='Producto';
 											<div class="col-xs-12">
 												<div class="form-horizontal">
 													<div class="col-sm-4">
+														<div id="divpresente" style="margin:30px; padding:15px ; text-align:center;border-style:dotted;">
+															<strong>¿El paciente está presente?</strong>
+															{!! Form::button('<i class="glyphicon glyphicon-ok"></i> SI', array('class' => 'btn btn-success btn-sm', 'id' => 'btnSi', 'onclick' => 'presente("SI");')) !!}
+															{!! Form::button('<i class="glyphicon glyphicon-remove"></i> NO', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnNo', 'onclick' => 'presente("NO");')) !!}
+														</div>
 														<?php
 														$hoy = date("Y-m-d");
 														?>
@@ -200,7 +205,7 @@ $entidad='Producto';
 																{!! Form::text('cie102', '', array('class' => 'form-control input-xs', 'id' => 'cie102')) !!}
 															</div>
 														</div>
-														{!! Form::button('<i class="glyphicon glyphicon-check"></i> Guardar', array('class' => 'btn btn-success btn-sm', 'id' => 'btnBuscar2', 'onclick' => 'registrarHistoriaClinica();')) !!}
+														{!! Form::button('<i class="glyphicon glyphicon-check"></i> Guardar', array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => 'registrarHistoriaClinica();')) !!}
 														<h5 style="color: red; font-weight: bold;" id="mensajeHistoriaClinica"></h5>
 													</div>
 													<div class="col-sm-4">
@@ -224,7 +229,6 @@ $entidad='Producto';
 														</div>
 														<!-- Fin historias clinicas anteriores -->	
 													</div>
-												
 												</div>
 											</div>
 										</div>
@@ -320,6 +324,11 @@ $entidad='Producto';
 		});
 		buscar4();
 		$('#pestanaAtencion').css('display', 'none');
+		$("#cie102").prop('disabled', true);
+		$("#sintomas").prop('disabled', true);
+		$("#diagnostico").prop('disabled', true);
+		$("#tratamiento").prop('disabled', true);
+		$("#btnGuardar").prop('disabled', true);
 	});
 	function buscar2(){
 		$.ajax({
@@ -351,6 +360,7 @@ $entidad='Producto';
 	        	$("#listado").html(a);
 	        }
 	    });
+		$('.llamando').fadeTo(500, .1).fadeTo(500, 1) ;
 		$.ajax({
 	        type: "POST",
 	        url: "ventaadmision/llamarAtender",
@@ -380,6 +390,16 @@ $entidad='Producto';
     	event.preventDefault();
     	var paciente_id = $(this).data('paciente_id');
     	var ticket_id = $(this).data('ticket_id');
+		
+		$.ajax({
+			"method": "POST",
+			"url": "{{ url('/ventaadmision/cola') }}",
+			"data": {
+				"ticket_id" : ticket_id, 
+				"_token": "{{ csrf_token() }}",
+				}
+		});
+
     	$.ajax({
 	        type: "POST",
 	        url: "historiaclinica/nuevaHistoriaClinica/" + paciente_id + "/" + ticket_id,
@@ -450,6 +470,7 @@ $entidad='Producto';
 	  				$('#tratamiento').val('');
 	  				$('#sintomas').val('');
 	  				$('#diagnostico').val('');
+					$("#divpresente").css('display','');
 	        	}
 	        }
 	    });
@@ -467,4 +488,38 @@ $entidad='Producto';
 			$('#verCita').html(info);
 		});
 	}	
+
+	function presente(estado){
+		if(estado == "SI"){
+			$("#cie102").prop('disabled', false);
+			$("#sintomas").prop('disabled', false);
+			$("#diagnostico").prop('disabled', false);
+			$("#tratamiento").prop('disabled', false);
+			$("#btnGuardar").prop('disabled', false);
+			$("#divpresente").css('display','none');
+		}else{
+			$("#divpresente").css('display','');
+			$("li").removeClass('in active');
+			$('#Farmacia').removeClass('in active');
+			$('#cie').removeClass('in active');
+			$('#cola').addClass('in active');
+			$('#atencion').removeClass('in active');
+			$("#pestanaAtencion").css('display', 'none').removeClass('active');
+			$("#pestanaPacienteCola").addClass('active');	
+			$('#cie102').val('');
+			$('#tratamiento').val('');
+			$('#sintomas').val('');
+			$('#diagnostico').val('');
+		}
+		var ticket_id = $('#ticket_id').val();
+		$.ajax({
+			"method": "POST",
+			"url": "{{ url('/ventaadmision/pacienteEstado') }}",
+			"data": {
+				"estado" : estado, 
+				"ticket_id" : ticket_id,
+				"_token": "{{ csrf_token() }}",
+				}
+		});
+	}
 </script>

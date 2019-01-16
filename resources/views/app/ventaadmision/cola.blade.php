@@ -108,6 +108,7 @@ $entidad='Producto';
 	        	$("#listado").html(a);
 	        }
 	    });
+        $('.llamando').fadeTo(500, .1).fadeTo(500, 1) ;
 	}
     setInterval(buscar2, 1000);
 </script>
