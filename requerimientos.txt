@@ -1,0 +1,13 @@
+OBSERVACIONES:
+==================================
+- Numero de documento en movimiento de almacen
+- Reporte de fecha de vencimiento con rango de fecha de 4 meses
+- Productos mas vendidos por cantidad y monto
+- Verificar autocorrelativo automatico al cambiar tipo de documento al cobrar caja
+- Numero de documento alfanumerico en compras
+- Reprogramar una atencion de cola cuando el paciente se fue; si el paciente no esta 
+continua el siguiente pero queda en espera y no va al ultimo, colo muestra atenciones del dia
+- En caja mostrar el monto de efectivo, visa y mastercard
+- El ingreso o egreso desde la opcion de caja siempre es en efectivo
+- Cuando se cobra por parte debe generar un ingreso en caja del monto cobrado, ademas sacar un
+ticket de ingreso de caja pequeño para imprimir.

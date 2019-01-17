@@ -8,10 +8,16 @@ use Excel;
 use App\Historia;
 use App\Person;
 use App\Servicio;
+use App\Producto;
 use App\Tiposervicio;
 use App\Tarifario;
 use App\Cie;
-
+use App\Anaquel;
+use App\Movimiento;
+use App\Detallemovimiento;
+use App\Lote;
+use App\Kardex;
+use App\Stock;
 use Illuminate\Support\Facades\DB;
 
 class ExcelController extends Controller
@@ -332,6 +338,159 @@ class ExcelController extends Controller
                         $servicio->pagohospital = str_replace(",","",$value->precio);
                         $servicio->pagodoctor = 0;
                         $servicio->save();
+                        $dat[]=array("respuesta"=>"NUEVO","descripcion"=>$value->descripcion);
+                    });
+                    if(!is_null($error)){
+                        print_r($error);die();
+                    }
+                }
+                print_r($dat);
+            }
+        }
+        return view('importHistoria');;
+
+    }
+
+    public function importProducto()
+    {
+        ini_set('memory_limit', -1);
+        ini_set('max_execution_time', 0);
+        if(Input::hasFile('import_file')){
+            $path = Input::file('import_file')->getRealPath();
+            $data = Excel::load($path, function($reader) {
+
+            })->get();
+            if(!empty($data) && $data->count()){
+                $dat=array();
+
+                $movimientoalmacen                 = new Movimiento();
+                $movimientoalmacen->tipodocumento_id = 8;
+                $movimientoalmacen->tipomovimiento_id          = 5;
+                $movimientoalmacen->almacen_id          = 2;
+                $movimientoalmacen->comentario   = 'Carga inicial de inventario';
+                $movimientoalmacen->numero = '00000001';
+                $movimientoalmacen->fecha  = date("Y-m-d");
+                $movimientoalmacen->total = 0;
+                $movimientoalmacen->responsable_id = 1;
+                $movimientoalmacen->save();
+            
+                foreach ($data as $key => $value) {
+                    $error = DB::transaction(function() use($value,&$dat,$movimientoalmacen){
+                        $producto = Producto::where('nombre','like',trim(strtoupper($value->producto)))->first();
+                        if(is_null($producto)){
+                            $producto       = new Producto();
+                            if($value->fechavencimiento!="-"){
+                                $producto->lote = 'SI';
+                            }else{
+                                $producto->lote = 'NO';
+                            }
+                            $producto->tipo = 'F';
+                            
+                            $producto->nombre = trim(strtoupper($value->producto));
+                            $producto->codigobarra       = '';
+                            $producto->afecto       = 'S';
+                            $producto->codigo_producto    = '';
+                            $producto->registro_sanitario = '';
+                            $producto->precioxcaja    = 0;
+                            $producto->preciocompra   = 0;
+                            $producto->precioventa    = 0;
+                            $producto->preciokayros   = 0; 
+                            $producto->stockseguridad   = 0; 
+                            $producto->categoria_id = null;
+                            $producto->laboratorio_id = null;
+                            $producto->presentacion_id = 1;
+                            $producto->especialidadfarmacia_id = null;
+                            $producto->proveedor_id = null;
+                            $producto->origen_id = null;
+
+                            $anaquel = Anaquel::where('descripcion','like',trim($value->bloque))->first();
+                            if(is_null($anaquel)){
+                                $anaquel = new Anaquel();
+                                $anaquel->descripcion = trim($value->bloque);
+                                $anaquel->save();
+                            }
+                            $producto->anaquel_id = $anaquel->id;
+                            $producto->save();
+                        }
+
+                        if(($value->stock + 0) > 0){
+                            $cantidad  = $value->stock;
+                            $precio    = 0;
+                            $subtotal  = 0;
+                            $detalleVenta = new Detallemovimiento();
+                            $detalleVenta->cantidad = $cantidad;
+                            $detalleVenta->precio = $precio;
+                            $detalleVenta->subtotal = $subtotal;
+                            $detalleVenta->movimiento_id = $movimientoalmacen->id;
+                            $detalleVenta->producto_id = $producto->id;
+                            $detalleVenta->save();
+                            $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $producto->id)->where('movimiento.almacen_id', '=',2)->orderBy('kardex.id', 'DESC')->first();
+
+                            $stock = Stock::where('producto_id','=',$producto->id)->where('almacen_id','=',2)->first();
+                            // Creamos el lote para el producto
+                            if(trim($value->fechavencimiento)!="-"){
+                                $lote = new Lote();
+                                $lote->nombre  = $value->lote;
+                                $lote->fechavencimiento=$value->fechavencimiento->format("Y-m-d");
+                                $lote->cantidad = $cantidad;
+                                $lote->queda = $cantidad;
+                                $lote->producto_id = $producto->id;
+                                $lote->almacen_id = 2;
+                                $lote->save();
+
+                                $detalleVenta->lote_id = $lote->id;
+                                $detalleVenta->save();
+                            }
+                    
+                            $stockanterior = 0;
+                            $stockactual = 0;
+
+                            if ($ultimokardex === NULL) {
+                                $stockactual = $cantidad;
+                                $kardex = new Kardex();
+                                $kardex->tipo = 'I';
+                                $kardex->fecha = date("Y-m-d");
+                                $kardex->stockanterior = $stockanterior;
+                                $kardex->stockactual = $stockactual;
+                                $kardex->cantidad = $cantidad;
+                                $kardex->preciocompra = $precio;
+                                //$kardex->almacen_id = 2;
+                                $kardex->detallemovimiento_id = $detalleVenta->id;
+                                if($value->fechavencimiento!="-"){
+                                    $kardex->lote_id = $lote->id;
+                                }
+                                $kardex->save();
+                            }else{
+                                $stockanterior = $ultimokardex->stockactual;
+                                $stockactual = $ultimokardex->stockactual+$cantidad;
+                                $kardex = new Kardex();
+                                $kardex->tipo = 'I';
+                                $kardex->fecha = date('Y-m-d');
+                                $kardex->stockanterior = $stockanterior;
+                                $kardex->stockactual = $stockactual;
+                                $kardex->cantidad = $cantidad;
+                                $kardex->preciocompra = $precio;
+                                //$kardex->almacen_id = 2;
+                                $kardex->detallemovimiento_id = $detalleVenta->id;
+                                if($value->fechavencimiento!="-"){
+                                    $kardex->lote_id = $lote->id;
+                                }
+                                $kardex->save();    
+
+                            }   
+
+                            if(is_null($stock)){
+                                $stock = new Stock();
+                                $stock->producto_id = $producto->id;
+                                $stock->cantidad = $stockactual;
+                                $stock->almacen_id = 2;
+                                $stock->save();
+                            }else{
+                                $stock->cantidad = $stock->cantidad + $cantidad;
+                                $stock->save();
+                            }
+                        }            
+
                         $dat[]=array("respuesta"=>"NUEVO","descripcion"=>$value->descripcion);
                     });
                     if(!is_null($error)){

@@ -54,8 +54,10 @@
 								{!! Form::selectRange('filas', 20, 50, 50, array('class' => 'form-control input-xs', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
 							</div>
 							{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-info btn-xs', 'id' => 'btnBuscar', 'onclick' => 'buscar(\''.$entidad.'\')')) !!}
-							@if($user->usertype_id==1 || $user->usertype_id==7)
+							@if($user->usertype_id==1 || $user->usertype_id==7 || $user->usertype_id==23)
 							{!! Form::button('<i class="glyphicon glyphicon-file"></i> Excel', array('class' => 'btn btn-success btn-xs', 'id' => 'btnExcel','onclick' => 'excel();')) !!}
+							@endif
+							@if($user->usertype_id==1 || $user->usertype_id==7)
 							{!! Form::button('<i class="glyphicon glyphicon-file"></i> Excel Marcado', array('class' => 'btn btn-success btn-xs', 'id' => 'btnExcel','onclick' => 'excelMarcado();')) !!}
 							{!! Form::button('<i class="glyphicon glyphicon-file"></i> UCI/UCIN', array('class' => 'btn btn-success btn-xs', 'id' => 'btnUci','onclick' => 'buscarUci();')) !!}
 							{!! Form::button('<i class="glyphicon glyphicon-file"></i> Aten. Convenio', array('class' => 'btn btn-success btn-xs', 'id' => 'btnExcel','onclick' => 'excelCons();')) !!}

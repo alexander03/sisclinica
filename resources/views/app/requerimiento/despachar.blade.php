@@ -1,3 +1,8 @@
+<?php
+use App\Lote;
+use App\Stock;
+$js="";
+?>
 <div id="divMensajeError{!! $entidad !!}"></div>
 {!! Form::model($requerimiento, $formData) !!}	
 	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
@@ -38,15 +43,42 @@
 		                    <th bgcolor="#E0ECF8" class='text-center'>Producto</th>
 		                    <th bgcolor="#E0ECF8" class='text-center'>Cantidad</th>
 		                    <th bgcolor="#E0ECF8" class="text-center">Presentacion</th>
+		                    <th bgcolor="#E0ECF8" class="text-center">Stock</th>
 		                    <th bgcolor="#E0ECF8" class="text-center">Despacho</th>
 		                </tr>
 		            </thead>
 		            <tbody>
 		            @foreach($detalles as $key => $value)
 					<tr>
-						<td class="text-center">{!! $value->producto->nombre !!}</td>
+						<td class="text-center"><input type='hidden' value='<?=$value->producto->lote?>' id='txtTipo<?=$value->producto_id?>' />{!! $value->producto->nombre !!}</td>
 						<td class="text-center">{!! $value->cantidad !!}</td>
 						<td class="text-center">{!! $value->producto->presentacion->nombre !!}</td>
+						<?php
+						$stock = Stock::where('producto_id','=',$value->producto_id)->where('almacen_id','=',2)->first();//ALMACEN 2 LOGISTICA
+						if($value->producto->lote!="SI"){
+							if(!is_null($stock)){
+								$st = $stock->cantidad;
+							}else{
+								$st = 0;
+							}
+							echo "<td class='text-center'><input type='hidden' id='txtStock".$value->producto_id."' name='txtStock".$value->producto_id."' value='$st' />$st</td>";
+							echo "<td align='center'><input type='text' data='numero' id='txtCantidad".$value->producto_id."' name='txtCantidad".$value->producto_id."' value='0' style='width: 40px;' class='form-control input-xs' /><td>";
+							$js.="carro.push(".$value->producto_id.");";
+						}else{
+							$js.="carro.push(".$value->producto_id.");";
+							$lote = Lote::where('producto_id','=',$value->producto_id)->where('almacen_id','=',2)->where('queda','>',0)->get();
+							if(count($lote)>0){
+								echo "<td class='text-center'>";
+								$ls = "";
+								foreach ($lote as $k => $v) {
+									echo "<input type='hidden' id='txtStock".$value->producto_id."-".$v->id."' name='txtStock".$value->producto_id."-".$v->id."' value='".$v->queda."' />".date("d/m/Y",strtotime($v->fechavencimiento))." => ".$v->queda."<br />";
+									$ls.="<div style='display:inline-flex'>".date("d/m/Y",strtotime($v->fechavencimiento))." => <input type='text' data='numero' id='txtCantidad".$value->producto_id."-".$v->id."' name='txtCantidad".$value->producto_id."-".$v->id."' value='0' style='width: 40px;' class='form-control input-xs' /></div><br />";
+									$js.="carro2.push('".$v->id."');";
+								}
+								echo "</td><td align='center'>".$ls."</td>";
+							}
+						}
+						?>
 					</tr>
 					@endforeach
 		            </tbody>
@@ -59,7 +91,7 @@
 	
 	<div class="form-group">
 		<div class="col-lg-12 col-md-12 col-sm-12 text-right">
-			{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => 'guardar(\''.$entidad.'\', this)')) !!}
+			{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => 'if(validar()){guardar(\''.$entidad.'\', this);}')) !!}
 			{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
 		</div>
 	</div>
@@ -68,7 +100,36 @@
 $(document).ready(function() {
 	configurarAnchoModal('880');
 	init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'M', '{!! $entidad !!}');
-
+	$(':input[data="numero"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
 }); 
 
+var carro = new Array();
+var carro2 = new Array();
+function validar(){
+	for(c=0; c < carro.length; c++){
+        if($("#txtTipo"+carro[c]).val()=="N"){
+        	var stock = parseFloat($("#txtStock"+carro[c]).val());
+        	var cant = parseFloat($("#txtCantidad"+carro[c]).val());
+        	if(cant>stock){
+        		alert("Cantidad no puede superar al stock actual, corregir.");
+        		$("#txtCantidad"+carro[c]).focus();
+        		return false;
+        	}
+        }else{
+        	for(d=0; d < carro2.length; d++){
+        		var stock = parseFloat($("#txtStock"+carro[c]+"-"+carro2[d]).val());
+	        	var cant = parseFloat($("#txtCantidad"+carro[c]+"-"+carro2[d]).val());
+	        	if(cant>stock){
+	        		alert("Cantidad no puede superar al stock actual, corregir.");
+	        		$("#txtCantidad"+carro[c]+"-"+carro2[d]).focus();
+	        		return false;
+	        	}
+        	}
+        }
+    }
+    return true;
+}
+<?php 
+echo $js;
+?>
 </script>

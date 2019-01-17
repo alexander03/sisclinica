@@ -7,7 +7,7 @@
 		<div class="form-group" style="height: 12px;">
 			{!! Form::label('fecha', 'Fecha:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::date('fecha', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fecha', 'placeholder' => 'Ingrese fecha')) !!}
+				{!! Form::date('fecha', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fecha', 'placeholder' => 'Ingrese fecha', 'readonly' => 'true')) !!}
 			</div>
 		</div>
 		<div class="form-group" style="height: 12px;">
@@ -181,7 +181,9 @@ function buscarProducto(valor){
                 var pag=parseInt($("#pag").val());
                 var d=0;
                 for(c=0; c < datos.length; c++){
-                    var a="<tr id='"+datos[c].idproducto+"' onclick=\"seleccionarProducto('"+datos[c].idproducto+"','"+datos[c].nombre+"','"+datos[c].presentacion_id+"','"+datos[c].presentacion+"')\"><td><span style='display: block; font-size:.7em'>"+datos[c].nombre+"</span></td><td align='center'><span style='display: block; font-size:.7em'>"+datos[c].presentacion+"</span></td></tr>";
+                	var nombre = datos[c].nombre;
+                	nombre = nombre.replace('"','@');
+                    var a="<tr id='"+datos[c].idproducto+"' onclick=\"seleccionarProducto('"+datos[c].idproducto+"','"+nombre+"','"+datos[c].presentacion_id+"','"+datos[c].presentacion+"')\"><td><span style='display: block; font-size:.7em'>"+datos[c].nombre+"</span></td><td align='center'><span style='display: block; font-size:.7em'>"+datos[c].presentacion+"</span></td></tr>";
                     $("#tablaProducto").append(a);           
                 }
                 $('#tablaProducto').DataTable({
@@ -200,6 +202,7 @@ function buscarProducto(valor){
 function seleccionarProducto(idproducto,producto,presentacion_id,presentacion){
 	var _token =$('input[name=_token]').val();
 	var band=true;
+	producto = producto.replace("@",'"');
     for(c=0; c < carro.length; c++){
         if(carro[c]==idproducto){
             band=false;

@@ -13,12 +13,12 @@ class Lote extends Model
 
     public function producto()
     {
-        return $this->belongsTo('App\Distribuidora', 'producto_id');
+        return $this->belongsTo('App\Producto', 'producto_id');
     }
 
     public function almacen()
     {
-        return $this->belongsTo('App\Laboratorio', 'almacen_id');
+        return $this->belongsTo('App\Almacen', 'almacen_id');
     }
 
 }

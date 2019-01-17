@@ -1019,6 +1019,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('importApellidoExcel', 'ExcelController@importApellidoExcel');
     Route::post('importCie', 'ExcelController@importCie');
     Route::post('importServicio', 'ExcelController@importServicio');
+    Route::post('importProducto', 'ExcelController@importProducto');
     
     Route::get('/empresa', function(){
         return View::make('dashboard.empresa.admin');
