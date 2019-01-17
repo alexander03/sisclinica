@@ -4920,9 +4920,9 @@ class VentaadmisionController extends Controller
         }*/
 
 
-        $consultas = Movimiento::where('clasificacionconsulta','like','C')->orderBy('id','ASC')
+        $consultas = Movimiento::where('clasificacionconsulta','like','C')->orderBy('situacion2','ASC')->orderBy('id','ASC')
         ->where(function($q) {            
-            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'L');
+            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'L')->orWhere('situacion2', 'like', 'N');
         })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
@@ -4946,49 +4946,53 @@ class VentaadmisionController extends Controller
                             <tbody>";
         $c=1;
         foreach ($lista as $key => $value) {
-            if( $value->situacion2 == 'L'){
-                $registro.= "<tr class='llamando' style ='color: white; background-color:green;' id = '" . $value->id . "' >";
-            }else{
-                $registro.= "<tr id = '" . $value->id . "' >";
+            if($c<=10){
+                if( $value->situacion2 == 'L'){
+                    $registro.= "<tr class='llamando' style ='color: white; background-color:green;' id = '" . $value->id . "' >";
+                }else if( $value->situacion2 == 'N'){
+                    $registro.= "<tr class='tarde' style ='color: white; background-color:#f96a27;' id = '" . $value->id . "' >";
+                }else{
+                    $registro.= "<tr id = '" . $value->id . "' >";
+                }
+                //$registro.= "<tr id = '" . $value->id . "' >";
+                $registro.= "<td>".$c."</td>";
+                if(!is_null($value->persona)){
+                    $registro.= "<td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>";
+                }
+                
+                $date1 = new \DateTime(date("H:i:s",strtotime('now')));
+                $date2 = new \DateTime(date("H:i:s",strtotime($value->tiempo_cola)));
+
+                $diff = $date2->diff($date1);
+
+                $h = $diff->h;
+                $m = $diff->i;
+                $s = $diff->s;
+
+                $tiempo ="";
+
+                if($h<10){
+                    $tiempo = "0" . $h . ":";
+                }else{
+                    $tiempo = $h . ":";
+                }
+                if($m<10){
+                    $tiempo = $tiempo . "0" . $m . ":";
+                }else{
+                    $tiempo = $tiempo . $m . ":";
+                }
+                if($s<10){
+                    $tiempo = $tiempo . "0" . $s ;
+                }else{
+                    $tiempo = $tiempo . $s;   
+                }
+
+
+            // $registro.= "<td>". $diff->format('%H:%i:%s') ."</td>";
+                $registro.= "<td>". $tiempo ."</td>";
+                $registro.= "</tr>";
+                $c=$c+1;
             }
-            //$registro.= "<tr id = '" . $value->id . "' >";
-            $registro.= "<td>".$c."</td>";
-            if(!is_null($value->persona)){
-                $registro.= "<td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>";
-            }
-            
-            $date1 = new \DateTime(date("H:i:s",strtotime('now')));
-            $date2 = new \DateTime(date("H:i:s",strtotime($value->tiempo_cola)));
-
-            $diff = $date2->diff($date1);
-
-            $h = $diff->h;
-            $m = $diff->i;
-            $s = $diff->s;
-
-            $tiempo ="";
-
-            if($h<10){
-                $tiempo = "0" . $h . ":";
-            }else{
-                $tiempo = $h . ":";
-            }
-            if($m<10){
-                $tiempo = $tiempo . "0" . $m . ":";
-            }else{
-                $tiempo = $tiempo . $m . ":";
-            }
-            if($s<10){
-                $tiempo = $tiempo . "0" . $s ;
-            }else{
-                $tiempo = $tiempo . $s;   
-            }
-
-
-           // $registro.= "<td>". $diff->format('%H:%i:%s') ."</td>";
-            $registro.= "<td>". $tiempo ."</td>";
-            $registro.= "</tr>";
-            $c=$c+1;
         }
 
         $emergencias = Movimiento::where('clasificacionconsulta','like','E')->orderBy('id','ASC')
@@ -5023,48 +5027,50 @@ class VentaadmisionController extends Controller
                             <tbody>";
         $c=1;
         foreach ($lista2 as $key => $value) {
-            if( $value->situacion2 == 'L'){
-                $registro.= "<tr class='llamando' style ='color: white; background-color:green;' id = '" . $value->id . "' >";
-            }else{
-                $registro.= "<tr id = '" . $value->id . "' >";
+            if($c<=10){
+                if( $value->situacion2 == 'L'){
+                    $registro.= "<tr class='llamando' style ='color: white; background-color:green;' id = '" . $value->id . "' >";
+                }else{
+                    $registro.= "<tr id = '" . $value->id . "' >";
+                }
+                $registro.= "<td>".$c."</td>";
+                if(!is_null($value->persona)){
+                    $registro.= "<td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>";
+                }
+                
+                $date1 = new \DateTime(date("H:i:s",strtotime('now')));
+                $date2 = new \DateTime(date("H:i:s",strtotime($value->tiempo_cola)));
+
+                $diff = $date2->diff($date1);
+
+                $h = $diff->h;
+                $m = $diff->i;
+                $s = $diff->s;
+
+                $tiempo ="";
+
+                if($h<10){
+                    $tiempo = "0" . $h . ":";
+                }else{
+                    $tiempo = $h . ":";
+                }
+                if($m<10){
+                    $tiempo = $tiempo . "0" . $m . ":";
+                }else{
+                    $tiempo = $tiempo . $m . ":";
+                }
+                if($s<10){
+                    $tiempo = $tiempo . "0" . $s ;
+                }else{
+                    $tiempo = $tiempo . $s;   
+                }
+
+
+            // $registro.= "<td>". $diff->format('%H:%i:%s') ."</td>";
+                $registro.= "<td>". $tiempo ."</td>";
+                $registro.= "</tr>";
+                $c=$c+1;
             }
-            $registro.= "<td>".$c."</td>";
-            if(!is_null($value->persona)){
-                $registro.= "<td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>";
-            }
-            
-            $date1 = new \DateTime(date("H:i:s",strtotime('now')));
-            $date2 = new \DateTime(date("H:i:s",strtotime($value->tiempo_cola)));
-
-            $diff = $date2->diff($date1);
-
-            $h = $diff->h;
-            $m = $diff->i;
-            $s = $diff->s;
-
-            $tiempo ="";
-
-            if($h<10){
-                $tiempo = "0" . $h . ":";
-            }else{
-                $tiempo = $h . ":";
-            }
-            if($m<10){
-                $tiempo = $tiempo . "0" . $m . ":";
-            }else{
-                $tiempo = $tiempo . $m . ":";
-            }
-            if($s<10){
-                $tiempo = $tiempo . "0" . $s ;
-            }else{
-                $tiempo = $tiempo . $s;   
-            }
-
-
-           // $registro.= "<td>". $diff->format('%H:%i:%s') ."</td>";
-            $registro.= "<td>". $tiempo ."</td>";
-            $registro.= "</tr>";
-            $c=$c+1;
         }
                             
         $registro.="</tbody>
@@ -5091,48 +5097,50 @@ class VentaadmisionController extends Controller
 
 
         foreach ($lista3 as $key => $value) {
-            if( $value->situacion2 == 'L'){
-                $registro.= "<tr class='llamando' style ='color: white; background-color:green;' id = '" . $value->id . "' >";
-            }else{
-                $registro.= "<tr id = '" . $value->id . "' >";
+            if($c<=10){
+                if( $value->situacion2 == 'L'){
+                    $registro.= "<tr class='llamando' style ='color: white; background-color:green;' id = '" . $value->id . "' >";
+                }else{
+                    $registro.= "<tr id = '" . $value->id . "' >";
+                }
+                $registro.= "<td>".$c."</td>";
+                if(!is_null($value->persona)){
+                    $registro.= "<td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>";
+                }
+
+                $date1 = new \DateTime(date("H:i:s",strtotime('now')));
+                $date2 = new \DateTime(date("H:i:s",strtotime($value->tiempo_cola)));
+
+                $diff = $date2->diff($date1);
+
+                $h = $diff->h;
+                $m = $diff->i;
+                $s = $diff->s;
+
+                $tiempo ="";
+
+                if($h<10){
+                    $tiempo = "0" . $h . ":";
+                }else{
+                    $tiempo = $h . ":";
+                }
+                if($m<10){
+                    $tiempo = $tiempo . "0" . $m . ":";
+                }else{
+                    $tiempo = $tiempo . $m . ":";
+                }
+                if($s<10){
+                    $tiempo = $tiempo . "0" . $s ;
+                }else{
+                    $tiempo = $tiempo . $s;   
+                }
+
+
+            // $registro.= "<td>". $diff->format('%H:%i:%s') ."</td>";
+                $registro.= "<td>". $tiempo ."</td>";
+                $registro.= "</tr>";
+                $c=$c+1;
             }
-            $registro.= "<td>".$c."</td>";
-            if(!is_null($value->persona)){
-                $registro.= "<td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>";
-            }
-
-            $date1 = new \DateTime(date("H:i:s",strtotime('now')));
-            $date2 = new \DateTime(date("H:i:s",strtotime($value->tiempo_cola)));
-
-            $diff = $date2->diff($date1);
-
-            $h = $diff->h;
-            $m = $diff->i;
-            $s = $diff->s;
-
-            $tiempo ="";
-
-            if($h<10){
-                $tiempo = "0" . $h . ":";
-            }else{
-                $tiempo = $h . ":";
-            }
-            if($m<10){
-                $tiempo = $tiempo . "0" . $m . ":";
-            }else{
-                $tiempo = $tiempo . $m . ":";
-            }
-            if($s<10){
-                $tiempo = $tiempo . "0" . $s ;
-            }else{
-                $tiempo = $tiempo . $s;   
-            }
-
-
-           // $registro.= "<td>". $diff->format('%H:%i:%s') ."</td>";
-            $registro.= "<td>". $tiempo ."</td>";
-            $registro.= "</tr>";
-            $c=$c+1;
         }
         $registro.="</tbody>
                             </table>
@@ -5171,6 +5179,11 @@ class VentaadmisionController extends Controller
         });
         $consulta = $consultas->first();
 
+        $consultas_no = Movimiento::where('clasificacionconsulta','like','C')->where('situacion2', 'like', 'N')->orderBy('id','ASC')
+        ->where(function($q) {            
+            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
+        })->get();
+
         if($consulta != null){
             $tabla = $tabla . " <tr>
                                 <th class='text-center' bgcolor='#E0ECF8' colspan='2'>CONSULTAS</td>
@@ -5181,11 +5194,23 @@ class VentaadmisionController extends Controller
                             </tr>";
         }
 
+        foreach($consultas_no as $value){
+            $tabla = $tabla . " <tr>
+                                    <td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>
+                                    <td align='right'><button data-paciente_id = '" . $value->persona->id . "' data-ticket_id = '" . $value->id . "' class='btn btn-warning btn-sm btnLlamarPaciente' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
+                                </tr>";
+        }
+
         $emergencias = Movimiento::where('clasificacionconsulta','like','E')->where('situacion2', 'like', 'C')->orderBy('id','ASC')
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
         });
         $emergencia = $emergencias->first();
+
+        $emergencias_no = Movimiento::where('clasificacionconsulta','like','E')->where('situacion2', 'like', 'N')->orderBy('id','ASC')
+        ->where(function($q) {            
+            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
+        })->get();
 
         if($emergencia != null){
             $tabla = $tabla . " <tr>
@@ -5195,6 +5220,13 @@ class VentaadmisionController extends Controller
                                 <td>".$emergencia->persona->apellidopaterno." ".$emergencia->persona->apellidomaterno." ".$emergencia->persona->nombres."</td>
                                 <td align='right'><button data-paciente_id = '" . $emergencia->persona->id . "' data-ticket_id = '" . $emergencia->id . "' class='btn btn-success btn-sm btnLlamarPaciente' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
                             </tr>";
+        }
+
+        foreach($emergencias_no as $value){
+            $tabla = $tabla . " <tr>
+                                    <td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>
+                                    <td align='right'><button data-paciente_id = '" . $value->persona->id . "' data-ticket_id = '" . $value->id . "' class='btn btn-warning btn-sm btnLlamarPaciente' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
+                                </tr>";
         }
 
         $fondos = Movimiento::where('clasificacionconsulta','like','F')->where('situacion2', 'like', 'C')->orderBy('id','ASC')
