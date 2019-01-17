@@ -159,7 +159,7 @@ class EmployeeController extends Controller
         $cboDepartamento = [''=>'Seleccione'] + Departamento::orderBy('nombre', 'ASC')->lists('nombre', 'id')->all();
         $cboProvincia    = [''=>'Seleccione'] + Provincia::where('departamento_id', '=', $departamento->id)->orderBy('nombre', 'ASC')->lists('nombre', 'id')->all();
         $cboDistrito     = [''=>'Seleccione'] + Distrito::where('provincia_id', '=', $provincia->id)->orderBy('nombre', 'ASC')->lists('nombre', 'id')->all();
-        $cboWorkertype   = [''=>'Seleccione'] + Workertype::lists('name', 'id')->all();
+        $cboWorkertype   = [''=>'Seleccione'] + Workertype::orderBy('name','asc')->lists('name', 'id')->all();
         $birthdate       = null;
         $employee        = null;
         $formData        = array('employee.store');
@@ -254,7 +254,7 @@ class EmployeeController extends Controller
         $listar          = Libreria::getParam($request->input('listar'), 'NO');
         $employee        = Person::find($id);
         $entidad         = 'Employee';
-        $cboWorkertype   = array('' => 'Seleccione') + Workertype::lists('name', 'id')->all();
+        $cboWorkertype   = array('' => 'Seleccione') + Workertype::orderBy('name','asc')->lists('name', 'id')->all();
         
         $formData        = array('employee.update', $id);
         $formData        = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');

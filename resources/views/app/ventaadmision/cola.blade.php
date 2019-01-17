@@ -1,114 +1,109 @@
 <?php
-$entidad='Producto';
+    date_default_timezone_set('America/Lima');
+    $fechahoy = date('j-m-Y');
 ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>{{ config('app.name', 'SIGHO') }}</title>
-    <link rel="icon" href="{{ asset('dist/img/user2-160x160.jpg') }}" sizes="16x16 32x32 48x48 64x64" type="image/vnd.microsoft.icon">
-    <!-- Tell the browser to be responsive to screen width -->
-    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-    <!-- Bootstrap 3.3.6 -->
-    {!! Html::style('bootstrap/css/bootstrap.min.css') !!}
-    <!-- Font Awesome -->
-    {!! Html::style('dist/css/font-awesome.min.css') !!}
-    <!-- Ionicons -->
-    {!! Html::style('dist/css/ionicons.min.css') !!}
-    <!-- DataTables -->
-    {!! Html::style('plugins/datatables/dataTables.bootstrap.css') !!}
-    <!-- Theme style -->
-    {!! Html::style('dist/css/AdminLTE.min.css') !!}
-    {!! Html::style('css/custom.css') !!}
-    <!-- AdminLTE Skins. Choose a skin from the css/skins
-    folder instead of downloading all of them to reduce the load. -->
-    {!! Html::style('dist/css/skins/_all-skins.min.css') !!}
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]-->
-    {!! Html::script('dist/js/html5shiv.min.js') !!}
-    {!! Html::script('dist/js/respond.min.js') !!}
-    <!--[endif]-->
-    {{-- bootstrap-datetimepicker: para calendarios --}}
-    {!! HTML::style('dist/css/bootstrap-datetimepicker.min.css', array('media' => 'screen')) !!}
+<html lang="en">
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8"> 
+        <meta charset="utf-8">
+        <meta name="generator" content="Bootply">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <meta name="description" content="Bootstrap  example.">
+        {!! Html::style('bootstrap/css/bootstrap.min.css') !!}
 
-    {{-- typeahead.js-bootstrap: para autocompletar --}}
-    {!! HTML::style('dist/css/typeahead.js-bootstrap.css', array('media' => 'screen')) !!}
+        <!-- CSS code from Bootply.com editor -->
+        
+        <style type="text/css">
+            html,body {
+                padding:0;
+                margin:0;
+                height:87%;
+                min-height:100%;
+            }
+            .quad{
+                width:50%;
+                height:100%;
+                float:left;
+                border-style: double;
+                border-color: #2ECC71;
+            }
+            .line{
+                height:50%;
+                width:100%;
+            }              
 
-</head>
-<body class="hold-transition skin-blue sidebar-mini">
-    <div class="wrapper">
-		<!-- Content Header (Page header) -->
-		<section class="content">
-			<div class="row">
-				<div class="col-xs-12">
-					<!-- /.box-header -->
-					<div class="box-body" id="listado">
-					</div>
-					<!-- /.box-body -->
-				</div>
-				<!-- /.col -->
-			</div>
-			<!-- /.row -->
-		</section>
-		<!-- /.content -->	
-        <!-- /.content-wrapper -->
-        <footer class="navbar-default navbar-fixed-bottom" style="padding-left: 20px !important; padding-bottom: 20px; padding-top: 20px; padding-right: 20px;">
-            <div class="container-fluid">
-    			<div class="pull-right hidden-xs">
-    				<b>Version</b> 2.3.8
-    			</div>
-    			<strong>Copyright © 2018 <a href="#">GARZATEC</a>.</strong> All rights
-    			reserved.
-            </div>
-		</footer>
-    <!-- ./wrapper -->
-    <!-- jQuery 2.2.3 -->
+            .equal, .equal > div[class*='col-'] {  
+                display: -webkit-box;
+                display: -moz-box;
+                display: -ms-flexbox;
+                display: -webkit-flex;
+                display: flex;
+                flex:1 0 auto;
+            }
+
+            .centrado {
+                display:block; 
+                width:150px; 
+                height:50px; 
+                position:absolute; 
+                top:50%; 
+                left:50%; 
+                margin-top:-25px; 
+                margin-left:-75px;
+                border-style: double;
+                z-index: 2;
+                padding:10px;
+                background-color: #28B463;
+                color: white;
+                font-size: 20px;
+                text-align: center;
+                border-color: yellow;
+            }
+
+            td, th {
+                padding-top: 4px;
+                padding-bottom: 4px;
+                padding-left: 4px;
+                padding-right: 4px;
+            }
+
+        </style>
+    </head>
+    
+    <!-- HTML code from Bootply.com editor -->
+    
+    <body style="">
+        <div class="centrado">
+            <?php echo $fechahoy; ?>
+        </div>
+        <div class="line">
+            <div class="col-md-6 quad" id="listadoConsultas"></div>
+            <div class="col-md-6 quad" id="listadoEmergencias"></div>
+            <div class="col-md-6 quad" id="listadoOjos"></div>
+            <div class="col-md-6 quad" id="listadoLectura"></div>
+        </div>
+        
     {!! Html::script('plugins/jQuery/jquery-2.2.3.min.js') !!}
     <!-- Bootstrap 3.3.6 -->
     {!! Html::script('bootstrap/js/bootstrap.min.js') !!}
-    {!! Html::script('plugins/datatables/jquery.dataTables.min.js') !!}
-    {!! Html::script('plugins/datatables/dataTables.bootstrap.min.js') !!}
-    <!-- Slimscroll -->
-    {!! Html::script('plugins/slimScroll/jquery.slimscroll.min.js') !!}
-    <!-- FastClick -->
-    {!! Html::script('plugins/fastclick/fastclick.js') !!}
-    <!-- AdminLTE App -->
-    {!! Html::script('dist/js/app.min.js') !!}
-    <!-- AdminLTE for demo purposes -->
-    {!! Html::script('dist/js/demo.js') !!}
-    <!-- bootbox code -->
-    {!! Html::script('dist/js/bootbox.min.js') !!}
-    {{-- Funciones propias --}}
-    {!! Html::script('dist/js/funciones.js') !!}
-    {{-- jquery.inputmask: para mascaras en cajas de texto --}}
-    {!! Html::script('plugins/input-mask/jquery.inputmask.js') !!}
-    {!! Html::script('plugins/input-mask/jquery.inputmask.extensions.js') !!}
-    {!! Html::script('plugins/input-mask/jquery.inputmask.date.extensions.js') !!}
-    {!! Html::script('plugins/input-mask/jquery.inputmask.numeric.extensions.js') !!}
-    {!! Html::script('plugins/input-mask/jquery.inputmask.phone.extensions.js') !!}
-    {!! Html::script('plugins/input-mask/jquery.inputmask.regex.extensions.js') !!}
-    {{-- bootstrap-datetimepicker: para calendarios --}}
-    {!! HTML::script('dist/js/moment-with-locales.min.js') !!}
-    {!! HTML::script('dist/js/bootstrap-datetimepicker.min.js') !!}
-    {{-- typeahead.js-bootstrap: para autocompletar --}}
-    {!! HTML::script('dist/js/typeahead.bundle.min.js') !!}
-    {!! HTML::script('dist/js/bloodhound.min.js') !!}
-    
-</body>
+
+    <script>
+        function buscar2(){
+            $.ajax({
+                type: "POST",
+                url: "ventaadmision/cola",
+                data: "_token=<?php echo csrf_token(); ?>",
+                dataType: 'json',
+                success: function(a) {
+                    $("#listadoConsultas").html(a.consultas);
+                    $("#listadoEmergencias").html(a.emergencias);
+                    $("#listadoOjos").html(a.ojos);
+                    $("#listadoLectura").html(a.lectura);
+                }
+            });
+            $('.llamando').fadeTo(500, .1).fadeTo(500, 1) ;
+        }
+        setInterval(buscar2, 1000);
+    </script> 
+    </body>
 </html>
-<script>
-	function buscar2(){
-		$.ajax({
-	        type: "POST",
-	        url: "ventaadmision/cola",
-	        data: "_token=<?php echo csrf_token(); ?>",
-	        success: function(a) {
-	        	$("#listado").html(a);
-	        }
-	    });
-        $('.llamando').fadeTo(500, .1).fadeTo(500, 1) ;
-	}
-    setInterval(buscar2, 1000);
-</script>

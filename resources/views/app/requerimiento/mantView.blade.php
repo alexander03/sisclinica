@@ -1,3 +1,6 @@
+<?php
+use App\Lote;
+?>
 <div id="divMensajeError{!! $entidad !!}"></div>
 {!! Form::model($requerimiento, $formData) !!}	
 	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
@@ -38,6 +41,7 @@
 		                    <th bgcolor="#E0ECF8" class='text-center'>Producto</th>
 		                    <th bgcolor="#E0ECF8" class='text-center'>Cantidad</th>
 		                    <th bgcolor="#E0ECF8" class="text-center">Presentacion</th>
+		                    <th bgcolor="#E0ECF8" class="text-center">Despacho</th>
 		                </tr>
 		            </thead>
 		            <tbody>
@@ -46,6 +50,20 @@
 						<td class="text-center">{!! $value->producto->nombre !!}</td>
 						<td class="text-center">{!! $value->cantidad !!}</td>
 						<td class="text-center">{!! $value->producto->presentacion->nombre !!}</td>
+						<?php
+						if($requerimiento->situacion=='D'){
+							$datos="";
+							$ls = explode("|",$value->lote);
+				            for ($i=0; $i < count($ls); $i++) { 
+				                $list = explode("@",$ls[$i]);
+				                $lote = Lote::find($list[0]);
+				                $datos.=$list[1]." => ".$lote->nombre." | ".date("d/m/Y",strtotime($lote->fechavencimiento))."<br />";
+				            }
+				            echo "<td class='text-center'> $datos </td>";
+						}else{
+							echo "<td class='text-center'> - </td>";
+						}
+						?>
 					</tr>
 					@endforeach
 		            </tbody>

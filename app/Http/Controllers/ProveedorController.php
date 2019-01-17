@@ -150,6 +150,7 @@ class ProveedorController extends Controller
             $proveedor->ruc = strtoupper($request->input('ruc'));
             $proveedor->direccion = strtoupper($request->input('direccion'));
             $proveedor->telefono = strtoupper($request->input('telefono'));
+            $proveedor->email = strtoupper($request->input('email'));
             $proveedor->save();
 
             $rolpersona = new Rolpersona();
@@ -192,6 +193,7 @@ class ProveedorController extends Controller
             $proveedor->ruc = strtoupper($request->input('ruc'));
             $proveedor->direccion = strtoupper($request->input('direccion'));
             $proveedor->telefono = strtoupper($request->input('telefono'));
+            $proveedor->email = strtoupper($request->input('email'));
             $proveedor->save();
 
             $rolpersona = new Rolpersona();

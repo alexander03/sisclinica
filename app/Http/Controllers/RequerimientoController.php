@@ -16,6 +16,7 @@ use App\Movimiento;
 use App\Detallemovcaja;
 use App\Movimientoalmacen;
 use App\Lote;
+use App\Stock;
 use App\Person;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
@@ -253,7 +254,124 @@ class RequerimientoController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $existe = Libreria::verificarExistencia($id, 'movimiento');
+        if ($existe !== true) {
+            return $existe;
+        }
+        $error = DB::transaction(function() use($request, $id){
+            $movimiento       = Movimiento::find($id);
+            $movimiento->situacion = 'D';
+            $movimiento->save();
+            $detalles = Detallemovimiento::where('movimiento_id','=',$id)->get();
+            foreach ($detalles as $key => $value) {
+                if($value->producto->lote!="SI"){
+                    //STOCK
+                    $stock = Stock::where('producto_id','=',$value->producto_id)->where('almacen_id','=',2)->first();
+                    $stock->cantidad = $stock->cantidad - $request->input('txtCantidad'.$value->producto_id);
+                    $stock->save();
+
+                    //DESPACHO
+                    $value->despachado = $request->input('txtCantidad'.$value->producto_id);
+                    $value->save();
+
+                    //KARDEX
+                    $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $value->producto_id)->where('movimiento.almacen_id', '=',2)->orderBy('kardex.id', 'DESC')->first();
+                    $stockanterior = 0;
+                    $stockactual = 0;
+
+                    if ($ultimokardex === NULL) {
+                        $stockactual = $cantidad;
+                        $kardex = new Kardex();
+                        $kardex->tipo = 'S';
+                        $kardex->fecha = date("Y-m-d");
+                        $kardex->stockanterior = $stockanterior;
+                        $kardex->stockactual = (-1)*$request->input('txtCantidad'.$value->producto_id);
+                        $kardex->cantidad = $request->input('txtCantidad'.$value->producto_id);
+                        $kardex->preciocompra = $value->precio;
+                        //$kardex->almacen_id = 2;
+                        $kardex->detallemovimiento_id = $value->id;
+                        //$kardex->lote_id = $lote->id;
+                        $kardex->save();
+                    }else{
+                        $stockanterior = $ultimokardex->stockactual;
+                        $stockactual = $ultimokardex->stockactual-$request->input('txtCantidad'.$value->producto_id);
+                        $kardex = new Kardex();
+                        $kardex->tipo = 'S';
+                        $kardex->fecha = date('Y-m-d');
+                        $kardex->stockanterior = $stockanterior;
+                        $kardex->stockactual = $stockactual;
+                        $kardex->cantidad = $request->input('txtCantidad'.$value->producto_id);
+                        $kardex->preciocompra = $value->precio;
+                        //$kardex->almacen_id = 2;
+                        $kardex->detallemovimiento_id = $value->id;
+                        //$kardex->lote_id = $lote->id;
+                        $kardex->save();    
+
+                    }   
+                }else{
+                    $lote = Lote::where('producto_id','=',$value->producto_id)->where('almacen_id','=',2)->where('queda','>',0)->get();
+                    $st = 0; $lo = "";
+                    if(count($lote)>0){
+                        foreach ($lote as $k => $v) {
+                            if(!is_null($request->input('txtCantidad'.$value->producto_id.'-'.$v->id))){
+                                $v->queda = $v->queda - $request->input('txtCantidad'.$value->producto_id.'-'.$v->id);
+                                $v->save();
+
+                                $st = $st + $request->input('txtCantidad'.$value->producto_id.'-'.$v->id);
+                                $lo.=$v->id."@".$request->input('txtCantidad'.$value->producto_id.'-'.$v->id)."|";
+
+                                //KARDEX
+                                $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $value->producto_id)->where('movimiento.almacen_id', '=',2)->orderBy('kardex.id', 'DESC')->first();
+                                $stockanterior = 0;
+                                $stockactual = 0;
+
+                                if ($ultimokardex === NULL) {
+                                    $stockactual = $cantidad;
+                                    $kardex = new Kardex();
+                                    $kardex->tipo = 'S';
+                                    $kardex->fecha = date("Y-m-d");
+                                    $kardex->stockanterior = $stockanterior;
+                                    $kardex->stockactual = (-1)*$request->input('txtCantidad'.$value->producto_id.'-'.$v->id);
+                                    $kardex->cantidad = $request->input('txtCantidad'.$value->producto_id.'-'.$v->id);
+                                    $kardex->preciocompra = $value->precio;
+                                    //$kardex->almacen_id = 2;
+                                    $kardex->detallemovimiento_id = $value->id;
+                                    $kardex->lote_id = $v->id;
+                                    $kardex->save();
+                                }else{
+                                    $stockanterior = $ultimokardex->stockactual;
+                                    $stockactual = $ultimokardex->stockactual-$request->input('txtCantidad'.$value->producto_id.'-'.$v->id);
+                                    $kardex = new Kardex();
+                                    $kardex->tipo = 'S';
+                                    $kardex->fecha = date('Y-m-d');
+                                    $kardex->stockanterior = $stockanterior;
+                                    $kardex->stockactual = $stockactual;
+                                    $kardex->cantidad = $request->input('txtCantidad'.$value->producto_id.'-'.$v->id);
+                                    $kardex->preciocompra = $value->precio;
+                                    //$kardex->almacen_id = 2;
+                                    $kardex->detallemovimiento_id = $value->id;
+                                    $kardex->lote_id = $v->id;
+                                    $kardex->save();    
+
+                                }   
+                            }
+                        }
+                        //DESPACHO DE Q LOTE
+                        $lo = substr($lo, 0, strlen($lo)-1);
+                        $value->despachado = $st;
+                        $value->lote = $lo;
+                        $value->save();
+
+                        //STOCK
+                        $stock = Stock::where('producto_id','=',$value->producto_id)->where('almacen_id','=',2)->first();
+                        $stock->cantidad = $stock->cantidad - $st;
+                        $stock->save();
+                    }
+                }
+            }
+
+        });
+        return is_null($error) ? "OK" : $error;
     }
 
     /**
@@ -286,6 +404,12 @@ class RequerimientoController extends Controller
         $error = DB::transaction(function() use($id){
             $movimiento = Movimiento::find($id);
             $movimiento->delete();
+            $detalles = Detallemovimiento::where('movimiento_id','=',$requerimiento->id)->get();
+            foreach ($detalles as $key => $value) {
+                if($value->producto->tipo!="SI"){
+
+                }
+            }
         });
         return is_null($error) ? "OK" : $error;
     }
@@ -297,15 +421,16 @@ class RequerimientoController extends Controller
         $pdf = new TCPDF();
         $pdf::SetTitle('Requerimiento');
         $pdf::AddPage('');
+        $pdf::Image("http://localhost:81/clinica/dist/img/logo2-ojos.jpg", 20, 7, 50, 15);
         $pdf::SetFont('helvetica','B',12);
-        $pdf::Cell(0,7,$dato->tipodocumento->nombre.' '.str_pad($dato->numero,8,'0',STR_PAD_LEFT),0,0,'C');        
+        $pdf::Cell(0,7,$dato->tipodocumento->nombre.' '.str_pad($dato->numero,8,'0',STR_PAD_LEFT).'-'.date("Y",strtotime($dato->fecha)),0,0,'C');        
         $pdf::Ln();
         //$pdf::Image("http://localhost:81/clinica/dist/img/logo2-ojos.jpg", 20, 7, 50, 15);
         $pdf::Ln();
         $pdf::SetFont('helvetica','B',10);
         $pdf::Cell(15,7,"Fecha: ",0,0,'L');        
         $pdf::SetFont('helvetica','',10);
-        $pdf::Cell(80,7,date("d/m/Y",strtotime($dato->fecha)),0,0,'L');        
+        $pdf::Cell(80,7,date("d/m/Y H:i:s",strtotime($dato->updated_at)),0,0,'L');        
         $pdf::SetFont('helvetica','B',10);
         $pdf::Cell(25,7,"Responsable: ",0,0,'L');        
         $pdf::SetFont('helvetica','',10);
@@ -315,21 +440,37 @@ class RequerimientoController extends Controller
         $pdf::Cell(25,7,"Comentario: ",0,0,'L');        
         $pdf::SetFont('helvetica','',10);
         $pdf::Cell(80,7,$dato->comentario,0,0,'L');        
+        $pdf::SetFont('helvetica','B',10);
+        $pdf::Cell(15,7,"Destino: ",0,0,'L');        
+        $pdf::SetFont('helvetica','',10);
+        $pdf::Cell(40,7,$dato->responsable->workertype->name,0,0,'L');        
         $pdf::Ln();
         $pdf::SetFont('helvetica','B',9);
-        $pdf::Cell(10,6,"Nro.",1,0,'C');
-        $pdf::Cell(20,6,"Cant.",1,0,'C');
+        $pdf::Cell(8,6,"Nro.",1,0,'C');
+        $pdf::Cell(15,6,"Cant.",1,0,'C');
         $pdf::Cell(90,6,"Producto",1,0,'C');
-        $pdf::Cell(25,6,"Presentacion",1,0,'C');
+        $pdf::Cell(23,6,"Presentacion",1,0,'C');
+        $pdf::Cell(15,6,"Desp.",1,0,'C');
+        $pdf::Cell(40,6,"Lote | Fecha Venc.",1,0,'C');
         $pdf::Ln();
         $detalles = Detallemovimiento::where('movimiento_id','=',$dato->id)->get();
         $c=0;
         foreach($detalles as $key => $value){$c=$c+1;
-            $pdf::SetFont('helvetica','',9);
-            $pdf::Cell(10,6,$c,1,0,'R');
-            $pdf::Cell(20,6,$value->cantidad,1,0,'C');
+            $pdf::SetFont('helvetica','',8);
+            $pdf::Cell(8,6,$c,1,0,'R');
+            $pdf::Cell(15,6,$value->cantidad,1,0,'C');
             $pdf::Cell(90,6,$value->producto->nombre,1,0,'L');
-            $pdf::Cell(25,6,$value->producto->presentacion->nombre,1,0,'C');
+            $pdf::Cell(23,6,$value->producto->presentacion->nombre,1,0,'C');
+            $pdf::Cell(15,6,$value->despachado,1,0,'C');
+            $ls = explode("|",$value->lote);
+            $datos="";
+            for ($i=0; $i < count($ls); $i++) { 
+                $list = explode("@",$ls[$i]);
+                $lote = Lote::find($list[0]);
+                $datos.=$list[1]." => ".$lote->nombre." | ".date("d/m/Y",strtotime($lote->fechavencimiento))."\n";
+            }
+            $datos=substr($datos, 0, strlen($datos)-1);
+            $pdf::Cell(40,6,$datos,1,0,'C');
             $pdf::Ln();
         }
         $pdf::Ln();
@@ -337,15 +478,20 @@ class RequerimientoController extends Controller
         $pdf::Ln();
         $pdf::Cell(25,6,"",0,0,'C');
         $pdf::Cell(50,6,"_______________________________",0,0,'C');
+        $pdf::Cell(35,6,"",0,0,'C');
+        $pdf::Cell(50,6,"_______________________________",0,0,'C');
         $pdf::Ln();
         $pdf::Cell(25,6,"",0,0,'C');
         $pdf::Cell(50,6,"Usuario",0,0,'C');
+        $pdf::Cell(35,6,"",0,0,'C');
+        $pdf::Cell(50,6,"Entregado",0,0,'C');
         $pdf::Ln();
         $pdf::Output('DocAlmacen.pdf');
     }
 
     public function generarNumero(Request $request){
-        echo Movimiento::NumeroSigue(15,24);
+        $sucursal_id = Session::get('sucursal_id');
+        echo Movimiento::NumeroSigue(15,24,$sucursal_id);
     }
 
     public function buscarproducto(Request $request){
