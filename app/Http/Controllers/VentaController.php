@@ -1236,12 +1236,12 @@ class VentaController extends Controller
         $reglas     = array(
                 //'person_id' => 'required|integer|exists:person,id,deleted_at,NULL',
                 'numerodocumento'                  => 'required',
-                'fecha'                 => 'required'
+                'fecha'                 => 'required',
                 );
         $mensajes = array(
             //'person_id.required'         => 'Debe ingresar un cliente',
             'numerodocumento.required'         => 'Debe ingresar un numero de documento',
-            'fecha.required'         => 'Debe ingresar fecha'
+            'fecha.required'         => 'Debe ingresar fecha',
             );
 
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
@@ -1269,7 +1269,6 @@ class VentaController extends Controller
         $error = DB::transaction(function() use($request, $sucursal_id ,&$dat){
             $validar = Venta::where('serie','=','4')->where('manual','like','N')->where('tipodocumento_id','=',$request->input('documento'))->where('numero','=',$request->input('numerodocumento'))->first();
             if ($validar == null) {
-                # code...
             
             $ind = 0;
             $montoafecto = 0;
@@ -2511,6 +2510,7 @@ class VentaController extends Controller
                     }
                     $dat[0]=array("respuesta"=>"OK","venta_id"=>$venta->id, "ind" => $ind, "second_id" => 0, "guia" => $guia);
                 }else{
+                    /*
                     if ($montoafecto > 0) {
                         if ($venta->conveniofarmacia_id !== null) {
                             if ($venta->copago == 0) {
@@ -2526,13 +2526,10 @@ class VentaController extends Controller
                             }
                         }
                         $dat[0]=array("respuesta"=>"OK","venta_id"=>$venta2->id, "ind" => $ind, "second_id" => $venta2->id, "guia" => $guia);
-                    }
+                    }*/
                     
                 }
             }
-                
-
-
         });
         return is_null($error) ? json_encode($dat) : $error;
 

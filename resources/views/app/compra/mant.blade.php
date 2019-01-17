@@ -1,4 +1,4 @@
-<div id="divMensajeError{!! $entidad !!}"></div>
+s<div id="divMensajeError{!! $entidad !!}"></div>
 {!! Form::model($compra, $formData) !!}	
 	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
 	{!! Form::hidden('detalle', 'false', array( 'id' => 'detalle')) !!}
@@ -994,7 +994,7 @@ function agregarconvenio(id){
 		});
 	}
 
-function guardarVenta (entidad, idboton, entidad2) {
+function guardarVenta (entidad, idboton) {
 	if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="fecha2"]').val()==""){
 		alert("Debe ingresar una fecha de vencimiento");
 		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="fecha2"]').focus();

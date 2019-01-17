@@ -1056,11 +1056,11 @@ function validarFormaPago(formapago){
 
 $(document).on('click', '#btnGuardar', function(event) {
 	event.preventDefault();
+	event.stopPropagation();
 	var i = $('.numeration2').length;
 	if(i == 0) {
 		alert('Debes seleccionar al menos un producto.');
-	} else {		
-		alert($('#cantproductos').val());
+	} else {	
 		guardarVenta('Venta', this);
 	}	
 });
