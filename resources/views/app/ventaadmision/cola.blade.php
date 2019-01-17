@@ -25,6 +25,7 @@
                 height:100%;
                 float:left;
                 border-style: double;
+                border-color: #2ECC71;
             }
             .line{
                 height:50%;
@@ -56,6 +57,7 @@
                 color: white;
                 font-size: 20px;
                 text-align: center;
+                border-color: yellow;
             }
 
         </style>
