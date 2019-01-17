@@ -5088,7 +5088,7 @@ class VentaadmisionController extends Controller
 
         $semergencias .= '</tbody></table>';
                             
-        $sojos.="<h3 class='text-center' style='font-weight:bold;color:light-blue'>FONDO DE OJOS</h3>
+        $sojos.="<h3 class='text-center' style='font-weight:bold;color:#3498DB'>FONDO DE OJOS</h3>
                     <table class='table table-bordered'>
                             <thead>
                                 <tr>

@@ -53,7 +53,7 @@
                 border-style: double;
                 z-index: 2;
                 padding:10px;
-                background-color: green;
+                background-color: #28B463;
                 color: white;
                 font-size: 20px;
                 text-align: center;
