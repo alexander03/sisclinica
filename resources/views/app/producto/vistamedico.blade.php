@@ -354,7 +354,7 @@ $entidad='Producto';
 	function buscar4(){
 		$.ajax({
 	        type: "POST",
-	        url: "ventaadmision/cola",
+	        url: "ventaadmision/cola2",
 	        data: "_token=<?php echo csrf_token(); ?>",
 	        success: function(a) {
 	        	$("#listado").html(a);
@@ -393,7 +393,7 @@ $entidad='Producto';
 		
 		$.ajax({
 			"method": "POST",
-			"url": "{{ url('/ventaadmision/cola') }}",
+			"url": "{{ url('/ventaadmision/cola2') }}",
 			"data": {
 				"ticket_id" : ticket_id, 
 				"_token": "{{ csrf_token() }}",
