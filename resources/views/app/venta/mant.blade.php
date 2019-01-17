@@ -822,6 +822,7 @@ function agregarempresa(id){
 
 function addpurchasecart(elemento){
 	var cantidad = $('#cantidad').val();
+	var cantidad = cantidad.replace(",", "");
 	var price = $('#precioventa').val();
 	var preciokayros = $('#preciokayros').val();
 	var product_id = $('#producto_id').val();

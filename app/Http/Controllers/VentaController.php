@@ -674,7 +674,7 @@ class VentaController extends Controller
             $precio = Libreria::getParam($request->input('precio'));
         }
 
-        $cantidad       = Libreria::getParam($request->input('cantidad'));
+        $cantidad       = Libreria::getParam(str_replace(",", "", $request->input('cantidad')));
         $producto_id       = Libreria::getParam($request->input('producto_id'));
         $precio       = Libreria::getParam($request->input('precio'));
         $preciokayros       = Libreria::getParam($request->input('preciokayros'));
