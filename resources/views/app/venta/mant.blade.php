@@ -171,7 +171,7 @@
 		       {-- Form::button('<i class="glyphicon glyphicon-plus"></i> Agregar', array('class' => 'btn btn-info btn-xs', 'id' => 'btnAgregar', 'onclick' => 'ventanaproductos();')) --}   
 		    	
 		    	</div>-->
-				{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar')) !!}
+				{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => 'guardarito();')) !!}
 				{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
 			</div>
 		</div>
@@ -505,6 +505,8 @@ $(document).ready(function() {
 
 	cambiotipoventa();
 	$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="nombrepersona"]').focus();
+
+	generarNumero('5');
 
 }); 
 
@@ -1054,16 +1056,14 @@ function validarFormaPago(formapago){
 	}
 }
 
-$(document).on('click', '#btnGuardar', function(event) {
-	event.preventDefault();
-	event.stopPropagation();
+function guardarito() {
 	var i = $('.numeration2').length;
 	if(i == 0) {
 		alert('Debes seleccionar al menos un producto.');
 	} else {	
-		guardarVenta('Venta', this);
-	}	
-});
+		guardarVenta('Venta', $('#btnGuardar').value);
+	}
+}
 
 validarFormaPago($("#formapago").val());
 </script>
