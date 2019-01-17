@@ -11,3 +11,7 @@ continua el siguiente pero queda en espera y no va al ultimo, colo muestra atenc
 - El ingreso o egreso desde la opcion de caja siempre es en efectivo
 - Cuando se cobra por parte debe generar un ingreso en caja del monto cobrado, ademas sacar un
 ticket de ingreso de caja pequeño para imprimir.
+- Revisar cuando se cobra en caja, existe algun error en el js que no permite buscar y inicializa
+los js de los formularios
+- En los tratamiento de historias, cuando el paciente va al consultorio considerar:
+	Motivo, Sintomas, Exploracion Fisica, Diagnostico, Tratamiento, Examenes,
