@@ -1,3 +1,7 @@
+<?php
+    date_default_timezone_set('America/Lima');
+    $fechahoy = date('j-m-Y');
+?>
 <html lang="en">
     <head>
         <meta http-equiv="content-type" content="text/html; charset=UTF-8"> 
@@ -36,12 +40,33 @@
                 flex:1 0 auto;
             }
 
+            .centrado {
+                display:block; 
+                width:150px; 
+                height:50px; 
+                position:absolute; 
+                top:50%; 
+                left:50%; 
+                margin-top:-25px; 
+                margin-left:-75px;
+                border-style: double;
+                z-index: 2;
+                padding:10px;
+                background-color: green;
+                color: white;
+                font-size: 20px;
+                text-align: center;
+            }
+
         </style>
     </head>
     
     <!-- HTML code from Bootply.com editor -->
     
     <body style="">
+        <div class="centrado">
+            <?php echo $fechahoy; ?>
+        </div>
         <div class="line">
             <div class="col-md-6 quad" id="listadoConsultas"></div>
             <div class="col-md-6 quad" id="listadoEmergencias"></div>
