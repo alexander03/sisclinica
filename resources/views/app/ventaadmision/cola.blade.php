@@ -60,6 +60,13 @@
                 border-color: yellow;
             }
 
+            td, th {
+                padding-top: 4px;
+                padding-bottom: 4px;
+                padding-left: 4px;
+                padding-right: 4px;
+            }
+
         </style>
     </head>
     

@@ -4927,7 +4927,7 @@ class VentaadmisionController extends Controller
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
         });
-        $lista = $consultas->get();
+        $lista = $consultas->limit(7)->get();
 
         $sconsutas = '';
         $semergencias = '';
@@ -4936,7 +4936,7 @@ class VentaadmisionController extends Controller
 
         $sconsultas="
                     <h3 class='text-center' style='font-weight:bold;color:blue'>CONSULTAS</h3>
-                    <table class='table table-bordered'>
+                    <table style='width:100%' border='1'>
                         <thead>
                             <tr>
                                 <th class='text-center' width='10%'>Nro</th>
@@ -4958,7 +4958,7 @@ class VentaadmisionController extends Controller
                 $sconsultas.= "<tr id = '" . $value->id . "' >";
             }
             //$sconsultas.= "<tr id = '" . $value->id . "' >";
-            $sconsultas.= "<td>".$c."</td>";
+            $sconsultas.= "<td class='text-center'>".$c."</td>";
             if(!is_null($value->persona)){
                 $sconsultas.= "<td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>";
             }
@@ -5006,7 +5006,7 @@ class VentaadmisionController extends Controller
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
         });
-        $lista2 = $emergencias->get();
+        $lista2 = $emergencias->limit(7)->get();
 
         $fondos = Movimiento::where('clasificacionconsulta','like','F')->orderBy('id','ASC')
         ->where(function($q) {            
@@ -5015,7 +5015,7 @@ class VentaadmisionController extends Controller
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
         });
-        $lista3 = $fondos->get();
+        $lista3 = $fondos->limit(7)->get();
 
         $lectura = Movimiento::where('clasificacionconsulta','like','L')->orderBy('id','ASC')
         ->where(function($q) {            
@@ -5024,10 +5024,10 @@ class VentaadmisionController extends Controller
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
         });
-        $lista4 = $lectura->get();
+        $lista4 = $lectura->limit(7)->get();
 
         $semergencias.="<h3 class='text-center' style='font-weight:bold;color:red'>EMERGENCIAS</h3>
-                        <table class='table table-bordered'>
+                        <table style='width:100%' border='1'>
                             <thead>
                                 <tr>
                                     <th class='text-center' width='10%'>Nro</th>
@@ -5047,7 +5047,7 @@ class VentaadmisionController extends Controller
             }else{
                 $semergencias.= "<tr id = '" . $value->id . "' >";
             }
-            $semergencias.= "<td>".$c."</td>";
+            $semergencias.= "<td class='text-center'>".$c."</td>";
             if(!is_null($value->persona)){
                 $semergencias.= "<td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>";
             }
@@ -5089,7 +5089,7 @@ class VentaadmisionController extends Controller
         $semergencias .= '</tbody></table>';
                             
         $sojos.="<h3 class='text-center' style='font-weight:bold;color:#3498DB'>FONDO DE OJOS</h3>
-                    <table class='table table-bordered'>
+                    <table style='width:100%' border='1'>
                             <thead>
                                 <tr>
                                     <th class='text-center' width='10%'>Nro</th>
@@ -5112,7 +5112,7 @@ class VentaadmisionController extends Controller
             }else{
                 $sojos.= "<tr id = '" . $value->id . "' >";
             }
-            $sojos.= "<td>".$c."</td>";
+            $sojos.= "<td class='text-center'>".$c."</td>";
             if(!is_null($value->persona)){
                 $sojos.= "<td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>";
             }
@@ -5154,7 +5154,7 @@ class VentaadmisionController extends Controller
         $sojos.="</tbody></table>";
 
         $slectura.="<h3 class='text-center' style='font-weight:bold;color:green'>LECTURA DE RESULTADOS</h3>
-                    <table class='table table-bordered'>
+                    <table style='width:100%' border='1'>
                             <thead>
                                 <tr>
                                     <th class='text-center' width='10%'>Nro</th>
@@ -5177,7 +5177,7 @@ class VentaadmisionController extends Controller
             }else{
                 $slectura.= "<tr id = '" . $value->id . "' >";
             }
-            $slectura.= "<td>".$c."</td>";
+            $slectura.= "<td class='text-center'>".$c."</td>";
             if(!is_null($value->persona)){
                 $slectura.= "<td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>";
             }
