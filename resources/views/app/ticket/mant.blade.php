@@ -63,10 +63,11 @@ if(!is_null($ticket)){
                 {!! Form::label('manual', 'Manual:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label',  'style' => 'display:none;')) !!}
                 <label for="clasificacionconsulta" class="col-lg-1 col-md-1 col-sm-1 control-label">Tipo</label>
                 <div class="col-lg-3 col-md-3 col-sm-3">
-                    <select class="form-control input-xs" name="clasificacionconsulta" id="clasificacionconsulta">
+                    <select class="form-control input-xs" name="clasificacionconsulta" id="clasificacionconsulta" onchange="lectRes();">
                         <option value="C">CONSULTA</option>
                         <option value="E">EMERGENCIA</option>
                         <option value="F">FONDO DE OJOS</option>
+                        <option value="L">LECT. RESULTADOS</option>
                     </select>
                 </div>
                 <div class="col-lg-1 col-md-1 col-sm-1" style="display:none;">
@@ -1414,6 +1415,12 @@ function solicitarHistoria(){
         });
     }else{
         alert('No ha seleccionado historia');
+    }
+}
+
+function lectRes() {
+    if($('#clasificacionconsulta').val() == 'L') {
+        seleccionarServicio(6);
     }
 }
 
