@@ -6,7 +6,8 @@
     <head>
         <meta http-equiv="content-type" content="text/html; charset=UTF-8"> 
         <meta charset="utf-8">
-        <meta name="generator" content="Bootply">
+        <title>{{ config('app.name', 'SIGHO') }}</title>
+        <link rel="icon" href="{{ asset('dist/img/user2-160x160.jpg') }}" sizes="16x16 32x32 48x48 64x64" type="image/vnd.microsoft.icon">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
         <meta name="description" content="Bootstrap  example.">
         {!! Html::style('bootstrap/css/bootstrap.min.css') !!}
