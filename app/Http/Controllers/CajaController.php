@@ -5697,6 +5697,8 @@ class CajaController extends Controller
                         $venta->total=number_format($pagohospital,2,'.','');  
                     }
                     $venta->tipomovimiento_id=4;
+                    $venta->numero=$request->input('numeroventa');
+                    $venta->serie=$request->input('serieventa');
                     $venta->tipodocumento_id=$tipodocumento_id;
                     $venta->comentario='';
                     $venta->manual='N';
@@ -5732,7 +5734,7 @@ class CajaController extends Controller
                         //$movimiento->voucher=$request->input('nroref');
                         //$movimiento->totalpagado=0;
                     //}else{
-                        $movimiento->totalpagado=$request->input('total2',0);
+                        //$movimiento->totalpagado=$request->input('total2',0);
                     //}
                     $movimiento->situacion='N';
                     $movimiento->movimiento_id=$venta->id;
