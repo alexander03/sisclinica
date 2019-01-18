@@ -291,6 +291,7 @@ class CajaController extends Controller
             $movimiento->subtotal=0;
             $movimiento->igv=0;
             $movimiento->total=str_replace(",","",$request->input('total')); 
+            $movimiento->totalpagado = $request->input('total');
             $movimiento->tipomovimiento_id=2;
             $movimiento->tipodocumento_id=$request->input('tipodocumento');
             $movimiento->conceptopago_id=$request->input('concepto');
@@ -332,6 +333,7 @@ class CajaController extends Controller
                 $movimiento->subtotal=0;
                 $movimiento->igv=0;
                 $movimiento->total=str_replace(",","",$request->input('total'));
+                $movimiento->totalpagado = $request->input('total');
                 $movimiento->tipomovimiento_id=2;
                 $movimiento->tipodocumento_id=2;//Ingreso
                 if($request->input('concepto')==7){//caja
@@ -5732,7 +5734,7 @@ class CajaController extends Controller
                         //$movimiento->voucher=$request->input('nroref');
                         //$movimiento->totalpagado=0;
                     //}else{
-                        $movimiento->totalpagado=$request->input('total2',0);
+                       // $movimiento->totalpagado=$request->input('total2',0);
                     //}
                     $movimiento->situacion='N';
                     $movimiento->movimiento_id=$venta->id;
