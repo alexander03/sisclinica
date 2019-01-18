@@ -135,7 +135,7 @@ class CajaController extends Controller
         $cabecera         = array();
         //$cabecera[]       = array('valor' => '#', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Fecha', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Numero', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'N°', 'numero' => '1');
         //$cabecera[]       = array('valor' => 'Tipo', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Concepto', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Persona', 'numero' => '1');
@@ -5667,7 +5667,7 @@ class CajaController extends Controller
                         $codigo="01";
                         $abreviatura="F";
                     } else {
-                        $tipodocumento_id=1;
+                        $tipodocumento_id=12;
                         //$codigo="01";
                         $abreviatura="T";
                     }
@@ -5682,7 +5682,7 @@ class CajaController extends Controller
 
                     $venta->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,4,$tipodocumento_id,$request->input('serieventa') + 0,'N');
 
-                    $venta->serie = '00'.$request->input('serieventa');;
+                    $venta->serie = '00'.$request->input('serieventa');
                     $venta->responsable_id=$user->person_id;
                     $venta->persona_id=$Ticket->persona_id;
                     if($request->input('tipodocumento')=="Boleta"){
@@ -5694,7 +5694,7 @@ class CajaController extends Controller
                         $venta->igv=number_format($pagohospital - $venta->subtotal,2,'.','');
                         $venta->total=number_format($pagohospital,2,'.','');                     
                     } else {
-                        $venta->subtotal=number_format($pagohospital,'.','');
+                        $venta->subtotal=number_format($pagohospital,2,'.','');
                         $venta->igv=0;
                         $venta->total=number_format($pagohospital,2,'.','');  
                     }
@@ -5717,7 +5717,7 @@ class CajaController extends Controller
                     $movimiento        = new Movimiento();
                     $movimiento->sucursal_id = $sucursal_id;
                     $movimiento->fecha = date("Y-m-d");
-                    $movimiento->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,2,$tipodocumento_id);
+                    $movimiento->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,2,2);
                     $movimiento->responsable_id=$user->person_id;
                     $movimiento->persona_id=$Ticket->persona_id;
                     $movimiento->subtotal=0;
@@ -5756,7 +5756,7 @@ class CajaController extends Controller
                     $rescuotas        = new Movimiento();
                     $rescuotas->sucursal_id = $sucursal_id;
                     $rescuotas->fecha = date("Y-m-d");
-                    $rescuotas->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,2,2);
+                    $rescuotas->numero= Movimiento::NumeroSigueResumenCuotas($caja->id,$sucursal_id,14,'D');
                     $rescuotas->responsable_id=$user->person_id;
                     $rescuotas->persona_id=$Ticket->persona_id;
                     $rescuotas->total = $request->input('total2', 0);
@@ -5790,7 +5790,49 @@ class CajaController extends Controller
                     $primeracuota->comentario='PAGO DE CUOTA A CRÉDITO DE CLIENTE';
                     $primeracuota->caja_id=$request->input('caja_id');
                     $primeracuota->movimiento_id=$rescuotas->id;
-                    $primeracuota->save();                    
+                    $primeracuota->save();     
+
+                    //Guardo ingreso en Caja del pago parcial
+
+                    $movimiento        = new Movimiento();
+                    $movimiento->sucursal_id = $sucursal_id;
+                    $movimiento->fecha = date("Y-m-d");
+                    $movimiento->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,2,2);
+                    $movimiento->responsable_id=$user->person_id;
+                    $movimiento->persona_id=$Ticket->persona_id;
+                    $movimiento->subtotal=0;
+                    $movimiento->igv=0;
+                    $cefectivo = $request->input('efectivo', 0);
+                    $cvisa = $request->input('visa', 0);
+                    $cmaster = $request->input('master', 0);
+                    if($request->input('efectivo', 0) == '') {
+                        $cefectivo = 0;
+                    }
+                    if($request->input('visa', 0) == '') {
+                        $cvisa = 0;
+                    }
+                    if($request->input('master', 0) == '') {
+                        $cmaster = 0;
+                    }
+                    $movimiento->total=$cefectivo+$cvisa+$cmaster;
+                    $movimiento->totalpagado = $request->input('efectivo', 0);
+                    $movimiento->totalpagadovisa = $request->input('visa', 0);
+                    $movimiento->totalpagadomaster = $request->input('master', 0);
+                    $movimiento->tipomovimiento_id=2;
+                    $movimiento->tipodocumento_id=2;
+                    $movimiento->conceptopago_id=3;//PAGO DE CLIENTE
+                    $movimiento->comentario='PAGO DE CUOTA PARCIAL DE CLIENTE';
+                    $movimiento->caja_id=$request->input('caja_id');
+                    //if($request->input('formapago')=="Tarjeta"){
+                        //$movimiento->tipotarjeta=$request->input('tipotarjeta');
+                        //$movimiento->tarjeta=$request->input('tipotarjeta2');
+                        //$movimiento->voucher=$request->input('nroref');
+                        //$movimiento->totalpagado=0;
+                    //}else{
+                        //$movimiento->totalpagado=$request->input('total2',0);
+                    //}
+                    $movimiento->situacion='N';
+                    $movimiento->save();               
                 }
             }
         });
@@ -5891,6 +5933,8 @@ class CajaController extends Controller
             //Guardamos el Ticket
 
             $Ticket->save();
+
+            $comentario = 'PAGO DE CUOTA A CRÉDITO DE CLIENTE';
            
             $pagohospital=$Ticket->total;
 
@@ -5913,7 +5957,7 @@ class CajaController extends Controller
                         $codigo="01";
                         $abreviatura="F";
                     } else {
-                        $tipodocumento_id=1;
+                        $tipodocumento_id=12;
                         //$codigo="01";
                         $abreviatura="T";
                     }
@@ -5927,7 +5971,7 @@ class CajaController extends Controller
                     //Puede ser manual o no
 
                     $venta->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,4,$tipodocumento_id,$request->input('serieventa')+0,'N');
-
+                    $venta->serie = '00'.$request->input('serieventa');
                     $venta->responsable_id=$user->person_id;
                     $venta->persona_id=$Ticket->persona_id;
                     if($request->input('tipodocumento')=="Boleta"){
@@ -5957,36 +6001,8 @@ class CajaController extends Controller
                     //Guardamos la venta
 
                     $venta->save();
-
-                    //Solo si hay pago, guardo movimiento en caja
-                    $movimiento        = new Movimiento();
-                    $movimiento->sucursal_id = $sucursal_id;
-                    $movimiento->fecha = date("Y-m-d");
-                    $movimiento->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,2,$tipodocumento_id);
-                    $movimiento->responsable_id=$user->person_id;
-                    $movimiento->persona_id=$Ticket->persona_id;
-                    $movimiento->subtotal=0;
-                    $movimiento->igv=0;
-                    $movimiento->total=$Ticket->total;
-                    $movimiento->tipomovimiento_id=2;
-                    $movimiento->tipodocumento_id=2;
-                    $movimiento->conceptopago_id=3;//PAGO DE CLIENTE
-                    $movimiento->comentario='Pago de : '.substr($request->input('tipodocumento'),0,1).' '.$venta->serie.'-'.$venta->numero;
-                    $movimiento->caja_id=$request->input('caja_id');
-                    //if($request->input('formapago')=="Tarjeta"){
-                        //$movimiento->tipotarjeta=$request->input('tipotarjeta');
-                        //$movimiento->tarjeta=$request->input('tipotarjeta2');
-                        //$movimiento->voucher=$request->input('nroref');
-                        //$movimiento->totalpagado=0;
-                    //}else{
-                        //$movimiento->totalpagado=$request->input('total2',0);
-                    //}
-                    $movimiento->situacion='N';
-                    $movimiento->movimiento_id=$venta->id;
-                    $movimiento->save();
+                    $comentario = 'PAGO DE ÚLTIMA CUOTA PARCIAL DE CLIENTE - '.substr($request->input('tipodocumento'),0,1).' '.$venta->serie.'-'.$venta->numero;
                     //
-
-                    
                 }
             }
 
@@ -6018,19 +6034,12 @@ class CajaController extends Controller
 
             $rescuotas->save();
 
-            if($request->input('quedan') == '0.000'){
-                $movimiento->totalpagado = $rescuotas->totalpagado;
-                $movimiento->totalpagadovisa = $rescuotas->totalpagadovisa;
-                $movimiento->totalpagadomaster = $rescuotas->totalpagadomaster;
-                $movimiento->save();
-            }
-
             //Creo una nueva cuota
 
             $cuota        = new Movimiento();
             $cuota->sucursal_id = $sucursal_id;
             $cuota->fecha = date("Y-m-d");
-            $cuota->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,2,2);
+            $cuota->numero= Movimiento::NumeroSigueCuota($rescuotas->id);
             $cuota->responsable_id=$user->person_id;
             $cuota->persona_id=$Ticket->persona_id;
             $cuota->subtotal=0;
@@ -6042,10 +6051,51 @@ class CajaController extends Controller
             $cuota->numvisa = $request->input('numvisa');
             $cuota->nummaster = $request->input('nummaster');
             $cuota->tipomovimiento_id=14;//EN BLANCO, EL INGRESO SE HARÁ AL COMPLETAR LA BOLETA
-            $cuota->comentario='PAGO DE CUOTA A CRÉDITO DE CLIENTE';
             $cuota->caja_id=$request->input('caja_id');
             $cuota->movimiento_id=$rescuotas->id;
             $cuota->save();  
+
+            //Creo el ingreso en caja
+
+            $movimiento        = new Movimiento();
+            $movimiento->sucursal_id = $sucursal_id;
+            $movimiento->fecha = date("Y-m-d");
+            $movimiento->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,2,2);
+            $movimiento->responsable_id=$user->person_id;
+            $movimiento->persona_id=$Ticket->persona_id;
+            $movimiento->subtotal=0;
+            $movimiento->igv=0;
+            $cefectivo = $request->input('efectivo', 0);
+            $cvisa = $request->input('visa', 0);
+            $cmaster = $request->input('master', 0);
+            if($request->input('efectivo', 0) == '') {
+                $cefectivo = 0;
+            }
+            if($request->input('visa', 0) == '') {
+                $cvisa = 0;
+            }
+            if($request->input('master', 0) == '') {
+                $cmaster = 0;
+            }
+            $movimiento->total=$cefectivo+$cvisa+$cmaster;
+            $movimiento->totalpagado = $request->input('efectivo', 0);
+            $movimiento->totalpagadovisa = $request->input('visa', 0);
+            $movimiento->totalpagadomaster = $request->input('master', 0);
+            $movimiento->tipomovimiento_id=2;
+            $movimiento->tipodocumento_id=2;
+            $movimiento->conceptopago_id=3;//PAGO DE CLIENTE
+            $movimiento->comentario=$comentario;
+            $movimiento->caja_id=$request->input('caja_id');
+            //if($request->input('formapago')=="Tarjeta"){
+                //$movimiento->tipotarjeta=$request->input('tipotarjeta');
+                //$movimiento->tarjeta=$request->input('tipotarjeta2');
+                //$movimiento->voucher=$request->input('nroref');
+                //$movimiento->totalpagado=0;
+            //}else{
+                //$movimiento->totalpagado=$request->input('total2',0);
+            //}
+            $movimiento->situacion='N';
+            $movimiento->save();
         });
 
         ///////////////////////////////

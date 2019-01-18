@@ -1,3 +1,8 @@
+<style>
+    table tbody tr td {
+        font-size: 12px;
+    }
+</style>
 @if($conceptopago_id==1)
 	{!! Form::button('<i class="glyphicon glyphicon-plus"></i> Apertura', array('class' => 'btn btn-info btn-xs', 'disabled' => 'true', 'id' => 'btnApertura', 'onclick' => 'modalCaja (\''.URL::route($ruta["apertura"], array('listar'=>'SI')).'\', \''.$titulo_apertura.'\', this);')) !!}
     {!! Form::button('<i class="glyphicon glyphicon-usd"></i> Nuevo', array('class' => 'btn btn-success btn-xs', 'id' => 'btnCerrar', 'onclick' => 'modalCaja (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
@@ -132,28 +137,28 @@ $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
             @endif 
 
             <?php $formapago = ''; ?>
-            @if($value->totalpagado!=0 || $value->totalpagado!=null)
+            @if($value->totalpagado!=0)
                 <?php 
                     $formapago .= 'Efectivo = ';
-                    $formapago .= $value->totalpagado;
+                    $formapago .= (String)number_format($value->totalpagado,2,'.','').'<br>';
                 ?>
             @endif
             @if($value->totalpagadovisa!=0)
                 <?php 
-                    $formapago .= ' / Visa = '; 
-                    $formapago .= $value->totalpagadovisa;
+                    $formapago .= 'Visa = '; 
+                    $formapago .= (String)number_format($value->totalpagadovisa,2,'.','') .'<br>';
                     $visa2 += $value->totalpagadovisa;
                 ?>
             @endif
             @if($value->totalpagadomaster!=0)
                 <?php 
-                    $formapago .= ' / Master = '; 
-                    $formapago .= $value->totalpagadomaster;
+                    $formapago .= 'Master = '; 
+                    $formapago .= (String)number_format($value->totalpagadomaster,2,'.','') . '<br>';
                     $master2 += $value->totalpagadomaster;
                 ?>
             @endif
 
-            <td align="center">{{ $formapago }}</td>
+            <td align="center"><?php echo $formapago; ?></td>
             <td>{{ $value->comentario }}</td>
             <td>{{ $value->responsable }}</td>
             <?php //echo $value->conceptopago_id; ?>

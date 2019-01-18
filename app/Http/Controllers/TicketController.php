@@ -1713,7 +1713,7 @@ class TicketController extends Controller
         }else if($request->input('tipodocumento')=="Factura"){
             $tipodocumento_id=4;
         } else {
-            $tipodocumento_id=1;
+            $tipodocumento_id=12;
         }
         $serie = $request->input('serie') + 0;
         $numeroventa = Movimiento::NumeroSigue($caja->id,$sucursal_id,4,$tipodocumento_id,$serie,'N');
