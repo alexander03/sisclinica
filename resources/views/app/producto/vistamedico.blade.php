@@ -1,5 +1,7 @@
 <?php
 $entidad='Producto';
+date_default_timezone_set('America/Lima');
+$fechahoy = date('j-m-Y');
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -132,7 +134,11 @@ $entidad='Producto';
 									<div class="box-header">
 										<div class="row">
 											<div class="col-xs-8">
-												<div class="box-body" id="listado">
+												<div class="line">
+													<div class="col-sm-6" style="height: 300px;" id="listadoConsultas"></div>
+													<div class="col-sm-6" style="height: 300px;" id="listadoEmergencias"></div>
+													<div class="col-sm-6" style="height: 300px;" id="listadoOjos"></div>
+													<div class="col-sm-6" style="height: 300px;" id="listadoLectura"></div>
 												</div>
 											</div>
 											<div class="col-xs-4">
@@ -205,21 +211,35 @@ $entidad='Producto';
 																{!! Form::text('cie102', '', array('class' => 'form-control input-xs', 'id' => 'cie102')) !!}
 															</div>
 														</div>
+														<div class="form-group">
+															{!! Form::label('motivo', 'Motivo:', array('class' => 'col-sm-2 control-label')) !!}
+															<div class="col-sm-10">
+																<textarea class="form-control input-xs" id="motivo" cols="10" rows="2"></textarea>
+															</div>
+														</div>		
 														{!! Form::button('<i class="glyphicon glyphicon-check"></i> Guardar', array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => 'registrarHistoriaClinica();')) !!}
 														<h5 style="color: red; font-weight: bold;" id="mensajeHistoriaClinica"></h5>
 													</div>
 													<div class="col-sm-4">
 														<div class="form-group">
 															{!! Form::label('sintomas', 'Sintomas:') !!}
-															<textarea class="form-control input-xs" id="sintomas" cols="10" rows="5"></textarea>
+															<textarea class="form-control input-xs" id="sintomas" cols="10" rows="3"></textarea>
 														</div>
 														<div class="form-group">
 															{!! Form::label('diagnostico', 'Diagnostico:') !!}
-															<textarea class="form-control input-xs" id="diagnostico" cols="10" rows="5"></textarea>
+															<textarea class="form-control input-xs" id="diagnostico" cols="10" rows="3"></textarea>
 														</div>
 														<div class="form-group">
 															{!! Form::label('tratamiento', 'Tratamiento:') !!}
-															<textarea class="form-control input-xs" id="tratamiento" cols="10" rows="5"></textarea>
+															<textarea class="form-control input-xs" id="tratamiento" cols="10" rows="3"></textarea>
+														</div>
+														<div class="form-group">
+															{!! Form::label('exploracion_fisica', 'Exploración Física:') !!}
+															<textarea class="form-control input-xs" id="exploracion_fisica" cols="10" rows="3"></textarea>
+														</div>
+														<div class="form-group">
+															{!! Form::label('examenes', 'Exámenes:') !!}
+															<textarea class="form-control input-xs" id="examenes" cols="10" rows="3"></textarea>
 														</div>												
 													</div>
 													<div class="col-sm-4">
@@ -328,6 +348,10 @@ $entidad='Producto';
 		$("#sintomas").prop('disabled', true);
 		$("#diagnostico").prop('disabled', true);
 		$("#tratamiento").prop('disabled', true);
+		$("#diagnostico").prop('disabled', true);
+		$("#exploracion_fisica").prop('disabled', true);
+		$("#examenes").prop('disabled', true);
+		$("#motivo").prop('disabled', true);
 		$("#btnGuardar").prop('disabled', true);
 	});
 	function buscar2(){
@@ -353,13 +377,17 @@ $entidad='Producto';
 
 	function buscar4(){
 		$.ajax({
-	        type: "POST",
-	        url: "ventaadmision/cola2",
-	        data: "_token=<?php echo csrf_token(); ?>",
-	        success: function(a) {
-	        	$("#listado").html(a);
-	        }
-	    });
+                type: "POST",
+                url: "ventaadmision/cola",
+                data: "_token=<?php echo csrf_token(); ?>",
+                dataType: 'json',
+                success: function(a) {
+                    $("#listadoConsultas").html(a.consultas);
+                    $("#listadoEmergencias").html(a.emergencias);
+                    $("#listadoOjos").html(a.ojos);
+                    $("#listadoLectura").html(a.lectura);
+                }
+            });
 		$('.llamando').fadeTo(500, .1).fadeTo(500, 1) ;
 		$.ajax({
 	        type: "POST",
@@ -393,7 +421,7 @@ $entidad='Producto';
 		
 		$.ajax({
 			"method": "POST",
-			"url": "{{ url('/ventaadmision/cola2') }}",
+			"url": "{{ url('/ventaadmision/cola') }}",
 			"data": {
 				"ticket_id" : ticket_id, 
 				"_token": "{{ csrf_token() }}",
@@ -445,13 +473,31 @@ $entidad='Producto';
     		$('#mensajeHistoriaClinica').html('Debes ingresar un tratamiento.');
     		return 0;
     	}
+		if($('#examenes').val() == '') {
+    		$('#examenes').focus();
+    		$('#mensajeHistoriaClinica').html('Debes ingresar exámenes.');
+    		return 0;
+    	}
+    	if($('#motivo').val() == '') {
+    		$('#motivo').focus();
+    		$('#mensajeHistoriaClinica').html('Debes ingresar un motivo.');
+    		return 0;
+    	}
+    	if($('#exploracion_fisica').val() == '') {
+    		$('#exploracion_fisica').focus();
+    		$('#mensajeHistoriaClinica').html('Debes ingresar exploración física.');
+    		return 0;
+    	}
     	var tratamiento = $('#tratamiento').val().replace(/\r?\n/g, "<br>");
     	var sintomas = $('#sintomas').val().replace(/\r?\n/g, "<br>");
     	var diagnostico = $('#diagnostico').val().replace(/\r?\n/g, "<br>");
+		var examenes = $('#examenes').val().replace(/\r?\n/g, "<br>");
+    	var motivo = $('#motivo').val().replace(/\r?\n/g, "<br>");
+    	var exploracion_fisica = $('#exploracion_fisica').val().replace(/\r?\n/g, "<br>");
 		$.ajax({
 	        type: "POST",
 	        url: "historiaclinica/registrarHistoriaClinica",
-	        data: $('#formHistoriaClinica').serialize() + "&_token=<?php echo csrf_token(); ?>&tratamiento=" + tratamiento + "&sintomas=" + sintomas + "&diagnostico=" + diagnostico,
+	        data: $('#formHistoriaClinica').serialize() + "&_token=<?php echo csrf_token(); ?>&tratamiento=" + tratamiento + "&sintomas=" + sintomas + "&diagnostico=" + diagnostico + "&examenes=" + examenes + "&motivo=" + motivo + "&exploracion_fisica=" + exploracion_fisica,
 	        success: function(a) {
 	        	if(a == 'El Código CIE no existe') {
 	        		$('#mensajeHistoriaClinica').html(a);
@@ -470,6 +516,9 @@ $entidad='Producto';
 	  				$('#tratamiento').val('');
 	  				$('#sintomas').val('');
 	  				$('#diagnostico').val('');
+					$('#examenes').val('');
+					$('#motivo').val('');
+					$('#exploracion_fisica').val('');
 					$("#divpresente").css('display','');
 	        	}
 	        }
@@ -496,6 +545,9 @@ $entidad='Producto';
 			$("#diagnostico").prop('disabled', false);
 			$("#tratamiento").prop('disabled', false);
 			$("#btnGuardar").prop('disabled', false);
+			$("#exploracion_fisica").prop('disabled', false);
+			$("#examenes").prop('disabled', false);
+			$("#motivo").prop('disabled', false);
 			$("#divpresente").css('display','none');
 		}else{
 			$("#divpresente").css('display','');
@@ -510,6 +562,9 @@ $entidad='Producto';
 			$('#tratamiento').val('');
 			$('#sintomas').val('');
 			$('#diagnostico').val('');
+			$('#examenes').val('');
+			$('#motivo').val('');
+			$('#exploracion_fisica').val('');
 		}
 		var ticket_id = $('#ticket_id').val();
 		$.ajax({

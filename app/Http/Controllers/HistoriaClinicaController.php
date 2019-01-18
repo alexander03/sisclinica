@@ -62,7 +62,10 @@ class HistoriaClinicaController extends Controller
             $historiaclinica->historia_id    = $request->input('historia_id');
             $historiaclinica->tratamiento    = strtoupper($request->input('tratamiento'));
             $historiaclinica->sintomas       = strtoupper($request->input('sintomas'));
-            $historiaclinica->diagnostico   = strtoupper($request->input('diagnostico'));
+            $historiaclinica->diagnostico    = strtoupper($request->input('diagnostico'));
+            $historiaclinica->examenes             = strtoupper($request->input('examenes'));
+            $historiaclinica->motivo               = strtoupper($request->input('motivo'));
+            $historiaclinica->exploracion_fisica   = strtoupper($request->input('exploracion_fisica'));
 
             $historiaclinica->cie_id         = $cie10[0]->id;
 
@@ -159,6 +162,14 @@ class HistoriaClinicaController extends Controller
                 </tr>
                 <tr>
                     <td>
+                        <strong><font style='color:blue'>Motivo</font></strong><br>
+                    </td>
+                    <td>"
+                        . $cita->motivo .
+                    "</td>
+                </tr>
+                <tr>
+                    <td>
                         <strong><font style='color:blue'>Síntomas</font></strong><br>
                     </td>
                     <td>"
@@ -179,6 +190,22 @@ class HistoriaClinicaController extends Controller
                     </td>
                     <td>"
                         . $cita->tratamiento .
+                    "</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong><font style='color:blue'>Exámenes</font></strong><br>
+                    </td>
+                    <td>"
+                        . $cita->examenes .
+                    "</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong><font style='color:blue'>Exploración física</font></strong><br>
+                    </td>
+                    <td>"
+                        . $cita->exploracion_fisica .
                     "</td>
                 </tr>
             </tbody>
