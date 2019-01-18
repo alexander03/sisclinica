@@ -57,7 +57,8 @@
 		<table class="table table-bordered table-responsive table-condensed table-hover dataTable no-footer" border="1" role="grid" style="width: 100%;">
 			<thead>
 				<tr>
-					<th width="30%">Fecha</th>
+					<th width="10%">N°</th>
+					<th width="20%">Fecha</th>
 					<th width="15%">Efectivo</th>
 					<th width="15%">Visa</th>
 					<th width="15%">Master</th>
@@ -68,6 +69,7 @@
 				<?php $i = 0; $totaltotal = 0; ?>				
 				@foreach($cuotas as $cuota)
 					<tr>
+						<td>{{ $cuota->numero }}</td>
 						<td>{{ $cuota->fecha }}</td>
 						<td>
 							<input readonly="" class="form-control input-xs precio" type="text" value="{{ $cuota->totalpagado }}">
@@ -88,7 +90,7 @@
 					<?php $i++; ?>
 				@endforeach
 				<tr>
-					<th colspan="4" class="text-right">Total Pago</th>
+					<th colspan="5" class="text-right">Total Pago</th>
 					<td><input name="totalpago" id="totalpago" class="form-control input-xs" type="text" readonly="" value="{{ $totaltotal }}"></td>
 				</tr>
 			</tbody>
