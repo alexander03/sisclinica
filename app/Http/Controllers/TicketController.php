@@ -1716,7 +1716,7 @@ class TicketController extends Controller
             $tipodocumento_id=1;
         }
         $serie = $request->input('serie') + 0;
-        $numeroventa = Movimiento::NumeroSigue($caja->id,$sucursal_id,2,$tipodocumento_id,$serie,'N');
+        $numeroventa = Movimiento::NumeroSigue($caja->id,$sucursal_id,4,$tipodocumento_id,$serie,'N');
         echo $numeroventa;
     }
     

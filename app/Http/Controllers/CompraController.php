@@ -125,7 +125,7 @@ class CompraController extends Controller
         if($tipodoc>0){
             $resultado->where("movimiento.tipodocumento_id",$tipodoc);
         }
-        $resultado->where(DB::raw('concat(movimiento.serie,\'-\',movimiento.numero)'),'like','%'.$request->input('numero').'%')->orderBy('movimiento.fecha','DESC')->select('movimiento.*','tipodocumento.nombre as tipodoc');
+        $resultado->where('numeroserie2','like','%'.$request->input('numero').'%')->orderBy('movimiento.fecha','DESC')->select('movimiento.*','tipodocumento.nombre as tipodoc');
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
@@ -467,8 +467,7 @@ class CompraController extends Controller
             $compra->tipodocumento_id          = $request->input('tipodocumento_id');
             $compra->tipomovimiento_id          = 3;
             $compra->persona_id = $request->input('person_id');
-            $compra->serie = $request->input('serie');
-            $compra->numero = $request->input('numerodocumento');
+            $compra->numeroserie2 = $request->input('serie') . '-' . $request->input('numerodocumento');
             $compra->fecha  = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
             $compra->total = $total;
             $compra->igv = $igv;
@@ -619,8 +618,7 @@ class CompraController extends Controller
                     $movimiento->tipodocumento_id          = $request->input('tipodocumento_id');
                     $movimiento->tipomovimiento_id          = 2;
                     $movimiento->persona_id = $request->input('person_id');
-                    $movimiento->serie = $request->input('serie');
-                    $movimiento->numero = $request->input('numerodocumento');
+                    $movimiento->numeroserie2 = $request->input('serie') . '-' . $request->input('numerodocumento');
                     $movimiento->voucher = $request->input('serie') .'-'.$request->input('numerodocumento');
                     $movimiento->fecha  = date("Y-m-d");
                     $movimiento->total = $total;

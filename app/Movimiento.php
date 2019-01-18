@@ -139,4 +139,24 @@ class Movimiento extends Model
         return str_pad($rs->maximo+1,8,'0',STR_PAD_LEFT);    
     }
 
+    public function scopeNumeroSigueDocMovAlmacen($query,$sucursal_id,$tipomovimiento_id,$tipodocumento_id=0,$serie=0,$manual='S'){
+        
+        $rs=$query->where('sucursal_id', $sucursal_id)
+                    ->where('tipomovimiento_id', $tipomovimiento_id)
+                    ->where('manual','like',$manual)
+                    ->where('tipodocumento_id', $tipodocumento_id)
+                    ->where('serie', $serie)
+                    ->select(DB::raw("max((CASE WHEN numero IS NULL THEN 0 ELSE numero END)*1) AS maximo"))
+                    ->first();
+        return str_pad($rs->maximo+1,8,'0',STR_PAD_LEFT);    
+    }
+
+    public function scopeNumeroSigueCuota($query, $rescuotas_id){
+        
+        $rs=$query->where('movimiento_id', $rescuotas_id)
+                    ->select(DB::raw("max((CASE WHEN numero IS NULL THEN 0 ELSE numero END)*1) AS maximo"))
+                    ->first();
+        return str_pad($rs->maximo+1,8,'0',STR_PAD_LEFT);    
+    }
+
 }

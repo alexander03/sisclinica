@@ -29,7 +29,7 @@
 			<td>{{ $contador }}</td>
 			<td>{{ date("d/m/Y",strtotime($value->fecha)) }}</td>
 			<td>{{ $value->person->bussinesname }}</td>
-			<td>{{ $value->serie.'-'.$value->numero }}</td>
+			<td>{{ $value->numeroserie2 }}</td>
 			<td>{{ $value->tipodoc }}</td>
 			<td>{{ $estadopago }}</td>
 			<td>{{ $value->total }}</td>

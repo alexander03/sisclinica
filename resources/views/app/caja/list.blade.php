@@ -142,12 +142,14 @@ $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
                 <?php 
                     $formapago .= ' / Visa = '; 
                     $formapago .= $value->totalpagadovisa;
+                    $visa2 += $value->totalpagadovisa;
                 ?>
             @endif
             @if($value->totalpagadomaster!=0)
                 <?php 
                     $formapago .= ' / Master = '; 
                     $formapago .= $value->totalpagadomaster;
+                    $master2 += $value->totalpagadomaster;
                 ?>
             @endif
 

@@ -231,6 +231,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('venta/generarcreditos', array('as' => 'venta.generarcreditos', 'uses' => 'VentaController@generarcreditos'));
     Route::post('venta/comprobarproducto', array('as' => 'venta.comprobarproducto', 'uses' => 'VentaController@comprobarproducto'));
     Route::post('venta/generarNumero', array('as' => 'venta.generarNumero', 'uses' => 'VentaController@generarNumero'));
+    Route::post('venta/generarNumeroDocMovAlmacen', array('as' => 'venta.generarNumeroDocMovAlmacen', 'uses' => 'VentaController@generarNumeroDocMovAlmacen'));
     Route::post('venta/agregarconvenio', array('as' => 'venta.agregarconvenio', 'uses' => 'VentaController@agregarconvenio'));
     Route::get('venta/busquedacliente', array('as' => 'venta.busquedacliente', 'uses' => 'VentaController@busquedacliente'));
     Route::post('venta/listarclientes', array('as' => 'venta.listarclientes', 'uses' => 'VentaController@listarclientes'));

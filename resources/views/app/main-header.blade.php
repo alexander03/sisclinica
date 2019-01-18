@@ -30,7 +30,8 @@ $date     = Date::instance($usertype->created_at)->format('l j F Y');
 </style>
 <header class="main-header">
     <!-- Logo -->
-    <a href="#" class="logo" onclick="window.open('{{ url('/dashboard')}}','_blank')">
+    <!--<a href="#" class="logo" onclick="window.open('{ url('/dashboard')}}','_blank')">-->
+    <a href="#" class="logo">
         <!-- mini logo for sidebar mini 50x50 pixels -->
         <span class="logo-mini"><b>SIGHO</b></span>
         <!-- logo for regular state and mobile devices -->

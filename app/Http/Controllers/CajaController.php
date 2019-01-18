@@ -5585,7 +5585,7 @@ class CajaController extends Controller
             return $existe;
         }
         $movimiento = Movimiento::find($id);
-        $serie=3;
+        $serie=1;
         $entidad    = 'Movimiento';
         $formData   = array('caja.cobrarticket2');
         $formData   = array('route' => $formData, 'method' => 'POST', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
@@ -5680,9 +5680,9 @@ class CajaController extends Controller
 
                     //Puede ser manual o no
 
-                    $venta->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,4,$tipodocumento_id,$caja->serie,'N');
+                    $venta->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,4,$tipodocumento_id,$request->input('serieventa') + 0,'N');
 
-                    $venta->serie = '00'.$caja->serie;;
+                    $venta->serie = '00'.$request->input('serieventa');;
                     $venta->responsable_id=$user->person_id;
                     $venta->persona_id=$Ticket->persona_id;
                     if($request->input('tipodocumento')=="Boleta"){
@@ -5699,6 +5699,7 @@ class CajaController extends Controller
                         $venta->total=number_format($pagohospital,2,'.','');  
                     }
                     $venta->tipomovimiento_id=4;
+                    $venta->caja_id=$caja->id;
                     $venta->numero=$request->input('numeroventa');
                     $venta->serie=$request->input('serieventa');
                     $venta->tipodocumento_id=$tipodocumento_id;
@@ -5774,7 +5775,7 @@ class CajaController extends Controller
                     $primeracuota        = new Movimiento();
                     $primeracuota->sucursal_id = $sucursal_id;
                     $primeracuota->fecha = date("Y-m-d");
-                    $primeracuota->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,2,2);
+                    $primeracuota->numero= Movimiento::NumeroSigueCuota($rescuotas->id);
                     $primeracuota->responsable_id=$user->person_id;
                     $primeracuota->persona_id=$Ticket->persona_id;
                     $primeracuota->subtotal=0;
@@ -5846,13 +5847,14 @@ class CajaController extends Controller
         $movimiento = Movimiento::find($resumen->movimiento_id);  
         //Todas las cuotas que se han pagado
         $cuotas = Movimiento::where('movimiento_id', $resumen->id)->get();
-        $serie=3;
+        $serie=1;
         $entidad    = 'Movimiento';
         
         $formData   = array('caja.cobrarcuentapendiente2');
         $formData   = array('route' => $formData, 'method' => 'POST', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton      = 'Registrar';
-        $cboCaja = Caja::where('nombre', '<>', 'TESORERIA')->where('nombre', '<>', 'FARMACIA')->where('nombre', '<>', 'TESORERIA - FARMACIA')->get();
+        $sucursal_id = Session::get('sucursal_id');
+        $cboCaja = Caja::where('nombre', '<>', 'TESORERIA')->where('nombre', '<>', 'FARMACIA')->where('nombre', '<>', 'TESORERIA - FARMACIA')->where('sucursal_id', $sucursal_id)->get();
         $cboFormaPago     = array("Efectivo" => "Efectivo", "Tarjeta" => "Tarjeta");
         $cboTipoTarjeta    = array("VISA" => "VISA", "MASTER" => "MASTER");
         $cboTipoTarjeta2    = array("CREDITO" => "CREDITO", "DEBITO" => "DEBITO");
@@ -5924,9 +5926,8 @@ class CajaController extends Controller
 
                     //Puede ser manual o no
 
-                    $venta->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,4,$tipodocumento_id,$caja->serie,'N');
+                    $venta->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,4,$tipodocumento_id,$request->input('serieventa')+0,'N');
 
-                    $venta->serie = '00'.$caja->serie;;
                     $venta->responsable_id=$user->person_id;
                     $venta->persona_id=$Ticket->persona_id;
                     if($request->input('tipodocumento')=="Boleta"){
@@ -5943,6 +5944,9 @@ class CajaController extends Controller
                         $venta->total=number_format($pagohospital,2,'.','');  
                     }
                     $venta->tipomovimiento_id=4;
+                    $venta->caja_id=$caja->id;
+                    $venta->numero=$request->input('numeroventa');
+                    $venta->serie=$request->input('serieventa');
                     $venta->tipodocumento_id=$tipodocumento_id;
                     $venta->comentario='';
                     $venta->manual='N';

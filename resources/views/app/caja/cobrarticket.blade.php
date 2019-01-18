@@ -100,7 +100,7 @@
     			{!! Form::text('serieventa', $serie, array('class' => 'form-control input-xs datocaja', 'id' => 'serieventa')) !!}
     		</div>
             <div class="col-lg-2 col-md-2 col-sm-2">
-    		{!! Form::text('numeroventa', $movimiento->numero, array('class' => 'form-control input-xs', 'id' => 'numeroventa', 'readonly' => 'true')) !!}
+    		{!! Form::text('numeroventa', '', array('class' => 'form-control input-xs', 'id' => 'numeroventa', 'readonly' => 'true')) !!}
         		</div>	        
 	    </div>
 	    <div class="form-group">
@@ -167,6 +167,7 @@
     	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="numeroventa"]').inputmask("99999999");
     	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="numvisa"]').inputmask("9999999999999999");
     	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="nummaster"]').inputmask("9999999999999999");
+    	generarNumero();
 	}); 
 
 	function pad (str, max) {
@@ -419,7 +420,7 @@
 	    $.ajax({
 	        type: "POST",
 	        url: "ticket/generarNumero",
-	        data: "tipodocumento="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="tipodocumento"]').val()+"&serie="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="serieventa"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
+	        data: "tipodocumento="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="tipodocumento"]').val()+"&serie="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="serieventa"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val() + '&caja_id=' + $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="caja_id"]').val(),
 	        success: function(a) {
 	            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="numeroventa"]').val(a);
 	            if($(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="tipodocumento"]').val()=="Factura"){

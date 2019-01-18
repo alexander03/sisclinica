@@ -57,7 +57,8 @@
 		<table class="table table-bordered table-responsive table-condensed table-hover dataTable no-footer" border="1" role="grid" style="width: 100%;">
 			<thead>
 				<tr>
-					<th width="40%">Fecha</th>
+					<th width="10%">N°</th>
+					<th width="30%">Fecha</th>
 					<th width="15%">Efectivo</th>
 					<th width="15%">Visa</th>
 					<th width="15%">Master</th>
@@ -68,6 +69,7 @@
 				<?php $i = 0; $totaltotal = 0; ?>				
 				@foreach($cuotas as $cuota)
 					<tr>
+						<td>{{ $cuota->numero }}</td>
 						<td>{{ $cuota->fecha }}</td>
 						<td>
 							<input readonly="" class="form-control input-xs precio" type="text" value="{{ $cuota->totalpagado }}">
@@ -144,7 +146,7 @@
 	    			{!! Form::text('serieventa', $serie, array('class' => 'form-control input-xs datocaja', 'id' => 'serieventa')) !!}
 	    		</div>
 	            <div class="col-lg-2 col-md-2 col-sm-2">
-	    		{!! Form::text('numeroventa', $movimiento->numero, array('class' => 'form-control input-xs', 'id' => 'numeroventa', 'readonly' => 'true')) !!}
+	    		{!! Form::text('numeroventa', '', array('class' => 'form-control input-xs', 'id' => 'numeroventa', 'readonly' => 'true')) !!}
 	        	</div>   	
 		    </div>
 		    <div class="form-group">
@@ -232,6 +234,7 @@
     	$('#pendiente').val(parseFloat($('#pendiente').val()).toFixed(3));
     	quedan();
     	coincidenciasMontos();
+    	generarNumero();
 	}); 
 
 	function pad (str, max) {
@@ -447,7 +450,7 @@
 	    $.ajax({
 	        type: "POST",
 	        url: "ticket/generarNumero",
-	        data: "tipodocumento="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="tipodocumento"]').val()+"&serie="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="serieventa"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
+	        data: "tipodocumento="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="tipodocumento"]').val()+"&serie="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="serieventa"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val() + '&caja_id=' + $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="caja_id"]').val(),
 	        success: function(a) {
 	            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="numeroventa"]').val(a);
 	            if($(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="tipodocumento"]').val()=="Factura"){

@@ -6,7 +6,7 @@
 		<div class="form-group" style="height: 12px;">
 			{!! Form::label('documento', 'Documento:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::select('documento', $cboDocumento, null, array('style' => 'background-color: rgb(25,241,227);' ,'class' => 'form-control input-xs', 'id' => 'documento')) !!}
+				{!! Form::select('documento', $cboDocumento, null, array('style' => 'background-color: rgb(25,241,227);' ,'class' => 'form-control input-xs', 'id' => 'documento', 'onchange' => 'generarNumero(this.value)')) !!}
 			</div>
 		</div>
 		<div class="form-group" style="height: 12px;">
@@ -28,7 +28,7 @@
 		<div class="form-group" style="height: 12px;">
 			{!! Form::label('numerodocumento', 'Nro Doc:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::text('numerodocumento', "-", array('class' => 'form-control input-xs', 'id' => 'numerodocumento', 'placeholder' => 'numerodocumento')) !!}
+				{!! Form::text('numerodocumento', "-", array('class' => 'form-control input-xs', 'id' => 'numerodocumento', 'placeholder' => 'numerodocumento', 'readonly' => 'readonly')) !!}
 			</div>
 
 		</div>
@@ -399,6 +399,8 @@ $(document).ready(function() {
 	//cambiotipoventa();
 	$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="nombreproducto"]').focus();
 
+	generarNumero(8);
+
 }); 
 
 var valorinicial="";
@@ -492,7 +494,7 @@ function abrirconvenios() {
 function generarNumero(valor){
     $.ajax({
         type: "POST",
-        url: "venta/generarNumero",
+        url: "venta/generarNumeroDocMovAlmacen",
         data: "tipodocumento_id="+valor+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
         success: function(a) {
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="numerodocumento"]').val(a);
