@@ -10,7 +10,7 @@
 		</div>
 		{!! Form::label('numero', 'Nro:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
 		<div class="col-lg-3 col-md-3 col-sm-3">
-			{!! Form::text('numero', $numero, array('class' => 'form-control input-xs', 'id' => 'numero', 'readonly' => 'true')) !!}
+			{!! Form::text('numero', '', array('class' => 'form-control input-xs', 'id' => 'numero', 'readonly' => 'true')) !!}
 		</div>
 	</div>
     <div class="form-group">
@@ -114,6 +114,7 @@
 <script type="text/javascript">
 $(document).ready(function() {
 	configurarAnchoModal('750');
+    generarNumero(2);
 	init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'B', '{!! $entidad !!}');
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
 	var personas = new Bloodhound({
@@ -271,7 +272,7 @@ function generarNumero(valor){
     $.ajax({
         type: "POST",
         url: "caja/generarNumero",
-        data: "tipodocumento_id="+valor+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
+        data: "caja_id=" + $('#caja_id').val() + "&tipodocumento_id="+valor+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
         success: function(a) {
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="numero"]').val(a);
         }
