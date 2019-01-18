@@ -130,24 +130,27 @@ $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
                     <td align="center" style='{{ $color2 }}'>{{ number_format($value->total,2,'.','') }}</td>
                 @endif
             @endif 
+
             <?php $formapago = ''; ?>
             @if($value->totalpagado!=0 || $value->totalpagado!=null)
                 <?php 
-                    $formapago .= '&nbsp;&nbsp;E&nbsp;&nbsp;';
+                    $formapago .= 'Efectivo = ';
+                    $formapago .= $value->totalpagado;
                 ?>
             @endif
             @if($value->totalpagadovisa!=0)
                 <?php 
-                    $formapago .= '&nbsp;&nbsp;V&nbsp;&nbsp;'; 
-                    $visa2 += $value->totalpagadovisa;
+                    $formapago .= ' / Visa = '; 
+                    $formapago .= $value->totalpagadovisa;
                 ?>
             @endif
             @if($value->totalpagadomaster!=0)
                 <?php 
-                    $formapago .= '&nbsp;&nbsp;M&nbsp;&nbsp;'; 
-                    $master2 += $value->totalpagadomaster;
+                    $formapago .= ' / Master = '; 
+                    $formapago .= $value->totalpagadomaster;
                 ?>
             @endif
+
             <td align="center">{{ $formapago }}</td>
             <td>{{ $value->comentario }}</td>
             <td>{{ $value->responsable }}</td>
