@@ -5736,11 +5736,7 @@ class CajaController extends Controller
                         //$movimiento->voucher=$request->input('nroref');
                         //$movimiento->totalpagado=0;
                     //}else{
-<<<<<<< HEAD
-                       // $movimiento->totalpagado=$request->input('total2',0);
-=======
                         //$movimiento->totalpagado=$request->input('total2',0);
->>>>>>> ec72ff8603c9a9249b4370721f77a55115367c06
                     //}
                     $movimiento->situacion='N';
                     $movimiento->movimiento_id=$venta->id;
@@ -5979,7 +5975,7 @@ class CajaController extends Controller
                         //$movimiento->voucher=$request->input('nroref');
                         //$movimiento->totalpagado=0;
                     //}else{
-                        $movimiento->totalpagado=$request->input('total2',0);
+                        //$movimiento->totalpagado=$request->input('total2',0);
                     //}
                     $movimiento->situacion='N';
                     $movimiento->movimiento_id=$venta->id;
