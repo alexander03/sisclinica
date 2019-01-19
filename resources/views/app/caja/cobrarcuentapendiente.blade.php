@@ -63,6 +63,7 @@
 					<th width="15%">Visa</th>
 					<th width="15%">Master</th>
 					<th width="15%">Subtotal</th>
+					<th width="10%">Recibo</th>
 				</tr>					
 			</thead>
 			<tbody>
@@ -85,6 +86,9 @@
 							?>
 						<td>
 							<input readonly="" class="form-control input-xs precio" type="text" value="{{ round($subtot,3) }}">
+						</td>
+						<td>
+							<center><a class="btn btn-info btn-xs" href="#"><i class="glyphicon glyphicon-print"></i></a></center>
 						</td>
 					</tr>
 					<?php $i++; ?>

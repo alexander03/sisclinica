@@ -5756,7 +5756,7 @@ class CajaController extends Controller
                     $rescuotas        = new Movimiento();
                     $rescuotas->sucursal_id = $sucursal_id;
                     $rescuotas->fecha = date("Y-m-d");
-                    $rescuotas->numero= Movimiento::NumeroSigueResumenCuotas($caja->id,$sucursal_id,14,'D');
+                    $rescuotas->numero= Movimiento::NumeroSigueResumenCuotas($caja->id,$sucursal_id,14);
                     $rescuotas->responsable_id=$user->person_id;
                     $rescuotas->persona_id=$Ticket->persona_id;
                     $rescuotas->total = $request->input('total2', 0);
@@ -5787,7 +5787,7 @@ class CajaController extends Controller
                     $primeracuota->numvisa = $request->input('numvisa');
                     $primeracuota->nummaster = $request->input('nummaster');
                     $primeracuota->tipomovimiento_id=14;//EN BLANCO, EL INGRESO SE HARÁ AL COMPLETAR LA BOLETA
-                    $primeracuota->comentario='PAGO DE CUOTA A CRÉDITO DE CLIENTE';
+                    $primeracuota->comentario='PAGO DE CUOTA PARCIAL DE CLIENTE';
                     $primeracuota->caja_id=$request->input('caja_id');
                     $primeracuota->movimiento_id=$rescuotas->id;
                     $primeracuota->save();     
@@ -5934,7 +5934,7 @@ class CajaController extends Controller
 
             $Ticket->save();
 
-            $comentario = 'PAGO DE CUOTA A CRÉDITO DE CLIENTE';
+            $comentario = 'PAGO DE CUOTA PARCIAL DE CLIENTE';
            
             $pagohospital=$Ticket->total;
 
