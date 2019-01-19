@@ -1,8 +1,11 @@
 <?php
+use Illuminate\Support\Facades\Auth;
 $entidad='Producto';
 date_default_timezone_set('America/Lima');
 $fechahoy = date('j-m-Y');
+$user = Auth::user();
 ?>
+@if($user->usertype_id == 18)
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -43,6 +46,7 @@ $fechahoy = date('j-m-Y');
 	<form action="#" id="formHistoriaClinica">
 		{!! Form::hidden('historia_id', '', array('id' => 'historia_id')) !!}
 		{!! Form::hidden('ticket_id', '', array('id' => 'ticket_id')) !!}
+		{!! Form::hidden('fondo_si', '', array('id' => 'fondo_si')) !!}
 	    <div class="wrapper">
 			<!-- Content Header (Page header) -->
 			<section class="content-header">
@@ -453,10 +457,25 @@ $fechahoy = date('j-m-Y');
   				$('#historia').val(a.numhistoria);
   				$('#paciente').val(a.paciente);
   				$('#numero').val(a.numero);
-				if(a.fondo == null){
+				if(a.fondo == "SI"){
 					$('#fondo').prop('checked', false);
+					$('#fondo_si').val(a.fondo);
+					$("#cie102").prop('readOnly', true);
+					$("#motivo").prop('readOnly', true);
+				}else{
+					$('#fondo').prop('checked', false);
+					$('#fondo_si').val(a.fondo);
+					$("#cie102").prop('readOnly', false);
+					$("#motivo").prop('readOnly', false);
 				}
+				$('#cie102').val(a.cie10);
   				$('#cie102').focus();
+				$('#motivo').val(a.motivo);
+				$('#sintomas').val(a.sintomas);
+				$('#tratamiento').val(a.tratamiento);
+				$('#diagnostico').val(a.diagnostico);
+				$('#exploracion_fisica').val(a.exploracion_fisica);
+				$('#examenes').val(a.examenes);
 	        }
 	    });
     });
@@ -570,11 +589,16 @@ $fechahoy = date('j-m-Y');
 			$("#tratamiento").prop('disabled', false);
 			$("#btnGuardar").prop('disabled', false);
 			$("#exploracion_fisica").prop('disabled', false);
-			$("#fondo").prop('disabled', false);
-			$('#fondo').prop('checked', false);
 			$("#examenes").prop('disabled', false);
 			$("#motivo").prop('disabled', false);
 			$("#divpresente").css('display','none');
+			if( $('#fondo_si').val() == "SI" ){
+				$("#fondo").prop('disabled', true);
+				$('#fondo').prop('checked', false);
+			}else{
+				$("#fondo").prop('disabled', false);
+				$('#fondo').prop('checked', false);
+			}
 		}else{
 			$("#divpresente").css('display','');
 			$("li").removeClass('in active');
@@ -604,3 +628,4 @@ $fechahoy = date('j-m-Y');
 		});
 	}
 </script>
+@endif

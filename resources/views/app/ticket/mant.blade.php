@@ -66,7 +66,6 @@ if(!is_null($ticket)){
                     <select class="form-control input-xs" name="clasificacionconsulta" id="clasificacionconsulta" onchange="lectRes();">
                         <option value="C">CONSULTA</option>
                         <option value="E">EMERGENCIA</option>
-                        <option value="F">FONDO DE OJOS</option>
                         <option value="L">LECT. RESULTADOS</option>
                     </select>
                 </div>

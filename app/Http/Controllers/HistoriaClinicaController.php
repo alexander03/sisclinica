@@ -39,15 +39,40 @@ class HistoriaClinicaController extends Controller
     public function nuevaHistoriaClinica($paciente_id, $ticket_id)
     {
         $historia = Historia::where('person_id', $paciente_id)->first();
+        $historiaclinica = HistoriaClinica::where('ticket_id', $ticket_id)->first();
+        
         $Ticket   = Movimiento::find($ticket_id);
-        $jsondata = array(
-            'historia_id' => $historia->id,
-            'ticket_id' => $ticket_id,
-            'fondo' => $Ticket->tiempo_fondo,
-            'paciente' => $historia->persona->apellidopaterno . ' ' . $historia->persona->apellidomaterno . ' ' . $historia->persona->nombres,
-            'numhistoria' => $historia->numero,
-            'numero' => HistoriaClinica::numeroSigue($historia->id),
-        );
+        $fondo = "NO";
+        if($Ticket->tiempo_fondo != null){
+            $fondo = "SI";
+        }
+        if($historiaclinica != null){
+            $cie10 = Cie::find($historiaclinica->cie_id);
+            $jsondata = array(
+                'historia_id' => $historia->id,
+                'ticket_id' => $ticket_id,
+                'fondo' => $fondo,
+                'paciente' => $historia->persona->apellidopaterno . ' ' . $historia->persona->apellidomaterno . ' ' . $historia->persona->nombres,
+                'numhistoria' => $historia->numero,
+                'numero' => $historiaclinica->numero,
+                'motivo' => $historiaclinica->motivo,
+                'cie10' => $cie10->codigo,
+                'sintomas' => $historiaclinica->sintomas,
+                'tratamiento' => $historiaclinica->tratamiento,
+                'diagnostico' => $historiaclinica->diagnostico,
+                'exploracion_fisica' => $historiaclinica->exploracion_fisica,
+                'examenes' => $historiaclinica->examenes,
+            );
+        }else{
+            $jsondata = array(
+                'historia_id' => $historia->id,
+                'ticket_id' => $ticket_id,
+                'fondo' => $fondo,
+                'paciente' => $historia->persona->apellidopaterno . ' ' . $historia->persona->apellidomaterno . ' ' . $historia->persona->nombres,
+                'numhistoria' => $historia->numero,
+                'numero' => HistoriaClinica::numeroSigue($historia->id),
+            );
+        }
         return json_encode($jsondata);
     }
 
@@ -59,7 +84,12 @@ class HistoriaClinicaController extends Controller
             if(count($cie10) == 0) {
                 return 'El Código CIE no existe';
             }
-            $historiaclinica                 = new HistoriaClinica();
+
+            $historiaclinica = HistoriaClinica::where('ticket_id', $request->input('ticket_id') )->first();
+
+            if($historiaclinica == null){
+                $historiaclinica                 = new HistoriaClinica();
+            }
             $historiaclinica->numero         = (int) $request->input('numero');
             $historiaclinica->historia_id    = $request->input('historia_id');
             $historiaclinica->tratamiento    = strtoupper($request->input('tratamiento'));
@@ -68,6 +98,7 @@ class HistoriaClinicaController extends Controller
             $historiaclinica->examenes             = strtoupper($request->input('examenes'));
             $historiaclinica->motivo               = strtoupper($request->input('motivo'));
             $historiaclinica->exploracion_fisica   = strtoupper($request->input('exploracion_fisica'));
+            $historiaclinica->ticket_id =  $request->input('ticket_id');
 
             $now = new \DateTime();
 
