@@ -1,8 +1,12 @@
 <?php
+use Illuminate\Support\Facades\Auth;
 $entidad='Producto';
 date_default_timezone_set('America/Lima');
 $fechahoy = date('j-m-Y');
+$user = Auth::user();
 ?>
+@if($user != null)
+@if($user->usertype_id == 18 || $user->usertype_id == 1)
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -43,6 +47,7 @@ $fechahoy = date('j-m-Y');
 	<form action="#" id="formHistoriaClinica">
 		{!! Form::hidden('historia_id', '', array('id' => 'historia_id')) !!}
 		{!! Form::hidden('ticket_id', '', array('id' => 'ticket_id')) !!}
+		{!! Form::hidden('fondo_si', '', array('id' => 'fondo_si')) !!}
 	    <div class="wrapper">
 			<!-- Content Header (Page header) -->
 			<section class="content-header">
@@ -216,7 +221,12 @@ $fechahoy = date('j-m-Y');
 															<div class="col-sm-10">
 																<textarea class="form-control input-xs" id="motivo" cols="10" rows="2"></textarea>
 															</div>
+														</div>	
+														<div class="form-group">
+															{!! Form::label('motivo', 'Fondo de ojos:', array('class' => 'col-sm-4 control-label')) !!}
+															<input style="margin-top: 11px;" type="checkbox" id="fondo" value="1"><br>
 														</div>		
+
 														{!! Form::button('<i class="glyphicon glyphicon-check"></i> Guardar', array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => 'registrarHistoriaClinica();')) !!}
 														<h5 style="color: red; font-weight: bold;" id="mensajeHistoriaClinica"></h5>
 													</div>
@@ -348,11 +358,12 @@ $fechahoy = date('j-m-Y');
 		$("#sintomas").prop('disabled', true);
 		$("#diagnostico").prop('disabled', true);
 		$("#tratamiento").prop('disabled', true);
-		$("#diagnostico").prop('disabled', true);
 		$("#exploracion_fisica").prop('disabled', true);
 		$("#examenes").prop('disabled', true);
 		$("#motivo").prop('disabled', true);
 		$("#btnGuardar").prop('disabled', true);
+		$("#fondo").prop('disabled', true);
+		$('#fondo').prop('checked', false);
 	});
 	function buscar2(){
 		$.ajax({
@@ -447,7 +458,25 @@ $fechahoy = date('j-m-Y');
   				$('#historia').val(a.numhistoria);
   				$('#paciente').val(a.paciente);
   				$('#numero').val(a.numero);
+				if(a.fondo == "SI"){
+					$('#fondo').prop('checked', false);
+					$('#fondo_si').val(a.fondo);
+					$("#cie102").prop('readOnly', true);
+					$("#motivo").prop('readOnly', true);
+				}else{
+					$('#fondo').prop('checked', false);
+					$('#fondo_si').val(a.fondo);
+					$("#cie102").prop('readOnly', false);
+					$("#motivo").prop('readOnly', false);
+				}
+				$('#cie102').val(a.cie10);
   				$('#cie102').focus();
+				$('#motivo').val(a.motivo);
+				$('#sintomas').val(a.sintomas);
+				$('#tratamiento').val(a.tratamiento);
+				$('#diagnostico').val(a.diagnostico);
+				$('#exploracion_fisica').val(a.exploracion_fisica);
+				$('#examenes').val(a.examenes);
 	        }
 	    });
     });
@@ -494,10 +523,15 @@ $fechahoy = date('j-m-Y');
 		var examenes = $('#examenes').val().replace(/\r?\n/g, "<br>");
     	var motivo = $('#motivo').val().replace(/\r?\n/g, "<br>");
     	var exploracion_fisica = $('#exploracion_fisica').val().replace(/\r?\n/g, "<br>");
+		var fondo = "NO";
+		if( $('#fondo').prop('checked') ){
+			fondo = "SI";
+		}
+		var ticket_id = $(this).data('ticket_id');
 		$.ajax({
 	        type: "POST",
 	        url: "historiaclinica/registrarHistoriaClinica",
-	        data: $('#formHistoriaClinica').serialize() + "&_token=<?php echo csrf_token(); ?>&tratamiento=" + tratamiento + "&sintomas=" + sintomas + "&diagnostico=" + diagnostico + "&examenes=" + examenes + "&motivo=" + motivo + "&exploracion_fisica=" + exploracion_fisica,
+	        data: $('#formHistoriaClinica').serialize() + "&_token=<?php echo csrf_token(); ?>&tratamiento=" + tratamiento + "&sintomas=" + sintomas + "&diagnostico=" + diagnostico + "&examenes=" + examenes + "&motivo=" + motivo + "&exploracion_fisica=" + exploracion_fisica + "&fondo=" + fondo,
 	        success: function(a) {
 	        	if(a == 'El Código CIE no existe') {
 	        		$('#mensajeHistoriaClinica').html(a);
@@ -520,6 +554,16 @@ $fechahoy = date('j-m-Y');
 					$('#motivo').val('');
 					$('#exploracion_fisica').val('');
 					$("#divpresente").css('display','');
+					$("#cie102").prop('disabled', true);
+					$("#sintomas").prop('disabled', true);
+					$("#diagnostico").prop('disabled', true);
+					$("#tratamiento").prop('disabled', true);
+					$("#exploracion_fisica").prop('disabled', true);
+					$("#examenes").prop('disabled', true);
+					$("#motivo").prop('disabled', true);
+					$("#btnGuardar").prop('disabled', true);
+					$("#fondo").prop('disabled', true);
+					$('#fondo').prop('checked', false);
 	        	}
 	        }
 	    });
@@ -549,6 +593,13 @@ $fechahoy = date('j-m-Y');
 			$("#examenes").prop('disabled', false);
 			$("#motivo").prop('disabled', false);
 			$("#divpresente").css('display','none');
+			if( $('#fondo_si').val() == "SI" ){
+				$("#fondo").prop('disabled', true);
+				$('#fondo').prop('checked', false);
+			}else{
+				$("#fondo").prop('disabled', false);
+				$('#fondo').prop('checked', false);
+			}
 		}else{
 			$("#divpresente").css('display','');
 			$("li").removeClass('in active');
@@ -578,3 +629,5 @@ $fechahoy = date('j-m-Y');
 		});
 	}
 </script>
+@endif
+@endif

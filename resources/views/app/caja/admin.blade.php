@@ -15,7 +15,7 @@
 							{!! Form::open(['route' => $ruta["search"], 'method' => 'POST' ,'onsubmit' => 'return false;', 'class' => 'form-inline', 'role' => 'form', 'autocomplete' => 'off', 'id' => 'formBusqueda'.$entidad]) !!}
 							{!! Form::hidden('page', 1, array('id' => 'page')) !!}
 							{!! Form::hidden('accion', 'listar', array('id' => 'accion')) !!}
-                            <div class="form-group" <?php if($user->usertype_id==5 || $user->usertype_id==6 || $user->usertype_id==11) echo "style='display:none'";?>>
+                            <div class="form-group" <?php if($user->usertype_id==5 || $user->usertype_id==6 || $user->usertype_id==23 || $user->usertype_id==11) echo "style='display:none'";?>>
 								{!! Form::label('caja_id', 'Caja:') !!}
 								{!! Form::select('caja_id', $cboCaja, $caja, array('class' => 'form-control input-xs', 'id' => 'caja_id', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
 							</div>
