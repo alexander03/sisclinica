@@ -216,7 +216,12 @@ $fechahoy = date('j-m-Y');
 															<div class="col-sm-10">
 																<textarea class="form-control input-xs" id="motivo" cols="10" rows="2"></textarea>
 															</div>
+														</div>	
+														<div class="form-group">
+															{!! Form::label('motivo', 'Fondo de ojos:', array('class' => 'col-sm-4 control-label')) !!}
+															<input style="margin-top: 11px;" type="checkbox" id="fondo" value="1"><br>
 														</div>		
+
 														{!! Form::button('<i class="glyphicon glyphicon-check"></i> Guardar', array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => 'registrarHistoriaClinica();')) !!}
 														<h5 style="color: red; font-weight: bold;" id="mensajeHistoriaClinica"></h5>
 													</div>
@@ -348,11 +353,12 @@ $fechahoy = date('j-m-Y');
 		$("#sintomas").prop('disabled', true);
 		$("#diagnostico").prop('disabled', true);
 		$("#tratamiento").prop('disabled', true);
-		$("#diagnostico").prop('disabled', true);
 		$("#exploracion_fisica").prop('disabled', true);
 		$("#examenes").prop('disabled', true);
 		$("#motivo").prop('disabled', true);
 		$("#btnGuardar").prop('disabled', true);
+		$("#fondo").prop('disabled', true);
+		$('#fondo').prop('checked', false);
 	});
 	function buscar2(){
 		$.ajax({
@@ -447,6 +453,9 @@ $fechahoy = date('j-m-Y');
   				$('#historia').val(a.numhistoria);
   				$('#paciente').val(a.paciente);
   				$('#numero').val(a.numero);
+				if(a.fondo == null){
+					$('#fondo').prop('checked', false);
+				}
   				$('#cie102').focus();
 	        }
 	    });
@@ -494,10 +503,15 @@ $fechahoy = date('j-m-Y');
 		var examenes = $('#examenes').val().replace(/\r?\n/g, "<br>");
     	var motivo = $('#motivo').val().replace(/\r?\n/g, "<br>");
     	var exploracion_fisica = $('#exploracion_fisica').val().replace(/\r?\n/g, "<br>");
+		var fondo = "NO";
+		if( $('#fondo').prop('checked') ){
+			fondo = "SI";
+		}
+		var ticket_id = $(this).data('ticket_id');
 		$.ajax({
 	        type: "POST",
 	        url: "historiaclinica/registrarHistoriaClinica",
-	        data: $('#formHistoriaClinica').serialize() + "&_token=<?php echo csrf_token(); ?>&tratamiento=" + tratamiento + "&sintomas=" + sintomas + "&diagnostico=" + diagnostico + "&examenes=" + examenes + "&motivo=" + motivo + "&exploracion_fisica=" + exploracion_fisica,
+	        data: $('#formHistoriaClinica').serialize() + "&_token=<?php echo csrf_token(); ?>&tratamiento=" + tratamiento + "&sintomas=" + sintomas + "&diagnostico=" + diagnostico + "&examenes=" + examenes + "&motivo=" + motivo + "&exploracion_fisica=" + exploracion_fisica + "&fondo=" + fondo,
 	        success: function(a) {
 	        	if(a == 'El Código CIE no existe') {
 	        		$('#mensajeHistoriaClinica').html(a);
@@ -520,6 +534,16 @@ $fechahoy = date('j-m-Y');
 					$('#motivo').val('');
 					$('#exploracion_fisica').val('');
 					$("#divpresente").css('display','');
+					$("#cie102").prop('disabled', true);
+					$("#sintomas").prop('disabled', true);
+					$("#diagnostico").prop('disabled', true);
+					$("#tratamiento").prop('disabled', true);
+					$("#exploracion_fisica").prop('disabled', true);
+					$("#examenes").prop('disabled', true);
+					$("#motivo").prop('disabled', true);
+					$("#btnGuardar").prop('disabled', true);
+					$("#fondo").prop('disabled', true);
+					$('#fondo').prop('checked', false);
 	        	}
 	        }
 	    });
@@ -546,6 +570,8 @@ $fechahoy = date('j-m-Y');
 			$("#tratamiento").prop('disabled', false);
 			$("#btnGuardar").prop('disabled', false);
 			$("#exploracion_fisica").prop('disabled', false);
+			$("#fondo").prop('disabled', false);
+			$('#fondo').prop('checked', false);
 			$("#examenes").prop('disabled', false);
 			$("#motivo").prop('disabled', false);
 			$("#divpresente").css('display','none');

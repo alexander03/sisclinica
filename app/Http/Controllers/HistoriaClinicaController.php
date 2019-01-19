@@ -39,9 +39,11 @@ class HistoriaClinicaController extends Controller
     public function nuevaHistoriaClinica($paciente_id, $ticket_id)
     {
         $historia = Historia::where('person_id', $paciente_id)->first();
+        $Ticket   = Movimiento::find($ticket_id);
         $jsondata = array(
             'historia_id' => $historia->id,
             'ticket_id' => $ticket_id,
+            'fondo' => $Ticket->tiempo_fondo,
             'paciente' => $historia->persona->apellidopaterno . ' ' . $historia->persona->apellidomaterno . ' ' . $historia->persona->nombres,
             'numhistoria' => $historia->numero,
             'numero' => HistoriaClinica::numeroSigue($historia->id),
@@ -67,15 +69,21 @@ class HistoriaClinicaController extends Controller
             $historiaclinica->motivo               = strtoupper($request->input('motivo'));
             $historiaclinica->exploracion_fisica   = strtoupper($request->input('exploracion_fisica'));
 
-            $historiaclinica->cie_id         = $cie10[0]->id;
-
             $now = new \DateTime();
+
+            $historiaclinica->cie_id         = $cie10[0]->id;
 
             $historiaclinica->fecha_atencion = $now;
             $historiaclinica->save();
 
             $Ticket   = Movimiento::find($request->input('ticket_id'));
-            $Ticket->situacion2 = 'A'; //Atendido
+            $Ticket->situacion2 = 'L'; //Atendido Listo
+
+            if( $request->input('fondo') == "SI"){
+                $Ticket->tiempo_fondo  = $now;
+                $Ticket->situacion2 = 'F'; // Cola por fondo
+            }
+
             $Ticket->save();
 
         });
