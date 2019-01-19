@@ -88,7 +88,7 @@
 							<input readonly="" class="form-control input-xs precio" type="text" value="{{ round($subtot,3) }}">
 						</td>
 						<td>
-							<center><a class="btn btn-info btn-xs" href="#"><i class="glyphicon glyphicon-print"></i></a></center>
+							<center><a class="btn btn-info btn-xs" href="#" onclick="imprimirReciboCuota({{ $cuota->id }})"><i class="glyphicon glyphicon-print"></i></a></center>
 						</td>
 					</tr>
 					<?php $i++; ?>
@@ -465,4 +465,8 @@
 	        }
 	    });
 	}
+
+	function imprimirReciboCuota(id){
+        window.open("caja/pdfReciboCuota?id="+id,"_blank");
+    }
 </script>

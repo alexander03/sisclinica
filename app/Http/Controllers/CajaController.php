@@ -6110,4 +6110,76 @@ class CajaController extends Controller
         $Ticket->save();
         echo $Ticket->id;
     }
+
+    public function pdfReciboCuota(Request $request){
+        $cuota = Movimiento::where('id','=',$request->input('id'))->first();
+        $rescuotas = Movimiento::where('id','=',$cuota->movimiento_id)->first();
+        $lista = Movimiento::where('id','=',$rescuotas->movimiento_id)->first();
+
+        $cuotas = Movimiento::where('movimiento_id','=',$rescuotas->id)->orderBy('numero')->get();
+
+        $pdf = new TCPDF();
+        $pdf::SetTitle('Recibo de pago de cuota N° ' . str_pad($lista->numero,8,'0',STR_PAD_LEFT) . ' - ' . $cuota->numero);
+        $pdf::AddPage();
+        $pdf::SetFont('helvetica','B',15);
+        $pdf::Cell(0,10,'RECIBO DE PAGO DE CUOTA N° ' . str_pad($lista->numero,8,'0',STR_PAD_LEFT) . ' - ' . $cuota->numero,0,0,'C');
+        $pdf::Ln();
+        $pdf::Ln();
+        //$pdf::SetFont('helvetica','B',10);
+        //$pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 0, 0, 35, 10);
+        //$pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 105, 0, 35, 10);
+
+        $pdf::SetFont('helvetica','B',9);
+        $pdf::Cell(20,7,"FECHA                                :   " . $lista->fecha,0,1,'L');
+
+        $pdf::SetFont('helvetica','B',9);
+        $pdf::Cell(20,7,"PACIENTE                          :   " . $lista->persona->apellidopaterno." ".$lista->persona->apellidomaterno." ".$lista->persona->nombres,0,1,'L');
+
+        $pdf::SetFont('helvetica','B',9);
+        $pdf::Cell(20,7,"TELEFONO                         :   " . $lista->persona->telefono,0,1,'L');
+
+        $pdf::SetFont('helvetica','B',9);
+        $pdf::Cell(20,7,"USUARIO                            :   " . $lista->responsable->nombres,0,1,'L');
+
+        $pdf::SetFont('helvetica','B',9);
+        $pdf::Cell(20,7,"COSTO DEL SERVICIO     :   S/." . number_format($lista->total,2,",",""),0,1,'L');
+
+        $pdf::Ln();
+
+        $pdf::SetFont('helvetica','B',13);
+        $pdf::Cell(20,7,"HISTORIAL DE CUOTAS PAGADAS",0,1,'L');
+
+        $pdf::Ln();
+
+        $pdf::SetFont('helvetica','B',8);
+        $pdf::Cell(30,6,utf8_decode("N° CUOTA"),1,0,'C');
+        $pdf::Cell(40,6,utf8_decode("EFECTIVO (S/.)"),1,0,'C');
+        $pdf::Cell(40,6,utf8_decode("VISA (S/.)"),1,0,'C');
+        $pdf::Cell(40,6,utf8_decode("MASTER (S/.)"),1,0,'C');
+        $pdf::Cell(40,6,utf8_decode("SUBTOTAL (S/.)"),1,0,'C'); 
+
+        $pdf::Ln();
+
+        $totalpagado = 0.000;
+
+        foreach($cuotas as $cuota) {
+            $pdf::Cell(30,6,$cuota->numero,1,0,'C');
+            $pdf::Cell(40,6,number_format($cuota->totalpagado,2,",",""),1,0,'C');
+            $pdf::Cell(40,6,number_format($cuota->totalpagadovisa,2,",",""),1,0,'C');
+            $pdf::Cell(40,6,number_format($cuota->totalpagadomaster,2,",",""),1,0,'C');            
+            $pdf::Cell(40,6,number_format($cuota->totalpagado+$cuota->totalpagadovisa+$cuota->totalpagadomaster,2,",",""),1,0,'C');
+            $pdf::Ln();
+            $totalpagado += $cuota->totalpagado+$cuota->totalpagadovisa+$cuota->totalpagadomaster;
+        }
+
+        $pdf::Cell(150,6,'TOTAL PAGADO (S/.)',1,0,'C');            
+        $pdf::Cell(40,6,number_format($totalpagado,2,",",""),1,0,'C');
+
+        $pdf::Ln();
+
+        $pdf::Cell(150,6,'A CUENTA (S/.)',1,0,'C');            
+        $pdf::Cell(40,6,number_format($lista->total-$totalpagado,2,",",""),1,0,'C');
+
+        $pdf::Output('ReciboCaja.pdf');        
+    }
 }
