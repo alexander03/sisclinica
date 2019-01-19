@@ -5,7 +5,8 @@ date_default_timezone_set('America/Lima');
 $fechahoy = date('j-m-Y');
 $user = Auth::user();
 ?>
-@if($user->usertype_id == 18)
+@if($user != null)
+@if($user->usertype_id == 18 || $user->usertype_id == 1)
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -628,4 +629,5 @@ $user = Auth::user();
 		});
 	}
 </script>
+@endif
 @endif

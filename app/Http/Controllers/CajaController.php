@@ -78,6 +78,25 @@ class CajaController extends Controller
         $filas            = $request->input('filas');
         $entidad          = 'Caja';
         $caja_id          = Libreria::getParam($request->input('caja_id'),'1');
+
+        $user = Auth::user();
+
+        if($user->sucursal_id == 1){
+            if($user->usertype_id==23){
+                $caja_id = 1;
+            }
+            if($user->usertype_id==11){
+                $caja_id = 3;
+            }
+        }else{
+            if($user->usertype_id==23){
+                $caja_id = 2;
+            }
+            if($user->usertype_id==11){
+                $caja_id = 4;
+            }
+        }
+
         $rst  = Movimiento::where('tipomovimiento_id','=',2)->where('caja_id','=',$caja_id)->orderBy('movimiento.id','DESC')->limit(1)->first();
         if(count($rst)==0){
             $conceptopago_id=2;

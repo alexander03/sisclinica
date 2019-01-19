@@ -823,7 +823,12 @@ function seleccionarServicio(idservicio){
                     editarPrecio(true);
                 }             
             }
-        });
+        }).done(function(){
+            $('#txtPrecio6').val(0.00);
+            $('#txtPrecio6').val(0.00);
+            $('#txtTotal6').val(0);
+            calcularTotal();
+		});
     }else{
         $('#txtMedico'+idservicio).focus();
     }
