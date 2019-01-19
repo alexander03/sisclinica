@@ -5775,7 +5775,7 @@ class CajaController extends Controller
                     $rescuotas        = new Movimiento();
                     $rescuotas->sucursal_id = $sucursal_id;
                     $rescuotas->fecha = date("Y-m-d");
-                    $rescuotas->numero= Movimiento::NumeroSigueResumenCuotas($caja->id,$sucursal_id);
+                    $rescuotas->numero= Movimiento::NumeroSigueResumenCuotas($caja->id,$sucursal_id, 'Z', 'TOTAL DE CUOTAS');
                     $rescuotas->responsable_id=$user->person_id;
                     $rescuotas->persona_id=$Ticket->persona_id;
                     $rescuotas->total = $request->input('total2', 0);
@@ -5783,6 +5783,7 @@ class CajaController extends Controller
                     $rescuotas->totalpagadovisa = $request->input('visa', 0);
                     $rescuotas->totalpagadomaster = $request->input('master', 0);
                     $rescuotas->comentario='TOTAL DE CUOTAS';
+                    $rescuotas->situacion='Z';
                     $rescuotas->caja_id=$request->input('caja_id');
                     $rescuotas->movimiento_id=$Ticket->id;
                     $rescuotas->save();
@@ -5873,7 +5874,7 @@ class CajaController extends Controller
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id');
         if($fecha!=""){
             $resultado = $resultado->where('movimiento.fecha', '=', ''.$fecha.'')
-        ->where('movimiento.tipomovimiento_id','=','14')->where('movimiento.comentario', 'TOTAL DE CUOTAS');
+        ->where('movimiento.situacion','=','Z')->where('movimiento.comentario', 'TOTAL DE CUOTAS');
         }
         if($paciente!="0"){
             $resultado = $resultado->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'), 'LIKE', '%'.$paciente.'%');
@@ -6029,7 +6030,8 @@ class CajaController extends Controller
 
             $rc        = Movimiento::where('caja_id', $request->input('caja_id'))
                                             ->where('movimiento_id', $Ticket->id)
-                                            ->where('tipomovimiento_id', 14)
+                                            ->where('situacion', 'Z')
+                                            ->where('comentario', 'TOTAL DE CUOTAS')
                                             ->where('sucursal_id', $sucursal_id)->get();
 
             $rescuotas = Movimiento::find($rc[0]->id);
@@ -6045,10 +6047,6 @@ class CajaController extends Controller
             }
             if($request->input('master') != '') {
                 $rescuotas->totalpagadomaster += $request->input('master', 0);
-            }
-
-            if($request->input('quedan') == '0.000'){
-                $rescuotas->situacion='C';
             }
 
             $rescuotas->save();
@@ -6141,10 +6139,10 @@ class CajaController extends Controller
         $cuotas = Movimiento::where('movimiento_id','=',$rescuotas->id)->orderBy('numero')->get();
 
         $pdf = new TCPDF();
-        $pdf::SetTitle('Recibo de pago de cuota N° ' . str_pad($lista->numero,8,'0',STR_PAD_LEFT) . ' - ' . $cuota->numero);
+        $pdf::SetTitle('Recibo de pago de cuota N° ' . $cuota->numero);
         $pdf::AddPage();
         $pdf::SetFont('helvetica','B',15);
-        $pdf::Cell(0,10,'RECIBO DE PAGO DE CUOTA N° ' . str_pad($lista->numero,8,'0',STR_PAD_LEFT) . ' - ' . $cuota->numero,0,0,'C');
+        $pdf::Cell(0,10,'RECIBO DE PAGO DE CUOTA N° ' . $cuota->numero,0,0,'C');
         $pdf::Ln();
         $pdf::Ln();
         //$pdf::SetFont('helvetica','B',10);
