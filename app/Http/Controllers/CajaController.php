@@ -5756,17 +5756,15 @@ class CajaController extends Controller
                     $rescuotas        = new Movimiento();
                     $rescuotas->sucursal_id = $sucursal_id;
                     $rescuotas->fecha = date("Y-m-d");
-                    $rescuotas->numero= Movimiento::NumeroSigueResumenCuotas($caja->id,$sucursal_id,14);
+                    $rescuotas->numero= Movimiento::NumeroSigueResumenCuotas($caja->id,$sucursal_id);
                     $rescuotas->responsable_id=$user->person_id;
                     $rescuotas->persona_id=$Ticket->persona_id;
                     $rescuotas->total = $request->input('total2', 0);
                     $rescuotas->totalpagado = $request->input('efectivo', 0);
                     $rescuotas->totalpagadovisa = $request->input('visa', 0);
                     $rescuotas->totalpagadomaster = $request->input('master', 0);
-                    $rescuotas->tipomovimiento_id=14;//EN BLANCO, EL INGRESO SE HARÁ AL COMPLETAR LA BOLETA
                     $rescuotas->comentario='TOTAL DE CUOTAS';
                     $rescuotas->caja_id=$request->input('caja_id');
-                    $rescuotas->situacion='D';
                     $rescuotas->movimiento_id=$Ticket->id;
                     $rescuotas->save();
                     
@@ -5775,7 +5773,8 @@ class CajaController extends Controller
                     $primeracuota        = new Movimiento();
                     $primeracuota->sucursal_id = $sucursal_id;
                     $primeracuota->fecha = date("Y-m-d");
-                    $primeracuota->numero= Movimiento::NumeroSigueCuota($rescuotas->id);
+                    $primeracuota->numero= Movimiento::NumeroSigueCuota($request->input('caja_id'), 'Z',14);
+                    $primeracuota->numeroserie2= Movimiento::NumeroSigueSerieCuota($rescuotas->id);
                     $primeracuota->responsable_id=$user->person_id;
                     $primeracuota->persona_id=$Ticket->persona_id;
                     $primeracuota->subtotal=0;
@@ -5789,6 +5788,7 @@ class CajaController extends Controller
                     $primeracuota->tipomovimiento_id=14;//EN BLANCO, EL INGRESO SE HARÁ AL COMPLETAR LA BOLETA
                     $primeracuota->comentario='PAGO DE CUOTA PARCIAL DE CLIENTE';
                     $primeracuota->caja_id=$request->input('caja_id');
+                    $primeracuota->situacion='Z';
                     $primeracuota->movimiento_id=$rescuotas->id;
                     $primeracuota->save();     
 
@@ -6039,7 +6039,8 @@ class CajaController extends Controller
             $cuota        = new Movimiento();
             $cuota->sucursal_id = $sucursal_id;
             $cuota->fecha = date("Y-m-d");
-            $cuota->numero= Movimiento::NumeroSigueCuota($rescuotas->id);
+            $cuota->numero= Movimiento::NumeroSigueCuota($request->input('caja_id'), 'Z',14);
+            $cuota->numeroserie2= Movimiento::NumeroSigueSerieCuota($rescuotas->id);
             $cuota->responsable_id=$user->person_id;
             $cuota->persona_id=$Ticket->persona_id;
             $cuota->subtotal=0;
@@ -6051,6 +6052,8 @@ class CajaController extends Controller
             $cuota->numvisa = $request->input('numvisa');
             $cuota->nummaster = $request->input('nummaster');
             $cuota->tipomovimiento_id=14;//EN BLANCO, EL INGRESO SE HARÁ AL COMPLETAR LA BOLETA
+            $cuota->situacion='Z';//EN BLANCO, EL INGRESO SE HARÁ AL COMPLETAR LA BOLETA
+            $cuota->comentario='PAGO DE CUOTA PARCIAL DE CLIENTE';
             $cuota->caja_id=$request->input('caja_id');
             $cuota->movimiento_id=$rescuotas->id;
             $cuota->save();  
