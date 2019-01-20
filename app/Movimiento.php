@@ -159,11 +159,12 @@ class Movimiento extends Model
         return str_pad($rs->maximo+1,8,'0',STR_PAD_LEFT);    
     }
 
-    public function scopeNumeroSigueCuota($query, $caja_id, $situacion, $tipomovimiento_id){
+    public function scopeNumeroSigueCuota($query, $caja_id, $sucursal_id, $situacion, $tipomovimiento_id){
         
         $rs=$query->where('caja_id', $caja_id)
                     ->where('situacion','like',$situacion)
                     ->where('tipomovimiento_id', $tipomovimiento_id)
+                    ->where('sucursal_id', $sucursal_id)
                     ->select(DB::raw("max((CASE WHEN numero IS NULL THEN 0 ELSE numero END)*1) AS maximo"))
                     ->first();
         return str_pad($rs->maximo+1,8,'0',STR_PAD_LEFT);    
