@@ -835,16 +835,21 @@ class CajaController extends Controller
             $pdf::SetFont('helvetica','B',12);
             $pdf::Cell(0,10,utf8_decode("Detalle de Cierre de ".$caja->nombre),0,0,'C');
             $pdf::Ln();
-            $pdf::SetFont('helvetica','B',8.5);
+            $pdf::SetFont('helvetica','B',7);
             $pdf::Cell(15,7,utf8_decode("FECHA"),1,0,'C');
             $pdf::Cell(60,7,utf8_decode("PERSONA"),1,0,'C');
             $pdf::Cell(20,7,utf8_decode("NRO"),1,0,'C');
             $pdf::Cell(40,7,utf8_decode("EMPRESA"),1,0,'C');
             $pdf::Cell(70,7,utf8_decode("CONCEPTO"),1,0,'C');
-            $pdf::Cell(18,7,utf8_decode("EGRESO"),1,0,'C');
-            $pdf::Cell(18,7,utf8_decode("INGRESO"),1,0,'C');
-            $pdf::Cell(20,7,utf8_decode("TARJETA"),1,0,'C');
+            $pdf::Cell(14,7,utf8_decode("EGRESO"),1,0,'C');
+            $pdf::Cell(42,7,utf8_decode("INGRESO"),1,0,'C');
             $pdf::Cell(20,7,utf8_decode("DOCTOR"),1,0,'C');
+            $pdf::Ln();
+            $pdf::Cell(219,7,utf8_decode(""),1,0,'C');
+            $pdf::Cell(14,7,utf8_decode("EFECTIVO"),1,0,'C');
+            $pdf::Cell(14,7,utf8_decode("VISA"),1,0,'C');
+            $pdf::Cell(14,7,utf8_decode("MASTER"),1,0,'C');
+            $pdf::Cell(20,7,utf8_decode(""),1,0,'C');
             $pdf::Ln();
             if($caja_id==1){//ADMISION 1
                 $serie=3;
@@ -934,9 +939,10 @@ class CajaController extends Controller
                         }else{
                             $pdf::Cell(70,7,'MEDICINA',1,0,'L');    
                         }
-                        $pdf::Cell(18,7,'',1,0,'C');
-                        $pdf::Cell(18,7,number_format($value->total,2,'.',''),1,0,'R');
-                        $pdf::Cell(20,7,utf8_decode(" - "),1,0,'C');
+                        $pdf::Cell(14,7,'',1,0,'C');
+                        $pdf::Cell(14,7,number_format($value->total,2,'.',''),1,0,'R');
+                        $pdf::Cell(14,7,utf8_decode(" - "),1,0,'C');
+                        $pdf::Cell(14,7,utf8_decode(" - "),1,0,'C');
                         if ($value->doctor_id != null) {
                             $pdf::Cell(20,7,substr($value->doctor->nombres,0,1).'. '.$value->doctor->apellidopaterno,1,0,'L');
 
@@ -950,7 +956,7 @@ class CajaController extends Controller
 
                 }
                 $pdf::SetFont('helvetica','B',8.5);
-                $pdf::Cell(223,7,'TOTAL',1,0,'R');
+                $pdf::Cell(281,7,'TOTAL',1,0,'R');
                 $pdf::Cell(18,7,number_format($pendiente,2,'.',''),1,0,'R');
                 $pdf::Ln();
             }
@@ -1004,9 +1010,10 @@ class CajaController extends Controller
                         }else{
                             $pdf::Cell(70,7,$v->descripcion,1,0,'L');    
                         }
-                        $pdf::Cell(18,7,'',1,0,'C');
-                        $pdf::Cell(18,7,number_format($v->cantidad*$v->pagohospital,2,'.',''),1,0,'R');
-                        $pdf::Cell(20,7,utf8_decode(" - "),1,0,'C');
+                        $pdf::Cell(14,7,'',1,0,'C');
+                        $pdf::Cell(14,7,number_format($v->cantidad*$v->pagohospital,2,'.',''),1,0,'R');
+                        $pdf::Cell(14,7,utf8_decode(" - "),1,0,'C');
+                        $pdf::Cell(14,7,utf8_decode(" - "),1,0,'C');
                         $pdf::Cell(20,7,substr($v->persona->nombres,0,1).'. '.$v->persona->apellidopaterno,1,0,'L');
                         $pdf::Ln();
                         $pendiente=$pendiente + number_format($v->cantidad*$v->pagohospital,2,'.','');
@@ -1098,9 +1105,10 @@ class CajaController extends Controller
                                 }else{
                                     $pdf::Cell(70,7,$v->descripcion.'- MEDICINA',1,0,'L');    
                                 }
-                                $pdf::Cell(18,7,'',1,0,'C');
-                                $pdf::Cell(18,7,number_format($v->movimiento->total,2,'.',''),1,0,'R');
-                                $pdf::Cell(20,7,utf8_decode(" - "),1,0,'C');
+                                $pdf::Cell(14,7,'',1,0,'C');
+                                $pdf::Cell(14,7,number_format($v->movimiento->total,2,'.',''),1,0,'R');
+                                $pdf::Cell(14,7,utf8_decode(" - "),1,0,'C');
+                                $pdf::Cell(14,7,utf8_decode(" - "),1,0,'C');
                                 if ($venta->doctor_id != null) {
                                     $pdf::Cell(20,7,substr($venta->doctor->nombres,0,1).'. '.$venta->doctor->apellidopaterno,1,0,'L');
 
@@ -1175,9 +1183,10 @@ class CajaController extends Controller
                             }else{
                                 $pdf::Cell(70,7,$v->descripcion,1,0,'L');    
                             }
-                            $pdf::Cell(18,7,'',1,0,'C');
-                            $pdf::Cell(18,7,number_format($v->cantidad*$v->pagohospital,2,'.',''),1,0,'R');
-                            $pdf::Cell(20,7,utf8_decode('-'),1,0,'C');
+                            $pdf::Cell(14,7,'',1,0,'C');
+                            $pdf::Cell(14,7,number_format($v->cantidad*$v->pagohospital,2,'.',''),1,0,'R');
+                            $pdf::Cell(14,7,utf8_decode('-'),1,0,'C');
+                            $pdf::Cell(14,7,utf8_decode('-'),1,0,'C');
                             $pdf::Cell(20,7,substr($v->persona->nombres,0,1).'. '.$v->persona->apellidopaterno,1,0,'L');
                             $pdf::Ln();
                             $pago=$pago + number_format($v->cantidad*$v->pagohospital,2,'.','');
@@ -2058,6 +2067,40 @@ class CajaController extends Controller
                     }*/
                 }
             }
+
+            $sucursal_id = Session::get('sucursal_id');
+            $caja_id = $request->input('caja_id');
+            $resultadox = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
+                    ->leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+                    ->where('movimiento.tipomovimiento_id', '=', 2)
+                    ->where('movimiento.tipodocumento_id', '=', 2)
+                    ->where('movimiento.situacion2','=','Z')
+                    ->where('movimiento.sucursal_id', '=', $sucursal_id)
+                    ->where('movimiento.caja_id', '=', $caja_id);
+            $resultadox = $resultadox->select('movimiento.fecha','movimiento.numero','movimiento.total','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+            
+            $listax           = $resultadox->get();
+
+            if(count($listax)>0){
+                $pdf::SetFont('helvetica','B',8.5);
+                $pdf::Cell(281,7,'CUOTAS',1,0,'L');
+                $pdf::Ln();
+                foreach ($listax as $row) { 
+                    $pdf::SetFont('helvetica','',7);                   
+                    $pdf::Cell(15,7,utf8_decode($row['fecha']),1,0,'C');
+                    $pdf::Cell(60,7,$row['paciente'],1,0,'L');
+                    $pdf::Cell(20,7,utf8_decode($row['numero']),1,0,'C');
+                    $pdf::Cell(40,7,utf8_decode("-"),1,0,'C');
+                    $pdf::Cell(70,7,"PAGO DE CUOTA DE TICKET N° " . $row['numeroticket'],1,0,'L');
+                    $pdf::Cell(18,7,utf8_decode(""),1,0,'C');
+                    $pdf::Cell(18,7,number_format($row['total'],2,'.',''),1,0,'R');
+                    $pdf::Cell(20,7,utf8_decode("TARJETA"),1,0,'C');
+                    $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
+                    $pdf::Ln();
+                }
+                    
+            }
+
             if($ingresotarjeta>0 && $bandingresotarjeta){
                 $pdf::SetFont('helvetica','B',8.5);
                 $pdf::Cell(223,7,'TOTAL',1,0,'R');
@@ -5750,14 +5793,6 @@ class CajaController extends Controller
                     $movimiento->conceptopago_id=3;//PAGO DE CLIENTE
                     $movimiento->comentario='Pago de : '.substr($request->input('tipodocumento'),0,1).' '.$venta->serie.'-'.$venta->numero;
                     $movimiento->caja_id=$request->input('caja_id');
-                    //if($request->input('formapago')=="Tarjeta"){
-                        //$movimiento->tipotarjeta=$request->input('tipotarjeta');
-                        //$movimiento->tarjeta=$request->input('tipotarjeta2');
-                        //$movimiento->voucher=$request->input('nroref');
-                        //$movimiento->totalpagado=0;
-                    //}else{
-                        //$movimiento->totalpagado=$request->input('total2',0);
-                    //}
                     $movimiento->situacion='N';
                     $movimiento->movimiento_id=$venta->id;
                     $movimiento->save();
@@ -5775,17 +5810,16 @@ class CajaController extends Controller
                     $rescuotas        = new Movimiento();
                     $rescuotas->sucursal_id = $sucursal_id;
                     $rescuotas->fecha = date("Y-m-d");
-                    $rescuotas->numero= Movimiento::NumeroSigueResumenCuotas($caja->id,$sucursal_id,14);
+                    $rescuotas->numero= Movimiento::NumeroSigueResumenCuotas($caja->id,$sucursal_id, 'Z', 'TOTAL DE CUOTAS');
                     $rescuotas->responsable_id=$user->person_id;
                     $rescuotas->persona_id=$Ticket->persona_id;
                     $rescuotas->total = $request->input('total2', 0);
                     $rescuotas->totalpagado = $request->input('efectivo', 0);
                     $rescuotas->totalpagadovisa = $request->input('visa', 0);
                     $rescuotas->totalpagadomaster = $request->input('master', 0);
-                    $rescuotas->tipomovimiento_id=14;//EN BLANCO, EL INGRESO SE HARÁ AL COMPLETAR LA BOLETA
                     $rescuotas->comentario='TOTAL DE CUOTAS';
+                    $rescuotas->situacion='Z';
                     $rescuotas->caja_id=$request->input('caja_id');
-                    $rescuotas->situacion='D';
                     $rescuotas->movimiento_id=$Ticket->id;
                     $rescuotas->save();
                     
@@ -5794,7 +5828,8 @@ class CajaController extends Controller
                     $primeracuota        = new Movimiento();
                     $primeracuota->sucursal_id = $sucursal_id;
                     $primeracuota->fecha = date("Y-m-d");
-                    $primeracuota->numero= Movimiento::NumeroSigueCuota($rescuotas->id);
+                    $primeracuota->numero= Movimiento::NumeroSigueCuota($request->input('caja_id'), $sucursal_id, 'Z',14);
+                    $primeracuota->numeroserie2= Movimiento::NumeroSigueSerieCuota($rescuotas->id);
                     $primeracuota->responsable_id=$user->person_id;
                     $primeracuota->persona_id=$Ticket->persona_id;
                     $primeracuota->subtotal=0;
@@ -5808,6 +5843,7 @@ class CajaController extends Controller
                     $primeracuota->tipomovimiento_id=14;//EN BLANCO, EL INGRESO SE HARÁ AL COMPLETAR LA BOLETA
                     $primeracuota->comentario='PAGO DE CUOTA PARCIAL DE CLIENTE';
                     $primeracuota->caja_id=$request->input('caja_id');
+                    $primeracuota->situacion='Z';
                     $primeracuota->movimiento_id=$rescuotas->id;
                     $primeracuota->save();     
 
@@ -5842,15 +5878,9 @@ class CajaController extends Controller
                     $movimiento->conceptopago_id=3;//PAGO DE CLIENTE
                     $movimiento->comentario='PAGO DE CUOTA PARCIAL DE CLIENTE';
                     $movimiento->caja_id=$request->input('caja_id');
-                    //if($request->input('formapago')=="Tarjeta"){
-                        //$movimiento->tipotarjeta=$request->input('tipotarjeta');
-                        //$movimiento->tarjeta=$request->input('tipotarjeta2');
-                        //$movimiento->voucher=$request->input('nroref');
-                        //$movimiento->totalpagado=0;
-                    //}else{
-                        //$movimiento->totalpagado=$request->input('total2',0);
-                    //}
                     $movimiento->situacion='N';
+                    $movimiento->situacion2='Z';
+                    $movimiento->movimiento_id=$Ticket->id;
                     $movimiento->save();               
                 }
             }
@@ -5873,7 +5903,7 @@ class CajaController extends Controller
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id');
         if($fecha!=""){
             $resultado = $resultado->where('movimiento.fecha', '=', ''.$fecha.'')
-        ->where('movimiento.tipomovimiento_id','=','14')->where('movimiento.comentario', 'TOTAL DE CUOTAS');
+        ->where('movimiento.situacion','=','Z')->where('movimiento.comentario', 'TOTAL DE CUOTAS');
         }
         if($paciente!="0"){
             $resultado = $resultado->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'), 'LIKE', '%'.$paciente.'%');
@@ -6029,7 +6059,8 @@ class CajaController extends Controller
 
             $rc        = Movimiento::where('caja_id', $request->input('caja_id'))
                                             ->where('movimiento_id', $Ticket->id)
-                                            ->where('tipomovimiento_id', 14)
+                                            ->where('situacion', 'Z')
+                                            ->where('comentario', 'TOTAL DE CUOTAS')
                                             ->where('sucursal_id', $sucursal_id)->get();
 
             $rescuotas = Movimiento::find($rc[0]->id);
@@ -6047,10 +6078,6 @@ class CajaController extends Controller
                 $rescuotas->totalpagadomaster += $request->input('master', 0);
             }
 
-            if($request->input('quedan') == '0.000'){
-                $rescuotas->situacion='C';
-            }
-
             $rescuotas->save();
 
             //Creo una nueva cuota
@@ -6058,7 +6085,8 @@ class CajaController extends Controller
             $cuota        = new Movimiento();
             $cuota->sucursal_id = $sucursal_id;
             $cuota->fecha = date("Y-m-d");
-            $cuota->numero= Movimiento::NumeroSigueCuota($rescuotas->id);
+            $cuota->numero= Movimiento::NumeroSigueCuota($request->input('caja_id'), $sucursal_id, 'Z',14);
+            $cuota->numeroserie2= Movimiento::NumeroSigueSerieCuota($rescuotas->id);
             $cuota->responsable_id=$user->person_id;
             $cuota->persona_id=$Ticket->persona_id;
             $cuota->subtotal=0;
@@ -6070,6 +6098,8 @@ class CajaController extends Controller
             $cuota->numvisa = $request->input('numvisa');
             $cuota->nummaster = $request->input('nummaster');
             $cuota->tipomovimiento_id=14;//EN BLANCO, EL INGRESO SE HARÁ AL COMPLETAR LA BOLETA
+            $cuota->situacion='Z';//EN BLANCO, EL INGRESO SE HARÁ AL COMPLETAR LA BOLETA
+            $cuota->comentario='PAGO DE CUOTA PARCIAL DE CLIENTE';
             $cuota->caja_id=$request->input('caja_id');
             $cuota->movimiento_id=$rescuotas->id;
             $cuota->save();  
@@ -6105,15 +6135,9 @@ class CajaController extends Controller
             $movimiento->conceptopago_id=3;//PAGO DE CLIENTE
             $movimiento->comentario=$comentario;
             $movimiento->caja_id=$request->input('caja_id');
-            //if($request->input('formapago')=="Tarjeta"){
-                //$movimiento->tipotarjeta=$request->input('tipotarjeta');
-                //$movimiento->tarjeta=$request->input('tipotarjeta2');
-                //$movimiento->voucher=$request->input('nroref');
-                //$movimiento->totalpagado=0;
-            //}else{
-                //$movimiento->totalpagado=$request->input('total2',0);
-            //}
             $movimiento->situacion='N';
+            $movimiento->situacion2='Z'; //pARA IDENTIFICAR UNA CUOTA
+            $movimiento->movimiento_id=$Ticket->id;
             $movimiento->save();
         });
 
@@ -6138,10 +6162,10 @@ class CajaController extends Controller
         $cuotas = Movimiento::where('movimiento_id','=',$rescuotas->id)->orderBy('numero')->get();
 
         $pdf = new TCPDF();
-        $pdf::SetTitle('Recibo de pago de cuota N° ' . str_pad($lista->numero,8,'0',STR_PAD_LEFT) . ' - ' . $cuota->numero);
+        $pdf::SetTitle('Recibo de pago de cuota N° ' . $cuota->numero);
         $pdf::AddPage();
         $pdf::SetFont('helvetica','B',15);
-        $pdf::Cell(0,10,'RECIBO DE PAGO DE CUOTA N° ' . str_pad($lista->numero,8,'0',STR_PAD_LEFT) . ' - ' . $cuota->numero,0,0,'C');
+        $pdf::Cell(0,10,'RECIBO DE PAGO DE CUOTA N° ' . $cuota->numero,0,0,'C');
         $pdf::Ln();
         $pdf::Ln();
         //$pdf::SetFont('helvetica','B',10);

@@ -151,7 +151,7 @@ class Movimiento extends Model
         return str_pad($rs->maximo+1,8,'0',STR_PAD_LEFT);    
     }
 
-    public function scopeNumeroSigueCuota($query, $rescuotas_id){
+    public function scopeNumeroSigueSerieCuota($query, $rescuotas_id){
         
         $rs=$query->where('movimiento_id', $rescuotas_id)
                     ->select(DB::raw("max((CASE WHEN numero IS NULL THEN 0 ELSE numero END)*1) AS maximo"))
@@ -159,8 +159,24 @@ class Movimiento extends Model
         return str_pad($rs->maximo+1,8,'0',STR_PAD_LEFT);    
     }
 
-    public function scopeNumeroSigueResumenCuotas($query, $caja_id, $sucursal_id, $tipomovimiento_id) {
-        $rs=$query->where('caja_id','=',$caja_id)->where('sucursal_id','=',$sucursal_id)->where('tipomovimiento_id','=',$tipomovimiento_id)->select(DB::raw("max((CASE WHEN numero IS NULL THEN 0 ELSE numero END)*1) AS maximo"))->first();
+    public function scopeNumeroSigueCuota($query, $caja_id, $sucursal_id, $situacion, $tipomovimiento_id){
+        
+        $rs=$query->where('caja_id', $caja_id)
+                    ->where('situacion','like',$situacion)
+                    ->where('tipomovimiento_id', $tipomovimiento_id)
+                    ->where('sucursal_id', $sucursal_id)
+                    ->select(DB::raw("max((CASE WHEN numero IS NULL THEN 0 ELSE numero END)*1) AS maximo"))
+                    ->first();
+        return str_pad($rs->maximo+1,8,'0',STR_PAD_LEFT);    
+    }
+
+    public function scopeNumeroSigueResumenCuotas($query, $caja_id, $sucursal_id, $situacion, $comentario) {
+        $rs=$query->where('caja_id','=',$caja_id)
+                    ->where('sucursal_id','=',$sucursal_id)
+                    ->where('situacion','=',$situacion)
+                    ->where('comentario','=',$comentario)
+                    ->select(DB::raw("max((CASE WHEN numero IS NULL THEN 0 ELSE numero END)*1) AS maximo"))
+                    ->first();
         return str_pad($rs->maximo+1,8,'0',STR_PAD_LEFT);    
     }
 
