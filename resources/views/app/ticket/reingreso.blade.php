@@ -48,13 +48,14 @@ if(!is_null($ticket)){
 <div id="divMensajeError{!! $entidad !!}"></div>
 {!! Form::model($ticket, $formData) !!}	
 	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
+    {!! Form::hidden('ticket_id', $ticket->id, array('id' => 'ticket_id')) !!}
     {!! Form::hidden('listServicio', null, array('id' => 'listServicio')) !!}
     <div class="row">
         <div class="col-lg-6 col-md-6 col-sm-6">
             <div class="form-group">
         		{!! Form::label('fecha', 'Fecha:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
         		<div class="col-lg-3 col-md-3 col-sm-3">
-        			{!! Form::date('fecha', $fecha, array('class' => 'form-control input-xs', 'id' => 'fecha')) !!}
+        			{!! Form::date('fecha', date("Y-m-d") , array('class' => 'form-control input-xs', 'id' => 'fecha', 'readonly' => 'true')) !!}
         		</div>
                 {!! Form::label('numero', 'Nro:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
         		<div class="col-lg-2 col-md-2 col-sm-2">
@@ -63,26 +64,20 @@ if(!is_null($ticket)){
                 {!! Form::label('manual', 'Manual:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label',  'style' => 'display:none;')) !!}
                 <label for="clasificacionconsulta" class="col-lg-1 col-md-1 col-sm-1 control-label">Tipo</label>
                 <div class="col-lg-3 col-md-3 col-sm-3">
-                    <select class="form-control input-xs" name="clasificacionconsulta" id="clasificacionconsulta" onchange="lectRes();">
-                        @if($ticket != null)
-                            @if($ticket->clasificacionconsulta == 'C')
-                            <option selected value="C">CONSULTA</option>
-                            @else
-                            <option value="C">CONSULTA</option>
-                            @endif
-                            @if($ticket->clasificacionconsulta == 'E')
-                            <option selected value="E">EMERGENCIA</option>
-                            @else
-                            <option value="E">EMERGENCIA</option>
-                            @endif
-                            @if($ticket->clasificacionconsulta == 'L')
-                            <option selected value="L">LECT. RESULTADOS</option>
-                            @else
-                            <option value="L">LECT. RESULTADOS</option>
-                            @endif
+                    <select disabled class="form-control input-xs" name="clasificacionconsulta" id="clasificacionconsulta" onchange="lectRes();">
+                        @if($ticket->clasificacionconsulta == 'C')
+                        <option selected value="C">CONSULTA</option>
                         @else
                         <option value="C">CONSULTA</option>
+                        @endif
+                        @if($ticket->clasificacionconsulta == 'E')
+                        <option selected value="E">EMERGENCIA</option>
+                        @else
                         <option value="E">EMERGENCIA</option>
+                        @endif
+                        @if($ticket->clasificacionconsulta == 'L')
+                        <option selected value="L">LECT. RESULTADOS</option>
+                        @else
                         <option value="L">LECT. RESULTADOS</option>
                         @endif
                     </select>
@@ -97,7 +92,7 @@ if(!is_null($ticket)){
         		<div class="col-lg-7 col-md-7 col-sm-7">
                 {!! Form::hidden('person_id', $person_id, array('id' => 'person_id')) !!}
                 {!! Form::hidden('dni', $dni, array('id' => 'dni')) !!}
-        		{!! Form::text('paciente', $paciente, array('class' => 'form-control input-xs', 'id' => 'paciente', 'placeholder' => 'Ingrese Paciente')) !!}
+        		{!! Form::text('paciente', $paciente, array('class' => 'form-control input-xs', 'id' => 'paciente', 'placeholder' => 'Ingrese Paciente', 'readonly' => 'true')) !!}
         		</div>
                 <div class="col-lg-1 col-md-1 col-sm-1">
                     {!! Form::button('<i class="fa fa-file fa-lg"></i>', array('class' => 'btn btn-info btn-xs', 'onclick' => 'modal (\''.URL::route('historia.create', array('listar'=>'SI','modo'=>'popup')).'\', \'Nueva Historia\', this);', 'title' => 'Nueva Historia')) !!}
@@ -114,7 +109,7 @@ if(!is_null($ticket)){
         		</div>
                 {!! Form::label('tipopaciente', 'Tipo Paciente:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
         		<div class="col-lg-3 col-md-3 col-sm-3">
-        			{!! Form::select('tipopaciente', $cboTipoPaciente, $tipopaciente, array('class' => 'form-control input-xs', 'id' => 'tipopaciente')) !!}
+        			{!! Form::select('tipopaciente', $cboTipoPaciente, $tipopaciente, array('class' => 'form-control input-xs', 'id' => 'tipopaciente', 'disabled' => 'true')) !!}
         		</div>
         	</div>
             <div class="form-group">
@@ -122,38 +117,42 @@ if(!is_null($ticket)){
         		<div class="col-lg-8 col-md-8 col-sm-8">
                     {!! Form::hidden('tipoplan', $tipoplan, array('id' => 'tipoplan')) !!}
                     {!! Form::hidden('plan_id', $plan_id, array('id' => 'plan_id')) !!}
-        			{!! Form::text('plan', $plan, array('class' => 'form-control input-xs', 'id' => 'plan')) !!}
+        			{!! Form::text('plan', $plan, array('class' => 'form-control input-xs', 'id' => 'plan', 'readonly' => 'true')) !!}
         		</div>
                 {!! Form::label('soat', 'Soat:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
                 <div class="col-lg-1 col-md-1 col-sm-1">
                     {!! Form::hidden('soat', 'N', array('id' => 'soat')) !!}
                     @if($ticket != null)
                         @if($ticket->soat == "S")
-                        <input checked type="checkbox" onclick="Soat(this.checked)" />
+                        <input disabled checked type="checkbox" onclick="Soat(this.checked)" />
+                        @else
+                        <input disabled type="checkbox" onclick="Soat(this.checked)" />
                         @endif
                     @else
-                        <input type="checkbox" onclick="Soat(this.checked)" />
+                        <input disabled type="checkbox" onclick="Soat(this.checked)" />
                     @endif
                 </div>
             </div>
             <div class="form-group">
         		{!! Form::label('deducible', 'Deducible:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
         		<div class="col-lg-2 col-md-2 col-sm-2">
-        			{!! Form::text('deducible', $deducible, array('class' => 'form-control input-xs', 'id' => 'deducible')) !!}
+        			{!! Form::text('deducible', $deducible, array('class' => 'form-control input-xs', 'id' => 'deducible', 'readonly' => 'true')) !!}
         		</div>
                 {!! Form::label('coa', 'Coaseguro:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
         		<div class="col-lg-3 col-md-3 col-sm-3">
-        			{!! Form::text('coa', $coa, array('class' => 'form-control input-xs', 'id' => 'coa')) !!}
+        			{!! Form::text('coa', $coa, array('class' => 'form-control input-xs', 'id' => 'coa', 'readonly' => 'true')) !!}
         		</div>
                 {!! Form::label('sctr', 'Sctr:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
                 <div class="col-lg-1 col-md-1 col-sm-1">
                     {!! Form::hidden('sctr', 'N', array('id' => 'sctr')) !!}
                     @if($ticket != null)
                         @if($ticket->sctr == "S")
-                        <input checked type="checkbox" onclick="Sctr(this.checked)" />
+                        <input disabled checked type="checkbox" onclick="Sctr(this.checked)" />
+                        @else
+                        <input disabled type="checkbox" onclick="Sctr(this.checked)" />
                         @endif
                     @else
-                    <input type="checkbox" onclick="Sctr(this.checked)" />
+                        <input disabled type="checkbox" onclick="Sctr(this.checked)" />
                     @endif
                 </div>
         	</div>
@@ -208,7 +207,7 @@ if(!is_null($ticket)){
                     <input type="checkbox" class="descuento" style="display: none;" onclick="editarDescuentoPersonal(this.checked)" />
                 </div>
         		<div class="col-lg-6 col-md-6 col-sm-6 text-right">
-        			{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => '$(\'#listServicio\').val(carro);$(\'#movimiento_id\').val(carroDoc);guardarPago(\''.$entidad.'\', this);')) !!}
+        			{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => 'guardarPago(\''.$entidad.'\', this);')) !!}
         			{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
         		</div>
         	</div>
@@ -254,26 +253,36 @@ if(!is_null($ticket)){
                 {!! Form::label('referido', 'Referido:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
                 <div class="col-lg-10 col-md-10 col-sm-10">
                     {!! Form::hidden('referido_id', $referido_id, array('id' => 'referido_id')) !!}
-                    {!! Form::text('referido', $referido, array('class' => 'form-control input-xs', 'id' => 'referido')) !!}
+                    {!! Form::text('referido', $referido, array('class' => 'form-control input-xs', 'id' => 'referido', 'readonly' => 'true')) !!}
                 </div>
             </div>
-            <div class="form-group">
+            <div class="form-group" style="display: none;">
                 {!! Form::label('tiposervicio', 'Tipo:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
         		<div class="col-lg-3 col-md-3 col-sm-3">
-        			{!! Form::select('tiposervicio', $cboTipoServicio, null, array('class' => 'form-control input-xs', 'id' => 'tiposervicio')) !!}
+        			{!! Form::select('tiposervicio', $cboTipoServicio, null, array('class' => 'form-control input-xs', 'id' => 'tiposervicio', 'disabled' => 'true')) !!}
         		</div>
                 {!! Form::label('descripcion', 'Servicio:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
         		<div class="col-lg-5 col-md-5 col-sm-5">
-        			{!! Form::text('descripcion', null, array('class' => 'form-control input-xs', 'id' => 'descripcion', 'onkeypress' => '')) !!}
+        			{!! Form::text('descripcion', null, array('class' => 'form-control input-xs', 'id' => 'descripcion', 'onkeypress' => '', 'readonly' => 'true')) !!}
         		</div>
             </div>
             <div class="form-group col-lg-12 col-md-12 col-sm-12" id="divBusqueda">
+            </div>
+            <div class="form-group fecha_reprogramar" style="display: none;">
+                {!! Form::label('fecha_reprogramar', 'Fecha de reprogramación:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
+        		<div class="col-lg-3 col-md-3 col-sm-3">
+        			{!! Form::date('fecha', '', array('class' => 'form-control input-xs', 'id' => 'fecha_reprogramar')) !!}
+        		</div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-6 text-right" style="display: none;">
+                {!! Form::button('<i class="glyphicon glyphicon-calendar"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnReprogramar', 'onclick' => 'reprogramar();')) !!}
+                {!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
             </div>
          </div>     
      </div>
      <div class="box">
         <div class="box-header">
-            <h2 class="box-title col-lg-5 col-md-5 col-sm-5">Detalle <button type="button" class="btn btn-xs btn-info" title="Agregar Detalle" onclick="seleccionarServicioOtro();" ><i class="fa fa-plus"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-xs btn-danger" title="Agregar Hoja Costo" onclick="agregarHojaCosto($('#historia_id').val());">Hoja de Costo<i class="fa fa-file"></i></button></h2>
+            <h2 class="box-title col-lg-5 col-md-5 col-sm-5">Detalle <button style="display: none;" type="button" class="btn btn-xs btn-info" title="Agregar Detalle" onclick="seleccionarServicioOtro();" ><i class="fa fa-plus"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" style="display: none;" class="btn btn-xs btn-danger" title="Agregar Hoja Costo" onclick="agregarHojaCosto($('#historia_id').val());">Hoja de Costo<i class="fa fa-file"></i></button></h2>
             <div class="text-right col-lg-7 col-md-7 col-sm-7" style="display: none;">
                 <div class="col-lg-1 col-md-1 col-sm-1">
                     {!! Form::hidden('movimientoref', 'N', array('id' => 'movimientoref')) !!}
@@ -346,6 +355,8 @@ $(document).ready(function() {
     $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="numeroventa"]').inputmask("99999999");
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="deducible"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="coa"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
+    
+    
     var personas = new Bloodhound({
 		datumTokenizer: function (d) {
 			return Bloodhound.tokenizers.whitespace(d.value);
@@ -604,7 +615,10 @@ $(document).ready(function() {
         }
     });
 
+
 }); 
+
+
 
 function guardarHistoria (entidad, idboton) {
 	var idformulario = IDFORMMANTENIMIENTO + entidad;
@@ -738,6 +752,7 @@ function guardarPago (entidad, idboton) {
                     if(dat[0].notacredito_id!="0"){
                         window.open('/juanpablo/notacredito/pdfComprobante3?id='+dat[0].notacredito_id,'_blank');
                     }
+                    cerrarModal();
     			} else if(resp === 'ERROR') {
     				alert(dat[0].msg);
     			} else {
@@ -1290,16 +1305,16 @@ function agregarDetalle(id){
                 }
                 //console.log(datos[d].idservicio);
                 datos[d].idservicio="01"+Math.round(Math.random()*100)+datos[d].idservicio;
-                $("#tbDetalle").append("<tr id='tr"+datos[d].idservicio+"'><td><input type='hidden' id='txtIdTipoServicio"+datos[d].idservicio+"' name='txtIdTipoServicio"+datos[d].idservicio+"' value='"+datos[d].idtiposervicio+"' /><input type='hidden' id='txtIdServicio"+datos[d].idservicio+"' name='txtIdServicio"+datos[d].idservicio+"' value='"+datos[d].id+"' /><input type='text' data='numero' style='width: 40px;' class='form-control input-xs' id='txtCantidad"+datos[d].idservicio+"' name='txtCantidad"+datos[d].idservicio+"' value='"+datos[d].cantidad+"' size='3' onkeydown=\"if(event.keyCode==13){calcularTotal()}\" onblur=\"calcularTotalItem('"+datos[d].idservicio+"')\" /></td>"+
-                    "<td><input type='checkbox' id='chkCopiar"+datos[d].idservicio+"' onclick=\"checkMedico(this.checked,'"+datos[d].idservicio+"')\" /></td>"+
-                    "<td><input type='text' class='form-control input-xs' id='txtMedico"+datos[d].idservicio+"' name='txtMedico"+datos[d].idservicio+"' value='"+datos[d].medico+"' /><input type='hidden' id='txtIdMedico"+datos[d].idservicio+"' name='txtIdMedico"+datos[d].idservicio+"' value='"+datos[d].idmedico+"' /></td>"+
+                $("#tbDetalle").append("<tr id='tr"+datos[d].idservicio+"'><td><input type='hidden' id='txtIdTipoServicio"+datos[d].idservicio+"' name='txtIdTipoServicio"+datos[d].idservicio+"' value='"+datos[d].idtiposervicio+"' /><input type='hidden' id='txtIdServicio"+datos[d].idservicio+"' name='txtIdServicio"+datos[d].idservicio+"' value='"+datos[d].id+"' /><input type='text' data='numero' readonly style='width: 40px;' class='form-control input-xs' id='txtCantidad"+datos[d].idservicio+"' name='txtCantidad"+datos[d].idservicio+"' value='"+datos[d].cantidad+"' size='3' onkeydown=\"if(event.keyCode==13){calcularTotal()}\" onblur=\"calcularTotalItem('"+datos[d].idservicio+"')\" /></td>"+
+                    "<td><input type='checkbox' disabled id='chkCopiar"+datos[d].idservicio+"' onclick=\"checkMedico(this.checked,'"+datos[d].idservicio+"')\" /></td>"+
+                    "<td><input type='text' readonly class='form-control input-xs' id='txtMedico"+datos[d].idservicio+"' name='txtMedico"+datos[d].idservicio+"' value='"+datos[d].medico+"' /><input type='hidden' id='txtIdMedico"+datos[d].idservicio+"' name='txtIdMedico"+datos[d].idservicio+"' value='"+datos[d].idmedico+"' /></td>"+
                     "<td align='center'>"+datos[d].tiposervicio+"</td><td>"+datos[d].servicio+"</td>"+
                     "<td align='center'><input type='hidden' id='txtPrecio2"+datos[d].idservicio+"' name='txtPrecio2"+datos[d].idservicio+"' value='"+datos[d].precio+"' /><input type='text' size='5' readonly='readonly' class='form-control input-xs precio' data='numero' precio="+datos[d].idservicio+" id='txtPrecio"+datos[d].idservicio+"' style='width: 60px;' name='txtPrecio"+datos[d].idservicio+"' value='"+datos[d].precio+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem('"+datos[d].idservicio+"')}\" onblur=\"calcularTotalItem('"+datos[d].idservicio+"')\" /></td>"+
                     "<td align='center' style='display:none'><input type='text' size='5' readonly='readonly' style='width: 60px;' class='form-control input-xs' data='numero' id='txtDescuento"+datos[d].idservicio+"' name='txtDescuento"+datos[d].idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem('"+datos[d].idservicio+"')}\" onblur=\"calcularTotalItem('"+datos[d].idservicio+"')\" style='width:50%' /></td>"+
                     "<td align='center'  style='display:none;'><input type='hidden' id='txtPrecioHospital2"+datos[d].idservicio+"' name='txtPrecioHospital2"+datos[d].idservicio+"' value='0' /><input type='text' size='5' style='width: 60px;' class='form-control input-xs' data='numero'  id='txtPrecioHospital"+datos[d].idservicio+"' name='txtPrecioHospital"+datos[d].idservicio+"' value='0' onblur=\"calcularTotalItem2("+datos[d].idservicio+")\" /></td>"+
                     "<td align='center'  style='display:none;'><input type='hidden' id='txtPrecioMedico2"+datos[d].idservicio+"' name='txtPrecioMedico2"+datos[d].idservicio+"' value='0' /><input type='text' size='5' class='form-control input-xs' data='numero'  id='txtPrecioMedico"+datos[d].idservicio+"' name='txtPrecioMedico"+datos[d].idservicio+"' value='0' style='width: 60px;' /></td>"+
                     "<td align='center'><input type='text' style='width: 60px;' readonly='' data='numero' class='form-control input-xs' size='5' name='txtTotal"+datos[d].idservicio+"' id='txtTotal"+datos[d].idservicio+"' value=0' /></td>"+
-                    "<td><a href='#' id='Quitar"+datos[d].idservicio+"' onclick=\"quitarServicio('"+datos[d].idservicio+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>");
+                    "<td  style='display:none;'><a href='#' id='Quitar"+datos[d].idservicio+"' onclick=\"quitarServicio('"+datos[d].idservicio+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>");
 
 
 //INICIO
@@ -1458,10 +1473,15 @@ function lectRes() {
     }
 }
 
+$(document).ready(function() {
+    seleccionarServicio(145);
+});
+
+/*
 <?php
 if(!is_null($ticket)){
     echo "agregarDetalle(".$ticket->id.");";
 }
 ?>
-
+*/
 </script>

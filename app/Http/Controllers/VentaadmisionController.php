@@ -4925,7 +4925,7 @@ class VentaadmisionController extends Controller
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B');
         })
         ->where(function($q) {            
-            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
+            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
         $lista = $consultas->limit(7)->get();
 
@@ -5009,7 +5009,7 @@ class VentaadmisionController extends Controller
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B');
         })
         ->where(function($q) {            
-            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
+            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
         $lista2 = $emergencias->limit(7)->get();
 
@@ -5018,7 +5018,7 @@ class VentaadmisionController extends Controller
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B')->orWhere('situacion2', 'like', 'F');
         })
         ->where(function($q) {            
-            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
+            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
         $lista3 = $fondos->limit(7)->get();
 
@@ -5027,7 +5027,7 @@ class VentaadmisionController extends Controller
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B');
         })
         ->where(function($q) {            
-            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
+            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
         $lista4 = $lectura->limit(7)->get();
 
@@ -5269,13 +5269,13 @@ class VentaadmisionController extends Controller
 
         $consultas = Movimiento::where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->where('situacion2', 'like', 'C')->orderBy('id','ASC')
         ->where(function($q) {            
-            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
+            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
         $consulta = $consultas->first();
 
         $consultas_no = Movimiento::where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->where('situacion2', 'like', 'N')->orderBy('id','ASC')
         ->where(function($q) {            
-            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
+            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         })->get();
 
         $tabla = $tabla . " <tr>
@@ -5302,13 +5302,13 @@ class VentaadmisionController extends Controller
 
         $emergencias = Movimiento::where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->where('situacion2', 'like', 'C')->orderBy('id','ASC')
         ->where(function($q) {            
-            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
+            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
         $emergencia = $emergencias->first();
 
         $emergencias_no = Movimiento::where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->where('situacion2', 'like', 'N')->orderBy('id','ASC')
         ->where(function($q) {            
-            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
+            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         })->get();
 
         $tabla = $tabla . " <tr>
@@ -5337,13 +5337,13 @@ class VentaadmisionController extends Controller
         
         $lecturas = Movimiento::where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->where('situacion2', 'like', 'C')->orderBy('id','ASC')
         ->where(function($q) {            
-            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
+            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
         $lectura = $lecturas->first();
 
         $lecturas_no = Movimiento::where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->where('situacion2', 'like', 'N')->orderBy('id','ASC')
         ->where(function($q) {            
-            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
+            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         })->get();
 
         $tabla = $tabla . " <tr>
@@ -5373,13 +5373,13 @@ class VentaadmisionController extends Controller
 
         $fondos = Movimiento::whereNotNull('tiempo_fondo')->where('situacion2', 'like', 'F')->orderBy('id','ASC')
         ->where(function($q) {            
-            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
+            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
         $fondo = $fondos->first();
 
         $fondos_no = Movimiento::whereNotNull('tiempo_fondo')->where('situacion2', 'like', 'N')->orderBy('id','ASC')
         ->where(function($q) {            
-            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D')->orWhere('situacion', 'like', 'C')->orWhere('situacion', 'like', 'D');
+            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         })->get();
 
         $tabla = $tabla . " <tr>

@@ -39,6 +39,13 @@ class TicketController extends Controller
             'search' => 'ticket.buscar',
             'index'  => 'ticket.index',
             'pdfListar'  => 'ticket.pdfListar',
+            'ticketreprogramar' => 'ticket.ticketreprogramar',
+            'listaticketsparareprogramar' => 'ticket.listaticketsparareprogramar',
+            'reprogramarticket' => 'ticket.reprogramarticket',
+            'ticketsreprogramados' => 'ticket.ticketsreprogramados',
+            'listaticketsreprogramados' => 'ticket.listaticketsreprogramados',
+            'reingreso' => 'ticket.reingreso',
+            'guardarreingreso' => 'ticket.guardarreingreso',
         );
 
     public function __construct()
@@ -115,8 +122,10 @@ class TicketController extends Controller
         $entidad          = 'Ticket';
         $title            = $this->tituloAdmin;
         $titulo_registrar = $this->tituloRegistrar;
+        $titulo_ticketsreprogramar    = 'Tickets para Reprogramar'; 
+        $titulo_ticketsreprogramados    = 'Tickets Reprogramados'; 
         $ruta             = $this->rutas;
-        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta'));
+        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'titulo_ticketsreprogramados', 'titulo_ticketsreprogramar' , 'ruta'));
     }
 
     /**
@@ -1801,4 +1810,340 @@ class TicketController extends Controller
         }
         return json_encode($data);
     }
+
+    public function ticketreprogramar(Request $request) {
+        $entidad = 'ticket';
+        $ruta = $this->rutas;
+        return view($this->folderview.'.ticketsreprogramar')->with(compact('entidad', 'ruta'));
+    }
+
+    public function listaticketsparareprogramar($numero, $fecha, $paciente) {
+        if($numero == '0') {
+            $numero = '';
+        }
+        $ruta = $this->rutas;
+            
+        //A -> LLAMANDO
+        //B -> ATENDIENDO
+        //C -> COLA
+        //F -> FONDO
+        //N -> NO ESTA
+        //L -> LISTO
+        
+        $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+        ->where('movimiento.numero','LIKE','%'.$numero.'%')->where('movimiento.tipodocumento_id','=','1')
+        ->where(function($q) {            
+            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'N');
+        })
+        ->where(function($q) {            
+            $q->where('fecha_reprogramacion' , null)->orWhere('ticket_reprogramacion_id',null);
+        })
+        ->where(function($q) {            
+            $q->where('situacion', 'like', 'C');
+        });
+        if($fecha!=""){
+            $resultado = $resultado->where('movimiento.fecha', '=', ''.$fecha.'');
+        }
+        if($paciente!="0"){
+            $resultado = $resultado->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'), 'LIKE', '%'.$paciente.'%');
+        }
+        $resultado        = $resultado->select('movimiento.*',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'))->orderBy('movimiento.id','DESC')->orderBy('movimiento.situacion','DESC');
+        $lista            = $resultado->get();
+        $cabecera         = array();
+        $cabecera[]       = array('valor' => 'Fecha', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Nro', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Paciente', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Total', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Situacion', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Operacion', 'numero' => '1');
+        
+        //$conf = DB::connection('sqlsrv')->table('BL_CONFIGURATION')->get();
+        if (count($lista) > 0) {
+            return view($this->folderview.'.listaticketsparareprogramar')->with(compact('lista', 'cabecera', 'ruta'));
+        }
+        return view($this->folderview.'.listaticketsparareprogramar')->with(compact('lista', 'ruta'));
+    }
+
+    public function reprogramarticket($id, Request $request)
+    {
+        $existe = Libreria::verificarExistencia($id, 'Movimiento');
+        if ($existe !== true) {
+            return $existe;
+        }
+        $listar              = Libreria::getParam($request->input('listar'), 'NO');
+        $ticket = Movimiento::find($id);
+        $entidad             = 'Ticket';
+        $cboConvenio = array();
+        $convenios = Convenio::where(DB::raw('1'),'=','1')->orderBy('nombre','ASC')->get();
+        foreach ($convenios as $key => $value) {
+            $cboConvenio = $cboConvenio + array($value->id => $value->nombre);
+        }
+        $cboTipoServicio = array(""=>"--Todos--");
+        $tiposervicio = Tiposervicio::where(DB::raw('1'),'=','1')->orderBy('nombre','ASC')->get();
+        foreach ($tiposervicio as $key => $value) {
+            $cboTipoServicio = $cboTipoServicio + array($value->id => $value->nombre);
+        }
+        $formData            = array('ticket.store');
+        $cboTipoPaciente     = array("Convenio" => "Convenio", "Particular" => "Particular", "Hospital" => "Hospital");
+        $cboTipoDocumento     = array("Boleta" => "Boleta", "Factura" => "Factura");
+        $cboFormaPago     = array("Efectivo" => "Efectivo", "Tarjeta" => "Tarjeta");
+        $cboTipoTarjeta    = array("VISA" => "VISA", "MASTER" => "MASTER");
+        $cboTipoTarjeta2    = array("CREDITO" => "CREDITO", "DEBITO" => "DEBITO");        
+        $cboCaja = array();
+        $rs = Caja::where('nombre','<>','FARMACIA')->orderBy('nombre','ASC')->get();
+        $idcaja=0;
+        foreach ($rs as $key => $value) {
+            $cboCaja = $cboCaja + array($value->id => $value->nombre);
+            if($request->ip()==$value->ip){
+                $idcaja=$value->id;
+                $serie=$value->serie;
+            }
+        }
+        if($idcaja==0){//ADMISION 1
+            $serie=3;
+            $idcaja=1;
+        }
+        $numero = $ticket->numero;
+        $user = Auth::user();
+
+        $sucursal_id = Session::get('sucursal_id');
+
+        $numeroventa = Movimiento::NumeroSigue($idcaja,$sucursal_id,$serie,'N');
+        $serie='00'.$serie;
+
+        $formData            = array('ticket.update', $id);
+        $formData            = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $boton               = 'Reprogramar';
+        return view($this->folderview.'.reprogramarticket')->with(compact('ticket', 'formData', 'entidad', 'boton', 'listar', 'cboTipoPaciente', 'cboConvenio', 'cboTipoDocumento', 'cboFormaPago', 'cboTipoTarjeta', 'cboTipoServicio', 'cboTipoTarjeta2', 'numero', 'cboCaja', 'numeroventa','serie','idcaja'));
+    }
+
+    public function reprogramar(Request $request){
+        $ticket_id = $request->input('ticket_id');
+        $fecha_reprogramar = $request->input('fecha_reprogramar');
+        $error = DB::transaction(function() use($request,$ticket_id, $fecha_reprogramar){
+            $Ticket = Movimiento::find($ticket_id);
+            $Ticket->fecha_reprogramacion = $fecha_reprogramar;
+            $Ticket->save();
+        });
+    }
+
+    public function ticketsreprogramados(Request $request) {
+        $entidad = 'ticket';
+        $ruta = $this->rutas;
+        return view($this->folderview.'.ticketsreprogramados')->with(compact('entidad', 'ruta'));
+    }
+
+    public function listaticketsreprogramados($numero, $fecha, $paciente) {
+        if($numero == '0') {
+            $numero = '';
+        }
+        $ruta = $this->rutas;
+            
+        //A -> LLAMANDO
+        //B -> ATENDIENDO
+        //C -> COLA
+        //F -> FONDO
+        //N -> NO ESTA
+        //L -> LISTO
+        
+        $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+        ->where('movimiento.numero','LIKE','%'.$numero.'%')->where('movimiento.tipodocumento_id','=','1')
+        ->where(function($q) {            
+            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'N');
+        })
+        ->where(function($q) {            
+            $q->where('ticket_reprogramacion_id',null);
+        })
+        ->where(function($q) {            
+            $q->where('situacion', 'like', 'C');
+        });
+        if($fecha!=""){
+            $resultado = $resultado->where('movimiento.fecha_reprogramacion', '=', ''.$fecha.'');
+        }
+        if($paciente!="0"){
+            $resultado = $resultado->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'), 'LIKE', '%'.$paciente.'%');
+        }
+        $resultado        = $resultado->select('movimiento.*',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'))->orderBy('movimiento.id','DESC')->orderBy('movimiento.situacion','DESC');
+        $lista            = $resultado->get();
+        $cabecera         = array();
+        $cabecera[]       = array('valor' => 'Fecha', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Nro', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Paciente', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Total', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Situacion', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Operacion', 'numero' => '1');
+        
+        //$conf = DB::connection('sqlsrv')->table('BL_CONFIGURATION')->get();
+        if (count($lista) > 0) {
+            return view($this->folderview.'.listaticketsreprogramados')->with(compact('lista', 'cabecera', 'ruta'));
+        }
+        return view($this->folderview.'.listaticketsreprogramados')->with(compact('lista', 'ruta'));
+    }
+
+    public function reingreso($id, Request $request)
+    {
+        $existe = Libreria::verificarExistencia($id, 'Movimiento');
+        if ($existe !== true) {
+            return $existe;
+        }
+        $listar              = Libreria::getParam($request->input('listar'), 'NO');
+        $ticket = Movimiento::find($id);
+        $entidad             = 'Ticket';
+        $cboConvenio = array();
+        $convenios = Convenio::where(DB::raw('1'),'=','1')->orderBy('nombre','ASC')->get();
+        foreach ($convenios as $key => $value) {
+            $cboConvenio = $cboConvenio + array($value->id => $value->nombre);
+        }
+        $cboTipoServicio = array(""=>"--Todos--");
+        $tiposervicio = Tiposervicio::where(DB::raw('1'),'=','1')->orderBy('nombre','ASC')->get();
+        foreach ($tiposervicio as $key => $value) {
+            $cboTipoServicio = $cboTipoServicio + array($value->id => $value->nombre);
+        }
+        $formData            = array('ticket.store');
+        $cboTipoPaciente     = array("Convenio" => "Convenio", "Particular" => "Particular", "Hospital" => "Hospital");
+        $cboTipoDocumento     = array("Boleta" => "Boleta", "Factura" => "Factura");
+        $cboFormaPago     = array("Efectivo" => "Efectivo", "Tarjeta" => "Tarjeta");
+        $cboTipoTarjeta    = array("VISA" => "VISA", "MASTER" => "MASTER");
+        $cboTipoTarjeta2    = array("CREDITO" => "CREDITO", "DEBITO" => "DEBITO");        
+        $cboCaja = array();
+        $rs = Caja::where('nombre','<>','FARMACIA')->orderBy('nombre','ASC')->get();
+        $idcaja=0;
+        foreach ($rs as $key => $value) {
+            $cboCaja = $cboCaja + array($value->id => $value->nombre);
+            if($request->ip()==$value->ip){
+                $idcaja=$value->id;
+                $serie=$value->serie;
+            }
+        }
+        if($idcaja==0){//ADMISION 1
+            $serie=3;
+            $idcaja=1;
+        }
+        $user = Auth::user();
+
+        $sucursal_id = Session::get('sucursal_id');
+
+        $numero = Movimiento::NumeroSigue(null, $sucursal_id, 1);
+
+        $numeroventa = Movimiento::NumeroSigue($idcaja,$sucursal_id,$serie,'N');
+        $serie='00'.$serie;
+
+        $formData            = array('ticket.guardarreingreso', $id);
+        $formData            = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $boton               = 'Guardar';
+        return view($this->folderview.'.reingreso')->with(compact('ticket', 'formData', 'entidad', 'boton', 'listar', 'cboTipoPaciente', 'cboConvenio', 'cboTipoDocumento', 'cboFormaPago', 'cboTipoTarjeta', 'cboTipoServicio', 'cboTipoTarjeta2', 'numero', 'cboCaja', 'numeroventa','serie','idcaja'));
+    }
+
+    public function guardarreingreso(Request $request, $id)
+    {
+        $existe = Libreria::verificarExistencia($id, 'movimiento');
+        if ($existe !== true) {
+            return $existe;
+        }
+        $reglas     = array(
+                'numero'          => 'required',
+                'paciente'          => 'required',
+                'numero'          => 'required',
+                'total'         => 'required',
+                'plan'          => 'required',
+                );
+        $mensajes = array(
+            'numero.required'         => 'El ticket debe tener un numero',
+            'paciente.required'         => 'Debe seleccionar un paciente',
+            'plan.required'         => 'Debe seleccionar un plan',
+            'total.required'         => 'Debe agregar detalle al ticket',
+            );
+        $validacion = Validator::make($request->all(), $reglas, $mensajes);
+        if ($validacion->fails()) {
+            return $validacion->messages()->toJson();
+        }
+
+        
+        //Reviso si ya se cerró la caja
+
+        $user = Auth::user();
+        $dat=array();
+        if($request->input('pagar')=='S'){
+            $rst  = Movimiento::where('tipomovimiento_id','=',2)->where('caja_id','=',$request->input('caja_id'))->orderBy('movimiento.id','DESC')->limit(1)->first();
+            if(count($rst)==0){
+                $conceptopago_id=2;
+            }else{
+                $conceptopago_id=$rst->conceptopago_id;
+            }
+            if($conceptopago_id==2){
+                $dat[0]=array("respuesta"=>"ERROR","msg"=>"Caja cerrada");
+                return json_encode($dat);
+            }
+        }
+
+        $error = DB::transaction(function() use($request, $id){
+            $ticket_anterior = Movimiento::find($id);
+            $Ticket       = new Movimiento();
+            $Ticket->fecha = date("Y-m-d");
+            $Ticket->tiempo_cola =  date('Y-m-d H:i:s');
+            $user = Auth::user();
+            $Ticket->responsable_id = $user->person_id;
+            $sucursal_id = Session::get('sucursal_id');
+            $Ticket->numero = Movimiento::NumeroSigue(null, $sucursal_id, 1);
+            $Ticket->subtotal = $request->input('coa');//COASEGURO
+            $Ticket->sucursal_id = $sucursal_id;//SUCURSAL
+            $Ticket->igv = $request->input('deducible');//DEDUCIBLE
+            $Ticket->total = $request->input('total');
+            $Ticket->totalpagado = $request->input('total');
+            $Ticket->tipomovimiento_id=1;//TICKET
+            $Ticket->tipodocumento_id=1;//TICKET
+            $Ticket->persona_id = $request->input('person_id');
+            $Ticket->plan_id = $request->input('plan_id');
+            $Ticket->doctor_id = $ticket_anterior->doctor_id;
+            $Ticket->situacion = "R";
+            $Ticket->situacion2 = "C";
+            $Ticket->soat = $ticket_anterior->soat;
+            $Ticket->sctr = $ticket_anterior->sctr;
+            $Ticket->clasificacionconsulta = $ticket_anterior->clasificacionconsulta;
+            $Ticket->save();
+
+            $ticket_anterior->ticket_reprogramacion_id = $Ticket->id;
+            $ticket_anterior->situacion2 = "R";
+            $ticket_anterior->save();
+
+            $arr2 = array();
+            $arr=explode(",",$request->input('listServicio'));
+            Detallemovcaja::where('movimiento_id','=',$id)->whereNotIn('situacionentrega',['A'])->delete();
+            foreach ($arr as $ids) {
+                if(strlen($ids)>0){
+                    $arr2[] = $ids;
+                }
+            }
+            $arr = $arr2;
+            //dd($arr);
+            for($c=0;$c<count($arr);$c++){
+                $Detalle = new Detallemovcaja();
+                $Detalle->movimiento_id=$Ticket->id;
+                //dd($Ticket);
+                if($request->input('txtIdTipoServicio'.$arr[$c])!="0"){
+                    $Detalle->servicio_id=$request->input('txtIdServicio'.$arr[$c]);
+                    $Detalle->descripcion="";
+                    $servicio = Servicio::find($request->input('txtIdServicio'.$arr[$c]));
+                    $Detalle->precioconvenio=$servicio->precio;
+                    $Detalle->tiposervicio_id=$request->input('cboTipoServicio'.$arr[$c]);
+                }else{
+                    $Detalle->servicio_id=null;
+                    $Detalle->descripcion=trim($request->input('txtServicio'.$arr[$c]));
+                    $Detalle->tiposervicio_id=$request->input('cboTipoServicio'.$arr[$c]);
+                }
+                $Detalle->persona_id=$request->input('txtIdMedico'.$arr[$c]);
+                $Detalle->cantidad=$request->input('txtCantidad'.$arr[$c]);
+                $Detalle->precio=$request->input('txtPrecio'.$arr[$c]);
+                $Detalle->pagodoctor=$request->input('txtPrecioMedico'.$arr[$c]);
+                $Detalle->pagohospital=$request->input('txtPrecioHospital'.$arr[$c]);
+                $Detalle->tipodescuento=$request->input('cboDescuento');
+                $Detalle->descuento=$request->input('txtDescuento'.$arr[$c]);
+                $Detalle->save();
+            }
+        });
+        $dat[0]=array("respuesta"=>"OK","ticket_id"=>$id,"pagohospital"=>0,"notacredito_id"=>0);
+        return is_null($error) ? json_encode($dat) : $error;
+    }
+
+
 }

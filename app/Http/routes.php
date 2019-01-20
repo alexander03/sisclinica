@@ -402,6 +402,16 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('ticket/agregardetalle', 'TicketController@agregardetalle')->name('ticket.agregardetalle');
     Route::post('ticket/agregarhojacosto', 'TicketController@agregarhojacosto')->name('ticket.agregarhojacosto');
 
+    //TICKETS PARA REPROGRAMAR
+    Route::get('ticket/ticketreprogramar', 'TicketController@ticketreprogramar')->name('ticket.ticketreprogramar');
+    Route::get('ticket/listaticketsparareprogramar/{numero}/{fecha}/{paciente}', 'TicketController@listaticketsparareprogramar')->name('ticket.listaticketsparareprogramar');
+    Route::get('ticket/reprogramarticket/{id}', 'TicketController@reprogramarticket')->name('ticket.reprogramarticket');
+    Route::post('ticket/reprogramar', 'TicketController@reprogramar')->name('ticket.reprogramar');
+    Route::get('ticket/ticketsreprogramados', 'TicketController@ticketsreprogramados')->name('ticket.ticketsreprogramados');
+    Route::get('ticket/listaticketsreprogramados/{numero}/{fecha}/{paciente}', 'TicketController@listaticketsreprogramados')->name('ticket.listaticketsreprogramados');
+    Route::get('ticket/reingreso/{id}', 'TicketController@reingreso')->name('ticket.reingreso');
+    Route::put('ticket/guardarreingreso/{id}', 'TicketController@guardarreingreso')->name('ticket.guardarreingreso');
+
     /* HOJA COSTO */
     Route::post('hojacosto/buscar', 'HojacostoController@buscar')->name('hojacosto.buscar');
     Route::get('hojacosto/eliminar/{id}/{listarluego}', 'HojacostoController@eliminar')->name('hojacosto.eliminar');

@@ -27,8 +27,12 @@
 	            <td>PENDIENTE</td>
 	            @elseif($value->situacion=='C')
 	            <td>COBRADO</td>
+				@elseif($value->situacion=='D')
+	            <td>DEBE</td>
 	            @elseif($value->situacion=='U')
 	            <td>ANULADO</td>
+				@elseif($value->situacion=='R')
+	            <td>REPROGRAMADO</td>
 	            @endif
 	  			<td>{{ $value->responsable }}</td>
 	            @if($value->situacion=='C')
