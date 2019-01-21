@@ -140,7 +140,7 @@ class HistoriaClinicaController extends Controller
                             <tbody>";
 
         if(count($resultado) == '0') {
-            $tabla .= '<tr><td colspan="3"><center>No Hay Historias Antiguas</center></td></tr>';
+            $tabla .= '<tr><td colspan="3"><center>No Hay Citas Anteriores</center></td></tr>';
         } else {
             foreach($resultado as $value){
 
