@@ -77,7 +77,7 @@ class HistoriaController extends Controller
         $cabecera[]       = array('valor' => 'Telefono', 'numero' => '1');
         //$cabecera[]       = array('valor' => 'Fecha Nacimiento', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Direccion', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '5');
+        $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '6');
         
         $titulo_modificar = $this->tituloModificar;
         $titulo_eliminar  = $this->tituloEliminar;

@@ -1,6 +1,47 @@
 @if(count($lista) == 0)
 <h3 class="text-warning">No se encontraron resultados.</h3>
 @else
+<script>
+	function tablaCita(historia_id, nombrepaciente){
+		$.ajax({
+			"method": "POST",
+			"url": "{{ url('/historiaclinica/tablaCita') }}",
+			"data": {
+				"historia_id" : historia_id, 
+				"_token": "{{ csrf_token() }}",
+				}
+		}).done(function(info){
+			$('#exampleModal').modal('show');
+			$('#tablaCitas').html(info);
+			$('#nombrepaciente').html(nombrepaciente);
+		});
+	}
+
+	function ver(cita_id){
+		$.ajax({
+			"method": "POST",
+			"url": "{{ url('/historiaclinica/ver') }}",
+			"data": {
+				"cita_id" : cita_id, 
+				"_token": "{{ csrf_token() }}",
+				}
+		}).done(function(info){
+			$('#verCita').html(info);
+		});
+	}
+</script>
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+	    <div class="modal-content">
+		    <div class="modal-header" id="encabeCita"><h3 align="center">Historias Clínicas de <font id="nombrepaciente" color="blue" style="font-weight: bold"></font></h3></div>
+		    <div class="modal-body" id="tablaCitas"></div>
+	        <div class="modal-footer">
+	            <button type="button" class="btn btn-success" data-dismiss="modal">Cerrar</button>
+	        </div>
+	    </div>
+	</div>
+</div>
 {!! $paginacion or '' !!}
 <table id="example1" class="table table-bordered table-striped table-condensed table-hover">
 
@@ -32,7 +73,6 @@
             <td>{{ $value->persona->dni }}</td>
             <td align="center">{{ $value->tipopaciente }}</td>
             <td>{{ $value->persona->telefono }}</td>
-            <?/*td align="center">{{ $value->persona->fechanacimiento }}</td*/ ?>
             <td>{{ $value->persona->direccion }}</td>
             @if($value->fallecido=="S")
 				<td> - </td>
@@ -44,12 +84,13 @@
             	<td>{!! Form::button('<i class="glyphicon glyphicon-screenshot"></i>', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnFallecido', 'title' => 'Fallecido', 'onclick' => 'modal (\''.URL::route($ruta["fallecido"], array($value->id, 'SI')).'\', \'Fallecido\', this);')) !!}</td>
             	<td>{!! Form::button('<i class="glyphicon glyphicon-search"></i>', array('class' => 'btn btn-success btn-xs', 'id' => 'btnSeguimiento', 'title' => 'Seguimiento', 'onclick' => 'seguimiento(\''.$entidad.'\','.$value->id.')')) !!}</td>
 	            <td>{!! Form::button('<i class="glyphicon glyphicon-print"></i>', array('class' => 'btn btn-info btn-xs', 'id' => 'btnImprimir', 'title' => 'Imprimir', 'onclick' => 'imprimirHistoria(\''.$entidad.'\','.$value->id.')')) !!}</td>
+				<td>{!! Form::button('<div class="glyphicon glyphicon-eye-open"></div>', array( 'title' => 'Historias Clínicas', 'onclick' => 'tablaCita(' . $value->id . ', "' . $value->persona->apellidopaterno.' '.$value->persona->apellidomaterno.' '.$value->persona->nombres . '");', 'class' => 'btn btn-xs btn-primary')) !!}</td>
 				<td>{!! Form::button('<div class="glyphicon glyphicon-pencil"></div>', array( 'title' => 'Editar', 'onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning')) !!}</td>
 				@if($user->usertype_id==1 || $user->usertype_id==2)
 					<td>{!! Form::button('<div class="glyphicon glyphicon-trash"></div>', array( 'title' => 'Eliminar', 'onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);', 'class' => 'btn btn-xs btn-danger')) !!}</td>
 				@else
 					<td> - </td>
-				@endif
+				@endif				
 			@endif
 		</tr>
 		<?php
