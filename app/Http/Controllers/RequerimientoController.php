@@ -280,7 +280,7 @@ class RequerimientoController extends Controller
                     $stockactual = 0;
 
                     if ($ultimokardex === NULL) {
-                        $stockactual = $cantidad;
+                        //$stockactual = $cantidad;
                         $kardex = new Kardex();
                         $kardex->tipo = 'S';
                         $kardex->fecha = date("Y-m-d");
@@ -326,7 +326,7 @@ class RequerimientoController extends Controller
                                 $stockactual = 0;
 
                                 if ($ultimokardex === NULL) {
-                                    $stockactual = $cantidad;
+                                    //$stockactual = $cantidad;
                                     $kardex = new Kardex();
                                     $kardex->tipo = 'S';
                                     $kardex->fecha = date("Y-m-d");

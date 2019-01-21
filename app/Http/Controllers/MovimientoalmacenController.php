@@ -21,6 +21,7 @@ use App\Person;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 use Jenssegers\Date\Date;
 use Illuminate\Support\Facades\Auth;
 use Elibyy\TCPDF\Facades\TCPDF;
@@ -181,9 +182,9 @@ class MovimientoalmacenController extends Controller
 
     public function agregarcarritomovimientoalmacen(Request $request)
     {
-        $lista = array();
+        //$lista = array();
         $cadena = '';
-        if ($request->session()->get('carritomovimientoalmacen') !== null) {
+        /*if ($request->session()->get('carritomovimientoalmacen') !== null) {
             $lista          = $request->session()->get('carritomovimientoalmacen');
             $cantidad       = Libreria::getParam($request->input('cantidad'));
             $producto_id       = Libreria::getParam($request->input('producto_id'));
@@ -234,40 +235,53 @@ class MovimientoalmacenController extends Controller
             $cadena .= '</table>';
             $request->session()->put('carritomovimientoalmacen', $lista);
 
-        }else{
-            $cantidad       = Libreria::getParam($request->input('cantidad'));
-            $producto_id       = Libreria::getParam($request->input('producto_id'));
-            $precio       = Libreria::getParam($request->input('precio'));
-            $preciokayros       = Libreria::getParam($request->input('preciokayros'));
-            $precioventa       = Libreria::getParam($request->input('precioventa'));
-            $producto   = Producto::find($producto_id);
-            $fechavencimiento       = Libreria::getParam($request->input('fechavencimiento'));
-            $lote       = Libreria::getParam($request->input('lote'));
-            $distribuidora_id       = Libreria::getParam($request->input('distribuidora_id'));
-            $subtotal       = round(($cantidad*$precio), 2);
-            $cadena   .= '<table style="width: 100%;" border="1">';
-            $cadena   .= '<thead>
-                                <tr>
-                                    <th bgcolor="#E0ECF8" class="text-center">Producto</th>
-                                    <th bgcolor="#E0ECF8" class="text-center">Cantidad</th>
-                                    <th bgcolor="#E0ECF8" class="text-center">Precio</th>
-                                    <th bgcolor="#E0ECF8" class="text-center">Subtotal</th>
-                                    <th bgcolor="#E0ECF8" class="text-center">Quitar</th>                            
-                                </tr>
-                            </thead>';
-            $cadena         .= '<tr><td class="text-center" style="width:550px;">'.$producto->nombre.'</td>';
-            $cadena         .= '<td class="text-center" style="width:100px;">'.$cantidad.'</td>';
-            $cadena         .= '<td class="text-center" style="width:100px;">'.$precio.'</td>';
-            $cadena         .= '<td class="text-center" style="width:90px;">'.$subtotal.'</td>';
-            $cadena         .= '<td class="text-center"><a class="btn btn-xs btn-danger" onclick="quitar(\'0\');">Quitar</a></td><tr>';
-            $cadena         .= '<tr><th colspan="3" style="text-align: right;">TOTAL</th><td class="text-center">'.$subtotal.'<input type ="hidden" id="totalcompra" readonly=""  name="totalcompra" value="'.$subtotal.'"></td></tr></tr>';
-            $cadena         .= '</table>';
-            $lista[]  = array('cantidad' => $cantidad, 'precio' => $precio, 'productonombre' => $producto->nombre,'producto_id' => $producto_id,'fechavencimiento' => $fechavencimiento,'lote' => $lote,'distribuidora_id' => $distribuidora_id, 'codigobarra' => $producto->codigobarra, 'preciokayros' => $preciokayros, 'precioventa' => $precioventa);
-            $request->session()->put('carritomovimientoalmacen', $lista);
         }
+        else{*/
+            $cantidad          = Libreria::getParam($request->input('cantidad'));
+            $producto_id       = Libreria::getParam($request->input('producto_id'));
+            $precio            = Libreria::getParam($request->input('precio'));
+            $preciokayros      = Libreria::getParam($request->input('preciokayros'));
+            $precioventa       = Libreria::getParam($request->input('precioventa'));
+            $producto          = Producto::find($producto_id);
+            $fechavencimiento  = Libreria::getParam($request->input('fechavencimiento'));
+            $lote              = Libreria::getParam($request->input('lote'));
+            $distribuidora_id  = Libreria::getParam($request->input('distribuidora_id'));
+            $subtotal          = round(($cantidad*$precio), 2);
+            $cadena .= '<td class="numeration3"></td>
+                    <td class="text-center infoProducto">
+                        <span style="display: block; font-size:.7em">'.$producto->nombre.'</span>
+                        <input type ="hidden" class="productonombre" value="'.$producto->nombre.'">
+                        <input type ="hidden" class="fechavencimiento" value="'.$fechavencimiento.'">
+                        <input type ="hidden" class="lote" value="'.$lote.'">
+                        <input type ="hidden" class="distribuidora_id" value="'.$distribuidora_id.'">
+                        <input type ="hidden" class="cantidad" value="'.$cantidad.'">
+                        <input type ="hidden" class="subtotal" value="'.$subtotal.'">
+                        <input type ="hidden" class="producto_id"  value="'.$producto_id.'">
+                        <input type ="hidden" class="codigobarra" value="'.$producto->codigobarra.'">
+                        <input type ="hidden" class="precioventa" value="'.$precioventa.'">
+                        <input type ="hidden" class="preciokayros" value="'.$preciokayros.'">
+                        <input type ="hidden" class="precio" value="'.$precio.'">
+                    </td>';
+            $cadena .= '<td class="text-center">
+                        <span style="display: block; font-size:.7em">'.$lote.'</span>                    
+                    </td>';
+            $cadena .= '<td class="text-center">
+                        <span style="display: block; font-size:.7em">'.$cantidad.'</span>                    
+                    </td>';
+            $cadena .= '<td class="text-center">
+                        <span style="display: block; font-size:.7em">'.$precio.'</span>                    
+                    </td>';
+            $cadena .= '<td class="text-center">
+                        <span style="display: block; font-size:.7em">'.$subtotal.'</span>                    
+                    </td>';
+            $cadena .= '<td class="text-center">
+                        <span style="display: block; font-size:.7em">
+                        <a class="btn btn-xs btn-danger quitarFila">Quitar</a></span>
+                    </td>';
+            //$lista[]  = array('cantidad' => $cantidad, 'precio' => $precio, 'productonombre' => $producto->nombre,'producto_id' => $producto_id,'fechavencimiento' => $fechavencimiento,'lote' => $lote,'distribuidora_id' => $distribuidora_id, 'codigobarra' => $producto->codigobarra, 'preciokayros' => $preciokayros, 'precioventa' => $precioventa);
+            //$request->session()->put('carritomovimientoalmacen', $lista);
+        /*}*/
         return $cadena; 
-
-
     }
 
     public function quitarcarritomovimientoalmacen(Request $request)
@@ -329,7 +343,7 @@ class MovimientoalmacenController extends Controller
         foreach ($listdocument as $key => $value) {
             $cboDocumento = $cboDocumento + array( $value->id => $value->nombre);
         }
-        $cboTipo        = array("I" => 'Ingreso', 'S' => 'Salida');
+        $cboTipo        = array("8" => 'Ingreso', '9' => 'Salida');
         $formData = array('movimientoalmacen.store');
         $formData = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton    = 'Registrar'; 
@@ -356,30 +370,31 @@ class MovimientoalmacenController extends Controller
             );
         
 
-        if (is_null($request->session()->get('carritomovimientoalmacen')) || count($request->session()->get('carritomovimientoalmacen')) === 0) {
+        //if (is_null($request->session()->get('carritomovimientoalmacen')) || count($request->session()->get('carritomovimientoalmacen')) === 0) {
+        if ($request->input('cantproductos') == 0) {            
             $error = array(
-                'total' => array(
+                'cantproductos' => array(
                     'Debe agregar al menos un producto'
                     ));
             return json_encode($error);
         }
 
-
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
             return $validacion->messages()->toJson();
         }
+
         $dat=array();
         $error = DB::transaction(function() use($request,&$dat){
-            $lista = $request->session()->get('carritomovimientoalmacen');
-            $total = 0;
+            //$lista = $request->session()->get('carritomovimientoalmacen');
+            $lista = $request->input('cantproductos');
+            $total = $request->input('totalmovimiento');
+            $sucursal_id = Session::get('sucursal_id');
             $movimientoalmacen                 = new Movimientoalmacen();
-            if ($request->input('tipo') == 'I')
-                $movimientoalmacen->tipodocumento_id = 8;
-            else
-                $movimientoalmacen->tipodocumento_id = 9;
-            $movimientoalmacen->tipomovimiento_id          = 5;
-            $movimientoalmacen->almacen_id          = 1;
+            $movimientoalmacen->tipodocumento_id = $request->input('tipo');
+            $movimientoalmacen->tipomovimiento_id    = 5;
+            $movimientoalmacen->almacen_id           = 1;
+            $movimientoalmacen->sucursal_id          = $sucursal_id;
             //$movimientoalmacen->persona_id = $request->input('person_id');
             $movimientoalmacen->comentario   = Libreria::obtenerParametro($request->input('comentario'));
             $movimientoalmacen->numero = $request->input('numerodocumento');
@@ -390,39 +405,40 @@ class MovimientoalmacenController extends Controller
             $movimientoalmacen->responsable_id = $user->person_id;
             $movimientoalmacen->save();
             $movimiento_id = $movimientoalmacen->id;
-            for ($i=0; $i < count($lista); $i++) {
-                $cantidad  = str_replace(',', '',$lista[$i]['cantidad']);
-                $precio    = str_replace(',', '',$lista[$i]['precio']);
+            //for ($i=0; $i < count($lista); $i++) {
+            for ($i=1; $i <= $lista; $i++) {
+                $cantidad  = str_replace(',', '',$request->input('cantidad'.$i));
+                $precio    = str_replace(',', '',$request->input('precio'.$i));
                 $subtotal  = round(($cantidad*$precio), 2);
                 $detalleVenta = new Detallemovimiento();
                 $detalleVenta->cantidad = $cantidad;
                 $detalleVenta->precio = $precio;
                 $detalleVenta->subtotal = $subtotal;
                 $detalleVenta->movimiento_id = $movimiento_id;
-                $detalleVenta->producto_id = $lista[$i]['producto_id'];
+                $detalleVenta->producto_id = $request->input('producto_id'.$i);
                 $detalleVenta->save();
-                $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $lista[$i]['producto_id'])->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
+                $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $request->input('producto_id'.$i))->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
                 //$ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->where('promarlab_id', '=', $lista[$i]['promarlab_id'])->where('kardex.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
 
                 // Creamos el lote para el producto
                 if ($request->input('tipo') == 'I') {
                     $lote = new Lote();
-                    $lote->nombre  = $lista[$i]['lote'];
-                    $lote->fechavencimiento  = Date::createFromFormat('d/m/Y', $lista[$i]['fechavencimiento'])->format('Y-m-d');
+                    $lote->nombre  = $request->input('lote'.$i);
+                    $lote->fechavencimiento  = Date::createFromFormat('d/m/Y', $request->input('fechavencimiento'.$i))->format('Y-m-d');
                     $lote->cantidad = $cantidad;
                     $lote->queda = $cantidad;
-                    $lote->producto_id = $lista[$i]['producto_id'];
+                    $lote->producto_id = $request->input('producto_id'.$i);
                     $lote->almacen_id = 1;
                     $lote->save();
                 }elseif ($request->input('tipo') == 'S') {
-                    $lotes = Lote::where('producto_id','=',$lista[$i]['producto_id'])->where('queda','>','0')->orderBy('fechavencimiento','ASC')->get();
+                    $lotes = Lote::where('producto_id','=',$request->input('producto_id'.$i))->where('queda','>','0')->orderBy('fechavencimiento','ASC')->get();
                     foreach ($lotes as $key => $value) {
                         $aux = $cantidad;
                         if ($value->queda >= $aux) {
                             $queda = $value->queda-$aux;
                             $value->queda = $queda;
                             $value->save();
-                            $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $lista[$i]['producto_id'])->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
+                            $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $request->input('producto_id'.$i))->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
                             $stockanterior = 0;
                             $stockactual = 0;
                             // ingresamos nuevo kardex
@@ -451,7 +467,7 @@ class MovimientoalmacenController extends Controller
                             $value->queda = 0;
                             $value->save();
                             
-                            $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $lista[$i]['producto_id'])->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
+                            $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $request->input('producto_id'.$i))->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
                             $stockanterior = 0;
                             $stockactual = 0;
                             // ingresamos nuevo kardex
@@ -477,9 +493,6 @@ class MovimientoalmacenController extends Controller
                         }
                     }
                 }
-                
-
-                
 
                 $stockanterior = 0;
                 $stockactual = 0;

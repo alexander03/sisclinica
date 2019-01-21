@@ -2,17 +2,12 @@
 {!! Form::model($movimientoalmacen, $formData) !!}	
 	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
 	{!! Form::hidden('total', '0', array( 'id' => 'total')) !!}
+	<input type="hidden" name="cantproductos" id="cantproductos" value="0">
 	<div class="col-lg-4 col-md-4 col-sm-4">
-		<div class="form-group" style="height: 12px;">
-			{!! Form::label('documento', 'Documento:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
-			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::select('documento', $cboDocumento, null, array('style' => 'background-color: rgb(25,241,227);' ,'class' => 'form-control input-xs', 'id' => 'documento', 'onchange' => 'generarNumero(this.value)')) !!}
-			</div>
-		</div>
 		<div class="form-group" style="height: 12px;">
 			{!! Form::label('tipo', 'Tipo:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::select('tipo', $cboTipo, null, array('style' => 'background-color: rgb(25,241,227);' ,'class' => 'form-control input-xs', 'id' => 'tipo')) !!}
+				{!! Form::select('tipo', $cboTipo, null, array('style' => 'background-color: #D4F0FF;' ,'class' => 'form-control input-xs', 'id' => 'tipo', 'onclick' => 'generarNumero(this.value);')) !!}
 			</div>
 		</div>
 		<div class="form-group" id="divDescuentokayros" style="height: 12px;">
@@ -97,7 +92,7 @@
 		       {-- Form::button('<i class="glyphicon glyphicon-plus"></i> Agregar', array('class' => 'btn btn-info btn-xs', 'id' => 'btnAgregar', 'onclick' => 'ventanaproductos();')) --}   
 		    	
 		    	</div>-->
-				{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => 'guardarVenta(\''.$entidad.'\', this)')) !!}
+				{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => 'guardarMovimiento(\''.$entidad.'\', this)')) !!}
 				{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
 			</div>
 		</div>
@@ -114,17 +109,28 @@
 	<div class="row">
 		<div class="col-lg-12 col-md-12 col-sm-12">
 			<div id="divDetail" class="table-responsive" style="overflow:auto; height:220px; padding-right:10px; border:1px outset">
-		        <table style="width: 100%;" class="table-condensed table-striped">
+		        <table style="width: 100%;" class="table-condensed table-striped" border="1">
 		            <thead>
 		                <tr>
-		                    <th bgcolor="#E0ECF8" class='text-center'>Producto</th>
-		                    <th bgcolor="#E0ECF8" class='text-center'>Cantidad</th>
-		                    <th bgcolor="#E0ECF8" class="text-center">Precio</th>
-		                    <th bgcolor="#E0ECF8" class="text-center">Subtotal</th>
-		                    <th bgcolor="#E0ECF8" class='text-center'>Quitar</th>                            
+		                    <th bgcolor="#E0ECF8" class='text-center'>N°</th>
+		                    <th bgcolor="#E0ECF8" class='text-center' style="width:670px;">Producto</th>
+		                    <th bgcolor="#E0ECF8" class='text-center' style="width:100px;">Lote</th>
+		                    <th bgcolor="#E0ECF8" class='text-center' style="width:95px;">Cantidad</th>
+		                    <th bgcolor="#E0ECF8" class="text-center" style="width:95px;">Precio Unit</th>
+		                    <th bgcolor="#E0ECF8" class="text-center" style="width:90px;">Subtotal</th>
+		                    <th bgcolor="#E0ECF8" class='text-center'>Quitar</th>
 		                </tr>
 		            </thead>
-		           
+		            <tbody id="detallesMovimiento">
+		            </tbody>
+		            <tbody border="1">
+		            	<tr>
+		            		<th colspan="4" style="text-align: right;">TOTAL</th>
+		            		<td class="text-center">
+		            			<center id="totalmovimiento2">0</center><input type="hidden" id="totalmovimiento" readonly="" name="totalmovimiento" value="0">
+		            		</td>
+		            	</tr>
+		            </tbody>
 		        </table>
 		    </div>
 		</div>
@@ -135,7 +141,7 @@
 {!! Form::close() !!}
 <style type="text/css">
 tr.resaltar {
-    background-color: #A9F5F2;
+    background-color: #D4F0FF;
     cursor: pointer;
 }
 </style>
@@ -473,6 +479,11 @@ function seleccionarProducto(idproducto){
 		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="precioventa"]').val(datos[2]);
 		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="stock"]').val(datos[3]);
 		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="preciocompra"]').val(datos[4]);
+		if(datos[5] == 'SI') {
+			$('#lote').attr('readonly', false);
+		} else {
+			$('#lote').attr('readonly', true);
+		}
 	});
 	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="cantidad"]').focus();
 
@@ -550,27 +561,59 @@ function retornarFloat (value) {
 	return retorno;
 }
 
+$(document).on('click', '.quitarFila', function(event) {
+	event.preventDefault();
+	$(this).parent('span').parent('td').parent('tr').remove();
+	calculatetotal();
+});
+
 function quitar (valor) {
-	var _token =$('input[name=_token]').val();
-	$.post('{{ URL::route("movimientoalmacen.quitarcarritomovimientoalmacen")}}', {valor: valor,_token: _token} , function(data){
+	/*var _token =$('input[name=_token]').val();
+	$.post('{ URL::route("movimientoalmacen.quitarcarritomovimientoalmacen")}}', {valor: valor,_token: _token} , function(data){
 		$('#divDetail').html(data);
 		calculatetotal();
 		//generarSaldototal ();
 		// var totalpedido = $('#totalpedido').val();
 		// $('#total').val(totalpedido);
-	});
+	});*/
 }
 
 function calculatetotal () {
-	var _token =$('input[name=_token]').val();
+	/*var _token =$('input[name=_token]').val();
 	var valor =0;
-	$.post('{{ URL::route("venta.calculartotal")}}', {valor: valor,_token: _token} , function(data){
+	$.post('{ URL::route("venta.calculartotal")}}', {valor: valor,_token: _token} , function(data){
 		valor = retornarFloat(data);
 		$("#total").val(valor);
 		//generarSaldototal();
 		// var totalpedido = $('#totalpedido').val();
 		// $('#total').val(totalpedido);
+	});*/
+	var i = 1;
+	var total = 0;
+	$('#detallesMovimiento tr .numeration3').each(function() {
+		$(this).html(i);
+		i++;
 	});
+	i = 1;
+
+	$('#detallesMovimiento tr .infoProducto').each(function() {
+		$(this).find('.producto_id').attr('name', '').attr('name', 'producto_id' + i);
+		$(this).find('.productonombre').attr('name', '').attr('name', 'productonombre' + i);
+		$(this).find('.cantidad').attr('name', '').attr('name', 'cantidad' + i);
+		$(this).find('.fechavencimiento').attr('name', '').attr('name', 'fechavencimiento' + i);
+		$(this).find('.lote').attr('name', '').attr('name', 'lote' + i);
+		$(this).find('.distribuidora_id').attr('name', '').attr('name', 'distribuidora_id' + i);
+		$(this).find('.codigobarra').attr('name', '').attr('name', 'codigobarra' + i);
+		$(this).find('.preciokayros').attr('name', '').attr('name', 'preciokayros' + i);
+		$(this).find('.precio').attr('name', '').attr('name', 'precio' + i);
+		$(this).find('.precioventa').attr('name', '').attr('name', 'precioventa' + i);
+		$(this).find('.subtotal').attr('name', '').attr('name', 'subtotal' + i);
+		total += parseFloat($(this).find('.subtotal').val());
+		i++;
+	});
+	$('#cantproductos').val(i-1);
+	$('#totalmovimiento2').html(total);
+	$('#totalmovimiento').val(total);
 }
 
 function comprobarproducto () {
@@ -743,7 +786,13 @@ function agregarconvenio(id){
 	            },2000) 
 		}*/else{
 			$.post('{{ URL::route("movimientoalmacen.agregarcarritomovimientoalmacen")}}', {cantidad: cantidad,precio: precio, producto_id: product_id, tipoventa: tipoventa, descuentokayros: descuentokayros, copago: copago, precioventa: precioventa, preciokayros: preciokayros, lote: lote, fechavencimiento: fechavencimiento,_token: _token} , function(data){
-				$('#divDetail').html(data);
+				//$('#divDetail').html(data);
+				var producto_id = $('#producto_id').val();
+				if ($("#Product" + producto_id)[0]) {
+					$("#Product" + producto_id).html(data);
+				} else {
+					$('#detallesMovimiento').append('<tr id="Product' + producto_id + '">' + data + '</tr>');
+				}			
 				calculatetotal();
 				/*bootbox.alert("Producto Agregado");
 	            setTimeout(function () {
@@ -829,85 +878,90 @@ function agregarconvenio(id){
 		});
 	}
 
-function guardarVenta (entidad, idboton, entidad2) {
-	var total = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="totalcompra"]').val();
-	var mensaje = '<h3 align = "center">Total = '+total+'</h3>';
-	/*if (typeof mensajepersonalizado != 'undefined' && mensajepersonalizado !== '') {
-		mensaje = mensajepersonalizado;
-	}*/
-	bootbox.confirm({
-		message : mensaje,
-		buttons: {
-			'cancel': {
-				label: 'Cancelar',
-				className: 'btn btn-default btn-sm'
-			},
-			'confirm':{
-				label: 'Aceptar',
-				className: 'btn btn-success btn-sm'
-			}
-		}, 
-		callback: function(result) {
-			if (result) {
-				var idformulario = IDFORMMANTENIMIENTO + entidad;
-				var data         = submitForm(idformulario);
-				var respuesta    = '';
-				var listar       = 'NO';
-				
-				var btn = $(idboton);
-				btn.button('loading');
-				data.done(function(msg) {
-					respuesta = msg;
-				}).fail(function(xhr, textStatus, errorThrown) {
-					respuesta = 'ERROR';
-				}).always(function() {
-					btn.button('reset');
-					if(respuesta === 'ERROR'){
-					}else{
-						var dat = JSON.parse(respuesta);
-			            if(dat[0]!==undefined){
-			                resp=dat[0].respuesta;    
-			            }else{
-			                resp='VALIDACION';
-			            }
-			            
-						if (resp === 'OK') {
-							cerrarModal();
-			                buscarCompaginado('', 'Accion realizada correctamente', entidad, 'OK');
-			                /*if(dat[0].pagohospital!="0"){
-			                    window.open('/juanpablo/ticket/pdfComprobante?ticket_id='+dat[0].ticket_id,'_blank')
-			                }else{
-			                    window.open('/juanpablo/ticket/pdfPrefactura?ticket_id='+dat[0].ticket_id,'_blank')
-			                }*/
-			                //alert('hola');
-			                /*if (dat[0].ind == 1) {
-			                	window.open('/juanpablo/venta/pdfComprobante?venta_id='+dat[0].venta_id,'_blank');
-			                	window.open('/juanpablo/venta/pdfComprobante?venta_id='+dat[0].second_id,'_blank');
-			                }else{
-			                	window.open('/juanpablo/venta/pdfComprobante?venta_id='+dat[0].venta_id,'_blank');
-			                }*/
-			                
-						} else if(resp === 'ERROR') {
-							alert(dat[0].msg);
-						} else {
-							mostrarErrores(respuesta, idformulario, entidad);
+function guardarMovimiento (entidad, idboton) {
+	if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="fecha"]').val()==""){
+		alert("Debe ingresar una fecha");
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="fecha"]').focus();
+		return false;
+	} else if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="totalmovimiento"]').val()==0){
+		alert("Debe ingresar al menos un producto");
+		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="nombreproducto"]').focus();
+		return false;
+	} else {
+		var total = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="totalmovimiento"]').val();
+		var mensaje = '<h3 align = "center">Total = '+total+'</h3>';
+		/*if (typeof mensajepersonalizado != 'undefined' && mensajepersonalizado !== '') {
+			mensaje = mensajepersonalizado;
+		}*/
+		bootbox.confirm({
+			message : mensaje,
+			buttons: {
+				'cancel': {
+					label: 'Cancelar',
+					className: 'btn btn-default btn-sm'
+				},
+				'confirm':{
+					label: 'Aceptar',
+					className: 'btn btn-success btn-sm'
+				}
+			}, 
+			callback: function(result) {
+				if (result) {
+					var idformulario = IDFORMMANTENIMIENTO + entidad;
+					var data         = submitForm(idformulario);
+					var respuesta    = '';
+					var listar       = 'NO';
+					
+					var btn = $(idboton);
+					btn.button('loading');
+					data.done(function(msg) {
+						respuesta = msg;
+					}).fail(function(xhr, textStatus, errorThrown) {
+						respuesta = 'ERROR';
+					}).always(function() {
+						btn.button('reset');
+						if(respuesta === 'ERROR'){
+						}else{
+							var dat = JSON.parse(respuesta);
+				            if(dat[0]!==undefined){
+				                resp=dat[0].respuesta;    
+				            }else{
+				                resp='VALIDACION';
+				            }
+				            
+							if (resp === 'OK') {
+								cerrarModal();
+				                buscarCompaginado('', 'Accion realizada correctamente', entidad, 'OK');
+				                /*if(dat[0].pagohospital!="0"){
+				                    window.open('/juanpablo/ticket/pdfComprobante?ticket_id='+dat[0].ticket_id,'_blank')
+				                }else{
+				                    window.open('/juanpablo/ticket/pdfPrefactura?ticket_id='+dat[0].ticket_id,'_blank')
+				                }*/
+				                //alert('hola');
+				                /*if (dat[0].ind == 1) {
+				                	window.open('/juanpablo/venta/pdfComprobante?venta_id='+dat[0].venta_id,'_blank');
+				                	window.open('/juanpablo/venta/pdfComprobante?venta_id='+dat[0].second_id,'_blank');
+				                }else{
+				                	window.open('/juanpablo/venta/pdfComprobante?venta_id='+dat[0].venta_id,'_blank');
+				                }*/
+				                
+							} else if(resp === 'ERROR') {
+								alert(dat[0].msg);
+							} else {
+								mostrarErrores(respuesta, idformulario, entidad);
+							}
 						}
-					}
-				});
-			};
-		}            
-	}).find("div.modal-content").addClass("bootboxConfirmWidth");
-	setTimeout(function () {
-		if (contadorModal !== 0) {
-			$('.modal' + (contadorModal-1)).css('pointer-events','auto');
-			$('body').addClass('modal-open');
-		}
-	},2000);
-
-
-	
+					});
+				};
+			}            
+		}).find("div.modal-content").addClass("bootboxConfirmWidth");
+		setTimeout(function () {
+			if (contadorModal !== 0) {
+				$('.modal' + (contadorModal-1)).css('pointer-events','auto');
+				$('body').addClass('modal-open');
+			}
+		},2000);
+	}
 }
-
-
 
 </script>

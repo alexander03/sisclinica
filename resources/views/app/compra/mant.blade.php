@@ -164,7 +164,7 @@
 		       {-- Form::button('<i class="glyphicon glyphicon-plus"></i> Agregar', array('class' => 'btn btn-info btn-xs', 'id' => 'btnAgregar', 'onclick' => 'ventanaproductos();')) --}   
 		    	
 		    	</div>-->
-				{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => 'guardarVenta(\''.$entidad.'\', this)')) !!}
+				{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => 'guardarCompra(\''.$entidad.'\', this)')) !!}
 				{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
 			</div>
 		</div>
@@ -193,7 +193,7 @@
 		                    <th bgcolor="#E0ECF8" class='text-center'>Quitar</th>
 		                </tr>
 		            </thead>
-		            <tbody id="detallesVenta">
+		            <tbody id="detallesCompra">
 		            </tbody>
 		            <tbody border="1">
 		            	<tr>
@@ -222,7 +222,7 @@ var valorbusqueda="";
 var indice = -1;
 var anterior = -1;
 $(document).ready(function() {
-	$('#detallesVenta').html('');
+	$('#detallesCompra').html('');
 	$('#cantproductos').val('0');
 	configurarAnchoModal('1300');
 	init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'B', '{!! $entidad !!}');
@@ -713,13 +713,13 @@ function calculatetotal () {
 	//Reorganizamos los nombres y números de las filas de la tabla
 	var i = 1;
 	var total = 0;
-	$('#detallesVenta tr .numeration').each(function() {
+	$('#detallesCompra tr .numeration').each(function() {
 		$(this).html(i);
 		i++;
 	});
 	i = 1;
 
-	$('#detallesVenta tr .infoProducto').each(function() {
+	$('#detallesCompra tr .infoProducto').each(function() {
 		$(this).find('.producto_id').attr('name', '').attr('name', 'producto_id' + i);
 		$(this).find('.productonombre').attr('name', '').attr('name', 'productonombre' + i);
 		$(this).find('.cantidad').attr('name', '').attr('name', 'cantidad' + i);
@@ -913,7 +913,7 @@ function agregarconvenio(id){
 				if ($("#Product" + producto_id)[0]) {
 					$("#Product" + producto_id).html(data);
 				} else {
-					$('#detallesVenta').append('<tr id="Product' + producto_id + '">' + data + '</tr>');
+					$('#detallesCompra').append('<tr id="Product' + producto_id + '">' + data + '</tr>');
 				}			
 				calculatetotal();
 				/*bootbox.alert("Producto Agregado");
@@ -994,7 +994,7 @@ function agregarconvenio(id){
 		});
 	}
 
-function guardarVenta (entidad, idboton) {
+function guardarCompra (entidad, idboton) {
 	if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="fecha2"]').val()==""){
 		alert("Debe ingresar una fecha de vencimiento");
 		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="fecha2"]').focus();
@@ -1083,11 +1083,7 @@ function guardarVenta (entidad, idboton) {
 				$('body').addClass('modal-open');
 			}
 		},2000);
-
-	}
-	
+	}	
 }
-
-
 
 </script>
