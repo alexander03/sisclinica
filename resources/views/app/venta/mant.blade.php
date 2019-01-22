@@ -8,21 +8,21 @@
 		<div class="form-group" style="height: 12px;">
 			{!! Form::label('documento', 'Documento:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::select('documento', $cboDocumento, null, array('style' => 'background-color: rgb(25,241,227);' ,'class' => 'form-control input-xs', 'id' => 'documento', 'onchange' => 'generarNumero(this.value);')) !!}
+				{!! Form::select('documento', $cboDocumento, null, array('style' => 'background-color: #D4F0FF;' ,'class' => 'form-control input-xs', 'id' => 'documento', 'onchange' => 'generarNumero(this.value);')) !!}
 			</div>
 		</div>
 		<div class="form-group" style="height: 12px;">
 			{!! Form::label('tipoventa', 'Tipo Venta:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::select('tipoventa', $cboTipoventa, null, array('style' => 'background-color: rgb(25,241,227);' ,'class' => 'form-control input-xs', 'id' => 'tipoventa', 'onchange' => 'cambiotipoventa();')) !!}
+				{!! Form::select('tipoventa', $cboTipoventa, null, array('style' => 'background-color: #D4F0FF;' ,'class' => 'form-control input-xs', 'id' => 'tipoventa', 'onchange' => 'cambiotipoventa();')) !!}
 			</div>
 		</div>
-		<div class="form-group" style="height: 12px;">
-			{!! Form::label('formapago', 'Form Pago:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
+		<!--<div class="form-group" style="height: 12px;">
+			{! Form::label('formapago', 'Form Pago:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::select('formapago', $cboFormapago, null, array('class' => 'form-control input-xs', 'id' => 'formapago', 'onchange' => 'validarFormaPago(this.value)')) !!}
+				{! Form::select('formapago', $cboFormapago, null, array('class' => 'form-control input-xs', 'id' => 'formapago', 'onchange' => 'validarFormaPago(this.value)')) !!}
 			</div>
-		</div>
+		</div>-->
 		
 		<div class="form-group" style="height: 12px;">
 			{!! Form::label('numerodocumento', 'Nro Doc:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
@@ -35,7 +35,7 @@
 			{!! Form::label('nombreempresa', 'Empresa:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			{!! Form::hidden('empresa_id', null, array('id' => 'empresa_id')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::text('nombreempresa', null, array('style' => 'background-color: rgb(252,215,147);' ,'class' => 'form-control input-xs', 'id' => 'nombreempresa', 'placeholder' => 'Seleccione Empresa')) !!}
+				{!! Form::text('nombreempresa', null, array('style' => 'background-color: #FFEEC5;' ,'class' => 'form-control input-xs', 'id' => 'nombreempresa', 'placeholder' => 'Seleccione Empresa')) !!}
 				
 			</div>
 		</div>
@@ -43,7 +43,7 @@
 			{!! Form::label('nombrepersona', 'Cliente:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			{!! Form::hidden('person_id', null, array('id' => 'person_id')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::text('nombrepersona', null, array('style' => 'background-color: rgb(252,215,147);' ,'class' => 'form-control input-xs', 'id' => 'nombrepersona', 'placeholder' => 'Seleccione Cliente')) !!}
+				{!! Form::text('nombrepersona', null, array('style' => 'background-color: #FFEEC5;' ,'class' => 'form-control input-xs', 'id' => 'nombrepersona', 'placeholder' => 'Seleccione Cliente')) !!}
 				
 			</div>
 		</div>
@@ -52,7 +52,7 @@
 		{!! Form::label('nombredoctor', 'Medico:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			{!! Form::hidden('doctor_id', null, array('id' => 'doctor_id')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::text('nombredoctor', null, array('style' => 'background-color: rgb(252,215,147);','class' => 'form-control input-xs', 'id' => 'nombredoctor', 'placeholder' => 'Seleccione Medico')) !!}
+				{!! Form::text('nombredoctor', null, array('style' => 'background-color: #FFEEC5;','class' => 'form-control input-xs', 'id' => 'nombredoctor', 'placeholder' => 'Seleccione Medico')) !!}
 				
 			</div>
 		</div>
@@ -144,7 +144,56 @@
             </div>
 		</div>
 	</div>
-	<div class="col-lg-8 col-md-8 col-sm-8">
+	<div class="col-lg-3 col-md-3 col-sm-3">	
+		<div class="row">
+			<div class="col-lg-12 col-md-12 col-sm-12">
+				<label for="formapago" class="col-lg-4 col-md-4 col-sm-4 control-label datocaja caja input-sm">Forma Pago:</label>
+				<label id="divcbx0" class="checkbox-inline" style="color:red" onclick="divFormaPago('0', '0')">
+			      	<input style="display: none;" type="checkbox" id="cbx0">EF
+			    </label>
+			    <label id="divcbx1" class="checkbox-inline" onclick="divFormaPago('1', '1')">
+			      	<input style="display: none;" type="checkbox" id="cbx1">VI
+			    </label>
+			    <label id="divcbx2" class="checkbox-inline" onclick="divFormaPago('2', '1')">
+			      	<input style="display: none;" type="checkbox" id="cbx2">MA
+			    </label>
+			</div>        	
+	    </div>
+	    <br>
+	    <div class="row">
+		    <div class="col-lg-12 col-md-12 col-sm-12">	    	
+			    <div class="input-group">
+					<span class="input-group-addon input-xs">EFECTIVO</span>
+					<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="efectivo" id="efectivo" type="text" class="form-control input-xs">
+				</div>
+				<div class="input-group">
+					<span class="input-group-addon input-xs">VISA.</span>
+					<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="visa" id="visa" type="text" class="form-control input-xs" readonly="">
+					<span style="display:none;" class="input-group-addon input-xs">N°</span>
+					<input style="display:none;" onkeypress="return filterFloat(event,this);" name="numvisa" id="numvisa" type="text" class="form-control input-xs" readonly="">
+				</div>
+				<div class="input-group">
+					<span class="input-group-addon input-xs">MAST.</span>
+					<input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="master" id="master" type="text" class="form-control input-xs" readonly="">
+					<span style="display:none;" class="input-group-addon input-xs">N°</span>
+					<input style="display:none;" onkeypress="return filterFloat(event,this);" name="nummaster" id="nummaster" type="text" class="form-control input-xs" readonly="">
+				</div>	
+			</div>						
+		</div>	
+		<hr>
+		<div class="row">
+			<div class="col-lg-12 col-md-12 col-sm-12">	    	
+			    <div class="input-group">
+					<span class="input-group-addon input-xs">TOTAL</span>
+					<input name="total2" id="total2" type="text" class="form-control input-xs" readonly="" value="0.000">
+				</div>
+			</div>
+			<div class="col-lg-12 col-md-12 col-sm-12">	    	
+			    <b id="mensajeMontos" style="color: green;">Los montos coindicen.</b>
+			</div>
+		</div>	
+	</div>
+	<div class="col-lg-5 col-md-5 col-sm-5">
 		<div class="form-group" style="height: 12px;">
 			{!! Form::label('nombreproducto', 'Producto:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 			<div class="col-lg-4 col-md-4 col-sm-4">
