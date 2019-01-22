@@ -279,6 +279,7 @@ $(document).ready(function() {
 	$('#detallesVenta').html('');
 	$('#cantproductos').val('0');
 	configurarAnchoModal('1300');
+	cargarEfectivo();
 	init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'B', '{!! $entidad !!}');
 
 		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="total"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
@@ -584,6 +585,7 @@ function buscarProducto(valor){
                 });
                 $('#tablaProducto_filter').css('display','none');
                 $("#tablaProducto_info").css("display","none");
+                calcularTotalPago();
     	    }
         });
     }
@@ -1116,4 +1118,114 @@ function guardarito() {
 }
 
 validarFormaPago($("#formapago").val());
+
+function divFormaPago(num, mostrar) {
+	var m;
+	if(mostrar == '0') {
+		m = '1';
+		$('#cbx' + num).attr('checked', false);
+		$('#divcbx' + num).css('color', 'black');
+		if(num == '0') {
+			$('#efectivo').attr('readonly', true).val('');
+		} else if(num == '1') {
+			$('#visa').attr('readonly', true).val('');
+			$('#numvisa').attr('readonly', true).val('');
+		} else {
+			$('#master').attr('readonly', true).val('');
+			$('#nummaster').attr('readonly', true).val('');
+		}
+	} else {
+		m = '0';
+		$('#cbx' + num).attr('checked', true);
+		$('#divcbx' + num).css('color', 'red');
+		if(num == '0') {
+			$('#efectivo').attr('readonly', false).focus();
+		} else if(num == '1') {
+			$('#visa').attr('readonly', false).focus();
+			$('#numvisa').attr('readonly', false);
+		} else {
+			$('#master').attr('readonly', false).focus();
+			$('#nummaster').attr('readonly', false);
+		}
+	}
+	$('#divcbx' + num).attr("onclick", "divFormaPago('" + num + "', '" + m + "');");
+	calcularTotalPago();
+}
+
+function coincidenciasMontos() {
+	if(parseFloat($('#totalventa').val()) == parseFloat($('#total2').val())) {
+		$('#mensajeMontos').html('Los montos coindicen.').css('color', 'green');
+		$('#genComp').css('display', '');
+		return true;
+	} else if(parseFloat($('#totalventa').val()) > parseFloat($('#total2').val())) {
+		$('#mensajeMontos').html('Es un monto menor.').css('color', 'orange');	
+		$('#genComp').css('display', 'none');		
+		return true;
+	} else if(parseFloat($('#totalventa').val()) < parseFloat($('#total2').val())) {
+		$('#mensajeMontos').html('Es un monto mayor.').css('color', 'red');	
+		$('#genComp').css('display', 'none');		
+		return false;
+	}
+}
+
+
+function filterFloat(evt,input){
+    var key = window.Event ? evt.which : evt.keyCode;    
+    var chark = String.fromCharCode(key);
+    var tempValue = input.value+chark;
+    if(key >= 48 && key <= 57){
+        if(filter(tempValue)=== false){
+            return false;
+        }else{       
+            return true;
+        }
+    }else{
+          if(key == 8 || key == 13 || key == 0) {     
+              return true;              
+          }else if(key == 46){
+                if(filter(tempValue)=== false){
+                    return false;
+                }else{       
+                    return true;
+                }
+          }else{
+              return false;
+          }
+    }
+}
+
+function filter(__val__){
+    var preg = /^([0-9]+\.?[0-9]{0,3})$/; 
+    if(preg.test(__val__) === true){
+        return true;
+    }else{
+       return false;
+    }	    
+}
+
+function cargarEfectivo() {
+	$('#efectivo').val($('#totalventa').val()).focus();
+}
+
+function calcularTotalPago() {
+	var efectivo = $('#efectivo').val();
+	var visa = $('#visa').val();
+	var master = $('#master').val();
+	var total = 0.000;
+	if(efectivo == '') {
+		efectivo = 0.000;
+	} 
+	if(visa == '') {
+		visa = 0.000;
+	}
+	if(master == '') {
+		master = 0.000;
+	}
+	total = parseFloat(efectivo) + parseFloat(visa) + parseFloat(master);
+	$('#total2').val(total.toFixed(3));
+
+	coincidenciasMontos();		
+}
+
+
 </script>

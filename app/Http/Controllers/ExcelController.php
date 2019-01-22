@@ -18,6 +18,7 @@ use App\Detallemovimiento;
 use App\Lote;
 use App\Kardex;
 use App\Stock;
+use App\HistoriaClinica;
 use Illuminate\Support\Facades\DB;
 
 class ExcelController extends Controller
@@ -60,8 +61,8 @@ class ExcelController extends Controller
                         $value2     = $resultado->first();
                         if(count($value2)>0 && strlen(trim($dni))>0){
                             $objHistoria = new Historia();
-                            $list2       = Historia::where('person_id','=',$value2->id)->first();
-                            if(count($list2)>0){//SI TIENE HISTORIA
+                            $Historia       = Historia::where('person_id','=',$value2->id)->first();
+                            if(count($Historia)>0){//SI TIENE HISTORIA
                                 echo "Ya tiene historia ".$value->historia." -> ".$dni;
                                 $idpersona=0;
                                 $dni="";
@@ -74,8 +75,8 @@ class ExcelController extends Controller
                             $value2     = $resultado->first();
                             if(count($value2)>0 && strlen(trim($dni))>0){
                                 $objHistoria = new Historia();
-                                $list2       = Historia::where('person_id','=',$value2->id)->first();
-                                if(count($list2)>0){//SI TIENE HISTORIA
+                                $Historia       = Historia::where('person_id','=',$value2->id)->first();
+                                if(count($Historia)>0){//SI TIENE HISTORIA
                                     echo "Ya tiene historia ".$value->historia." -> ".$dni;
                                     $idpersona=0;
                                     $dni="";
@@ -104,7 +105,7 @@ class ExcelController extends Controller
                             $idpersona=0;
                         $dni='';
                     }
-                    $error = DB::transaction(function() use($dni,$idpersona,$value,&$dat,$band){
+                    $error = DB::transaction(function() use($dni,$idpersona,$value,&$dat,$band,$Historia){
                         if($band){
                             $Historia       = new Historia();
                             if($idpersona==0){
@@ -154,8 +155,19 @@ class ExcelController extends Controller
                                 $Historia->titular=$value->titular;
                             }
                             $Historia->save();
+
                             $dat[]=array("respuesta"=>"OK","id"=>$Historia->id,"paciente"=>$person->apellidopaterno.' '.$person->apellidomaterno.' '.$person->nombres,"historia"=>$Historia->numero,"person_id"=>$Historia->person_id);
                         }            
+                        $HistoriaClinica = new HistoriaClinica();
+                        $HistoriaClinica->historia_id = $Historia->id;
+                        $HistoriaClinica->fecha_atencion = date("Y-m-d");
+                        $HistoriaClinica->diagnostico = $value->diagnostico;
+                        $HistoriaClinica->examenes = $value->examenes;
+                        $HistoriaClinica->motivo = $value->motivo;
+                        $HistoriaClinica->exploracion_fisica = $value->exploracionfisica;
+                        $HistoriaClinica->sintomas = $value->sintomas;
+                        $HistoriaClinica->tratamiento = $value->tratamiento;
+                        $HistoriaClinica->save();
                     });
                     if(!is_null($error)){
                         print_r($error);die();
@@ -362,7 +374,7 @@ class ExcelController extends Controller
             })->get();
             if(!empty($data) && $data->count()){
                 $dat=array();
-
+                /*
                 $movimientoalmacen                 = new Movimiento();
                 $movimientoalmacen->tipodocumento_id = 8;
                 $movimientoalmacen->tipomovimiento_id          = 5;
@@ -373,9 +385,10 @@ class ExcelController extends Controller
                 $movimientoalmacen->total = 0;
                 $movimientoalmacen->responsable_id = 1;
                 $movimientoalmacen->save();
+                */
             
                 foreach ($data as $key => $value) {
-                    $error = DB::transaction(function() use($value,&$dat,$movimientoalmacen){
+                    $error = DB::transaction(function() use($value,&$dat){//$movimientoalmacen
                         $producto = Producto::where('nombre','like',trim(strtoupper($value->producto)))->first();
                         if(is_null($producto)){
                             $producto       = new Producto();
@@ -392,8 +405,8 @@ class ExcelController extends Controller
                             $producto->codigo_producto    = '';
                             $producto->registro_sanitario = '';
                             $producto->precioxcaja    = 0;
-                            $producto->preciocompra   = 0;
-                            $producto->precioventa    = 0;
+                            $producto->preciocompra   = $value->costo;
+                            $producto->precioventa    = $value->precio;
                             $producto->preciokayros   = 0; 
                             $producto->stockseguridad   = 0; 
                             $producto->categoria_id = null;
@@ -409,7 +422,8 @@ class ExcelController extends Controller
                                 $anaquel->descripcion = trim($value->bloque);
                                 $anaquel->save();
                             }
-                            $producto->anaquel_id = $anaquel->id;
+                            //$producto->anaquel_id = $anaquel->id;
+                            $producto->anaquel_id = null;
                             $producto->save();
                         }
 

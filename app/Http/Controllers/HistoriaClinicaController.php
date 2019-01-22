@@ -144,7 +144,11 @@ class HistoriaClinicaController extends Controller
         } else {
             foreach($resultado as $value){
 
-                $tabla = $tabla . "<tr><td>" . $value->numero . "</td><td>" . date('d-m-Y',strtotime($value->fecha_atencion)) . "</td><td><button class='btn btn-success btn-sm btnVerCita' id='btnVerCita' onclick='ver(".$value->id.")' data-toggle='modal' data-target='#exampleModal' type='button'><i class='fa fa-eye fa-lg'></i> Ver Cita</button></td></tr>";
+                $tabla = $tabla . "<tr>
+                <td><center>" . $value->numero . "</center></td>
+                <td><center>" . date('d-m-Y',strtotime($value->fecha_atencion)) . "</center></td>
+                <td><center><button class='btn btn-success btn-sm btnVerCita' id='btnVerCita' onclick='ver(".$value->id.")' data-toggle='modal' data-target='#exampleModal1' type='button'><i class='fa fa-eye fa-lg'></i> Ver Cita</button></center>
+                </td></tr>";
 
             }
         }           
@@ -160,7 +164,7 @@ class HistoriaClinicaController extends Controller
         $cita_id             = $request->input('cita_id');
         $cita                = HistoriaClinica::find($cita_id);
         $historia            = Historia::find($cita->historia_id);
-        $cie10 = Cie::find($cita->cie_id);
+        //$cie10               = Cie::find($cita->cie_id);
 
         $texto = "<table class='table table-responsive table-hover'>
             <thead>
@@ -195,9 +199,7 @@ class HistoriaClinicaController extends Controller
                     <td>
                         <strong><font style='color:blue'>Cie 10</font></strong><br>
                     </td>
-                    <td>"
-                        . $cie10->codigo . " - " . $cie10->descripcion .
-                    "</td>
+                    <td>-</td>
                 </tr>
                 <tr>
                     <td>

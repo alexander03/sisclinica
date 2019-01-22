@@ -27,6 +27,7 @@
 				}
 		}).done(function(info){
 			$('#verCita').html(info);
+			$('#exampleModal1').modal('show');
 		});
 	}
 </script>
@@ -36,6 +37,16 @@
 	    <div class="modal-content">
 		    <div class="modal-header" id="encabeCita"><h3 align="center">Historias de Citas de <font id="nombrepaciente" color="blue" style="font-weight: bold"></font></h3></div>
 		    <div class="modal-body" id="tablaCitas"></div>
+	        <div class="modal-footer">
+	            <button type="button" class="btn btn-success" data-dismiss="modal">Cerrar</button>
+	        </div>
+	    </div>
+	</div>
+</div>
+<div class="modal fade" id="exampleModal1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+	    <div class="modal-content">
+		    <div class="modal-body" id="verCita"></div>
 	        <div class="modal-footer">
 	            <button type="button" class="btn btn-success" data-dismiss="modal">Cerrar</button>
 	        </div>
