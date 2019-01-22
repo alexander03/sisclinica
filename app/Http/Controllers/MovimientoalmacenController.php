@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Http\Requests;
 use App\Venta;
+use App\Almacen;
 use App\Producto;
 use App\Distribuidora;
 use App\Tipodocumento;
@@ -68,7 +69,10 @@ class MovimientoalmacenController extends Controller
         $title            = $this->tituloAdmin;
         $titulo_registrar = $this->tituloRegistrar;
         $ruta             = $this->rutas;
-        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta'));
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+        $cboAlmacen      = Almacen::where('sucursal_id', '=', $sucursal_id)->get()->pluck('nombre', 'id');
+        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'cboAlmacen', 'titulo_registrar', 'ruta'));
     }
 
     public function buscarproducto(Request $request)
@@ -94,7 +98,16 @@ class MovimientoalmacenController extends Controller
         $entidad          = 'Movimientoalmacen';
         $fechainicio             = Libreria::getParam($request->input('fechainicio'));
         $fechafin             = Libreria::getParam($request->input('fechafin'));
-        $resultado        = Movimientoalmacen::where('tipomovimiento_id', '=', '5')->where(function($query) use ($fechainicio,$fechafin){   
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
+        $almacen_id           = $request->input('almacen_id');
+
+        $resultado        = Movimientoalmacen::where('tipomovimiento_id', '=', '5')
+                            ->where('sucursal_id','=',$sucursal_id)
+                            ->where('almacen_id','=',$almacen_id)
+                            ->where(function($query) use ($fechainicio,$fechafin){   
                                 if (!is_null($fechainicio) && $fechainicio !== '') {
                                     $begindate   = Date::createFromFormat('d/m/Y', $fechainicio)->format('Y-m-d');
                                     $query->where('fecha', '>=', $begindate);
@@ -348,7 +361,13 @@ class MovimientoalmacenController extends Controller
         $formData = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton    = 'Registrar'; 
         $request->session()->forget('carritomovimientoalmacen');
-        return view($this->folderview.'.mant')->with(compact('movimientoalmacen', 'formData', 'entidad', 'boton', 'listar','cboDocumento','cboTipo'));
+
+        
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+        $cboAlmacen      = Almacen::where('sucursal_id', '=', $sucursal_id)->get()->pluck('nombre', 'id');
+
+        return view($this->folderview.'.mant')->with(compact('movimientoalmacen', 'cboAlmacen', 'formData', 'entidad', 'boton', 'listar','cboDocumento','cboTipo'));
     }
 
     /**
@@ -389,11 +408,12 @@ class MovimientoalmacenController extends Controller
             //$lista = $request->session()->get('carritomovimientoalmacen');
             $lista = $request->input('cantproductos');
             $total = $request->input('totalmovimiento');
+            $almacen_id = $request->input('almacen_id');
             $sucursal_id = Session::get('sucursal_id');
             $movimientoalmacen                 = new Movimientoalmacen();
             $movimientoalmacen->tipodocumento_id = $request->input('tipo');
             $movimientoalmacen->tipomovimiento_id    = 5;
-            $movimientoalmacen->almacen_id           = 1;
+            $movimientoalmacen->almacen_id           = $almacen_id;
             $movimientoalmacen->sucursal_id          = $sucursal_id;
             //$movimientoalmacen->persona_id = $request->input('person_id');
             $movimientoalmacen->comentario   = Libreria::obtenerParametro($request->input('comentario'));
@@ -417,7 +437,7 @@ class MovimientoalmacenController extends Controller
                 $detalleVenta->movimiento_id = $movimiento_id;
                 $detalleVenta->producto_id = $request->input('producto_id'.$i);
                 $detalleVenta->save();
-                $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $request->input('producto_id'.$i))->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
+                $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $request->input('producto_id'.$i))->where('movimiento.almacen_id', '=', $almacen_id)->orderBy('kardex.id', 'DESC')->first();
                 //$ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->where('promarlab_id', '=', $lista[$i]['promarlab_id'])->where('kardex.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
 
                 // Creamos el lote para el producto
@@ -428,7 +448,7 @@ class MovimientoalmacenController extends Controller
                     $lote->cantidad = $cantidad;
                     $lote->queda = $cantidad;
                     $lote->producto_id = $request->input('producto_id'.$i);
-                    $lote->almacen_id = 1;
+                    $lote->almacen_id = $almacen_id;
                     $lote->save();
                 }elseif ($request->input('tipo') == 'S') {
                     $lotes = Lote::where('producto_id','=',$request->input('producto_id'.$i))->where('queda','>','0')->orderBy('fechavencimiento','ASC')->get();
@@ -438,7 +458,7 @@ class MovimientoalmacenController extends Controller
                             $queda = $value->queda-$aux;
                             $value->queda = $queda;
                             $value->save();
-                            $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $request->input('producto_id'.$i))->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
+                            $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $request->input('producto_id'.$i))->where('movimiento.almacen_id', '=', $almacen_id)->orderBy('kardex.id', 'DESC')->first();
                             $stockanterior = 0;
                             $stockactual = 0;
                             // ingresamos nuevo kardex
@@ -455,7 +475,7 @@ class MovimientoalmacenController extends Controller
                                 $kardex->stockactual = $stockactual;
                                 $kardex->cantidad = $aux;
                                 $kardex->precioventa = $precio;
-                                //$kardex->almacen_id = 1;
+                                $kardex->almacen_id = $almacen_id;
                                 $kardex->detallemovimiento_id = $detalleVenta->id;
                                 $kardex->lote_id = $value->id;
                                 $kardex->save();    
@@ -467,7 +487,7 @@ class MovimientoalmacenController extends Controller
                             $value->queda = 0;
                             $value->save();
                             
-                            $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $request->input('producto_id'.$i))->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
+                            $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $request->input('producto_id'.$i))->where('movimiento.almacen_id', '=', $almacen_id )->orderBy('kardex.id', 'DESC')->first();
                             $stockanterior = 0;
                             $stockactual = 0;
                             // ingresamos nuevo kardex
@@ -484,7 +504,7 @@ class MovimientoalmacenController extends Controller
                                 $kardex->stockactual = $stockactual;
                                 $kardex->cantidad = $aux;
                                 $kardex->precioventa = $precio;
-                                //$kardex->almacen_id = 1;
+                                $kardex->almacen_id = $almacen_id;
                                 $kardex->detallemovimiento_id = $detalleVenta->id;
                                 $kardex->lote_id = $value->id;
                                 $kardex->save();    
@@ -507,7 +527,7 @@ class MovimientoalmacenController extends Controller
                         $kardex->stockactual = $stockactual;
                         $kardex->cantidad = $cantidad;
                         $kardex->preciocompra = $precio;
-                        //$kardex->almacen_id = 1;
+                        $kardex->almacen_id = $almacen_id;
                         $kardex->detallemovimiento_id = $detalleVenta->id;
                         $kardex->lote_id = $lote->id;
                         $kardex->save();
@@ -522,7 +542,7 @@ class MovimientoalmacenController extends Controller
                         $kardex->stockactual = $stockactual;
                         $kardex->cantidad = $cantidad;
                         $kardex->preciocompra = $precio;
-                        //$kardex->almacen_id = 1;
+                        $kardex->almacen_id = $almacen_id;
                         $kardex->detallemovimiento_id = $detalleVenta->id;
                         $kardex->lote_id = $lote->id;
                         $kardex->save();    
@@ -538,7 +558,7 @@ class MovimientoalmacenController extends Controller
                     $kardex->stockactual = $stockactual;
                     $kardex->cantidad = $cantidad;
                     $kardex->precioventa = $precio;
-                    //$kardex->almacen_id = 1;
+                    $kardex->almacen_id = $almacen_id;
                     $kardex->detallemovimiento_id = $detalleVenta->id;
                     
                     //$kardex->lote_id = $lote->id;
@@ -640,7 +660,7 @@ class MovimientoalmacenController extends Controller
                         $lote = Lote::find($value2->lote_id);
                         $lote->queda = $lote->queda - $value2->cantidad;
                         $lote->save();
-                        $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $value->producto_id)->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
+                        $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $value->producto_id)->where('movimiento.almacen_id', '=', $almacen_id)->orderBy('kardex.id', 'DESC')->first();
 
                         $stockanterior = 0;
                         $stockactual = 0;
@@ -658,7 +678,7 @@ class MovimientoalmacenController extends Controller
                             $kardex->stockactual = $stockactual;
                             $kardex->cantidad = $value2->cantidad;
                             $kardex->precioventa = $value2->precio;
-                            //$kardex->almacen_id = 1;
+                            $kardex->almacen_id = $almacen_id;
                             $kardex->detallemovimiento_id = $value->id;
                             $kardex->lote_id = $lote->id;
                             $kardex->save();    
@@ -700,7 +720,7 @@ class MovimientoalmacenController extends Controller
                 $lote->cantidad = $v->cantidad;
                 $lote->queda = $v->cantidad;
                 $lote->producto_id = $v->producto_id;
-                $lote->almacen_id = 1;
+                $lote->almacen_id = $almacen_id;
                 $lote->save();
 
                 $precio = $v->precio;
@@ -709,7 +729,7 @@ class MovimientoalmacenController extends Controller
                 $stockanterior = 0;
                 $stockactual = 0;
 
-                $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $v->producto_id)->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
+                $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $v->producto_id)->where('movimiento.almacen_id', '=', $almacen_id)->orderBy('kardex.id', 'DESC')->first();
 
                 if ($ultimokardex === NULL) {
                     $stockactual = $cantidad;
@@ -720,7 +740,7 @@ class MovimientoalmacenController extends Controller
                     $kardex->stockactual = $stockactual;
                     $kardex->cantidad = $cantidad;
                     $kardex->preciocompra = $precio;
-                    //$kardex->almacen_id = 1;
+                    $kardex->almacen_id = $almacen_id;
                     $kardex->detallemovimiento_id = $v->id;
                     $kardex->lote_id = $lote->id;
                     $kardex->save();
@@ -734,7 +754,7 @@ class MovimientoalmacenController extends Controller
                     $kardex->stockactual = $stockactual;
                     $kardex->cantidad = $cantidad;
                     $kardex->preciocompra = $precio;
-                    //$kardex->almacen_id = 1;
+                    $kardex->almacen_id = $almacen_id;
                     $kardex->detallemovimiento_id = $v->id;
                     $kardex->lote_id = $lote->id;
                     $kardex->save();    
@@ -757,7 +777,7 @@ class MovimientoalmacenController extends Controller
                     $lote->cantidad = $v->cantidad;
                     $lote->queda = $v->cantidad;
                     $lote->producto_id = $v->producto_id;
-                    $lote->almacen_id = 1;
+                    $lote->almacen_id = $almacen_id;
                     $lote->save();
 
                     $precio = $v->precio;
@@ -766,7 +786,7 @@ class MovimientoalmacenController extends Controller
                     $stockanterior = 0;
                     $stockactual = 0;
 
-                    $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $v->producto_id)->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
+                    $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $v->producto_id)->where('movimiento.almacen_id', '=', $almacen_id)->orderBy('kardex.id', 'DESC')->first();
 
                     if ($ultimokardex === NULL) {
                         $stockactual = $cantidad;
@@ -777,7 +797,7 @@ class MovimientoalmacenController extends Controller
                         $kardex->stockactual = $stockactual;
                         $kardex->cantidad = $cantidad;
                         $kardex->preciocompra = $precio;
-                        //$kardex->almacen_id = 1;
+                        $kardex->almacen_id = $almacen_id;
                         $kardex->detallemovimiento_id = $v->id;
                         $kardex->lote_id = $lote->id;
                         $kardex->save();
@@ -791,7 +811,7 @@ class MovimientoalmacenController extends Controller
                         $kardex->stockactual = $stockactual;
                         $kardex->cantidad = $cantidad;
                         $kardex->preciocompra = $precio;
-                        //$kardex->almacen_id = 1;
+                        $kardex->almacen_id = $almacen_id;
                         $kardex->detallemovimiento_id = $v->id;
                         $kardex->lote_id = $lote->id;
                         $kardex->save();    
@@ -819,7 +839,7 @@ class MovimientoalmacenController extends Controller
                         $queda = $value->queda-$aux;
                         $value->queda = $queda;
                         $value->save();
-                        $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $v2->producto_id)->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
+                        $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $v2->producto_id)->where('movimiento.almacen_id', '=', $almacen_id)->orderBy('kardex.id', 'DESC')->first();
                         $stockanterior = 0;
                         $stockactual = 0;
                         // ingresamos nuevo kardex
@@ -847,7 +867,7 @@ class MovimientoalmacenController extends Controller
                         $value->queda = 0;
                         $value->save();
                         
-                        $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $v2->producto_id)->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
+                        $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $v2->producto_id)->where('movimiento.almacen_id', '=', $almacen_id)->orderBy('kardex.id', 'DESC')->first();
                         $stockanterior = 0;
                         $stockactual = 0;
                         // ingresamos nuevo kardex
@@ -864,7 +884,7 @@ class MovimientoalmacenController extends Controller
                             $kardex->stockactual = $stockactual;
                             $kardex->cantidad = $aux;
                             $kardex->precioventa = $precio;
-                            //$kardex->almacen_id = 1;
+                            $kardex->almacen_id = $almacen_id;
                             $kardex->detallemovimiento_id = $v2->id;
                             $kardex->lote_id = $value->id;
                             $kardex->save();    

@@ -5,6 +5,12 @@
 	<input type="hidden" name="cantproductos" id="cantproductos" value="0">
 	<div class="col-lg-4 col-md-4 col-sm-4">
 		<div class="form-group" style="height: 12px;">
+			{!! Form::label('almacen_id', 'Almacen :', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
+			<div class="col-lg-7 col-md-7 col-sm-7">
+				{!! Form::select('almacen_id', $cboAlmacen, null, array('style' => 'background-color: #D4F0FF;' ,'class' => 'form-control input-xs', 'id' => 'almacen_id', 'onclick' => 'generarNumero(this.value);')) !!}
+			</div>
+		</div>
+		<div class="form-group" style="height: 12px;">
 			{!! Form::label('tipo', 'Tipo:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
 				{!! Form::select('tipo', $cboTipo, null, array('style' => 'background-color: #D4F0FF;' ,'class' => 'form-control input-xs', 'id' => 'tipo', 'onclick' => 'generarNumero(this.value);')) !!}
@@ -41,7 +47,7 @@
 				{!! Form::text('nombreproducto', null, array('class' => 'form-control input-xs', 'id' => 'nombreproducto', 'placeholder' => 'Ingrese nombre','onkeypress' => '')) !!}
 			</div>
 			<div class="col-lg-0 col-md-0 col-sm-0">
-                {!! Form::button('<i class="glyphicon glyphicon-plus"></i>', array('class' => 'btn btn-info btn-xs', 'onclick' => 'modal (\''.URL::route('producto.create', array('listar'=>'SI','modo'=>'popup')).'\', \'Nuevo Proveedor\', this);', 'title' => 'Nuevo Proveedor')) !!}
+                {!! Form::button('<i class="glyphicon glyphicon-plus"></i>', array('class' => 'btn btn-info btn-xs', 'onclick' => 'modal (\''.URL::route('producto.create', array('listar'=>'SI','modo'=>'popup')).'\', \'Nuevo Producto\', this);', 'title' => 'Nuevo Producto')) !!}
     		</div>
 			{!! Form::hidden('producto_id', null, array( 'id' => 'producto_id')) !!}
 			{!! Form::hidden('preciokayros', null, array( 'id' => 'preciokayros')) !!}
@@ -506,7 +512,7 @@ function generarNumero(valor){
     $.ajax({
         type: "POST",
         url: "venta/generarNumeroDocMovAlmacen",
-        data: "tipodocumento_id="+valor+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
+        data: "tipodocumento_id="+valor+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val()+"&almacen_id="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="almacen_id"]').val(),
         success: function(a) {
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="numerodocumento"]').val(a);
         }

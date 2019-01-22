@@ -139,7 +139,7 @@ class Movimiento extends Model
         return str_pad($rs->maximo+1,8,'0',STR_PAD_LEFT);    
     }
 
-    public function scopeNumeroSigueDocMovAlmacen($query,$sucursal_id,$tipomovimiento_id,$tipodocumento_id, $almacen_id = 1){
+    public function scopeNumeroSigueDocMovAlmacen($query,$sucursal_id,$tipomovimiento_id,$tipodocumento_id, $almacen_id){
         
         $rs=$query->where('sucursal_id', $sucursal_id)
                     ->where('tipomovimiento_id', $tipomovimiento_id)

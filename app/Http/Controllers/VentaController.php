@@ -882,9 +882,10 @@ class VentaController extends Controller
     public function generarNumeroDocMovAlmacen(Request $request) {
         $sucursal_id = Session::get('sucursal_id');
         $tipodoc = $request->input("tipodocumento_id");
+        $almacen_id = $request->input("almacen_id");
         $tipomovimiento_id = 5;
         //if($tipodoc!=15)
-            $numero  = Movimiento::NumeroSigueDocMovAlmacen($sucursal_id,$tipomovimiento_id,$tipodoc);
+            $numero  = Movimiento::NumeroSigueDocMovAlmacen($sucursal_id,$tipomovimiento_id,$tipodoc,$almacen_id);
         /*else
             $numero  = Movimiento::NumeroSigue(4,$tipodoc,4);*/
         return $numero;

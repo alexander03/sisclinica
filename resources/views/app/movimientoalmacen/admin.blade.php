@@ -25,6 +25,12 @@
 							{!! Form::hidden('page', 1, array('id' => 'page')) !!}
 							{!! Form::hidden('accion', 'listar', array('id' => 'accion')) !!}
 							<div class="form-group">
+								{!! Form::label('almacen_id', 'Almacen :', array()) !!}
+								<div class='input-group input-group-xs' id='divfechainicio'>
+								{!! Form::select('almacen_id', $cboAlmacen, null, array('class' => 'form-control input-xs', 'id' => 'almacen_id' , 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
+								</div>
+							</div>
+							<div class="form-group">
 								{!! Form::label('fechainicio', 'Fecha Inicio :', array()) !!}
 									<div class='input-group input-group-xs' id='divfechainicio'>
 										{!! Form::text('fechainicio', date("d/m/Y"), array('class' => 'form-control input-xs', 'id' => 'fechainicio', 'placeholder' => 'Ingrese fecha inicio')) !!}
