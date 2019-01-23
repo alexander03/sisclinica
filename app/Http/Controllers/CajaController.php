@@ -81,6 +81,8 @@ class CajaController extends Controller
 
         $user = Auth::user();
 
+        $tipousuario = $user->usertype_id;
+
         if($user->sucursal_id == 1){
             if($user->usertype_id==23){
                 $caja_id = 1;
@@ -209,9 +211,9 @@ class CajaController extends Controller
             $paginaactual    = $paramPaginacion['nuevapagina'];
             $lista           = $resultado->paginate($filas);
             $request->replace(array('page' => $paginaactual));
-            return view($this->folderview.'.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'conceptopago_id', 'titulo_registrar', 'titulo_apertura', 'titulo_cierre', 'titulo_ticketspendientes', 'titulo_cuentaspendientes', 'ingreso', 'egreso', 'titulo_anular', 'garantia', 'efectivo', 'visa', 'master', 'listapendiente', 'user' ));
+            return view($this->folderview.'.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'conceptopago_id', 'titulo_registrar', 'titulo_apertura', 'titulo_cierre', 'titulo_ticketspendientes', 'titulo_cuentaspendientes', 'ingreso', 'egreso', 'titulo_anular', 'garantia', 'efectivo', 'visa', 'master', 'listapendiente', 'user', 'tipousuario', 'caja_id'));
         }
-        return view($this->folderview.'.list')->with(compact('lista', 'entidad', 'conceptopago_id', 'titulo_registrar', 'titulo_apertura', 'titulo_cierre', 'titulo_ticketspendientes', 'titulo_cuentaspendientes', 'ruta', 'ingreso', 'egreso','visa', 'master'));
+        return view($this->folderview.'.list')->with(compact('lista', 'entidad', 'conceptopago_id', 'titulo_registrar', 'titulo_apertura', 'titulo_cierre', 'titulo_ticketspendientes', 'titulo_cuentaspendientes', 'ruta', 'ingreso', 'egreso','visa', 'master', 'tipousuario', 'caja_id'));
     }
 
     public function index(Request $request)
@@ -228,16 +230,20 @@ class CajaController extends Controller
             $cboCaja = $cboCaja + array($value->id => $value->nombre);
             if($request->ip()==$value->ip){
                 $caja=$value->id;
-                $serie=$value->serie;
+                //$serie=$value->serie;
             }
         }
-        if($caja==0){//ADMISION 1
-            $serie=3;
+        if($user->usertype_id==23){
             $caja=1;
+            if($sucursal_id == 2) {
+                $caja=2;
+            }            
         }
         if($user->usertype_id==11){
-            $serie=4;
-            $caja=4;
+            $caja=3;
+            if($sucursal_id == 2) {
+                $caja=4;
+            }            
         }
         return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'ruta', 'cboCaja', 'user', 'caja'));
     }
@@ -831,13 +837,22 @@ class CajaController extends Controller
             $resultado2        = $resultado2->select('movimiento.*','m2.situacion as situacion2',DB::raw('CONCAT(paciente.apellidopaterno," ",paciente.apellidomaterno," ",paciente.nombres) as paciente'),DB::raw('responsable.nombres as responsable'))->orderBy('movimiento.id', 'desc');
             $listapendiente            = $resultado2->get();
         }*/
-        if (isset($lista)) {            
+        if (isset($lista)) { 
+            $sucursal_id = Session::get('sucursal_id'); 
+            $nomcierre = '';
+            $nomcierre = 'Clínica Especialidades'; 
+            if($sucursal_id == 1) {
+                $nomcierre = 'BM Clínica de Ojos';
+            }  
+            if($caja->nombre == 'FARMACIA') {
+                $nomcierre = ' Farmacia - ' . $nomcierre;
+            }     
             $pdf = new TCPDF();
             //$pdf::SetIma�
-            $pdf::SetTitle('Detalle Cierre de '.$caja->nombre);
+            $pdf::SetTitle('Detalle Cierre de '.$nomcierre);
             $pdf::AddPage('L');
             $pdf::SetFont('helvetica','B',12);
-            $pdf::Cell(0,10,utf8_decode("Detalle de Cierre de ".$caja->nombre),0,0,'C');
+            $pdf::Cell(0,10,"Detalle de Cierre de ".$nomcierre,0,0,'C');
             $pdf::Ln();
             $pdf::SetFont('helvetica','B',7);
             $pdf::Cell(15,7,utf8_decode("FECHA"),1,0,'C');
@@ -2446,7 +2461,16 @@ class CajaController extends Controller
                 $pdf::AddPage('L');
                 $pdf::SetFont('helvetica','B',12);
                 $pdf::Image('dist/img/logo.jpg',10,8,50,0);
-                $pdf::Cell(0,15,utf8_decode("Detalle de Cierre de ".$caja->nombre." Desde ".$f_inicial. " hasta ".$f_final),0,0,'C');
+                $sucursal_id = Session::get('sucursal_id'); 
+                $nomcierre = '';
+                $nomcierre = 'Clínica Especialidades'; 
+                if($sucursal_id == 1) {
+                    $nomcierre = 'BM Clínica de Ojos';
+                }  
+                if($caja->nombre == 'FARMACIA') {
+                    $nomcierre = ' Farmacia - ' . $nomcierre;
+                } 
+                $pdf::Cell(0,15,"Detalle de Cierre de ".$nomcierre." Desde ".$f_inicial. " hasta ".$f_final,0,0,'C');
                 $pdf::Ln();
                 $pdf::SetFont('helvetica','B',8.5);
                 $pdf::Cell(15,7,utf8_decode("FECHA"),1,0,'C');

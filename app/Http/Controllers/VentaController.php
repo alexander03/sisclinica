@@ -1297,11 +1297,11 @@ class VentaController extends Controller
             $montonoafecto = 0;
             //$lista = $request->session()->get('carritoventa');
             $lista = (int) $request->input('cantproductos') + 1;
-            /*
-            for ($i=0; $i < count($lista); $i++) {
-                $producto = Producto::find($lista[$i]['producto_id']);
-                $cantidad  = str_replace(',', '',$lista[$i]['cantidad']);
-                $precio    = str_replace(',', '',$lista[$i]['precio']);
+            
+            for ($i=1; $i < $lista; $i++) {
+                $producto = Producto::find($request->input('producto_id'.$i));
+                $cantidad  = $request->input('cantidad'.$i);
+                $precio    = $request->input('precio'.$i);
                 $subtotal  = round(($cantidad*$precio), 2);
                 if($request->input('tipoventa')=='C'){
                     $descuentokayros=$request->input('descuentokayros');
@@ -1316,7 +1316,7 @@ class VentaController extends Controller
                 }else{
                     $montoafecto = $montoafecto+$subtotal;
                 }
-            }*/
+            }
 
             for ($i=1; $i < $lista; $i++) {
                 $producto = Producto::find($request->input('producto_id'.$i));
@@ -1378,12 +1378,12 @@ class VentaController extends Controller
                 /*if($request->input('formapago')=="T"){
                     $venta->tarjeta=$request->input('tipotarjeta');//VISA/MASTER
                     $venta->tipotarjeta=$request->input('tipotarjeta2');//DEBITO/CREDITO
-                }
-                if ($request->input('tipoventa') == 'C') {*/
+                }*/
+                if ($request->input('tipoventa') == 'C') {
                     $venta->conveniofarmacia_id = $request->input('conveniofarmacia_id');
                     $venta->descuentokayros = $request->input('descuentokayros');
                     $venta->copago = $request->input('copago');
-                /*}*/
+                }
                        
                 $venta->inicial = 'N';
                 $venta->estadopago = 'P';
@@ -1487,17 +1487,14 @@ class VentaController extends Controller
 
                             }
                         }
-                    }
-
-                   
-
+                    }          
                 }
 
                 # REGISTRO DE CREDITOS
                 
-                /*if ($request->input('formapago') == 'P') {
+                if ($request->input('formapago') == 'P') {
                     
-                }else{*/
+                }else{
 
                     if ( ($request->input('documento') == 15 && $venta->copago > 0 ) || ($request->input('documento') != 15)) {
                         $total = $request->input('totalventa');
@@ -1567,7 +1564,7 @@ class VentaController extends Controller
                         $movimientocaja->save();
                     }
                         
-                /*}*/
+                }
 
             }else{
                 // Para Monto Afecto
@@ -1655,9 +1652,7 @@ class VentaController extends Controller
                             $detalleVenta->subtotal = $subtotal;
                             $detalleVenta->movimiento_id = $movimiento_id;
                             $detalleVenta->producto_id = $request->input('producto_id'.$i);
-                            $detalleVenta->save();
-                           
-                            
+                            $detalleVenta->save();          
                             
                             // consulta lotes
                             $lotes = Lote::where('producto_id','=',$request->input('producto_id'.$i))->where('queda','>','0')->orderBy('fechavencimiento','ASC')->get();
@@ -1873,9 +1868,7 @@ class VentaController extends Controller
                         $detalleVenta->movimiento_id = $movimiento_id;
                         $detalleVenta->producto_id = $request->input('producto_id'.$i);
                         $detalleVenta->save();
-                        
-                        
-                       
+
                         // consulta lotes
                         $lotes = Lote::where('producto_id','=',$request->input('producto_id'.$i))->where('queda','>','0')->orderBy('fechavencimiento','ASC')->get();
                         $aux = $request->input('cantidad'.$i);
