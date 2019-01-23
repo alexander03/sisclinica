@@ -67,7 +67,8 @@ class RequerimientoController extends Controller
         $title            = $this->tituloAdmin;
         $titulo_registrar = $this->tituloRegistrar;
         $ruta             = $this->rutas;
-        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta'));
+        $user = Auth::user();
+        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta', 'user'));
     }
 
      /**
@@ -86,15 +87,25 @@ class RequerimientoController extends Controller
         //sucursal_id
         $sucursal_id = Session::get('sucursal_id');
 
-        
+        $user = Auth::user();
+        if($request->input('usuario')=="Todos"){
+            $responsable_id=0;
+        }else{
+            $responsable_id=$user->person_id;
+        }
+
         $resultado        = Movimientoalmacen::where('tipomovimiento_id', '=', '15')->where('sucursal_id','=',$sucursal_id)->where(function($query) use ($fechainicio,$fechafin){   
                                 if (!is_null($fechainicio) && $fechainicio !== '') {
                                     $query->where('fecha', '>=', $fechainicio);
                                 }
                                 if (!is_null($fechafin) && $fechafin !== '') {
-                                    $query->where('fecha', '>=', $fechafin);
+                                    $query->where('fecha', '<=', $fechafin);
                                 }
-                            })->select('movimiento.*');
+                            });
+        if($responsable_id>0){
+            $resultado = $resultado->where('movimiento.responsable_id', '=', $responsable_id);   
+        }
+        $resultado        = $resultado->select('movimiento.*');
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
@@ -280,7 +291,7 @@ class RequerimientoController extends Controller
                     $stockactual = 0;
 
                     if ($ultimokardex === NULL) {
-                        //$stockactual = $cantidad;
+                        $stockactual = $cantidad;
                         $kardex = new Kardex();
                         $kardex->tipo = 'S';
                         $kardex->fecha = date("Y-m-d");
@@ -313,7 +324,7 @@ class RequerimientoController extends Controller
                     $st = 0; $lo = "";
                     if(count($lote)>0){
                         foreach ($lote as $k => $v) {
-                            if(!is_null($request->input('txtCantidad'.$value->producto_id.'-'.$v->id))){
+                            if(!is_null($request->input('txtCantidad'.$value->producto_id.'-'.$v->id)) && ($request->input('txtCantidad'.$value->producto_id.'-'.$v->id) + 0)>0){
                                 $v->queda = $v->queda - $request->input('txtCantidad'.$value->producto_id.'-'.$v->id);
                                 $v->save();
 
@@ -326,7 +337,7 @@ class RequerimientoController extends Controller
                                 $stockactual = 0;
 
                                 if ($ultimokardex === NULL) {
-                                    //$stockactual = $cantidad;
+                                    $stockactual = $cantidad;
                                     $kardex = new Kardex();
                                     $kardex->tipo = 'S';
                                     $kardex->fecha = date("Y-m-d");
@@ -357,7 +368,9 @@ class RequerimientoController extends Controller
                             }
                         }
                         //DESPACHO DE Q LOTE
-                        $lo = substr($lo, 0, strlen($lo)-1);
+                        if($lo!=""){
+                            $lo = substr($lo, 0, strlen($lo)-1);
+                        }
                         $value->despachado = $st;
                         $value->lote = $lo;
                         $value->save();
@@ -440,10 +453,17 @@ class RequerimientoController extends Controller
         $pdf::Cell(25,7,"Comentario: ",0,0,'L');        
         $pdf::SetFont('helvetica','',10);
         $pdf::Cell(80,7,$dato->comentario,0,0,'L');        
+        $pdf::Ln();
+        $pdf::SetFont('helvetica','B',10);
+        $pdf::Cell(15,7,"Salida: ",0,0,'L');        
+        $pdf::SetFont('helvetica','',10);
+        $pdf::Cell(80,7,'LOGISTICA',0,0,'L');
         $pdf::SetFont('helvetica','B',10);
         $pdf::Cell(15,7,"Destino: ",0,0,'L');        
         $pdf::SetFont('helvetica','',10);
-        $pdf::Cell(40,7,$dato->responsable->workertype->name,0,0,'L');        
+        if(!is_null($dato->responsable->workertype)){
+            $pdf::Cell(40,7,$dato->responsable->workertype->name,0,0,'L');            
+        }
         $pdf::Ln();
         $pdf::SetFont('helvetica','B',9);
         $pdf::Cell(8,6,"Nro.",1,0,'C');
@@ -456,22 +476,32 @@ class RequerimientoController extends Controller
         $detalles = Detallemovimiento::where('movimiento_id','=',$dato->id)->get();
         $c=0;
         foreach($detalles as $key => $value){$c=$c+1;
-            $pdf::SetFont('helvetica','',8);
-            $pdf::Cell(8,6,$c,1,0,'R');
-            $pdf::Cell(15,6,$value->cantidad,1,0,'C');
-            $pdf::Cell(90,6,$value->producto->nombre,1,0,'L');
-            $pdf::Cell(23,6,$value->producto->presentacion->nombre,1,0,'C');
-            $pdf::Cell(15,6,$value->despachado,1,0,'C');
-            $ls = explode("|",$value->lote);
-            $datos="";
-            for ($i=0; $i < count($ls); $i++) { 
-                $list = explode("@",$ls[$i]);
-                $lote = Lote::find($list[0]);
-                $datos.=$list[1]." => ".$lote->nombre." | ".date("d/m/Y",strtotime($lote->fechavencimiento))."\n";
+            if(!is_null($value->lote) && trim($value->lote)!=""){
+                $ls = explode("|",$value->lote);
+                for ($i=0; $i < count($ls); $i++) { 
+                    $datos="";
+                    $pdf::SetFont('helvetica','',8);
+                    $pdf::Cell(8,6,$c,1,0,'R');
+                    $pdf::Cell(15,6,$value->cantidad,1,0,'C');
+                    $pdf::Cell(90,6,$value->producto->nombre,1,0,'L');
+                    $pdf::Cell(23,6,$value->producto->presentacion->nombre,1,0,'C');
+                    $list = explode("@",$ls[$i]);
+                    $lote = Lote::find($list[0]);
+                    $pdf::Cell(15,6,$list[1],1,0,'C');
+                    $datos.=$lote->nombre." | ".date("d/m/Y",strtotime($lote->fechavencimiento));
+                    $pdf::Cell(40,6,$datos,1,0,'C');
+                    $pdf::Ln();
+                }
+            }else{
+                $pdf::SetFont('helvetica','',8);
+                $pdf::Cell(8,6,$c,1,0,'R');
+                $pdf::Cell(15,6,$value->cantidad,1,0,'C');
+                $pdf::Cell(90,6,$value->producto->nombre,1,0,'L');
+                $pdf::Cell(23,6,$value->producto->presentacion->nombre,1,0,'C');
+                $pdf::Cell(15,6,$value->despachado,1,0,'C');
+                $pdf::Cell(40,6,'-',1,0,'C');
+                $pdf::Ln();
             }
-            $datos=substr($datos, 0, strlen($datos)-1);
-            $pdf::Cell(40,6,$datos,1,0,'C');
-            $pdf::Ln();
         }
         $pdf::Ln();
         $pdf::Ln();
@@ -491,7 +521,7 @@ class RequerimientoController extends Controller
 
     public function generarNumero(Request $request){
         $sucursal_id = Session::get('sucursal_id');
-        echo Movimiento::NumeroSigue(15,24,$sucursal_id);
+        echo Movimiento::NumeroSigue2(15,24);
     }
 
     public function buscarproducto(Request $request){
