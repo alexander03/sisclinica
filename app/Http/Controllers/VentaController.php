@@ -1543,8 +1543,8 @@ class VentaController extends Controller
                         }
                         //$movimientocaja->persona_id = $request->input('persona_id');
                         $movimientocaja->movimiento_id = $movimiento->id;
-                        $aperturacierrecaja = Aperturacierrecaja::where('estado','=','A')->first();
-                        $movimientocaja->aperturacierrecaja_id = $aperturacierrecaja->id;
+                        //$aperturacierrecaja = Aperturacierrecaja::where('estado','=','A')->first();
+                        //$movimientocaja->aperturacierrecaja_id = $aperturacierrecaja->id;
                         $movimientocaja->descripcion = 'PAGO DE CLIENTE';
                         $movimientocaja->save();
                     }
