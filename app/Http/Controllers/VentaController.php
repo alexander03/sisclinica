@@ -701,7 +701,7 @@ class VentaController extends Controller
         }
         $cadena .= '<td class="numeration2"></td>
                     <td class="text-center infoProducto">
-                        <span style="display: block; font-size:.7em">'.$producto->nombre.'</span>
+                        <span style="display: block; font-size:.9em">'.$producto->nombre.'</span>
                         <input type ="hidden" class="producto_id"  value="'.$producto_id.'">
                         <input type ="hidden" class="codigobarra" value="'.$producto->codigobarra.'">
                         <input type ="hidden" class="tipoventa" value="'.$tipoventa.'">
@@ -713,19 +713,19 @@ class VentaController extends Controller
                         <input type ="hidden" class="subtotal" value="'.$subtotal.'">
                     </td>';
         $cadena .= '<td class="text-center">
-                    <span style="display: block; font-size:.7em">'.$cantidad.'</span>                    
+                    <span style="display: block; font-size:.9em">'.$cantidad.'</span>                    
                 </td>';
         $cadena .= '<td class="text-center">
-                    <span style="display: block; font-size:.7em">'.$precio.'</span>                    
+                    <span style="display: block; font-size:.9em">'.$precio.'</span>                    
                 </td>';
         $cadena .= '<td class="text-center">
-                    <span style="display: block; font-size:.7em">'.$dscto.'</span>                    
+                    <span style="display: block; font-size:.9em">'.$dscto.'</span>                    
                 </td>';
         $cadena .= '<td class="text-center">
-                    <span style="display: block; font-size:.7em">'.$subtotal.'</span>                    
+                    <span style="display: block; font-size:.9em">'.$subtotal.'</span>                    
                 </td>';
         $cadena .= '<td class="text-center">
-                    <span style="display: block; font-size:.7em">
+                    <span style="display: block; font-size:.9em">
                     <a class="btn btn-xs btn-danger quitarFila">Quitar</a></span>
                 </td>';
 
@@ -873,8 +873,10 @@ class VentaController extends Controller
     public function generarNumero(Request $request)
     {
         $tipodoc = $request->input("tipodocumento_id");
+        $sucursal_id = Session::get('sucursal_id');
+        $caja_id = $request->input('caja_id');
         //if($tipodoc!=15)
-            $numero  = Movimiento::NumeroSigue2(4,$tipodoc,4,'N');
+            $numero  = Movimiento::NumeroSigue2($caja_id, $sucursal_id, 4,$tipodoc,4);
         /*else
             $numero  = Movimiento::NumeroSigue(4,$tipodoc,4);*/
         return $numero;
@@ -1164,6 +1166,9 @@ class VentaController extends Controller
     {
         $listar   = Libreria::getParam($request->input('listar'), 'NO');
         $entidad  = 'Venta';
+        $sucursal_id = Session::get('sucursal_id');
+        $caja = Caja::where('sucursal_id', $sucursal_id)->where('nombre', 'FARMACIA')->limit(1)->first();
+        $caja_id = $caja->id;
         $venta = null;
         //$cboDocumento        = Tipodocumento::lists('nombre', 'id')->all();
         $cboDocumento = array();
@@ -1183,11 +1188,11 @@ class VentaController extends Controller
         $formData = array('venta.store');
         $formData = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton    = 'Registrar'; 
-        $numero              = Movimiento::NumeroSigue(4,5,4,'N');//movimiento caja y documento ingreso
+        //$numero              = Movimiento::NumeroSigue(4,5,4,'N');//movimiento caja y documento ingreso
         $request->session()->forget('carritoventa');
         $lista = array();
         $request->session()->put('carritoventa', $lista);
-        return view($this->folderview.'.mant')->with(compact('venta', 'formData', 'entidad', 'boton', 'listar','cboDocumento','cboCredito','numero','cboTipoventa','cboFormapago','cboTipoTarjeta','cboTipoTarjeta2'));
+        return view($this->folderview.'.mant')->with(compact('venta', 'formData', 'entidad', 'boton', 'listar','cboDocumento','cboCredito','cboTipoventa','cboFormapago','cboTipoTarjeta','cboTipoTarjeta2','caja_id'));
     }
 
     public function create2(Request $request)
@@ -1263,11 +1268,11 @@ class VentaController extends Controller
         }
 
         $sucursal_id = Session::get('sucursal_id');
-        $caja = Caja::where('sucursal_id', $sucursal_id)->where('nombre', 'FARMACIA')->get();
+        $caja = Caja::where('sucursal_id', $sucursal_id)->where('nombre', 'FARMACIA')->limit(1)->first();
 
         $dat=array();
         //if($request->input('formapago')=='C' || $request->input('formapago')=='T'){
-            $rst  = Movimiento::where('tipomovimiento_id','=',2)->where('caja_id','=',$caja[0]->id)->orderBy('movimiento.id','DESC')->limit(1)->first();
+            $rst  = Movimiento::where('tipomovimiento_id','=',2)->where('caja_id','=',$caja->id)->orderBy('movimiento.id','DESC')->limit(1)->first();
             if(count($rst)==0){
                 $conceptopago_id=2;
             }else{
@@ -1281,8 +1286,11 @@ class VentaController extends Controller
         
 
         $error = DB::transaction(function() use($request, $sucursal_id ,&$dat){
-            $validar = Venta::where('serie','=','4')->where('manual','like','N')->where('tipodocumento_id','=',$request->input('documento'))->where('numero','=',$request->input('numerodocumento'))->first();
-            if ($validar == null) {
+            $sucursal_id = Session::get('sucursal_id');
+            $caja = Caja::where('sucursal_id', $sucursal_id)->where('nombre', 'FARMACIA')->limit(1)->first();
+
+            $validar = Venta::where('serie','=','4')->where('manual','like','N')->where('tipodocumento_id','=',$request->input('documento'))->where('numero','=',$request->input('numerodocumento'))->where('sucursal_id', $sucursal_id)->where('caja_id', $caja->id)->where('tipomovimiento_id', '4')->first();
+            if ($validar == null) {            
             
             $ind = 0;
             $montoafecto = 0;
@@ -1365,6 +1373,8 @@ class VentaController extends Controller
                 $venta->credito = $request->input('credito');
                 $venta->tipoventa = $request->input('tipoventa');
                 $venta->formapago = $request->input('formapago');
+                $venta->sucursal_id = $sucursal_id;
+                $venta->caja_id = $caja->id;
                 /*if($request->input('formapago')=="T"){
                     $venta->tarjeta=$request->input('tipotarjeta');//VISA/MASTER
                     $venta->tipotarjeta=$request->input('tipotarjeta2');//DEBITO/CREDITO
@@ -1493,6 +1503,7 @@ class VentaController extends Controller
                         $total = $request->input('totalventa');
                         $movimiento                 = new Movimiento();
                         $movimiento->sucursal_id = $sucursal_id;
+                        $movimiento->caja_id = $caja->id;
                         $movimiento->tipodocumento_id          = $request->input('documento');
                         if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
                             $movimiento->persona_id = $request->input('person_id');
@@ -1521,7 +1532,6 @@ class VentaController extends Controller
                         $user = Auth::user();
                         $movimiento->responsable_id = $user->person_id;
                         $movimiento->conceptopago_id = 3;
-                        $movimiento->caja_id = 4;
                         $movimiento->movimiento_id = $venta->id;
                         /*if($request->input('formapago')=="T"){
                             $movimiento->tipotarjeta=$request->input('tipotarjeta');
@@ -1566,6 +1576,7 @@ class VentaController extends Controller
                     $total = str_replace(',', '', $request->input('totalventa'));
                     $venta                 = new Venta();
                     $venta->sucursal_id = $sucursal_id;
+                    $venta->caja_id = $caja->id;
                     $venta->serie = '004';
                     $venta->tipodocumento_id          = $request->input('documento');
                     if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
@@ -1787,6 +1798,7 @@ class VentaController extends Controller
                 $total = $request->input('totalventa');
                 $venta2                 = new Venta();
                 $venta2->sucursal_id = $sucursal_id;
+                $venta2->caja_id = $caja->id;
                 $venta2->serie = '004';
                 $venta2->tipodocumento_id          = $request->input('documento');
                 if ($request->input('documento') == '5' || $request->input('documento') == '14' ) {
@@ -1945,6 +1957,7 @@ class VentaController extends Controller
                             $total = $request->input('totalventa');
                             $movimiento                 = new Movimiento();
                             $movimiento->sucursal_id = $sucursal_id;
+                            $movimiento->caja_id = $caja->id;
                             $movimiento->tipodocumento_id          = $request->input('documento');
                             if ($request->input('documento') == '5') {
                                 if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
