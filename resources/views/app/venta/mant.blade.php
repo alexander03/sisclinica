@@ -147,7 +147,7 @@
 	<div class="col-lg-3 col-md-3 col-sm-3">	
 		<div class="row">
 			<div class="col-lg-12 col-md-12 col-sm-12">
-				<label for="formapago" class="col-lg-4 col-md-4 col-sm-4 control-label datocaja caja input-sm">Forma Pago:</label>
+				<label for="divcbx0" class="col-lg-4 col-md-4 col-sm-4 control-label datocaja caja input-sm">Forma Pago:</label>
 				<label id="divcbx0" class="checkbox-inline" style="color:red" onclick="divFormaPago('0', '0')">
 			      	<input style="display: none;" type="checkbox" id="cbx0">EF
 			    </label>
@@ -220,7 +220,7 @@
 		       {-- Form::button('<i class="glyphicon glyphicon-plus"></i> Agregar', array('class' => 'btn btn-info btn-xs', 'id' => 'btnAgregar', 'onclick' => 'ventanaproductos();')) --}   
 		    	
 		    	</div>-->
-				{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => 'guardarito();')) !!}
+				{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => 'enviar();')) !!}
 				{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
 			</div>
 		</div>
@@ -918,11 +918,13 @@ function addpurchasecart(elemento){
 				$("#Product" + producto_id).html(data);
 			} else {
 				$('#detallesVenta').append('<tr id="Product' + producto_id + '">' + data + '</tr>');
-			}			
-			calculatetotal();
+			}					
+			calculatetotal();	
+			$('#efectivo').val($('#totalventa').val()).focus();	
+			calcularTotalPago();			
 			/*bootbox.alert("Producto Agregado");
             setTimeout(function () {
-                $(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="nombre"]').focus();
+                $(IDFORMBUSQUEDA + '{ $entidad }} :input[id="nombre"]').focus();
             },2000) */
 			//var totalpedido = $('#totalpedido').val();
 			//$('#total').val(totalpedido);
@@ -1225,6 +1227,46 @@ function calcularTotalPago() {
 	$('#total2').val(total.toFixed(3));
 
 	coincidenciasMontos();		
+}
+
+function camposNoVacios() {	
+	if(!$('#efectivo').attr('readonly')) {
+		if($('#efectivo').val().length == 0) {
+			$('#efectivo').focus();
+			alert('Ingresa un monto para efectivo.');
+			return false;
+		}
+	} 
+	if(!$('#visa').attr('readonly')) {
+		if($('#visa').val().length == 0) {
+			$('#visa').focus();
+			alert('Ingresa un monto para visa.');
+			return false;
+		}
+	} 
+	if(!$('#master').attr('readonly')) {
+		if($('#master').val().length == 0) {
+			$('#master').focus();
+			alert('Ingresa un monto para master.');
+			return false;
+		}
+	}
+	return true;
+}	
+
+function enviar() {
+	form = $('#formMantenimientoVenta');
+	if(!camposNoVacios()) {
+		return false;
+	} else {
+		if(!coincidenciasMontos()) {
+			$('#efectivo').focus();
+			alert('Los montos no coinciden.');
+			return false;
+		} else {
+			guardarito();
+		}
+	}
 }
 
 

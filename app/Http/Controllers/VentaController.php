@@ -23,6 +23,7 @@ use App\Productoprincipio;
 use App\Conveniofarmacia;
 use App\Empresa;
 use App\Plan;
+use App\Caja;
 use App\Librerias\Libreria;
 use App\Librerias\EnLetras;
 use App\Librerias\phpJson;
@@ -1261,9 +1262,12 @@ class VentaController extends Controller
             return $validacion->messages()->toJson();
         }
 
+        $sucursal_id = Session::get('sucursal_id');
+        $caja = Caja::where('sucursal_id', $sucursal_id)->where('nombre', 'FARMACIA')->get();
+
         $dat=array();
         //if($request->input('formapago')=='C' || $request->input('formapago')=='T'){
-            $rst  = Movimiento::where('tipomovimiento_id','=',2)->where('caja_id','=',4)->orderBy('movimiento.id','DESC')->limit(1)->first();
+            $rst  = Movimiento::where('tipomovimiento_id','=',2)->where('caja_id','=',$caja[0]->id)->orderBy('movimiento.id','DESC')->limit(1)->first();
             if(count($rst)==0){
                 $conceptopago_id=2;
             }else{
@@ -1274,9 +1278,7 @@ class VentaController extends Controller
                 return json_encode($dat);
             }
         //}
-
-        //sucursal_id
-        $sucursal_id = Session::get('sucursal_id');
+        
 
         $error = DB::transaction(function() use($request, $sucursal_id ,&$dat){
             $validar = Venta::where('serie','=','4')->where('manual','like','N')->where('tipodocumento_id','=',$request->input('documento'))->where('numero','=',$request->input('numerodocumento'))->first();
@@ -1357,18 +1359,21 @@ class VentaController extends Controller
                 $venta->subtotal=number_format($total/1.18,2,'.','');
                 $venta->igv=number_format($total - $venta->subtotal,2,'.','');
                 $venta->total = $total;
+                $venta->totalpagado = $request->input('efectivo');
+                $venta->totalpagadovisa = $request->input('visa');
+                $venta->totalpagadomaster = $request->input('master');
                 $venta->credito = $request->input('credito');
                 $venta->tipoventa = $request->input('tipoventa');
                 $venta->formapago = $request->input('formapago');
-                if($request->input('formapago')=="T"){
+                /*if($request->input('formapago')=="T"){
                     $venta->tarjeta=$request->input('tipotarjeta');//VISA/MASTER
                     $venta->tipotarjeta=$request->input('tipotarjeta2');//DEBITO/CREDITO
                 }
-                if ($request->input('tipoventa') == 'C') {
+                if ($request->input('tipoventa') == 'C') {*/
                     $venta->conveniofarmacia_id = $request->input('conveniofarmacia_id');
                     $venta->descuentokayros = $request->input('descuentokayros');
                     $venta->copago = $request->input('copago');
-                }
+                /*}*/
                        
                 $venta->inicial = 'N';
                 $venta->estadopago = 'P';
@@ -1378,9 +1383,9 @@ class VentaController extends Controller
                 if($request->input('descuentoplanilla')=="SI"){
                     $venta->personal_id=$request->input('personal_id');
                 }
-                if ($request->input('formapago')=="P") {
+                /*if ($request->input('formapago')=="P") {
                     $venta->estadopago = 'PP';
-                }
+                }*/
                 
                 $user = Auth::user();
                 $venta->responsable_id = $user->person_id;
@@ -1480,9 +1485,9 @@ class VentaController extends Controller
 
                 # REGISTRO DE CREDITOS
                 
-                if ($request->input('formapago') == 'P') {
+                /*if ($request->input('formapago') == 'P') {
                     
-                }else{
+                }else{*/
 
                     if ( ($request->input('documento') == 15 && $venta->copago > 0 ) || ($request->input('documento') != 15)) {
                         $total = $request->input('totalventa');
@@ -1509,20 +1514,23 @@ class VentaController extends Controller
                         $movimiento->numero = $request->input('numerodocumento');
                         $movimiento->fecha  = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
                         $movimiento->total = $total;
+                        $movimiento->totalpagado = $request->input('efectivo');
+                        $movimiento->totalpagadovisa = $request->input('visa');
+                        $movimiento->totalpagadomaster = $request->input('master');
                         
                         $user = Auth::user();
                         $movimiento->responsable_id = $user->person_id;
                         $movimiento->conceptopago_id = 3;
                         $movimiento->caja_id = 4;
                         $movimiento->movimiento_id = $venta->id;
-                        if($request->input('formapago')=="T"){
+                        /*if($request->input('formapago')=="T"){
                             $movimiento->tipotarjeta=$request->input('tipotarjeta');
                             $movimiento->tarjeta=$request->input('tipotarjeta2');
                             $movimiento->voucher=$request->input('nroref');
                             $movimiento->totalpagado=0;
                         }else{
                             $movimiento->totalpagado=$total;
-                        }
+                        }*/
                         
                         $movimiento->save();
 
@@ -1549,7 +1557,7 @@ class VentaController extends Controller
                         $movimientocaja->save();
                     }
                         
-                }
+                /*}*/
 
             }else{
                 // Para Monto Afecto
@@ -1587,19 +1595,22 @@ class VentaController extends Controller
                     $venta->subtotal=number_format($montoafecto/1.18,2,'.','');
                     $venta->igv=number_format($montoafecto - $venta->subtotal,2,'.','');
                     $venta->total = $montoafecto;
+                    $venta->totalpagado = $request->input('efectivo');
+                    $venta->totalpagadovisa = $request->input('visa');
+                    $venta->totalpagadomaster = $request->input('master');
                     $venta->credito = $request->input('credito');
                     $venta->tipoventa = $request->input('tipoventa');
                     $venta->formapago = $request->input('formapago');
-                    if($request->input('formapago')=="Tarjeta"){
+                    /*if($request->input('formapago')=="Tarjeta"){
                         $venta->tarjeta=$request->input('tipotarjeta');//VISA/MASTER
                         $venta->tipotarjeta=$request->input('tipotarjeta2');//DEBITO/CREDITO
                         $venta->voucher=$request->input('nroref');
-                    }
-                    if ($request->input('tipoventa') == 'C') {
+                    }*/
+                    /*if ($request->input('tipoventa') == 'C') {*/
                         $venta->conveniofarmacia_id = $request->input('conveniofarmacia_id');
                         $venta->descuentokayros = $request->input('descuentokayros');
                         $venta->copago = $request->input('copago');
-                    }
+                    /*}*/
                            
                     $venta->inicial = 'N';
                     $venta->estadopago = 'P';
@@ -1609,9 +1620,9 @@ class VentaController extends Controller
                     if($request->input('descuentoplanilla')=="SI"){
                         $venta->personal_id=$request->input('personal_id');
                     }
-                    if ($request->input('credito') == 'S') {
+                    /*if ($request->input('credito') == 'S') {
                         $venta->estadopago = 'PP';
-                    }
+                    }*/
                     
                     $user = Auth::user();
                     $venta->responsable_id = $user->person_id;
@@ -1701,17 +1712,12 @@ class VentaController extends Controller
                                     }
                                 }
                             }
-
-                            
-                            
                         }
-                        
-
                     }
 
                     # REGISTRO DE CREDITOS
                     
-                    if ($request->input('formapago') == 'P') {
+                    /*if ($request->input('formapago') == 'P') {
                         
                     }else{
 
@@ -1772,7 +1778,7 @@ class VentaController extends Controller
                             $movimientocaja->save();
                         }
                             
-                    }
+                    }*/
 
                 }
 
@@ -1810,6 +1816,9 @@ class VentaController extends Controller
                 $venta2->subtotal=number_format($montonoafecto,2,'.','');
                 $venta2->igv=0;
                 $venta2->total = $montonoafecto;
+                $venta2->totalpagado = $request->input('efectivo');
+                $venta2->totalpagadovisa = $request->input('visa');
+                $venta2->totalpagadomaster = $request->input('master');
                 $venta2->credito = $request->input('credito');
                 $venta2->tipoventa = $request->input('tipoventa');
                 $venta2->formapago = $request->input('formapago');
@@ -1958,14 +1967,17 @@ class VentaController extends Controller
                             $movimiento->conceptopago_id = 3;
                             $movimiento->caja_id = 4;
                             $movimiento->movimiento_id = $venta2->id;
-                            if($request->input('formapago')=="T"){
+                            /*if($request->input('formapago')=="T"){
                                 $movimiento->tipotarjeta=$request->input('tipotarjeta');
                                 $movimiento->tarjeta=$request->input('tipotarjeta2');
                                 $movimiento->voucher=$request->input('nroref');
                                 $movimiento->totalpagado=0;
-                            }else{
-                                $movimiento->totalpagado=$request->input('total',0);
-                            }
+                            }else{*/
+                                $movimiento->totalpagado=$request->input('totalventa',0);
+                                $movimiento->totalpagado = $request->input('efectivo', 0);
+                                $movimiento->totalpagadovisa = $request->input('visa', 0);
+                                $movimiento->totalpagadomaster = $request->input('master', 0);
+                            /*}*/
                             
                             $movimiento->save();
 
