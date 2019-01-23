@@ -46,6 +46,7 @@ $user = Auth::user();
 <body class="hold-transition skin-blue sidebar-mini">
 	<form action="#" id="formHistoriaClinica">
 		{!! Form::hidden('historia_id', '', array('id' => 'historia_id')) !!}
+		{!! Form::hidden('doctor_id', '', array('id' => 'doctor_id')) !!}
 		{!! Form::hidden('ticket_id', '', array('id' => 'ticket_id')) !!}
 		{!! Form::hidden('fondo_si', '', array('id' => 'fondo_si')) !!}
 	    <div class="wrapper">
@@ -143,19 +144,19 @@ $user = Auth::user();
 												
 													<div class="col-sm-6">
 														<h3 class='text-center' style='font-weight:bold;color:blue'>CONSULTAS</h3>
-														<div style="margin:10px 0px; height: 300px; overflow-y: scroll;" id="listadoConsultas"></div>
+														<div style="margin:10px 0px; height: 250px; overflow-y: scroll;" id="listadoConsultas"></div>
 													</div>
 													<div class="col-sm-6">
 														<h3 class='text-center' style='font-weight:bold;color:red'>EMERGENCIAS</h3>
-														<div style="margin:10px 0px; height: 300px; overflow-y: scroll;" id="listadoEmergencias"></div>
+														<div style="margin:10px 0px; height: 250px; overflow-y: scroll;" id="listadoEmergencias"></div>
 													</div>
 													<div class="col-sm-6">
 														<h3 class='text-center' style='font-weight:bold;color:#3498DB'>FONDO DE OJOS</h3>
-														<div style="margin:10px 0px; height: 300px; overflow-y: scroll;" id="listadoOjos"></div>
+														<div style="margin:10px 0px; height: 250px; overflow-y: scroll;" id="listadoOjos"></div>
 													</div>
 													<div class="col-sm-6">
 														<h3 class='text-center' style='font-weight:bold;color:green'>LECTURA DE RESULTADOS</h3>
-														<div style="margin:10px 0px; height: 300px; overflow-y: scroll;" id="listadoLectura"></div>
+														<div style="margin:10px 0px; height: 250px; overflow-y: scroll;" id="listadoLectura"></div>
 													</div>
 												</div>
 											</div>
@@ -209,6 +210,12 @@ $user = Auth::user();
 															{!! Form::label('paciente', 'Paciente:', array('class' => 'col-sm-2 control-label')) !!}
 															<div class="col-sm-10">
 																{!! Form::text('paciente', '', array('class' => 'form-control input-xs', 'id' => 'paciente', 'readonly' => 'readonly', 'style' => 'font-size: 14px;')) !!}
+															</div>
+														</div>
+														<div class="form-group">
+															{!! Form::label('doctor', 'Doctor:', array('class' => 'col-sm-2 control-label')) !!}
+															<div class="col-sm-10">
+																{!! Form::text('doctor', '', array('class' => 'form-control input-xs', 'id' => 'doctor', 'readonly' => 'readonly', 'style' => 'font-size: 14px;')) !!}
 															</div>
 														</div>
 														<div class="form-group">
@@ -468,6 +475,8 @@ $user = Auth::user();
   				$('#historia_id').val(a.historia_id);
 				tablaCita(a.historia_id);
   				$('#ticket_id').val(a.ticket_id);
+				$('#doctor_id').val(a.doctor_id);
+				$('#doctor').val(a.doctor);
   				$('#historia').val(a.numhistoria);
   				$('#paciente').val(a.paciente);
   				$('#numero').val(a.numero);
@@ -541,10 +550,11 @@ $user = Auth::user();
 			fondo = "SI";
 		}
 		var ticket_id = $(this).data('ticket_id');
+		var doctor_id = $('#doctor_id').val();
 		$.ajax({
 	        type: "POST",
 	        url: "historiaclinica/registrarHistoriaClinica",
-	        data: $('#formHistoriaClinica').serialize() + "&_token=<?php echo csrf_token(); ?>&tratamiento=" + tratamiento + "&sintomas=" + sintomas + "&diagnostico=" + diagnostico + "&examenes=" + examenes + "&motivo=" + motivo + "&exploracion_fisica=" + exploracion_fisica + "&fondo=" + fondo,
+	        data: $('#formHistoriaClinica').serialize() + "&_token=<?php echo csrf_token(); ?>&tratamiento=" + tratamiento + "&sintomas=" + sintomas + "&diagnostico=" + diagnostico + "&examenes=" + examenes + "&motivo=" + motivo + "&exploracion_fisica=" + exploracion_fisica + "&fondo=" + fondo + "&doctor_id=" + doctor_id,
 	        success: function(a) {
 	        	if(a == 'El Código CIE no existe') {
 	        		$('#mensajeHistoriaClinica').html(a);
@@ -565,6 +575,8 @@ $user = Auth::user();
 	  				$('#diagnostico').val('');
 					$('#examenes').val('');
 					$('#motivo').val('');
+					$('#doctor').val('');
+					$('#doctor_id').val('');
 					$('#exploracion_fisica').val('');
 					$("#divpresente").css('display','');
 					$("#cie102").prop('disabled', true);

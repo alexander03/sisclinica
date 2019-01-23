@@ -80,10 +80,12 @@ if(!is_null($ticket)){
                             @else
                             <option value="L">LECT. RESULTADOS</option>
                             @endif
+                            <option value="P">PROCEDIMIENTO</option>
                         @else
                         <option value="C">CONSULTA</option>
                         <option value="E">EMERGENCIA</option>
                         <option value="L">LECT. RESULTADOS</option>
+                        <option value="P">PROCEDIMIENTO</option>
                         @endif
                     </select>
                 </div>
