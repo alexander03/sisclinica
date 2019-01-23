@@ -18,12 +18,13 @@ los js de los formularios
 ==================================
 OBSERVACIONES2:
 ==================================
+- Verificar correlativo del ticket. (Ya está)
+- En caja farmacia quitar tickets pendientes y cuentas por cobrar. (Ya está)
+- Caja poner pago de efectivo por defecto en farmacia (Ya está)
+- Permitir anular a la cajera (Ya está)
+
 - Procedimientos no va a cola
-- Permitir anular a la cajera
 - IngresosOK cambiar nombre reporte, ordenar como ingresos por ventas, otros ingresos y finalmente 
 egresos. Cambiar nombre del titulo y poner BM Clinica de Ojos.
-- Verificar correlativo del ticket.
-- En caja farmacia quitar tickets pendientes y cuentas por cobrar.
-- Caja poner pago de efectivo por defecto en farmacia
 - Agregar fraccion en los productos, compras, ventas y almacen
 - Verificar y separar stock por almacen y sucursal.

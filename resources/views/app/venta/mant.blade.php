@@ -3,6 +3,7 @@
 	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
 	{!! Form::hidden('total', '0', array( 'id' => 'total')) !!}
 	{!! Form::hidden('detalle', 'false', array( 'id' => 'detalle')) !!}
+	{!! Form::hidden('caja_id', $caja_id, array( 'id' => 'caja_id')) !!}
 	<input type="hidden" name="cantproductos" id="cantproductos">
 	<div class="col-lg-4 col-md-4 col-sm-4">
 		<div class="form-group" style="height: 12px;">
@@ -27,7 +28,7 @@
 		<div class="form-group" style="height: 12px;">
 			{!! Form::label('numerodocumento', 'Nro Doc:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::text('numerodocumento', $numero, array('class' => 'form-control input-xs', 'id' => 'numerodocumento', 'placeholder' => 'Ingrese numerodocumento' ,'readonly' => 'true')) !!}
+				{!! Form::text('numerodocumento', '', array('class' => 'form-control input-xs', 'id' => 'numerodocumento', 'placeholder' => 'Ingrese numerodocumento' ,'readonly' => 'true')) !!}
 			</div>
 
 		</div>
@@ -143,8 +144,29 @@
                 {!! Form::text('nroref', null, array('class' => 'form-control input-xs', 'id' => 'nroref')) !!}
             </div>
 		</div>
+	</div>	
+	<div class="col-lg-5 col-md-5 col-sm-5">
+		<div class="form-group" style="height: 12px;">
+			{!! Form::label('nombreproducto', 'Producto:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+			<div class="col-lg-4 col-md-4 col-sm-4">
+				{!! Form::text('nombreproducto', null, array('class' => 'form-control input-xs', 'id' => 'nombreproducto', 'placeholder' => 'Ingrese nombre','onkeypress' => '')) !!}
+			</div>
+			<input type="hidden" name="idsesioncarrito" id="idsesioncarrito" value="<?php echo date("YmdHis");?>">
+			{!! Form::label('cantidad', 'Cantidad:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+			<div class="col-lg-2 col-md-2 col-sm-2">
+				{!! Form::text('cantidad', null, array('class' => 'form-control input-xs', 'id' => 'cantidad')) !!}
+			</div>
+			{!! Form::hidden('producto_id', null, array( 'id' => 'producto_id')) !!}
+			{!! Form::hidden('preciokayros', null, array( 'id' => 'preciokayros')) !!}
+
+			{!! Form::hidden('precioventa', null, array('id' => 'precioventa')) !!}
+			{!! Form::hidden('stock', null, array('id' => 'stock')) !!}
+		</div>
+		<div class="form-group" id="divProductos" style="overflow:auto; height:180px; padding-right:10px; border:1px outset">
+			
+		</div>
 	</div>
-	<div class="col-lg-3 col-md-3 col-sm-3">	
+	<div class="col-lg-3 col-md-3 col-sm-3">
 		<div class="row">
 			<div class="col-lg-12 col-md-12 col-sm-12">
 				<label for="divcbx0" class="col-lg-4 col-md-4 col-sm-4 control-label datocaja caja input-sm">Forma Pago:</label>
@@ -192,28 +214,7 @@
 			    <b id="mensajeMontos" style="color: green;">Los montos coindicen.</b>
 			</div>
 		</div>	
-	</div>
-	<div class="col-lg-5 col-md-5 col-sm-5">
-		<div class="form-group" style="height: 12px;">
-			{!! Form::label('nombreproducto', 'Producto:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
-			<div class="col-lg-4 col-md-4 col-sm-4">
-				{!! Form::text('nombreproducto', null, array('class' => 'form-control input-xs', 'id' => 'nombreproducto', 'placeholder' => 'Ingrese nombre','onkeypress' => '')) !!}
-			</div>
-			<input type="hidden" name="idsesioncarrito" id="idsesioncarrito" value="<?php echo date("YmdHis");?>">
-			{!! Form::label('cantidad', 'Cantidad:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
-			<div class="col-lg-2 col-md-2 col-sm-2">
-				{!! Form::text('cantidad', null, array('class' => 'form-control input-xs', 'id' => 'cantidad')) !!}
-			</div>
-			{!! Form::hidden('producto_id', null, array( 'id' => 'producto_id')) !!}
-			{!! Form::hidden('preciokayros', null, array( 'id' => 'preciokayros')) !!}
-
-			{!! Form::hidden('precioventa', null, array('id' => 'precioventa')) !!}
-			{!! Form::hidden('stock', null, array('id' => 'stock')) !!}
-		</div>
-		<div class="form-group" id="divProductos" style="overflow:auto; height:180px; padding-right:10px; border:1px outset">
-			
-		</div>
-
+		<br>
 		<div class="form-group">
 			<div class="col-lg-12 col-md-12 col-sm-12 text-right">
 				<!--<div align="center" class="col-lg-3 ">
@@ -224,7 +225,6 @@
 				{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
 			</div>
 		</div>
-		
 	</div>
 	<div class="form-group" style="display: none;">
 		<div class="col-lg-12 col-md-12 col-sm-12" >
@@ -574,7 +574,7 @@ function buscarProducto(valor){
                 var pag=parseInt($("#pag").val());
                 var d=0;
                 for(c=0; c < datos.length; c++){
-                    var a="<tr id='"+datos[c].idproducto+"' onclick=\"seleccionarProducto('"+datos[c].idproducto+"','"+datos[c].precioventa+"','"+datos[c].preciokayros+"','"+datos[c].stock+"')\"><td align='center'><span style='display: block; font-size:.7em'>"+datos[c].principio+"</span></td><td><span style='display: block; font-size:.7em'>"+datos[c].nombre+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].presentacion+"</span></td><td align='right'><span style='display: block; font-size:.7em' id='tdStock"+datos[c].idproducto+"'>"+datos[c].stock+"</span></td><td align='right'><span style='display: block; font-size:.7em' id='tdPrecioKayros"+datos[c].idproducto+"'>"+datos[c].preciokayros+"</span></td><td align='right'><span style='display: block; font-size:.7em' id='tdPrecioVenta"+datos[c].idproducto+"'>"+datos[c].precioventa+"</span></td></tr>";
+                    var a="<tr class='escogerFila' id='"+datos[c].idproducto+"' onclick=\"seleccionarProducto('"+datos[c].idproducto+"','"+datos[c].precioventa+"','"+datos[c].preciokayros+"','"+datos[c].stock+"')\"><td align='center'><span style='display: block; font-size:.7em'>"+datos[c].principio+"</span></td><td><span style='display: block; font-size:.7em'>"+datos[c].nombre+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].presentacion+"</span></td><td align='right'><span style='display: block; font-size:.7em' id='tdStock"+datos[c].idproducto+"'>"+datos[c].stock+"</span></td><td align='right'><span style='display: block; font-size:.7em' id='tdPrecioKayros"+datos[c].idproducto+"'>"+datos[c].preciokayros+"</span></td><td align='right'><span style='display: block; font-size:.7em' id='tdPrecioVenta"+datos[c].idproducto+"'>"+datos[c].precioventa+"</span></td></tr>";
                     $("#tablaProducto").append(a);           
                 }
                 $('#tablaProducto').DataTable({
@@ -636,7 +636,7 @@ function generarNumero(valor){
     $.ajax({
         type: "POST",
         url: "venta/generarNumero",
-        data: "tipodocumento_id="+valor+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
+        data: "caja_id="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="caja_id"]').val()+"&tipodocumento_id="+valor+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
         success: function(a) {
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="numerodocumento"]').val(a);
         }
@@ -700,6 +700,8 @@ $(document).on('click', '.quitarFila', function(event) {
 	event.preventDefault();
 	$(this).parent('span').parent('td').parent('tr').remove();
 	calculatetotal();
+	$('#efectivo').val($('#totalventa').val());
+	calcularTotalPago();
 });
 
 function quitar(btn) {
@@ -918,7 +920,8 @@ function addpurchasecart(elemento){
 				$("#Product" + producto_id).html(data);
 			} else {
 				$('#detallesVenta').append('<tr id="Product' + producto_id + '">' + data + '</tr>');
-			}					
+			}	
+			$("#Product" + producto_id).css('display', 'none').fadeIn(1000);				
 			calculatetotal();	
 			$('#efectivo').val($('#totalventa').val()).focus();	
 			calcularTotalPago();			
@@ -1015,10 +1018,12 @@ function guardarVenta (entidad, idboton) {
 	}*/
 	if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="nombrepersona"]').val()==""){
 		alert("Debe agregar el nombre del cliente");
+		modal('{{URL::route('venta.busquedacliente')}}', '');
 		return false;
 	}
 	if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="documento"]').val()=="4" && $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="empresa_id"]').val()==""){
 		alert("Debe seleccionar una empresa para la factura");
+		modal('{{URL::route('venta.busquedaempresa')}}', '');
 		return false;
 	}
 	if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="formapago"]').val()=="T" && $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="nroref"]').val()==""){
@@ -1269,5 +1274,9 @@ function enviar() {
 	}
 }
 
+$(document).on('click', '.escogerFila', function(){
+	$('.escogerFila').css('background-color', 'white');
+	$(this).css('background-color', 'yellow');
+});
 
 </script>
