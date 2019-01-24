@@ -10,7 +10,7 @@ continua el siguiente pero queda en espera y no va al ultimo, colo muestra atenc
 - En caja mostrar el monto de efectivo, visa y mastercard
 - El ingreso o egreso desde la opcion de caja siempre es en efectivo
 - Cuando se cobra por parte debe generar un ingreso en caja del monto cobrado, ademas sacar un
-ticket de ingreso de caja pequeÒo para imprimir.
+ticket de ingreso de caja pequeÔøΩo para imprimir.
 - Revisar cuando se cobra en caja, existe algun error en el js que no permite buscar y inicializa
 los js de los formularios
 - En los tratamiento de historias, cuando el paciente va al consultorio considerar:
@@ -18,12 +18,11 @@ los js de los formularios
 ==================================
 OBSERVACIONES2:
 ==================================
-- Verificar correlativo del ticket. (Ya est·)
-- En caja farmacia quitar tickets pendientes y cuentas por cobrar. (Ya est·)
-- Caja poner pago de efectivo por defecto en farmacia (Ya est·)
-- Permitir anular a la cajera (Ya est·)
-
-- Procedimientos no va a cola
+- Verificar correlativo del ticket. (Ya est√°)
+- En caja farmacia quitar tickets pendientes y cuentas por cobrar. (Ya est√°)
+- Caja poner pago de efectivo por defecto en farmacia (Ya est√°)
+- Permitir anular a la cajera (Ya est√°)
+- Procedimientos no va a cola (Ya est√°)
 - IngresosOK cambiar nombre reporte, ordenar como ingresos por ventas, otros ingresos y finalmente 
 egresos. Cambiar nombre del titulo y poner BM Clinica de Ojos.
 - Agregar fraccion en los productos, compras, ventas y almacen
