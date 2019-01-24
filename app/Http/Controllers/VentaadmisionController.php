@@ -4920,9 +4920,9 @@ class VentaadmisionController extends Controller
             });
         }
 
-        $consultas = Movimiento::where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->orderBy('situacion2','ASC')->orderBy('id','ASC')
+        $consultas = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->orderBy('situacion2','ASC')->orderBy('id','ASC')
         ->where(function($q) {            
-            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B');
+            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'B');
         })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
@@ -5004,27 +5004,27 @@ class VentaadmisionController extends Controller
 
         $sconsultas .= '</tbody></table>';
 
-        $emergencias = Movimiento::where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->orderBy('situacion2','ASC')->orderBy('id','ASC')
+        $emergencias = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->orderBy('situacion2','ASC')->orderBy('id','ASC')
         ->where(function($q) {            
-            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B');
+            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'B');
         })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
         $lista2 = $emergencias->limit(7)->get();
 
-        $fondos = Movimiento::whereNotNull('tiempo_fondo')->orderBy('situacion2','ASC')->orderBy('id','ASC')
+        $fondos = Movimiento::where('fecha', date('Y-m-d') )->whereNotNull('tiempo_fondo')->orderBy('situacion2','ASC')->orderBy('id','ASC')
         ->where(function($q) {            
-            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B')->orWhere('situacion2', 'like', 'F');
+            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'B')->orWhere('situacion2', 'like', 'F');
         })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
         $lista3 = $fondos->limit(7)->get();
 
-        $lectura = Movimiento::where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->orderBy('situacion2','ASC')->orderBy('id','ASC')
+        $lectura = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->orderBy('situacion2','ASC')->orderBy('id','ASC')
         ->where(function($q) {            
-            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B');
+            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'B');
         })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
@@ -5257,15 +5257,23 @@ class VentaadmisionController extends Controller
                 $Ticket->save();
             });
         }
-
-        $consultas = Movimiento::where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->orderBy('situacion2','ASC')->orderBy('id','ASC')
+        $consultasm = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','M')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->orderBy('situacion2','ASC')->orderBy('id','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B');
         })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
-        $lista = $consultas->get();
+
+        $consultast = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','T')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->orderBy('situacion2','ASC')->orderBy('id','ASC')
+        ->where(function($q) {            
+            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B');
+        })
+        ->where(function($q) {            
+            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
+        });
+        $listam = $consultasm->get();
+        $listat = $consultast->get();
 
         $sconsutas = '';
         $semergencias = '';
@@ -5284,11 +5292,72 @@ class VentaadmisionController extends Controller
                         <tbody>";
         $c=1;
 
-        if(count($lista) == 0) {
+        if(count($listam) == 0 && count($listat) == 0) {
             $sconsultas.= '<tr class="text-center"><td colspan="3">No Hay consultas.</td></tr>';
         }
 
-        foreach ($lista as $key => $value) {
+        if(count($listam) != 0) {
+            $sconsultas.= '<tr class="text-center"><td colspan="3">Turno Mañana</td></tr>';
+        }
+
+        foreach ($listam as $key => $value) {
+            if( $value->situacion2 == 'A'){
+                $sconsultas.= "<tr class='llamando' style ='color: white; background-color:green;' id = '" . $value->id . "' >";
+            }else if( $value->situacion2 == 'N'){
+                $sconsultas.= "<tr class='tarde' style ='color: white; background-color:#f96a27;' id = '" . $value->id . "' >";
+            }else if( $value->situacion2 == 'B'){
+                $sconsultas.= "<tr class='atendiendo' style ='color: white; background-color:green;' id = '" . $value->id . "' >";
+            }else{
+                $sconsultas.= "<tr id = '" . $value->id . "' >";
+            }
+
+            //$sconsultas.= "<tr id = '" . $value->id . "' >";
+            $sconsultas.= "<td class='text-center'>".$c."</td>";
+            if(!is_null($value->persona)){
+                $sconsultas.= "<td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>";
+            }
+            
+            $date1 = new \DateTime(date("H:i:s",strtotime('now')));
+            $date2 = new \DateTime(date("H:i:s",strtotime($value->tiempo_cola)));
+
+            $diff = $date2->diff($date1);
+
+            $h = $diff->h;
+            $m = $diff->i;
+            $s = $diff->s;
+
+            $tiempo ="";
+
+            if($h<10){
+                $tiempo = "0" . $h . ":";
+            }else{
+                $tiempo = $h . ":";
+            }
+            if($m<10){
+                $tiempo = $tiempo . "0" . $m . ":";
+            }else{
+                $tiempo = $tiempo . $m . ":";
+            }
+            if($s<10){
+                $tiempo = $tiempo . "0" . $s ;
+            }else{
+                $tiempo = $tiempo . $s;   
+            }
+
+
+           // $consultas.= "<td>". $diff->format('%H:%i:%s') ."</td>";
+            $sconsultas.= "<td class='text-center'>". $tiempo ."</td>";
+            $sconsultas.= "</tr>";
+            $c=$c+1;
+        }
+
+        if(count($listat) != 0) {
+            $sconsultas.= '<tr class="text-center"><td colspan="3">Turno Tarde</td></tr>';
+        }
+
+        $c=1;
+
+        foreach ($listat as $key => $value) {
             if( $value->situacion2 == 'A'){
                 $sconsultas.= "<tr class='llamando' style ='color: white; background-color:green;' id = '" . $value->id . "' >";
             }else if( $value->situacion2 == 'N'){
@@ -5341,32 +5410,56 @@ class VentaadmisionController extends Controller
 
         $sconsultas .= '</tbody></table>';
 
-        $emergencias = Movimiento::where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->orderBy('situacion2','ASC')->orderBy('id','ASC')
+        $emergenciasm = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','M')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->orderBy('situacion2','ASC')->orderBy('id','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B');
         })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
-        $lista2 = $emergencias->get();
+        $emergenciast = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','T')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->orderBy('situacion2','ASC')->orderBy('id','ASC')
+        ->where(function($q) {            
+            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B');
+        })
+        ->where(function($q) {            
+            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
+        });
+        $lista2m = $emergenciasm->get();
+        $lista2t = $emergenciast->get();
 
-        $fondos = Movimiento::whereNotNull('tiempo_fondo')->orderBy('situacion2','ASC')->orderBy('id','ASC')
+        $fondosm = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','M')->whereNotNull('tiempo_fondo')->orderBy('situacion2','ASC')->orderBy('id','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B')->orWhere('situacion2', 'like', 'F');
         })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
-        $lista3 = $fondos->get();
+        $fondost = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','T')->whereNotNull('tiempo_fondo')->orderBy('situacion2','ASC')->orderBy('id','ASC')
+        ->where(function($q) {            
+            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B')->orWhere('situacion2', 'like', 'F');
+        })
+        ->where(function($q) {            
+            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
+        });
+        $lista3m = $fondosm->get();
+        $lista3t = $fondost->get();
 
-        $lectura = Movimiento::where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->orderBy('situacion2','ASC')->orderBy('id','ASC')
+        $lecturam = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','M')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->orderBy('situacion2','ASC')->orderBy('id','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B');
         })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
-        $lista4 = $lectura->get();
+        $lecturat = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','T')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->orderBy('situacion2','ASC')->orderBy('id','ASC')
+        ->where(function($q) {            
+            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B');
+        })
+        ->where(function($q) {            
+            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
+        });
+        $lista4m = $lecturam->get();
+        $lista4t = $lecturat->get();
 
         $semergencias.="
                         <table style='width:100%' border='1'>
@@ -5379,11 +5472,68 @@ class VentaadmisionController extends Controller
                             </thead>
                             <tbody>";
 
-        if(count($lista2) == 0) {
+        if(count($lista2m) == 0 && count($lista2t) == 0) {
             $semergencias.= '<tr class="text-center"><td colspan="3">No Hay emergencias.</td></tr>';
         }
+
+        if(count($lista2m) != 0) {
+            $semergencias.= '<tr class="text-center"><td colspan="3">Turno Mañana</td></tr>';
+        }
         $c=1;
-        foreach ($lista2 as $key => $value) {
+        foreach ($lista2m as $key => $value) {
+            if( $value->situacion2 == 'A'){
+                $semergencias.= "<tr class='llamando' style ='color: white; background-color:green;' id = '" . $value->id . "' >";
+            }else if( $value->situacion2 == 'N'){
+                $semergencias.= "<tr class='tarde' style ='color: white; background-color:#f96a27;' id = '" . $value->id . "' >";
+            }else if( $value->situacion2 == 'B'){
+                $semergencias.= "<tr class='atendiendo' style ='color: white; background-color:green;' id = '" . $value->id . "' >";
+            }else{
+                $semergencias.= "<tr id = '" . $value->id . "' >";
+            }
+            $semergencias.= "<td class='text-center'>".$c."</td>";
+            if(!is_null($value->persona)){
+                $semergencias.= "<td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>";
+            }
+            
+            $date1 = new \DateTime(date("H:i:s",strtotime('now')));
+            $date2 = new \DateTime(date("H:i:s",strtotime($value->tiempo_cola)));
+
+            $diff = $date2->diff($date1);
+
+            $h = $diff->h;
+            $m = $diff->i;
+            $s = $diff->s;
+
+            $tiempo ="";
+
+            if($h<10){
+                $tiempo = "0" . $h . ":";
+            }else{
+                $tiempo = $h . ":";
+            }
+            if($m<10){
+                $tiempo = $tiempo . "0" . $m . ":";
+            }else{
+                $tiempo = $tiempo . $m . ":";
+            }
+            if($s<10){
+                $tiempo = $tiempo . "0" . $s ;
+            }else{
+                $tiempo = $tiempo . $s;   
+            }
+
+
+           // $semergencias.= "<td>". $diff->format('%H:%i:%s') ."</td>";
+            $semergencias.= "<td class='text-center'>". $tiempo ."</td>";
+            $semergencias.= "</tr>";
+            $c=$c+1;
+        }
+
+        if(count($lista2t) != 0) {
+            $semergencias.= '<tr class="text-center"><td colspan="3">Turno Tarde</td></tr>';
+        }
+        $c=1;
+        foreach ($lista2t as $key => $value) {
             if( $value->situacion2 == 'A'){
                 $semergencias.= "<tr class='llamando' style ='color: white; background-color:green;' id = '" . $value->id . "' >";
             }else if( $value->situacion2 == 'N'){
@@ -5444,15 +5594,75 @@ class VentaadmisionController extends Controller
                                 </tr>
                             </thead>
                             <tbody>";
-        $c=1;
 
-        if(count($lista3) == 0) {
+        if(count($lista3m) == 0 && count($lista3t) == 0) {
             $sojos.= '<tr class="text-center"><td colspan="3">No Hay fondo de ojos.</td></tr>';
         }
 
-        //fondos 
+        if(count($lista3m) != 0) {
+            $sojos.= '<tr class="text-center"><td colspan="3">Turno Mañana</td></tr>';
+        }
 
-        foreach ($lista3 as $key => $value) {
+        //fondos 
+        $c=1;
+
+        foreach ($lista3m as $key => $value) {
+            if( $value->situacion2 == 'A'){
+                $sojos.= "<tr class='llamando' style ='color: white; background-color:green;' id = '" . $value->id . "' >";
+            }else if( $value->situacion2 == 'N'){
+                $sojos.= "<tr class='tarde' style ='color: white; background-color:#f96a27;' id = '" . $value->id . "' >";
+            }else if( $value->situacion2 == 'B'){
+                $sojos.= "<tr class='atendiendo' style ='color: white; background-color:green;' id = '" . $value->id . "' >";
+            }else{
+                $sojos.= "<tr id = '" . $value->id . "' >";
+            }
+            $sojos.= "<td class='text-center'>".$c."</td>";
+            if(!is_null($value->persona)){
+                $sojos.= "<td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>";
+            }
+
+            $date1 = new \DateTime(date("H:i:s",strtotime('now')));
+            $date2 = new \DateTime(date("H:i:s",strtotime($value->tiempo_fondo)));
+
+            $diff = $date2->diff($date1);
+
+            $h = $diff->h;
+            $m = $diff->i;
+            $s = $diff->s;
+
+            $tiempo ="";
+
+            if($h<10){
+                $tiempo = "0" . $h . ":";
+            }else{
+                $tiempo = $h . ":";
+            }
+            if($m<10){
+                $tiempo = $tiempo . "0" . $m . ":";
+            }else{
+                $tiempo = $tiempo . $m . ":";
+            }
+            if($s<10){
+                $tiempo = $tiempo . "0" . $s ;
+            }else{
+                $tiempo = $tiempo . $s;   
+            }
+
+
+           // $registro.= "<td>". $diff->format('%H:%i:%s') ."</td>";
+            $sojos.= "<td class='text-center'>". $tiempo ."</td>";
+            $sojos.= "</tr>";
+            $c=$c+1;
+        }
+
+        if(count($lista3t) != 0) {
+            $sojos.= '<tr class="text-center"><td colspan="3">Turno Tarde</td></tr>';
+        }
+
+        //fondos 
+        $c=1;
+
+        foreach ($lista3t as $key => $value) {
             if( $value->situacion2 == 'A'){
                 $sojos.= "<tr class='llamando' style ='color: white; background-color:green;' id = '" . $value->id . "' >";
             }else if( $value->situacion2 == 'N'){
@@ -5513,15 +5723,75 @@ class VentaadmisionController extends Controller
                                 </tr>
                             </thead>
                             <tbody>";
-        $c=1;
 
-        if(count($lista4) == 0) {
+        if(count($lista4m) == 0 && count($lista4t) == 0) {
             $slectura.= '<tr class="text-center"><td colspan="3">No Hay lectura de resultados.</td></tr>';
         }
 
-        //lectura 
+        if(count($lista4m) != 0) {
+            $slectura.= '<tr class="text-center"><td colspan="3">Turno Mañana</td></tr>';
+        }
 
-        foreach ($lista4 as $key => $value) {
+        //lectura 
+        $c=1;
+
+        foreach ($lista4m as $key => $value) {
+            if( $value->situacion2 == 'A'){
+                $slectura.= "<tr class='llamando' style ='color: white; background-color:green;' id = '" . $value->id . "' >";
+            }else if( $value->situacion2 == 'N'){
+                $slectura.= "<tr class='tarde' style ='color: white; background-color:#f96a27;' id = '" . $value->id . "' >";
+            }else if( $value->situacion2 == 'B'){
+                $slectura.= "<tr class='atendiendo' style ='color: white; background-color:green;' id = '" . $value->id . "' >";
+            }else{
+                $slectura.= "<tr id = '" . $value->id . "' >";
+            }
+            $slectura.= "<td class='text-center'>".$c."</td>";
+            if(!is_null($value->persona)){
+                $slectura.= "<td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>";
+            }
+
+            $date1 = new \DateTime(date("H:i:s",strtotime('now')));
+            $date2 = new \DateTime(date("H:i:s",strtotime($value->tiempo_cola)));
+
+            $diff = $date2->diff($date1);
+
+            $h = $diff->h;
+            $m = $diff->i;
+            $s = $diff->s;
+
+            $tiempo ="";
+
+            if($h<10){
+                $tiempo = "0" . $h . ":";
+            }else{
+                $tiempo = $h . ":";
+            }
+            if($m<10){
+                $tiempo = $tiempo . "0" . $m . ":";
+            }else{
+                $tiempo = $tiempo . $m . ":";
+            }
+            if($s<10){
+                $tiempo = $tiempo . "0" . $s ;
+            }else{
+                $tiempo = $tiempo . $s;   
+            }
+
+
+           // $registro.= "<td>". $diff->format('%H:%i:%s') ."</td>";
+            $slectura.= "<td class='text-center'>". $tiempo ."</td>";
+            $slectura.= "</tr>";
+            $c=$c+1;
+        }
+
+        if(count($lista4t) != 0) {
+            $slectura.= '<tr class="text-center"><td colspan="3">Turno Tarde</td></tr>';
+        }
+
+        //lectura 
+        $c=1;
+
+        foreach ($lista4t as $key => $value) {
             if( $value->situacion2 == 'A'){
                 $slectura.= "<tr class='llamando' style ='color: white; background-color:green;' id = '" . $value->id . "' >";
             }else if( $value->situacion2 == 'N'){
@@ -5604,13 +5874,13 @@ class VentaadmisionController extends Controller
         $tabla="<table class='table table-bordered table-striped table-condensed table-hover' style='width:auto; vertical-align:middle;'>
                         <tbody>";
 
-        $consultas = Movimiento::where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->where('situacion2', 'like', 'C')->orderBy('id','ASC')
+        $consultas = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->where('situacion2', 'like', 'C')->orderBy('turno','ASC')->orderBy('id','ASC')
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
         $consulta = $consultas->first();
 
-        $consultas_no = Movimiento::where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->where('situacion2', 'like', 'N')->orderBy('id','ASC')
+        $consultas_no = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->where('situacion2', 'like', 'N')->orderBy('turno','ASC')->orderBy('id','ASC')
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         })->get();
@@ -5637,13 +5907,13 @@ class VentaadmisionController extends Controller
                                 </tr>";
         }
 
-        $emergencias = Movimiento::where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->where('situacion2', 'like', 'C')->orderBy('id','ASC')
+        $emergencias = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->where('situacion2', 'like', 'C')->orderBy('turno','ASC')->orderBy('id','ASC')
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
         $emergencia = $emergencias->first();
 
-        $emergencias_no = Movimiento::where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->where('situacion2', 'like', 'N')->orderBy('id','ASC')
+        $emergencias_no = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->where('situacion2', 'like', 'N')->orderBy('turno','ASC')->orderBy('id','ASC')
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         })->get();
@@ -5672,13 +5942,13 @@ class VentaadmisionController extends Controller
 
         //lectura de resultados
         
-        $lecturas = Movimiento::where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->where('situacion2', 'like', 'C')->orderBy('id','ASC')
+        $lecturas = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->where('situacion2', 'like', 'C')->orderBy('turno','ASC')->orderBy('id','ASC')
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
         $lectura = $lecturas->first();
 
-        $lecturas_no = Movimiento::where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->where('situacion2', 'like', 'N')->orderBy('id','ASC')
+        $lecturas_no = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->where('situacion2', 'like', 'N')->orderBy('turno','ASC')->orderBy('id','ASC')
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         })->get();
@@ -5708,13 +5978,13 @@ class VentaadmisionController extends Controller
 
         //fin 
 
-        $fondos = Movimiento::whereNotNull('tiempo_fondo')->where('situacion2', 'like', 'F')->orderBy('id','ASC')
+        $fondos = Movimiento::where('fecha', date('Y-m-d') )->whereNotNull('tiempo_fondo')->where('situacion2', 'like', 'F')->orderBy('turno','ASC')->orderBy('id','ASC')
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
         $fondo = $fondos->first();
 
-        $fondos_no = Movimiento::whereNotNull('tiempo_fondo')->where('situacion2', 'like', 'N')->orderBy('id','ASC')
+        $fondos_no = Movimiento::where('fecha', date('Y-m-d') )->whereNotNull('tiempo_fondo')->where('situacion2', 'like', 'N')->orderBy('turno','ASC')->orderBy('id','ASC')
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         })->get();

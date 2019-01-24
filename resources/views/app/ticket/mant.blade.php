@@ -56,12 +56,28 @@ if(!is_null($ticket)){
         		<div class="col-lg-3 col-md-3 col-sm-3">
         			{!! Form::date('fecha', $fecha, array('class' => 'form-control input-xs', 'id' => 'fecha')) !!}
         		</div>
-                {!! Form::label('numero', 'Nro:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-        		<div class="col-lg-2 col-md-2 col-sm-2">
-        			{!! Form::text('numero', $numero, array('class' => 'form-control input-xs', 'id' => 'numero', 'readonly' => 'true')) !!}
-        		</div>
-                {!! Form::label('manual', 'Manual:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label',  'style' => 'display:none;')) !!}
-                <label for="clasificacionconsulta" class="col-lg-1 col-md-1 col-sm-1 control-label">Tipo</label>
+                <div class="col-lg-1 col-md-1 col-sm-1"></div>
+                <label for="turno" class="col-lg-1 col-md-1 col-sm-1 control-label">Turno:</label>
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    <select class="form-control input-xs" name="turno" id="turno">
+                        @if($ticket != null)
+                            @if($ticket->turno == "M")
+                                <option checked id="manana" value="M">MAÑANA</option>
+                                <option id="tarde" value="T">TARDE</option>
+                            @else
+                                <option id="manana" value="M">MAÑANA</option>
+                                <option checked id="tarde" value="T">TARDE</option>
+                            @endif
+                        @else
+                            <<option id="manana" value="M">MAÑANA</option>
+                            <option id="tarde" value="T">TARDE</option>
+                        @endif
+                        
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="clasificacionconsulta" class="col-lg-2 col-md-2 col-sm-2 control-label">Tipo:</label>
                 <div class="col-lg-3 col-md-3 col-sm-3">
                     <select class="form-control input-xs" name="clasificacionconsulta" id="clasificacionconsulta" onchange="lectRes();">
                         @if($ticket != null)
@@ -89,7 +105,13 @@ if(!is_null($ticket)){
                         @endif
                     </select>
                 </div>
+                <div class="col-lg-1 col-md-1 col-sm-1"></div>
+                {!! Form::label('numero', 'Nro:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
+        		<div class="col-lg-2 col-md-2 col-sm-2">
+        			{!! Form::text('numero', $numero, array('class' => 'form-control input-xs', 'id' => 'numero', 'readonly' => 'true')) !!}
+        		</div>
                 <div class="col-lg-1 col-md-1 col-sm-1" style="display:none;">
+                    {!! Form::label('manual', 'Manual:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label',  'style' => 'display:none;')) !!}
                     {!! Form::hidden('manual', 'N', array('id' => 'manual')) !!}
                     <input type="checkbox" onclick="Manual(this.checked)" />
                 </div>
@@ -348,6 +370,20 @@ $(document).ready(function() {
     $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="numeroventa"]').inputmask("99999999");
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="deducible"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="coa"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
+
+    //mañana - tarde
+
+    var dt = new Date();
+    var hora = dt.getHours();
+
+    console.log(hora);
+    
+    if(hora < 14){
+        $('#turno').val('M');
+    }else{
+        $('#turno').val('T');
+    }
+
     var personas = new Bloodhound({
 		datumTokenizer: function (d) {
 			return Bloodhound.tokenizers.whitespace(d.value);
