@@ -568,6 +568,7 @@ class CompraController extends Controller
                 $detalleCompra->movimiento_id = $movimiento_id;
                 $detalleCompra->producto_id = $request->input('producto_id'.$i);
                 $detalleCompra->save();
+                //Editamos valores del producto
                 $producto = Producto::find($request->input('producto_id'.$i));
                 $producto->preciocompra = $request->input('preciocompra'.$i);
                 $producto->precioventa = $request->input('precioventa'.$i);
