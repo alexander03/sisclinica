@@ -5,7 +5,7 @@
 	{!! Form::hidden('detalle', 'false', array( 'id' => 'detalle')) !!}
 	{!! Form::hidden('caja_id', $caja_id, array( 'id' => 'caja_id')) !!}
 	<input type="hidden" name="cantproductos" id="cantproductos">
-	<div class="col-lg-4 col-md-4 col-sm-4">
+	<div class="col-lg-4 col-md-4 col-sm-4" style="padding:0;margin: 0">
 		<div class="form-group" style="height: 12px;">
 			{!! Form::label('documento', 'Documento:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
@@ -43,9 +43,9 @@
 		<div class="form-group" style="height: 12px;">
 			{!! Form::label('nombrepersona', 'Cliente:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			{!! Form::hidden('person_id', null, array('id' => 'person_id')) !!}
-			<div class="col-lg-7 col-md-7 col-sm-7">
+			<div class="col-lg-7 col-md-7 col-sm-7 input-group">
 				{!! Form::text('nombrepersona', null, array('style' => 'background-color: #FFEEC5;' ,'class' => 'form-control input-xs', 'id' => 'nombrepersona', 'placeholder' => 'Seleccione Cliente')) !!}
-				
+				<a class="btn btn-success btn-xs input-group-addon" id="btnnombrepersona" href="#">+</a>				
 			</div>
 		</div>
 		<div class="form-group" style="height: 12px;">
@@ -145,7 +145,7 @@
             </div>
 		</div>
 	</div>	
-	<div class="col-lg-5 col-md-5 col-sm-5">
+	<div class="col-lg-5 col-md-5 col-sm-5" style="padding-right:10px;margin:0">
 		<div class="form-group" style="height: 12px;">
 			{!! Form::label('nombreproducto', 'Producto:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
 			<div class="col-lg-4 col-md-4 col-sm-4">
@@ -162,7 +162,7 @@
 			{!! Form::hidden('precioventa', null, array('id' => 'precioventa')) !!}
 			{!! Form::hidden('stock', null, array('id' => 'stock')) !!}
 		</div>
-		<div class="form-group" id="divProductos" style="overflow:auto; height:180px; padding-right:10px; border:1px outset">
+		<div class="form-group table-responsive" id="divProductos" style="overflow:auto; height:230px; border:1px outset">
 			
 		</div>
 	</div>
@@ -207,7 +207,7 @@
 			<div class="col-lg-12 col-md-12 col-sm-12">	    	
 			    <div class="input-group">
 					<span class="input-group-addon input-xs">TOTAL</span>
-					<input name="total2" id="total2" type="text" class="form-control input-xs" readonly="" value="0.000">
+					<input name="total2" id="total2" type="text" class="form-control input-xs" readonly="" value="0.00">
 				</div>
 			</div>
 			<div class="col-lg-12 col-md-12 col-sm-12">	    	
@@ -312,6 +312,20 @@ $(document).ready(function() {
 			}
 		});
 
+	$(document).click("#btnnombrepersona", function(e) {
+			alert('caca');
+			var key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0;
+			//if(key == 13) {
+				/*var documento = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="documento"]').val();
+				if (documento == 4) {
+					modal('{{URL::route('venta.busquedaempresa')}}', '');
+				}else{
+					modal('{{URL::route('venta.busquedacliente')}}', '');
+				}*/
+					modal('{{URL::route('venta.busquedacliente')}}', '');
+			//}
+		});
+
 	$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="nombredoctor"]').keydown( function(e) {
 			var key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0;
 			if(key == 27) {
@@ -329,17 +343,6 @@ $(document).ready(function() {
 				}*/
 					modal('{{URL::route('venta.busquedaempresa')}}', '');
 			}
-		});
-
-	$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="nombrepersona"]').click(function(){
-			/*var documento = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="documento"]').val();
-			if (documento == 4) {
-				modal('{{URL::route('venta.busquedaempresa')}}', '');
-			}else{
-				modal('{{URL::route('venta.busquedacliente')}}', '');
-			}*/
-			modal('{{URL::route('venta.busquedacliente')}}', '');
-			
 		});
 	$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="nombreempresa"]').click(function(){
 			/*var documento = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="documento"]').val();
@@ -570,18 +573,16 @@ function buscarProducto(valor){
             success: function(a) {
                 datos=JSON.parse(a);
                 //$("#divProductos").html("<table class='table table-bordered table-condensed table-hover' border='1' id='tablaProducto'><thead><tr><th class='text-center'>P. Activo</th><th class='text-center'>Nombre</th><th class='text-center'>Presentacion</th><th class='text-center'>Stock</th><th class='text-center'>P.Kayros</th><th class='text-center'>P.Venta</th></tr></thead></table>");
-                $("#divProductos").html("<table class='table-condensed table-hover' border='1' id='tablaProducto'><thead><tr><th class='text-center' style='width:220px;'><span style='display: block; font-size:.9em'>P. Activo</span></th><th class='text-center' style='width:220px;'><span style='display: block; font-size:.9em'>Nombre</span></th><th class='text-center' style='width:70px;'><span style='display: block; font-size:.9em'>Presentacion</span></th><th class='text-center' style='width:20px;'><span style='display: block; font-size:.9em'>Stock</span></th><th class='text-center' style='width:20px;'><span style='display: block; font-size:.9em'>P.Kayros</span></th><th class='text-center' style='width:20px;'><span style='display: block; font-size:.9em'>P.Venta</span></th></tr></thead></table>");
+                $("#divProductos").html("<table class='table-condensed table-hover' border='1' id='tablaProducto'><thead><tr><th class='text-center' style='width:220px;'><span style='display: block; font-size:.9em'>P. Activo</span></th><th class='text-center' style='width:220px;'><span style='display: block; font-size:.9em'>Nombre</span></th><th class='text-center' style='width:20px;'><span style='display: block; font-size:.9em'>Present.</span></th><th class='text-center' style='width:20px;'><span style='display: block; font-size:.9em'>Fracción</span></th><th class='text-center' style='width:20px;'><span style='display: block; font-size:.9em'>Stock</span></th><th class='text-center' style='width:20px;'><span style='display: block; font-size:.9em'>P.Kayros</span></th><th class='text-center' style='width:20px;'><span style='display: block; font-size:.9em'>P.Venta</span></th></tr></thead></table>").css("overflow-x",'hidden');
                 var pag=parseInt($("#pag").val());
                 var d=0;
                 for(c=0; c < datos.length; c++){
-                    var a="<tr class='escogerFila' id='"+datos[c].idproducto+"' onclick=\"seleccionarProducto('"+datos[c].idproducto+"','"+datos[c].precioventa+"','"+datos[c].preciokayros+"','"+datos[c].stock+"')\"><td align='center'><span style='display: block; font-size:.7em'>"+datos[c].principio+"</span></td><td><span style='display: block; font-size:.7em'>"+datos[c].nombre+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].presentacion+"</span></td><td align='right'><span style='display: block; font-size:.7em' id='tdStock"+datos[c].idproducto+"'>"+datos[c].stock+"</span></td><td align='right'><span style='display: block; font-size:.7em' id='tdPrecioKayros"+datos[c].idproducto+"'>"+datos[c].preciokayros+"</span></td><td align='right'><span style='display: block; font-size:.7em' id='tdPrecioVenta"+datos[c].idproducto+"'>"+datos[c].precioventa+"</span></td></tr>";
+                    var a="<tr style='cursor:pointer' class='escogerFila' id='"+datos[c].idproducto+"' onclick=\"seleccionarProducto('"+datos[c].idproducto+"','"+datos[c].precioventa+"','"+datos[c].preciokayros+"','"+datos[c].stock+"')\"><td align='center'><span style='display: block; font-size:.7em'>"+datos[c].principio+"</span></td><td><span style='display: block; font-size:.7em'>"+datos[c].nombre+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].presentacion+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].fraccion+"</span></td><td align='right'><span style='display: block; font-size:.7em' id='tdStock"+datos[c].idproducto+"'>"+datos[c].stock+"</span></td><td align='right'><span style='display: block; font-size:.7em' id='tdPrecioKayros"+datos[c].idproducto+"'>"+datos[c].preciokayros+"</span></td><td align='right'><span style='display: block; font-size:.7em' id='tdPrecioVenta"+datos[c].idproducto+"'>"+datos[c].precioventa+"</span></td></tr>";
                     $("#tablaProducto").append(a);           
                 }
                 $('#tablaProducto').DataTable({
-                    "scrollY":        "250px",
-                    "scrollCollapse": true,
                     "paging":         false,
-                    "ordering"        :false
+                    "ordering"        :false                    
                 });
                 $('#tablaProducto_filter').css('display','none');
                 $("#tablaProducto_info").css("display","none");
@@ -1218,18 +1219,18 @@ function calcularTotalPago() {
 	var efectivo = $('#efectivo').val();
 	var visa = $('#visa').val();
 	var master = $('#master').val();
-	var total = 0.000;
+	var total = 0.00;
 	if(efectivo == '') {
-		efectivo = 0.000;
+		efectivo = 0.00;
 	} 
 	if(visa == '') {
-		visa = 0.000;
+		visa = 0.00;
 	}
 	if(master == '') {
-		master = 0.000;
+		master = 0.00;
 	}
 	total = parseFloat(efectivo) + parseFloat(visa) + parseFloat(master);
-	$('#total2').val(total.toFixed(3));
+	$('#total2').val(total.toFixed(2));
 
 	coincidenciasMontos();		
 }

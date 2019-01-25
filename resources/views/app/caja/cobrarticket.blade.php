@@ -227,13 +227,13 @@
 		$(".subtotal").each(function(){
 			if($('#precio' + cont).val() == '') {
 				subtotal = 0;
-				subtotal = subtotal.toFixed(3);
+				subtotal = subtotal.toFixed(2);
 			} else {
 				descuento = $('#descuento' + cont).val();
 				if($('#tipodescuento').val() == 'P') {
 					descuento = $('#descuento' + cont).val() * $('#precio' + cont).val() / 100;
 				}
-				subtotal = parseFloat($('#precio' + cont).val() - descuento).toFixed(3);
+				subtotal = parseFloat($('#precio' + cont).val() - descuento).toFixed(2);
 			}			
 			$(this).val(subtotal);	
 			cont++;
@@ -241,7 +241,7 @@
 		$(".subtotal").each(function(){
 			total += parseFloat($(this).val());
 		});
-		$('#total').val(total.toFixed(3));
+		$('#total').val(total.toFixed(2));
 		calcularTotalPago();
 	}
 
@@ -260,7 +260,7 @@
 			master = 0.000;
 		}
 		total = parseFloat(efectivo) + parseFloat(visa) + parseFloat(master);
-		$('#total2').val(total.toFixed(3));
+		$('#total2').val(total.toFixed(2));
 
 		coincidenciasMontos();		
 	}

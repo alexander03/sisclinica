@@ -229,13 +229,13 @@
     	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="numeroventa"]').inputmask("99999999");
     	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="numvisa"]').inputmask("9999999999999999");
     	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="nummaster"]').inputmask("9999999999999999");
-    	$('#totalpago').val(parseFloat($('#totalpago').val()).toFixed(3));
+    	$('#totalpago').val(parseFloat($('#totalpago').val()).toFixed(2));
     	$(".precio").each(function(){
-    	    $(this).val(parseFloat($(this).val()).toFixed(3));
+    	    $(this).val(parseFloat($(this).val()).toFixed(2));
     	});
-    	$('#total2').val(parseFloat($('#total').val() - $('#totalpago').val()).toFixed(3));
-    	$('#efectivo').val(parseFloat($('#total2').val()).toFixed(3));
-    	$('#pendiente').val(parseFloat($('#pendiente').val()).toFixed(3));
+    	$('#total2').val(parseFloat($('#total').val() - $('#totalpago').val()).toFixed(2));
+    	$('#efectivo').val(parseFloat($('#total2').val()).toFixed(2));
+    	$('#pendiente').val(parseFloat($('#pendiente').val()).toFixed(2));
     	quedan();
     	coincidenciasMontos();
     	generarNumero();
@@ -254,13 +254,13 @@
 		$(".subtotal").each(function(){
 			if($('#precio' + cont).val() == '') {
 				subtotal = 0;
-				subtotal = subtotal.toFixed(3);
+				subtotal = subtotal.toFixed(2);
 			} else {
 				descuento = $('#descuento' + cont).val();
 				if($('#tipodescuento').val() == 'P') {
 					descuento = $('#descuento' + cont).val() * $('#precio' + cont).val() / 100;
 				}
-				subtotal = parseFloat($('#precio' + cont).val() - descuento).toFixed(3);
+				subtotal = parseFloat($('#precio' + cont).val() - descuento).toFixed(2);
 			}			
 			$(this).val(subtotal);	
 			cont++;
@@ -268,7 +268,7 @@
 		$(".subtotal").each(function(){
 			total += parseFloat($(this).val());
 		});
-		$('#total').val(total.toFixed(3));
+		$('#total').val(total.toFixed(2));
 		calcularTotalPago();
 	}
 
@@ -287,14 +287,14 @@
 			master = 0.000;
 		}
 		total = parseFloat(efectivo) + parseFloat(visa) + parseFloat(master);
-		$('#total2').val(total.toFixed(3));
+		$('#total2').val(total.toFixed(2));
 
 		coincidenciasMontos();	
 		quedan();	
 	}
 
 	function quedan() {
-		$('#quedan').val(parseFloat($('#pendiente').val() - $('#total2').val()).toFixed(3));
+		$('#quedan').val(parseFloat($('#pendiente').val() - $('#total2').val()).toFixed(2));
 	}
 
 	function divFormaPago(num, mostrar) {

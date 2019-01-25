@@ -786,6 +786,258 @@ class CajaController extends Controller
         }else{
             $movimiento_mayor = 0;
         }
+
+        $sucursal_id = Session::get('sucursal_id'); 
+        $nomcierre = '';
+        $nomcierre = 'Clínica Especialidades'; 
+        if($sucursal_id == 1) {
+            $nomcierre = 'BM Clínica de Ojos';
+        }  
+        if($caja->nombre == 'FARMACIA') {
+            $nomcierre = ' Farmacia - ' . $nomcierre;
+        }     
+        $pdf = new TCPDF();
+        //$pdf::SetIma�
+        $pdf::SetTitle('Detalle Cierre de '.$nomcierre);
+        $pdf::AddPage('L');
+        $pdf::SetFont('helvetica','B',12);
+        $pdf::Cell(0,10,"Detalle de Cierre de ".$nomcierre,0,0,'C');
+        $pdf::Ln();
+        $pdf::SetFont('helvetica','B',7);
+        $pdf::Cell(15,7,utf8_decode("FECHA"),1,0,'C');
+        $pdf::Cell(56,7,utf8_decode("PERSONA"),1,0,'C');
+        $pdf::Cell(20,7,utf8_decode("NRO"),1,0,'C');
+        $pdf::Cell(40,7,utf8_decode("EMPRESA"),1,0,'C');
+        $pdf::Cell(60,7,utf8_decode("CONCEPTO"),1,0,'C');
+        $pdf::Cell(14,7,utf8_decode("PRECIO"),1,0,'C');
+        $pdf::Cell(14,7,utf8_decode("EGRESO"),1,0,'C');
+        $pdf::Cell(42,7,utf8_decode("INGRESO"),1,0,'C');
+        $pdf::Cell(20,7,utf8_decode("DOCTOR"),1,0,'C');
+        $pdf::Ln();
+        $pdf::Cell(219,7,utf8_decode(""),1,0,'C');
+        $pdf::Cell(14,7,utf8_decode("EFECTIVO"),1,0,'C');
+        $pdf::Cell(14,7,utf8_decode("VISA"),1,0,'C');
+        $pdf::Cell(14,7,utf8_decode("MASTER"),1,0,'C');
+        $pdf::Cell(20,7,utf8_decode(""),1,0,'C');
+        $pdf::Ln();
+        if($caja_id==1){//ADMISION 1
+            $serie=3;
+        }elseif($caja_id==2){//ADMISION 2
+            $serie=7;
+        }elseif($caja_id==3){//CONVENIOS
+            $serie=8;
+        }elseif($caja_id==5){//EMERGENCIA
+            $serie=9;
+        }elseif($caja_id==4){//FARMACIA
+            $serie=4;
+        }/*elseif($caja_id==8){//PROCEDIMIENTOS
+            $serie=5;
+        }*/
+
+        $ingreso=0;
+        $egreso=0;
+        $transferenciai=0;
+        $transferenciae=0;
+        $garantia=0;
+        $efectivo=0;
+        $visa=0;
+        $master=0;
+        
+        $resultadootrosingresos = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+                            ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
+                            ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
+                            ->leftjoin('movimiento as m2','m2.movimiento_id','=','movimiento.id')
+                            ->where('movimiento.caja_id', '=', $caja_id)
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
+                            ->where('movimiento.id', '>', $movimiento_mayor)
+                            ->whereNull('movimiento.cajaapertura_id')
+                            ->where(function($query){
+                                $query
+                                    ->whereNotIn('movimiento.conceptopago_id',[31])
+                                    ->orWhere('m2.situacion','<>','R');
+                            })
+                            ->where('movimiento.situacion', '<>', 'A')
+                            ->where('movimiento.situacion', '<>', 'R')
+                            ->where('conceptopago.tipo', '=', 'I')
+                            ->where('conceptopago.id', '!=', 3);
+        $resultadootrosingresos = $resultadootrosingresos->select('movimiento.*','m2.situacion as situacion2','responsable.nombres as responsable2')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
+        $listaotrosingresos = $resultadootrosingresos->get();
+
+        if (isset($listaotrosingresos)) {  
+            $pdf::SetFont('helvetica','B',8.5);
+            $pdf::Cell(281,7,'OTROS INGRESOS',1,0,'L');
+            $pdf::Ln();
+            foreach ($listaotrosingresos as $row) {
+                $pdf::SetFont('helvetica','',6);                   
+                $pdf::Cell(15,7,utf8_decode($row['fecha']),1,0,'C');
+                $pdf::Cell(56,7,$row['paciente'],1,0,'L');
+                $pdf::Cell(8,7,'C',1,0,'C');
+                $pdf::Cell(12,7,utf8_decode($row['numero']),1,0,'C');
+                $pdf::Cell(114,7,"PAGO DE CUOTA DE TICKET N° " . $row['numeroticket'],1,0,'L');
+                $pdf::Cell(14,7,'',1,0,'R');
+                $valuetp = number_format($row['totalpagado'],2,'.','');
+                $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
+                $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
+                if($valuetp == 0){$valuetp='';}
+                if($valuetpv == 0){$valuetpv='';}
+                if($valuetpm == 0){$valuetpm='';}
+                $pdf::Cell(14,7,$valuetp,1,0,'R');                    
+                $pdf::Cell(14,7,$valuetpv,1,0,'R');
+                $pdf::Cell(14,7,$valuetpm,1,0,'R');
+                $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
+                $pdf::Ln();
+                $totalvisa += number_format($row['totalpagadovisa'],2,'.','');
+                $totalmaster += number_format($row['totalpagadomaster'],2,'.','');
+                $totalefectivo += number_format($row['totalpagado'],2,'.','');
+            }      
+        }              
+
+        //Solo para tickets
+
+        $sucursal_id = Session::get('sucursal_id');
+        $caja_id = $request->input('caja_id');
+        $resultadoventas = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
+                ->leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+                ->where('movimiento.tipomovimiento_id', '=', 2)
+                ->where('movimiento.tipodocumento_id', '=', 2)
+                ->where('movimiento.situacion2','=','Z')
+                ->where('movimiento.sucursal_id', '=', $sucursal_id)
+                ->where('movimiento.caja_id', '=', $caja_id);
+        $resultadoventas = $resultadoventas->select('movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+        
+        $listaventas           = $resultadoventas->get();
+
+        if(count($listaventas)>0){
+            $pdf::SetFont('helvetica','B',8.5);
+            $pdf::Cell(281,7,'CUOTAS',1,0,'L');
+            $pdf::Ln();
+            foreach ($listaventas as $row) { 
+                $pdf::SetFont('helvetica','',6);                   
+                $pdf::Cell(15,7,utf8_decode($row['fecha']),1,0,'C');
+                $pdf::Cell(56,7,$row['paciente'],1,0,'L');
+                $pdf::Cell(8,7,'C',1,0,'C');
+                $pdf::Cell(12,7,utf8_decode($row['numero']),1,0,'C');
+                $pdf::Cell(114,7,"PAGO DE CUOTA DE TICKET N° " . $row['numeroticket'],1,0,'L');
+                $pdf::Cell(14,7,'',1,0,'R');
+                $valuetp = number_format($row['totalpagado'],2,'.','');
+                $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
+                $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
+                if($valuetp == 0){$valuetp='';}
+                if($valuetpv == 0){$valuetpv='';}
+                if($valuetpm == 0){$valuetpm='';}
+                $pdf::Cell(14,7,$valuetp,1,0,'R');                    
+                $pdf::Cell(14,7,$valuetpv,1,0,'R');
+                $pdf::Cell(14,7,$valuetpm,1,0,'R');
+                $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
+                $pdf::Ln();
+                $totalvisa += number_format($row['totalpagadovisa'],2,'.','');
+                $totalmaster += number_format($row['totalpagadomaster'],2,'.','');
+                $totalefectivo += number_format($row['totalpagado'],2,'.','');
+            }                    
+        }
+
+        //Solo para egresos
+
+        $resultadoegresos        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+            ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
+            ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
+            ->leftjoin('movimiento as m2','m2.movimiento_id','=','movimiento.id')
+            ->where('movimiento.caja_id', '=', $caja_id)
+            ->where('movimiento.sucursal_id','=',$sucursal_id)
+            ->where('movimiento.id', '>', $movimiento_mayor)
+            ->whereNull('movimiento.cajaapertura_id')
+            ->where(function($query){
+                $query
+                    ->whereNotIn('movimiento.conceptopago_id',[31])
+                    ->orWhere('m2.situacion','<>','R');
+            })
+            ->where('movimiento.situacion', '<>', 'A')
+            ->where('movimiento.situacion', '<>', 'R')
+            ->where('conceptopago.tipo', '=', 'E');
+
+        $resultadoegresos        = $resultadoegresos->select('movimiento.*','m2.situacion as situacion2','responsable.nombres as responsable2', 'conceptopago.nombre')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
+
+        $listaegresos = $resultadoegresos->get();
+
+        if(count($listaegresos)>0){
+            $pdf::SetFont('helvetica','B',8.5);
+            $pdf::Cell(281,7,'EGRESOS',1,0,'L');
+            $pdf::Ln();
+            foreach ($listaegresos as $row) { 
+                $pdf::SetFont('helvetica','',6);                   
+                $pdf::Cell(15,7,utf8_decode($row['fecha']),1,0,'C');
+                $pdf::Cell(56,7,$row['paciente'],1,0,'L');
+                $pdf::Cell(8,7,'C',1,0,'C');
+                $pdf::Cell(12,7,utf8_decode($row['numero']),1,0,'C');
+                $pdf::Cell(114,7,$row['nombre'],1,0,'L');
+                $pdf::Cell(14,7,number_format($row['total'],2,'.',''),1,0,'R');
+                $pdf::Cell(42,7,utf8_decode(""),1,0,'C');
+                $pdf::Cell(20,7,utf8_decode(""),1,0,'C');
+                $pdf::Ln();
+            }                    
+        }
+
+        $pdf::Ln();
+        $pdf::Ln();
+        $pdf::Cell(120,7,('RESPONSABLE: '.''),0,0,'L');
+        $pdf::SetFont('helvetica','B',9);
+        $pdf::Cell(50,7,utf8_decode("RESUMEN DE CAJA"),1,0,'C');
+        $pdf::Ln();
+        $pdf::Cell(120,7,utf8_decode(""),0,0,'C');
+        $pdf::Cell(30,7,utf8_decode("INGRESOS :"),1,0,'L');
+        $pdf::Cell(20,7,number_format($ingreso,2,'.',''),1,0,'R');
+        $pdf::Ln();
+        $pdf::Cell(120,7,utf8_decode(""),0,0,'C');
+        $pdf::Cell(30,7,utf8_decode("Efectivo :"),1,0,'L');
+        $pdf::Cell(20,7,number_format($efectivo-$totalvisa-$totalmaster,2,'.',''),1,0,'R');
+        $pdf::Ln();
+        $pdf::Cell(120,7,utf8_decode(""),0,0,'C');
+        $pdf::Cell(30,7,utf8_decode("Master :"),1,0,'L');
+        $pdf::Cell(20,7,number_format($master+$totalmaster,2,'.',''),1,0,'R');
+        $pdf::Ln();
+        $pdf::Cell(120,7,utf8_decode(""),0,0,'C');
+        $pdf::Cell(30,7,utf8_decode("Visa :"),1,0,'L');
+        $pdf::Cell(20,7,number_format($visa+$totalvisa,2,'.',''),1,0,'R');
+        $pdf::Ln();
+        $pdf::Cell(120,7,utf8_decode(""),0,0,'C');
+        $pdf::Cell(30,7,utf8_decode("EGRESOS :"),1,0,'L');
+        $pdf::Cell(20,7,number_format($egreso,2,'.',''),1,0,'R');
+        $pdf::Ln();
+        $pdf::Cell(120,7,utf8_decode(""),0,0,'C');
+        $pdf::Cell(30,7,utf8_decode("SALDO :"),1,0,'L');
+        $pdf::Cell(20,7,number_format($ingreso - $egreso - $visa - $master,2,'.',''),1,0,'R');
+        $pdf::Ln();
+        /*$pdf::Cell(120,7,utf8_decode(""),0,0,'C');
+        $pdf::Cell(30,7,utf8_decode("GARANTIA :"),1,0,'L');
+        $pdf::Cell(20,7,number_format($garantia,2,'.',''),1,0,'R');*/
+        $pdf::Ln();
+        $pdf::Output('ListaCaja.pdf');
+    }
+
+    public function pdfDetalleCierreOriginal(Request $request){
+        $caja                = Caja::find($request->input('caja_id'));
+        $caja_id          = Libreria::getParam($request->input('caja_id'),'1');
+
+        $totalvisa = 0;
+        $totalmaster = 0;
+        $totalefectivo = 0;
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
+        $rst  = Movimiento::where('sucursal_id','=',$sucursal_id)->where('tipomovimiento_id','=',2)->where('caja_id','=',$caja_id)->orderBy('movimiento.id','DESC')->limit(1)->first();
+        if(count($rst)==0){
+            $conceptopago_id=2;
+        }else{
+            $conceptopago_id=$rst->conceptopago_id;
+        }
+        
+        $rst              = Movimiento::where('sucursal_id','=',$sucursal_id)->where('tipomovimiento_id','=',2)->where('caja_id','=',$caja_id)->where('conceptopago_id','=',1)->orderBy('id','DESC')->limit(1)->first();
+        if(count($rst)>0){
+            $movimiento_mayor = $rst->id;    
+        }else{
+            $movimiento_mayor = 0;
+        }
         
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
@@ -1055,13 +1307,19 @@ class CajaController extends Controller
 
             $ingreso=0;$egreso=0;$transferenciai=0;$transferenciae=0;$garantia=0;$efectivo=0;$visa=0;$master=0;$pago=0;$tarjeta=0;$cobranza=0;$egreso1=0;$transferenciai=0;$cobranza=0;$ingresotarjeta=0;
             $bandpago=true;$bandegreso=true;$bandtransferenciae=true;$bandtarjeta=true;$bandtransferenciai=true;$bandcobranza=true;$bandingresotarjeta=true;
+            $i = 1;
             foreach ($lista as $key => $value){
+                if($i == 1) {
+                    $pdf::SetFont('helvetica','B',8.5);
+                    $pdf::Cell(281,7,utf8_decode("INGRESOS POR MEDICINA"),1,0,'L');
+                    $pdf::Ln();
+                }
+                $i++;
                 if($ingreso==0){
                     $responsable=$value->responsable2;
                 }
                 
                 if($value->conceptopago_id==3 && $value->tipotarjeta==''){
-
 
                     if ($caja_id == 3 || $caja_id == 4) {
                         $rs = Detallemovcaja::where("movimiento_id",'=',DB::raw('(select movimiento_id from movimiento where id='.$value->movimiento_id.')'))->get();
@@ -1076,12 +1334,10 @@ class CajaController extends Controller
                                 $pdf::Ln(); 
                             }
                             if($pago==0 && $value->tipodocumento_id!=15){
-                                $pdf::SetFont('helvetica','B',8.5);
-                                $pdf::Cell(281,7,utf8_decode("INGRESOS"),1,0,'L');
-                                $pdf::Ln();
+                                
                             }
                             if ($value->tipodocumento_id !== 15) {
-                                $pdf::SetFont('helvetica','',7);
+                                $pdf::SetFont('helvetica','',6);
                                 $pdf::Cell(15,7,date("d/m/Y",strtotime($value->fecha)),1,0,'C');
 
                                 $nombrepaciente = '';
@@ -1105,11 +1361,11 @@ class CajaController extends Controller
                                 if(strlen($nombrepaciente)>30){
                                     $x=$pdf::GetX();
                                     $y=$pdf::GetY();                    
-                                    $pdf::Multicell(60,3,($nombrepaciente),0,'L');
+                                    $pdf::Multicell(56,3,($nombrepaciente),0,'L');
                                     $pdf::SetXY($x,$y);
-                                    $pdf::Cell(60,7,"",1,0,'C');
+                                    $pdf::Cell(56,7,"",1,0,'C');
                                 }else{
-                                    $pdf::Cell(60,7,($nombrepaciente),1,0,'L');    
+                                    $pdf::Cell(56,7,($nombrepaciente),1,0,'L');    
                                 }
                                 $venta= Movimiento::find($value->movimiento_id);
                                 $pdf::Cell(8,7,($venta->tipodocumento_id==5?'B':'F'),1,0,'C');
@@ -1122,14 +1378,14 @@ class CajaController extends Controller
                                     if(strlen($v->servicio->nombre)>35){
                                         $x=$pdf::GetX();
                                         $y=$pdf::GetY();                    
-                                        $pdf::Multicell(70,3,$v->servicio->nombre,0,'L');
+                                        $pdf::Multicell(74,3,$v->servicio->nombre,0,'L');
                                         $pdf::SetXY($x,$y);
-                                        $pdf::Cell(70,7,"",1,0,'C');
+                                        $pdf::Cell(74,7,"",1,0,'C');
                                     }else{
-                                        $pdf::Cell(70,7,$v->servicio->nombre,1,0,'L');    
+                                        $pdf::Cell(74,7,$v->servicio->nombre,1,0,'L');    
                                     }
                                 }else{
-                                    $pdf::Cell(70,7,$v->descripcion.'- MEDICINA',1,0,'L');    
+                                    $pdf::Cell(74,7,$v->descripcion.'- MEDICINA',1,0,'L');    
                                 }
                                 $pdf::Cell(14,7,'',1,0,'C');
                                 $pdf::Cell(14,7,number_format($v->movimiento->totalpagado,2,'.',''),1,0,'R');
@@ -2123,6 +2379,8 @@ class CajaController extends Controller
                     }*/
                 }
             }
+
+            //Solo para tickets
 
             $sucursal_id = Session::get('sucursal_id');
             $caja_id = $request->input('caja_id');
