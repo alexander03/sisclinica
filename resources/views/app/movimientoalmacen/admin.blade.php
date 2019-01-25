@@ -26,7 +26,7 @@
 							{!! Form::hidden('accion', 'listar', array('id' => 'accion')) !!}
 							<div class="form-group">
 								{!! Form::label('almacen_id', 'Almacen :', array()) !!}
-								<div class='input-group input-group-xs' id='divfechainicio'>
+								<div class='input-group input-group-xs'>
 								{!! Form::select('almacen_id', $cboAlmacen, null, array('class' => 'form-control input-xs', 'id' => 'almacen_id' , 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
 								</div>
 							</div>
@@ -79,13 +79,13 @@
 	$(document).ready(function () {
 		buscar('{{ $entidad }}');
 		init(IDFORMBUSQUEDA+'{{ $entidad }}', 'B', '{{ $entidad }}');
-		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="begindate"]').inputmask("dd/mm/yyyy");
-		$('#divbegindate').datetimepicker({
+		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="fechainicio"]').inputmask("dd/mm/yyyy");
+		$('#divfechainicio').datetimepicker({
 			pickTime: false,
 			language: 'es'
 		});
-		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="enddate"]').inputmask("dd/mm/yyyy");
-		$('#divenddate').datetimepicker({
+		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="fechafin"]').inputmask("dd/mm/yyyy");
+		$('#divfechafin').datetimepicker({
 			pickTime: false,
 			language: 'es'
 		});

@@ -122,11 +122,10 @@ class CompraController extends Controller
                                 ->leftJoin('tipodocumento','movimiento.tipodocumento_id','=','tipodocumento.id')
                                 ->where('movimiento.sucursal_id','=',$sucursal_id)
                                 ->where('movimiento.tipomovimiento_id', '=', '3')
-                                ->where('movimiento.almacen_id', '=', $almacen_id)->where(function($query) use ($nombre){
-                    if (!is_null($nombre) && $nombre !== '') {
-                        
+                                ->where(function($query) use ($nombre){
+                    if (!is_null($nombre) && $nombre !== '') {                        
                         $query->where('person.bussinesname', 'LIKE', '%'.strtoupper($nombre).'%');
-                    }
+                    }                    
 
         })->where(function($query) use ($fechainicio,$fechafin){   
                                 if (!is_null($fechainicio) && $fechainicio !== '') {
@@ -141,6 +140,13 @@ class CompraController extends Controller
         if($tipodoc>0){
             $resultado->where("movimiento.tipodocumento_id",$tipodoc);
         }
+        if($almacen_id == 4) {
+            $resultado->where('movimiento.almacen_id', '=', 4)->orWhere('movimiento.almacen_id', '=', 3);
+        } else if($almacen_id == 2) {
+            $resultado->where('movimiento.almacen_id', '=', 2)->orWhere('movimiento.almacen_id', '=', 1);
+        } else {
+            $resultado->where('movimiento.almacen_id', '=', $almacen_id);
+        }
         $resultado->where('numeroserie2','like','%'.$request->input('numero').'%')->orderBy('movimiento.fecha','DESC')->select('movimiento.*','tipodocumento.nombre as tipodoc');
         $lista            = $resultado->get();
         $cabecera         = array();
@@ -149,6 +155,7 @@ class CompraController extends Controller
         $cabecera[]       = array('valor' => 'Proveedor', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Nro', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Tipo Doc', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Responsable', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Situacion', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Total', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '3');

@@ -78,7 +78,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="form-group">
+		<div class="form-group" style="display: none;">
 			{!! Form::label('cajafarmacialabel', 'Caja farmacia:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
 				{!! Form::select('cajafamarcia', $cboCajafarmacia, null, array('style' => 'background-color: #D4F0FF;' ,'class' => 'form-control input-xs', 'id' => 'cajafarmacia', 'onchange' => 'cambiar2();')) !!}

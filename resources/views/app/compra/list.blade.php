@@ -31,12 +31,13 @@
 			<td>{{ $value->person->bussinesname }}</td>
 			<td>{{ $value->numeroserie2 }}</td>
 			<td>{{ $value->tipodoc }}</td>
+			<td>{{ $value->responsable->nombres }}</td>
 			<td>{{ $estadopago }}</td>
 			<td>{{ $value->total }}</td>
 			<!--<td>{!! Form::button('<div class="glyphicon glyphicon-pencil"></div> Editar', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning')) !!}</td> -->
 			<td>{!! Form::button('<div class="glyphicon glyphicon-eye-open"></div> Ver', array('onclick' => 'modal (\''.URL::route($ruta["show"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_ver.'\', this);', 'class' => 'btn btn-xs btn-info')) !!}</td>
 			<td align="center">{!! Form::button('<div class="glyphicon glyphicon-print"></div> Comprobante', array('onclick' => 'window.open(\'compra/pdfComprobante?movimiento_id='.$value->id.'&guia=NO\',\'_blank\')', 'class' => 'btn btn-xs btn-info')) !!}</td>
-			@if($user->usertype_id==11 && date("d/m/Y",strtotime($value->fecha))==date("d/m/Y"))
+			@if(($user->usertype_id==11 || $user->usertype_id==24) && date("d/m/Y",strtotime($value->fecha))==date("d/m/Y"))
 				<td>{!! Form::button('<div class="glyphicon glyphicon-remove"></div> Eliminar', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);', 'class' => 'btn btn-xs btn-danger')) !!}</td>
 			@else
 				@if($user->usertype_id==1 || $user->usertype_id==8)

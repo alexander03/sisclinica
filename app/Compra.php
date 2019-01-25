@@ -26,6 +26,11 @@ class Compra extends Model
         return $this->belongsTo('App\Person', 'persona_id');
     }
 
+    public function responsable()
+    {
+        return $this->belongsTo('App\Person', 'responsable_id');
+    }
+
     public function doctor()
     {
         return $this->belongsTo('App\Person', 'doctor_id');
