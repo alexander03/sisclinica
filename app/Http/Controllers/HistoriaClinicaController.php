@@ -9,6 +9,8 @@ use App\Http\Requests;
 use App\HistoriaClinica;
 use App\Historia;
 use App\Cie;
+use App\Person;
+use App\Detallemovcaja;
 use App\Movimiento;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
@@ -42,6 +44,10 @@ class HistoriaClinicaController extends Controller
         $historiaclinica = HistoriaClinica::where('ticket_id', $ticket_id)->first();
         
         $Ticket   = Movimiento::find($ticket_id);
+        $detallemovcaja = Detallemovcaja::where('movimiento_id', $ticket_id)->first();
+
+        $doctor = Person::find($detallemovcaja->persona_id);
+
         $fondo = "NO";
         if($Ticket->tiempo_fondo != null){
             $fondo = "SI";
@@ -52,6 +58,8 @@ class HistoriaClinicaController extends Controller
                 'historia_id' => $historia->id,
                 'ticket_id' => $ticket_id,
                 'fondo' => $fondo,
+                'doctor_id' => $doctor->id,
+                'doctor' => $doctor->apellidopaterno . ' ' . $doctor->apellidomaterno . ' ' . $doctor->nombres,
                 'paciente' => $historia->persona->apellidopaterno . ' ' . $historia->persona->apellidomaterno . ' ' . $historia->persona->nombres,
                 'numhistoria' => $historia->numero,
                 'numero' => $historiaclinica->numero,
@@ -68,6 +76,8 @@ class HistoriaClinicaController extends Controller
                 'historia_id' => $historia->id,
                 'ticket_id' => $ticket_id,
                 'fondo' => $fondo,
+                'doctor_id' => $doctor->id,
+                'doctor' => $doctor->apellidopaterno . ' ' . $doctor->apellidomaterno . ' ' . $doctor->nombres,
                 'paciente' => $historia->persona->apellidopaterno . ' ' . $historia->persona->apellidomaterno . ' ' . $historia->persona->nombres,
                 'numhistoria' => $historia->numero,
                 'numero' => HistoriaClinica::numeroSigue($historia->id),
@@ -99,6 +109,7 @@ class HistoriaClinicaController extends Controller
             $historiaclinica->motivo               = strtoupper($request->input('motivo'));
             $historiaclinica->exploracion_fisica   = strtoupper($request->input('exploracion_fisica'));
             $historiaclinica->ticket_id =  $request->input('ticket_id');
+            $historiaclinica->doctor_id =  $request->input('doctor_id');
 
             $now = new \DateTime();
 
@@ -164,7 +175,10 @@ class HistoriaClinicaController extends Controller
         $cita_id             = $request->input('cita_id');
         $cita                = HistoriaClinica::find($cita_id);
         $historia            = Historia::find($cita->historia_id);
-        //$cie10               = Cie::find($cita->cie_id);
+        $cie10               = Cie::find($cita->cie_id);
+        $doctor              = Person::find($cita->doctor_id);
+
+        if($cie10 == null){
 
         $texto = "<table class='table table-responsive table-hover'>
             <thead>
@@ -188,18 +202,20 @@ class HistoriaClinicaController extends Controller
                     "</td>
                 </tr>
                 <tr>
+                    <td width='15%'>
+                        <strong><font style='color:blue'>Doctor</font></strong>
+                    </td>
+                    <td width='85%'>"
+                        . $doctor->apellidopaterno . ' ' . $doctor->apellidomaterno . ' ' . $doctor->nombres .
+                    "</td>
+                </tr>
+                <tr>
                     <td>
                         <strong><font style='color:blue'>Historia</font></strong><br>
                     </td>
                     <td>"
                         . $historia->numero .
                     "</td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong><font style='color:blue'>Cie 10</font></strong><br>
-                    </td>
-                    <td>-</td>
                 </tr>
                 <tr>
                     <td>
@@ -251,6 +267,108 @@ class HistoriaClinicaController extends Controller
                 </tr>
             </tbody>
         </table>";
+
+        }else{
+
+        $texto = "<table class='table table-responsive table-hover'>
+            <thead>
+                <tr>
+                    <td colspan='2'>
+                        <center style='color:red'>
+                            <h3>
+                                Tratamiento N°". $cita->numero ." / ". date('d-m-Y',strtotime($cita->fecha_atencion)) ."
+                            </h3>
+                        </center>
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td width='15%'>
+                        <strong><font style='color:blue'>Paciente</font></strong>
+                    </td>
+                    <td width='85%'>"
+                        . $historia->persona->apellidopaterno . ' ' . $historia->persona->apellidomaterno . ' ' . $historia->persona->nombres .
+                    "</td>
+                </tr>
+                <tr>
+                    <td width='15%'>
+                        <strong><font style='color:blue'>Doctor</font></strong>
+                    </td>
+                    <td width='85%'>"
+                        . $doctor->apellidopaterno . ' ' . $doctor->apellidomaterno . ' ' . $doctor->nombres .
+                    "</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong><font style='color:blue'>Historia</font></strong><br>
+                    </td>
+                    <td>"
+                        . $historia->numero .
+                    "</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong><font style='color:blue'>Cie 10</font></strong><br>
+                    </td>
+                    <td>"
+                    .$cie10->codigo.
+                    " - "
+                    .$cie10->descripcion.
+                    "</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong><font style='color:blue'>Motivo</font></strong><br>
+                    </td>
+                    <td>"
+                        . $cita->motivo .
+                    "</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong><font style='color:blue'>Síntomas</font></strong><br>
+                    </td>
+                    <td>"
+                        . $cita->sintomas .
+                    "</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong><font style='color:blue'>Diagnóstico</font></strong><br>
+                    </td>
+                    <td>"
+                        . $cita->diagnostico .
+                    "</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong><font style='color:blue'>Tratamiento</font></strong><br>
+                    </td>
+                    <td>"
+                        . $cita->tratamiento .
+                    "</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong><font style='color:blue'>Exámenes</font></strong><br>
+                    </td>
+                    <td>"
+                        . $cita->examenes .
+                    "</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong><font style='color:blue'>Exploración física</font></strong><br>
+                    </td>
+                    <td>"
+                        . $cita->exploracion_fisica .
+                    "</td>
+                </tr>
+            </tbody>
+        </table>";
+
+        }
 
         return $texto;
     }

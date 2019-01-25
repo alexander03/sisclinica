@@ -46,6 +46,7 @@ $user = Auth::user();
 <body class="hold-transition skin-blue sidebar-mini">
 	<form action="#" id="formHistoriaClinica">
 		{!! Form::hidden('historia_id', '', array('id' => 'historia_id')) !!}
+		{!! Form::hidden('doctor_id', '', array('id' => 'doctor_id')) !!}
 		{!! Form::hidden('ticket_id', '', array('id' => 'ticket_id')) !!}
 		{!! Form::hidden('fondo_si', '', array('id' => 'fondo_si')) !!}
 	    <div class="wrapper">
@@ -140,10 +141,23 @@ $user = Auth::user();
 										<div class="row">
 											<div class="col-xs-8">
 												<div class="line">
-													<div class="col-sm-6" style="height: 300px;" id="listadoConsultas"></div>
-													<div class="col-sm-6" style="height: 300px;" id="listadoEmergencias"></div>
-													<div class="col-sm-6" style="height: 300px;" id="listadoOjos"></div>
-													<div class="col-sm-6" style="height: 300px;" id="listadoLectura"></div>
+												
+													<div class="col-sm-6">
+														<h3 class='text-center' style='font-weight:bold;color:blue'>CONSULTAS</h3>
+														<div style="margin:10px 0px; height: 250px; overflow-y: scroll;" id="listadoConsultas"></div>
+													</div>
+													<div class="col-sm-6">
+														<h3 class='text-center' style='font-weight:bold;color:red'>EMERGENCIAS</h3>
+														<div style="margin:10px 0px; height: 250px; overflow-y: scroll;" id="listadoEmergencias"></div>
+													</div>
+													<div class="col-sm-6">
+														<h3 class='text-center' style='font-weight:bold;color:#3498DB'>FONDO DE OJOS</h3>
+														<div style="margin:10px 0px; height: 250px; overflow-y: scroll;" id="listadoOjos"></div>
+													</div>
+													<div class="col-sm-6">
+														<h3 class='text-center' style='font-weight:bold;color:green'>LECTURA DE RESULTADOS</h3>
+														<div style="margin:10px 0px; height: 250px; overflow-y: scroll;" id="listadoLectura"></div>
+													</div>
 												</div>
 											</div>
 											<div class="col-xs-4">
@@ -177,8 +191,8 @@ $user = Auth::user();
 										<div class="row">
 											<div class="col-xs-12">
 												<div class="form-horizontal">
-													<div class="col-sm-4">
-														<div id="divpresente" style="margin:30px; padding:15px ; text-align:center;border-style:dotted;">
+													<div class="col-sm-4" style="font-size: 15px;">
+														<div id="divpresente" style="margin:10px; padding:15px ; text-align:center;border-style:dotted;">
 															<strong>¿El paciente está presente?</strong>
 															{!! Form::button('<i class="glyphicon glyphicon-ok"></i> SI', array('class' => 'btn btn-success btn-sm', 'id' => 'btnSi', 'onclick' => 'presente("SI");')) !!}
 															{!! Form::button('<i class="glyphicon glyphicon-remove"></i> NO', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnNo', 'onclick' => 'presente("NO");')) !!}
@@ -189,37 +203,43 @@ $user = Auth::user();
 														<div class="form-group">
 															{!! Form::label('fecha', 'Fecha:', array('class' => 'col-sm-2 control-label')) !!}
 															<div class="col-sm-5">
-																{!! Form::date('fecha', $hoy, array('class' => 'form-control input-xs col-sm-3', 'id' => 'fecha', 'readonly' => 'readonly')) !!}
+																{!! Form::date('fecha', $hoy, array('class' => 'form-control input-xs col-sm-3', 'id' => 'fecha', 'readonly' => 'readonly', 'style' => 'font-size: 16px;')) !!}
 															</div>
 														</div>
 														<div class="form-group">
 															{!! Form::label('paciente', 'Paciente:', array('class' => 'col-sm-2 control-label')) !!}
 															<div class="col-sm-10">
-																{!! Form::text('paciente', '', array('class' => 'form-control input-xs', 'id' => 'paciente', 'readonly' => 'readonly')) !!}
+																{!! Form::text('paciente', '', array('class' => 'form-control input-xs', 'id' => 'paciente', 'readonly' => 'readonly', 'style' => 'font-size: 14px;')) !!}
+															</div>
+														</div>
+														<div class="form-group">
+															{!! Form::label('doctor', 'Doctor:', array('class' => 'col-sm-2 control-label')) !!}
+															<div class="col-sm-10">
+																{!! Form::text('doctor', '', array('class' => 'form-control input-xs', 'id' => 'doctor', 'readonly' => 'readonly', 'style' => 'font-size: 14px;')) !!}
 															</div>
 														</div>
 														<div class="form-group">
 															{!! Form::label('historia', 'Historia:', array('class' => 'col-sm-2 control-label')) !!}
 															<div class="col-sm-5">
-																{!! Form::text('historia', '', array('class' => 'form-control input-xs', 'id' => 'historia', 'readonly' => 'readonly')) !!}
+																{!! Form::text('historia', '', array('class' => 'form-control input-xs', 'id' => 'historia', 'readonly' => 'readonly', 'style' => 'font-size: 16px;')) !!}
 															</div>
 														</div>
 														<div class="form-group">
 															{!! Form::label('numero', 'Tratam.:', array('class' => 'col-sm-2 control-label')) !!}
 															<div class="col-sm-5">
-																{!! Form::text('numero', '', array('class' => 'form-control input-xs', 'id' => 'numero', 'readonly' => 'readonly')) !!}
+																{!! Form::text('numero', '', array('class' => 'form-control input-xs', 'id' => 'numero', 'readonly' => 'readonly', 'style' => 'font-size: 16px;')) !!}
 															</div>
 														</div>
 														<div class="form-group">
 															{!! Form::label('cie102', 'Cie10:', array('class' => 'col-sm-2 control-label')) !!}
 															<div class="col-sm-5">
-																{!! Form::text('cie102', '', array('class' => 'form-control input-xs', 'id' => 'cie102')) !!}
+																{!! Form::text('cie102', '', array('class' => 'form-control input-xs', 'id' => 'cie102', 'style' => 'font-size: 16px;')) !!}
 															</div>
 														</div>
 														<div class="form-group">
 															{!! Form::label('motivo', 'Motivo:', array('class' => 'col-sm-2 control-label')) !!}
 															<div class="col-sm-10">
-																<textarea class="form-control input-xs" id="motivo" cols="10" rows="2"></textarea>
+																<textarea class="form-control input-xs" id="motivo" cols="10" rows="2" style="font-size: 16px;"></textarea>
 															</div>
 														</div>	
 														<div class="form-group">
@@ -230,26 +250,26 @@ $user = Auth::user();
 														{!! Form::button('<i class="glyphicon glyphicon-check"></i> Guardar', array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => 'registrarHistoriaClinica();')) !!}
 														<h5 style="color: red; font-weight: bold;" id="mensajeHistoriaClinica"></h5>
 													</div>
-													<div class="col-sm-4">
+													<div class="col-sm-4" style="font-size: 15px;">
 														<div class="form-group">
 															{!! Form::label('sintomas', 'Sintomas:') !!}
-															<textarea class="form-control input-xs" id="sintomas" cols="10" rows="3"></textarea>
+															<textarea class="form-control input-xs" id="sintomas" cols="10" rows="3" style="font-size: 16px;"></textarea>
 														</div>
 														<div class="form-group">
 															{!! Form::label('diagnostico', 'Diagnostico:') !!}
-															<textarea class="form-control input-xs" id="diagnostico" cols="10" rows="3"></textarea>
+															<textarea class="form-control input-xs" id="diagnostico" cols="10" rows="3" style="font-size: 16px;"></textarea>
 														</div>
 														<div class="form-group">
 															{!! Form::label('tratamiento', 'Tratamiento:') !!}
-															<textarea class="form-control input-xs" id="tratamiento" cols="10" rows="3"></textarea>
+															<textarea class="form-control input-xs" id="tratamiento" cols="10" rows="3" style="font-size: 16px;"></textarea>
 														</div>
 														<div class="form-group">
 															{!! Form::label('exploracion_fisica', 'Exploración Física:') !!}
-															<textarea class="form-control input-xs" id="exploracion_fisica" cols="10" rows="3"></textarea>
+															<textarea class="form-control input-xs" id="exploracion_fisica" cols="10" rows="3" style="font-size: 16px;"></textarea>
 														</div>
 														<div class="form-group">
 															{!! Form::label('examenes', 'Exámenes:') !!}
-															<textarea class="form-control input-xs" id="examenes" cols="10" rows="3"></textarea>
+															<textarea class="form-control input-xs" id="examenes" cols="10" rows="3" style="font-size: 16px;"></textarea>
 														</div>												
 													</div>
 													<div class="col-sm-4">
@@ -389,7 +409,7 @@ $user = Auth::user();
 	function buscar4(){
 		$.ajax({
                 type: "POST",
-                url: "ventaadmision/cola",
+                url: "ventaadmision/colamedico",
                 data: "_token=<?php echo csrf_token(); ?>",
                 dataType: 'json',
                 success: function(a) {
@@ -432,7 +452,7 @@ $user = Auth::user();
 		
 		$.ajax({
 			"method": "POST",
-			"url": "{{ url('/ventaadmision/cola') }}",
+			"url": "{{ url('/ventaadmision/colamedico') }}",
 			"data": {
 				"ticket_id" : ticket_id, 
 				"_token": "{{ csrf_token() }}",
@@ -455,6 +475,8 @@ $user = Auth::user();
   				$('#historia_id').val(a.historia_id);
 				tablaCita(a.historia_id);
   				$('#ticket_id').val(a.ticket_id);
+				$('#doctor_id').val(a.doctor_id);
+				$('#doctor').val(a.doctor);
   				$('#historia').val(a.numhistoria);
   				$('#paciente').val(a.paciente);
   				$('#numero').val(a.numero);
@@ -528,10 +550,11 @@ $user = Auth::user();
 			fondo = "SI";
 		}
 		var ticket_id = $(this).data('ticket_id');
+		var doctor_id = $('#doctor_id').val();
 		$.ajax({
 	        type: "POST",
 	        url: "historiaclinica/registrarHistoriaClinica",
-	        data: $('#formHistoriaClinica').serialize() + "&_token=<?php echo csrf_token(); ?>&tratamiento=" + tratamiento + "&sintomas=" + sintomas + "&diagnostico=" + diagnostico + "&examenes=" + examenes + "&motivo=" + motivo + "&exploracion_fisica=" + exploracion_fisica + "&fondo=" + fondo,
+	        data: $('#formHistoriaClinica').serialize() + "&_token=<?php echo csrf_token(); ?>&tratamiento=" + tratamiento + "&sintomas=" + sintomas + "&diagnostico=" + diagnostico + "&examenes=" + examenes + "&motivo=" + motivo + "&exploracion_fisica=" + exploracion_fisica + "&fondo=" + fondo + "&doctor_id=" + doctor_id,
 	        success: function(a) {
 	        	if(a == 'El Código CIE no existe') {
 	        		$('#mensajeHistoriaClinica').html(a);
@@ -552,6 +575,8 @@ $user = Auth::user();
 	  				$('#diagnostico').val('');
 					$('#examenes').val('');
 					$('#motivo').val('');
+					$('#doctor').val('');
+					$('#doctor_id').val('');
 					$('#exploracion_fisica').val('');
 					$("#divpresente").css('display','');
 					$("#cie102").prop('disabled', true);

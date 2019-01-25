@@ -250,6 +250,7 @@ class TicketController extends Controller
         $error = DB::transaction(function() use($request,$user,&$dat,&$numeronc){
             $Ticket       = new Movimiento();
             $Ticket->fecha = $request->input('fecha');
+            $Ticket->turno = $request->input('turno');
             $sucursal_id = Session::get('sucursal_id');
             $Ticket->numero = Movimiento::NumeroSigue(null, $sucursal_id, 1);
             $Ticket->subtotal = $request->input('coa');//COASEGURO
@@ -642,6 +643,7 @@ class TicketController extends Controller
         }
         $error = DB::transaction(function() use($request, $id){
             $Ticket = Movimiento::find($id);
+            $Ticket->turno = $request->input('turno');
             $Ticket->persona_id = $request->input('person_id');
             $Ticket->plan_id = $request->input('plan_id');
             $Ticket->soat = $request->input('soat');

@@ -295,5 +295,18 @@ $sucursal_id = Session::get('sucursal_id');
 
     @endif
 
+    @if($user != null)
+    @if($user->usertype_id == 18 || $user->usertype_id == 1)
+
+        <script>
+        $(document).ready(function() {
+            
+            window.open(' {{ url("/vistamedico") }}','_blank');
+        });
+        </script>
+
+    @endif
+    @endif
+
 </body>
 </html>
