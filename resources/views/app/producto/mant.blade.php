@@ -154,11 +154,18 @@ use App\Productoprincipio;
 			{!! Form::label('nombrepresentacion', 'Presentacion:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			{!! Form::hidden('presentacion_id', null, array('id' => 'presentacion_id')) !!}
 			<div class="col-lg-6 col-md-6 col-sm-6">
-				{!! Form::text('nombrepresentacion', $nombrepresentacion, array('class' => 'form-control input-xs', 'id' => 'nombrepresentacion', 'placeholder' => 'Seleccione presentacion')) !!}
+				{!! Form::text('nombrepresentacion', $nombrepresentacion, array('class' => 'form-control input-xs', 'id' => 'nombrepresentacion', 'placeholder' => 'Seleccione presentacion', 'onkeyup' => 'comprobarUnidad();')) !!}
 			</div>
 			<div class="col-lg-1 col-md-1 col-sm-1">
                 {!! Form::button('<i class="glyphicon glyphicon-plus"></i>', array('class' => 'btn btn-info btn-xs', 'onclick' => 'modal (\''.URL::route('presentacion.crearsimple', array('listar'=>'SI','modo'=>'popup')).'\', \'Nueva Presentacion\', this);', 'title' => 'Nueva Presentacion')) !!}
     		</div>
+		</div>
+		<div class="form-group">
+			{!! Form::label('fraccion', 'Fraccion:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
+			{!! Form::hidden('fraccion', null, array('id' => 'fraccion')) !!}
+			<div class="col-lg-6 col-md-6 col-sm-6">
+				{!! Form::text('fraccion', 1, array('class' => 'form-control input-xs', 'id' => 'fraccion', 'placeholder' => 'Escriba fraccion')) !!}
+			</div>
 		</div>
 		<div class="form-group farmacia">
 			{!! Form::label('nombreespecialidadfarmacia', 'Especialidad:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
@@ -232,6 +239,7 @@ $(document).ready(function() {
 	$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="precioventa"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
 	$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="preciokayros"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
 	$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="stockseguridad"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
+	$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="fraccion"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
 
 	$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="codigobarra"]').keyup(function (e) {
 			var key = window.event ? e.keyCode : e.which;
@@ -699,6 +707,14 @@ function validarTipo(tipo){
 	}else{
 		$(".otros").css("display","none");
 		$(".farmacia").css("display","");
+	}
+}
+
+function comprobarUnidad() {
+	if($(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="nombrepresentacion"]').val() == 'UNIDAD') {
+		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="fraccion"]').attr('readonly', true).val('1');
+	} else {
+		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="fraccion"]').attr('readonly', false).val('');
 	}
 }
 <?php

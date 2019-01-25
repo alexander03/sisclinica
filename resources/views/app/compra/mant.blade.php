@@ -7,20 +7,20 @@
 		<div class="form-group" style="height: 12px;">
 			{!! Form::label('tipodocumento_id', 'Documento:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::select('tipodocumento_id', $cboDocumento, null, array('style' => 'background-color: rgb(25,241,227);' ,'class' => 'form-control input-xs', 'id' => 'tipodocumento_id', 'onchange' => 'generarNumero(this.value);')) !!}
+				{!! Form::select('tipodocumento_id', $cboDocumento, null, array('style' => 'background-color: #D4F0FF;' ,'class' => 'form-control input-xs', 'id' => 'tipodocumento_id', 'onchange' => 'generarNumero(this.value);')) !!}
 			</div>
 		</div>
 		<div class="form-group" style="height: 12px;">
 			{!! Form::label('credito', 'Credito:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::select('credito', $cboCredito, null, array('style' => 'background-color: rgb(25,241,227);' ,'class' => 'form-control input-xs', 'id' => 'credito', 'onchange' => 'cambiar();')) !!}
+				{!! Form::select('credito', $cboCredito, null, array('style' => 'background-color: #D4F0FF;' ,'class' => 'form-control input-xs', 'id' => 'credito', 'onchange' => 'cambiar();')) !!}
 			</div>
 		</div>
 		<div class="form-group" style="height: 12px;">
 		
 		{!! Form::label('numerodias', 'Nro Dias:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-2 col-md-2 col-sm-2">
-				{!! Form::text('numerodias', null, array('style' => 'background-color: rgb(252,215,147);','class' => 'form-control input-xs', 'id' => 'numerodias')) !!}
+				{!! Form::text('numerodias', null, array('style' => 'background-color: #FFEEC5;','class' => 'form-control input-xs', 'id' => 'numerodias')) !!}
 				
 			</div>
 
@@ -45,7 +45,7 @@
 		<div class="form-group" style="height: 12px;">
 			{!! Form::label('ruc2', 'RUC:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-6 col-md-6 col-sm-6">
-				{!! Form::text('ruc2', null, array('style' => 'background-color: rgb(252,215,147);','class' => 'form-control input-xs', 'id' => 'ruc2')) !!}
+				{!! Form::text('ruc2', null, array('style' => 'background-color: #FFEEC5;','class' => 'form-control input-xs', 'id' => 'ruc2')) !!}
 				
 			</div>
 		</div>
@@ -53,7 +53,7 @@
 			{!! Form::label('nombrepersona', 'Proveedor:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			{!! Form::hidden('person_id', null, array('id' => 'person_id')) !!}
 			<div class="col-lg-6 col-md-6 col-sm-6">
-				{!! Form::text('nombrepersona', null, array('style' => 'background-color: rgb(252,215,147);','class' => 'form-control input-xs', 'id' => 'nombrepersona', 'placeholder' => 'Seleccione persona')) !!}
+				{!! Form::text('nombrepersona', null, array('style' => 'background-color: #FFEEC5;','class' => 'form-control input-xs', 'id' => 'nombrepersona', 'placeholder' => 'Seleccione persona')) !!}
 				
 			</div>
 			<div class="col-lg-0 col-md-0 col-sm-0">
@@ -78,10 +78,10 @@
 				</div>
 			</div>
 		</div>
-		<div class="form-group" style="height: 12px;display: none;">
+		<div class="form-group">
 			{!! Form::label('cajafarmacialabel', 'Caja farmacia:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::select('cajafamarcia', $cboCajafarmacia, null, array('style' => 'background-color: rgb(25,241,227);' ,'class' => 'form-control input-xs', 'id' => 'cajafarmacia', 'onchange' => 'cambiar2();')) !!}
+				{!! Form::select('cajafamarcia', $cboCajafarmacia, null, array('style' => 'background-color: #D4F0FF;' ,'class' => 'form-control input-xs', 'id' => 'cajafarmacia', 'onchange' => 'cambiar2();')) !!}
 			</div>
 		</div>
 		
@@ -90,7 +90,7 @@
 		{!! Form::label('nombredoctor', 'Medico:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			{!! Form::hidden('doctor_id', null, array('id' => 'doctor_id')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::text('nombredoctor', null, array('style' => 'background-color: rgb(252,215,147);','class' => 'form-control input-xs', 'id' => 'nombredoctor', 'placeholder' => 'Seleccione persona' , 'readonly' =>'')) !!}
+				{!! Form::text('nombredoctor', null, array('style' => 'background-color: #FFEEC5;','class' => 'form-control input-xs', 'id' => 'nombredoctor', 'placeholder' => 'Seleccione persona' , 'readonly' =>'')) !!}
 				
 			</div>
 		</div>
@@ -98,11 +98,11 @@
 			{!! Form::label('total', 'Total:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			{!! Form::hidden('doctor_id', null, array('id' => 'doctor_id')) !!}
 			<div class="col-lg-3 col-md-3 col-sm-3">
-				{!! Form::text('total', null, array('style' => 'background-color: rgb(252,215,147);','class' => 'form-control input-xs', 'id' => 'total' )) !!}
+				{!! Form::text('total', null, array('style' => 'background-color: #FFEEC5;','class' => 'form-control input-xs', 'id' => 'total' )) !!}
 			</div>
 			{!! Form::label('igv', 'Igv:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
 			<div class="col-lg-3 col-md-3 col-sm-3">
-				{!! Form::text('igv', '', array('style' => 'background-color: rgb(252,215,147);','class' => 'form-control input-xs', 'id' => 'igv' )) !!}
+				{!! Form::text('igv', '', array('style' => 'background-color: #FFEEC5;','class' => 'form-control input-xs', 'id' => 'igv' )) !!}
 			</div>
 		</div>
 	</div>
@@ -143,7 +143,7 @@
 				<td>&nbsp</td><td>&nbsp</td><td>&nbsp</td><td>&nbsp</td>
 				<td><b>Cantidad</b></td>
 				<td>&nbsp</td>
-				<td>{!! Form::text('cantidad', null, array('class' => 'form-control input-xs', 'id' => 'cantidad', 'size' => '3')) !!}</td>
+				<td>{!! Form::text('cantidad', null, array('class' => 'form-control input-xs', 'id' => 'cantidad', 'size' => '3', 'onkeyup' => "javascript:this.value=this.value.toUpperCase();")) !!}</td>
 				<td>&nbsp</td><td>&nbsp</td><td>&nbsp</td><td>&nbsp</td>
 				<td><b>F.Vencimiento</b></td>
 				<td>&nbsp</td>
@@ -185,9 +185,9 @@
 		            <thead>
 		                <tr>
 		                    <th bgcolor="#E0ECF8" class='text-center'>N°</th>
-		                    <th bgcolor="#E0ECF8" class='text-center' style="width:750px;">Producto</th>
+		                    <th bgcolor="#E0ECF8" class='text-center' style="width:550px;">Producto</th>
 		                    <th bgcolor="#E0ECF8" class='text-center' style="width:90px;">Lote</th>
-		                    <th bgcolor="#E0ECF8" class='text-center' style="width:100px;">Cantidad</th>
+		                    <th bgcolor="#E0ECF8" class='text-center' style="width:300px;">Cantidad</th>
 		                    <th bgcolor="#E0ECF8" class="text-center" style="width:100px;">Precio Unit</th>
 		                    <th bgcolor="#E0ECF8" class="text-center" style="width:90px;">Subtotal</th>
 		                    <th bgcolor="#E0ECF8" class='text-center'>Quitar</th>
@@ -231,6 +231,7 @@ $(document).ready(function() {
 	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="igv"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
 	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="precioventap"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
 	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="preciocompra"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 3 });
+	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="preciokayros"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 3 });
 		
 	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="fecha"]').inputmask("dd/mm/yyyy");
 		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="fecha"]').datetimepicker({
@@ -341,19 +342,15 @@ $(document).ready(function() {
 	$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="lote"]').keydown( function(e) {
 			var key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0;
 			if(key == 13) {
+				if($(this).val() == '') {
+					return false;
+					$(this).focus();
+				}
 				/*e.preventDefault();
 				var inputs = $(this).closest('form').find(':input:visible:not([disabled]):not([readonly])');
 				inputs.eq( inputs.index(this)+ 1 ).focus();*/
 				addpurchasecart();
-				$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="nombreproducto"]').val('');
-				$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="cantidad"]').val('');
-				$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="preciocompra"]').val('');
-				$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="precioventap"]').val('');
-				$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="preciokayros"]').val('');
-				$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="fechavencimiento"]').val('');
-				$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="lote"]').val('');
 				indice = -1;
-				$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="nombreproducto"]').focus();
 			}
 		});
 
@@ -536,16 +533,24 @@ function buscarProducto(valor){
             success: function(a) {
                 datos=JSON.parse(a);
                 //$("#divProductos").html("<table class='table table-bordered table-condensed table-hover' border='1' id='tablaProducto'><thead><tr><th class='text-center'>P. Activo</th><th class='text-center'>Nombre</th><th class='text-center'>Presentacion</th><th class='text-center'>Stock</th><th class='text-center'>P.Kayros</th><th class='text-center'>P.Venta</th></tr></thead></table>");
-                $("#divProductos").html("<table class='table-condensed table-hover' border='1' id='tablaProducto'><thead><tr><th class='text-center' style='width:220px;'><span style='display: block; font-size:.9em'>P. Activo</span></th><th class='text-center' style='width:220px;'><span style='display: block; font-size:.9em'>Nombre</span></th><th class='text-center' style='width:70px;'><span style='display: block; font-size:.9em'>Presentacion</span></th><th class='text-center' style='width:20px;'><span style='display: block; font-size:.9em'>Stock</span></th><th class='text-center' style='width:20px;'><span style='display: block; font-size:.9em'>P.Kayros</span></th><th class='text-center' style='width:20px;'><span style='display: block; font-size:.9em'>P.Venta</span></th></tr></thead></table>");
+                $("#divProductos").html("<table class='table-condensed table-hover' border='1' id='tablaProducto'><thead><tr><th class='text-center' style='width:220px;'><span style='display: block; font-size:.9em'>P. Activo</span></th><th class='text-center' style='width:220px;'><span style='display: block; font-size:.9em'>Nombre</span></th><th class='text-center' style='width:70px;'><span style='display: block; font-size:.9em'>Presentacion</span></th><th class='text-center' style='width:20px;'><span style='display: block; font-size:.9em'>Fracción</span></th><th class='text-center' style='width:20px;'><span style='display: block; font-size:.9em'>Stock</span></th><th class='text-center' style='width:20px;'><span style='display: block; font-size:.9em'>P.Kayros</span></th><th class='text-center' style='width:20px;'><span style='display: block; font-size:.9em'>P.Venta</span></th></tr></thead></table>").css("overflow-x",'hidden');
                 var pag=parseInt($("#pag").val());
                 var d=0;
                 for(c=0; c < datos.length; c++){
-                    var a="<tr id='"+datos[c].idproducto+"' onclick=\"seleccionarProducto('"+datos[c].idproducto+"')\"><td align='center'><span style='display: block; font-size:.7em'>"+datos[c].principio+"</span></td><td><span style='display: block; font-size:.7em'>"+datos[c].nombre+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].presentacion+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].stock+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].preciokayros+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].precioventa+"</span></td></tr>";
+                	//Algoritmo para stock
+                	var stock = datos[c].stock;
+                	if(datos[c].presentacion !== 'UNIDAD') {
+                		var pres1 = 1;
+                		pres1 = Math.trunc(parseFloat(datos[c].stock)/parseFloat(datos[c].fraccion));
+                		entero = parseFloat(pres1);
+                		pres2 = parseFloat(datos[c].stock) - entero*parseFloat(datos[c].fraccion);
+                		stock = pres1.toString() + 'F' + pres2.toString();
+                	}
+
+                    var a="<tr style='cursor:pointer' class='escogerFila' id='"+datos[c].idproducto+"' onclick=\"seleccionarProducto('"+datos[c].idproducto+"')\"><td align='center'><span style='display: block; font-size:.7em'>"+datos[c].principio+"</span></td><td><span style='display: block; font-size:.7em'>"+datos[c].nombre+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].presentacion+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].fraccion+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+stock+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].preciokayros+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].precioventa+"</span></td></tr>";
                     $("#tablaProducto").append(a);           
                 }
                 $('#tablaProducto').DataTable({
-                    "scrollY":        "250px",
-                    "scrollCollapse": true,
                     "paging":         false,
                     "ordering"        :false
                 });
@@ -620,18 +625,18 @@ function abrirconvenios() {
 
 
 function generarNumero(valor){
-    $.ajax({
+    /*$.ajax({
         type: "POST",
         url: "venta/generarNumero",
-        data: "tipodocumento_id="+valor+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
+        data: "tipodocumento_id="+valor+"&_token="+$(IDFORMMANTENIMIENTO + '{! $entidad !!} :input[name="_token"]').val(),
         success: function(a) {
-            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="numerodocumento"]').val(a);
+            $(IDFORMMANTENIMIENTO + '{! $entidad !!} :input[name="numerodocumento"]').val(a);
         }
-    });
+    });*/
     /*if (valor == 4) {
-		modal('{{URL::route('venta.busquedaempresa')}}', '');
+		modal('{URL::route('venta.busquedaempresa')}}', '');
 	}else{
-		modal('{{URL::route('venta.busquedacliente')}}', '');
+		modal('{URL::route('venta.busquedacliente')}}', '');
 	} */   
 }
 
@@ -860,9 +865,13 @@ function agregarconvenio(id){
 
 	function addpurchasecart(elemento){
 		var cantidad = $('#cantidad').val();
+		cantidad = cantidad.replace(",", "");
 		var precio = $('#preciocompra').val();
+		precio = precio.replace(",", "");
 		var precioventa = $('#precioventap').val();
+		precioventa = precioventa.replace(",", "");
 		var preciokayros = $('#preciokayros').val();
+		preciokayros = preciokayros.replace(",", "");	
 		var product_id = $('#producto_id').val();
 		var fechavencimiento = $('#fechavencimiento').val();
 		var lote = $('#lote').val();
@@ -872,7 +881,12 @@ function agregarconvenio(id){
 		var copago = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="copago"]').val();
 
 		var _token =$('input[name=_token]').val();
-		if(cantidad.trim() == '' ){
+		if(parseFloat(precioventa) < parseFloat(precio)){
+			bootbox.alert("Ingrese un precio de venta mayor al de compra");
+	            setTimeout(function () {
+	                $('#precioventap').val('').focus();
+	            },2000) 
+		}else if(cantidad.trim() == '' ){
 			bootbox.alert("Ingrese Cantidad");
 	            setTimeout(function () {
 	                $('#cantidad').focus();
@@ -910,18 +924,34 @@ function agregarconvenio(id){
 		}else{
 			$.post('{{ URL::route("compra.agregarcarritocompra")}}', {cantidad: cantidad,precio: precio, producto_id: product_id, tipoventa: tipoventa, descuentokayros: descuentokayros, copago: copago, precioventa: precioventa, preciokayros: preciokayros, lote: lote, fechavencimiento: fechavencimiento, detalle: $('#detalle').val(),_token: _token} , function(data){
 				$('#detalle').val(true);var producto_id = $('#producto_id').val();
-				if ($("#Product" + producto_id)[0]) {
-					$("#Product" + producto_id).html(data);
+				if(data === '0-0') {
+					alert('No es un formato válido de cantidad.');
+					$('#cantidad').val('').focus();
+					return false;
 				} else {
-					$('#detallesCompra').append('<tr id="Product' + producto_id + '">' + data + '</tr>');
-				}			
-				calculatetotal();
-				/*bootbox.alert("Producto Agregado");
-	            setTimeout(function () {
-	                $(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="nombre"]').focus();
-	            },2000) */
-				//var totalpedido = $('#totalpedido').val();
-				//$('#total').val(totalpedido);
+					if ($("#Product" + producto_id)[0]) {
+						$("#Product" + producto_id).html(data);
+					} else {
+						$('#detallesCompra').append('<tr id="Product' + producto_id + '">' + data + '</tr>');
+					}		
+					$("#Product" + producto_id).css('display', 'none').fadeIn(1000);	
+					calculatetotal();
+					/*bootbox.alert("Producto Agregado");
+		            setTimeout(function () {
+		                $(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="nombre"]').focus();
+		            },2000) */
+					//var totalpedido = $('#totalpedido').val();
+					//$('#total').val(totalpedido);
+					$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="nombreproducto"]').val('');
+					$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="cantidad"]').val('');
+					$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="preciocompra"]').val('');
+					$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="precioventap"]').val('');
+					$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="preciokayros"]').val('');
+					$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="fechavencimiento"]').val('');
+					$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="lote"]').val('');					
+					$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="nombreproducto"]').focus();
+					$('.escogerFila').css('background-color', 'white');
+				}
 			});
 		}
 	}
@@ -1005,8 +1035,10 @@ function guardarCompra (entidad, idboton) {
 		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="igv"]').focus();
 		return false;
 	}else{
-		var total = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="totalcompra"]').val();
+		var total = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total"]').val();
+		total = total.replace(',','');
 		var igv = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="igv"]').val();
+		igv = igv.replace(',','');
 		if(parseFloat(total)<parseFloat(igv)){
 			alert('Igv debe ser menor que total');
 			return false;
@@ -1085,5 +1117,10 @@ function guardarCompra (entidad, idboton) {
 		},2000);
 	}	
 }
+
+$(document).on('click', '.escogerFila', function(){
+	$('.escogerFila').css('background-color', 'white');
+	$(this).css('background-color', 'yellow');
+});
 
 </script>

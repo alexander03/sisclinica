@@ -15,6 +15,7 @@ use App\Kardex;
 use App\Movimiento;
 use App\Detallemovcaja;
 use App\Lote;
+use App\Caja;
 use App\Cuenta;
 use App\Person;
 use App\Librerias\Libreria;
@@ -98,6 +99,20 @@ class CompraController extends Controller
 
         //sucursal_id
         $sucursal_id = Session::get('sucursal_id');
+        $user = Auth::user();
+        if($sucursal_id == 2) {
+            if($user->usertype_id == 11) {
+                $almacen_id = 3;
+            } else {
+                $almacen_id = 4;
+            }            
+        } else {
+            if($user->usertype_id == 11) {
+                $almacen_id = 1;
+            } else {
+                $almacen_id = 2;
+            }
+        }
 
         $nombre             = Libreria::getParam($request->input('nombre'));
         $fechainicio             = Libreria::getParam($request->input('fechainicio'));
@@ -106,7 +121,8 @@ class CompraController extends Controller
         $resultado        = Compra::join('person','movimiento.persona_id','=','person.id')
                                 ->leftJoin('tipodocumento','movimiento.tipodocumento_id','=','tipodocumento.id')
                                 ->where('movimiento.sucursal_id','=',$sucursal_id)
-                                ->where('movimiento.tipomovimiento_id', '=', '3')->where(function($query) use ($nombre){
+                                ->where('movimiento.tipomovimiento_id', '=', '3')
+                                ->where('movimiento.almacen_id', '=', $almacen_id)->where(function($query) use ($nombre){
                     if (!is_null($nombre) && $nombre !== '') {
                         
                         $query->where('person.bussinesname', 'LIKE', '%'.strtoupper($nombre).'%');
@@ -206,24 +222,44 @@ class CompraController extends Controller
     public function agregarcarritocompra(Request $request)
     {
         $cadena = '';
-        $cantidad       = Libreria::getParam($request->input('cantidad'));
+        $cantidades1      = Libreria::getParam(str_replace(",", "", $request->input('cantidad'))); 
+        $cantidades2      = explode("F", $cantidades1);
         $producto_id       = Libreria::getParam($request->input('producto_id'));
-        $precio       = Libreria::getParam($request->input('precio'));
-        $preciokayros       = Libreria::getParam($request->input('preciokayros'));
-        $precioventa       = Libreria::getParam($request->input('precioventa'));
+        $precio       = Libreria::getParam(str_replace(",", "", $request->input('precio')));
+        $preciokayros       = Libreria::getParam(str_replace(",", "", $request->input('preciokayros')));
+        $precioventa       = Libreria::getParam(str_replace(",", "", $request->input('precioventa')));
         $fechavencimiento       = Libreria::getParam($request->input('fechavencimiento'));
         $lote       = Libreria::getParam($request->input('lote'));
         $distribuidora_id       = Libreria::getParam($request->input('person_id'));
         $producto   = Producto::find($producto_id);
+        $mensajecantidad = '';
+
+        if($producto->presentacion->nombre != 'UNIDAD' && count($cantidades2) == 2) {
+            if(!is_numeric($cantidades2[0]) || !is_numeric($cantidades2[1])) {
+                return '0-0';
+            }
+            $cantidadpresentacion1 = (float) $cantidades2[0];
+            $cantidadpresentacion2 = (float) $cantidades2[1];
+            $cantidadunidades = ($producto->fraccion*$cantidadpresentacion1)+$cantidadpresentacion2;
+            $mensajecantidad .= (String) $cantidadpresentacion1 . ' ' . $producto->presentacion->nombre . 'S, ' . (String) $cantidadpresentacion2 . ' UNIDADES';
+        } else if($producto->presentacion->nombre == 'UNIDAD' && count($cantidades2) == 1) {            
+            if(!is_numeric($cantidades2[0])) {
+                return '0-0';
+            }
+            $cantidadunidades = $producto->fraccion * $cantidades2[0]; 
+            $mensajecantidad .= (String) $cantidadunidades . ' UNIDADES';
+        } else {
+            return '0-0';
+        }
         
-        $subtotal = round($cantidad*$precio, 2);
+        $subtotal = round($cantidadunidades*$precio, 2);
 
         $cadena .= '<td class="numeration"></td>
                     <td class="text-center infoProducto">
-                        <span style="display: block; font-size:.7em">'.$producto->nombre.'</span>
+                        <span style="display: block; font-size:.9em">'.$producto->nombre.'</span>
                         <input type ="hidden" class="producto_id"  value="'.$producto_id.'">
                         <input type ="hidden" class="productonombre"  value="'.$producto->nombre.'">
-                        <input type ="hidden" class="cantidad" value="'.$cantidad.'">
+                        <input type ="hidden" class="cantidad" value="'.$cantidadunidades.'">
                         <input type ="hidden" class="fechavencimiento" value="'.$fechavencimiento.'">
                         <input type ="hidden" class="lote" value="'.$lote.'">
                         <input type ="hidden" class="distribuidora_id" value="'.$distribuidora_id.'">
@@ -237,19 +273,19 @@ class CompraController extends Controller
             $lote = '-';
         }
         $cadena .= '<td class="text-center">
-                    <span style="display: block; font-size:.7em">'.$lote.'</span>                    
+                    <span style="display: block; font-size:.9em">'.$lote.'</span>                    
                 </td>';
         $cadena .= '<td class="text-center">
-                    <span style="display: block; font-size:.7em">'.$cantidad.'</span>                    
+                    <span style="display: block; font-size:.9em">'.$mensajecantidad.'</span>                    
                 </td>';
         $cadena .= '<td class="text-center">
-                    <span style="display: block; font-size:.7em">'.$precio.'</span>                    
+                    <span style="display: block; font-size:.9em">'.number_format($precio, 2, '.','').'</span>                    
                 </td>';
         $cadena .= '<td class="text-center">
-                    <span style="display: block; font-size:.7em">'.$subtotal.'</span>                    
+                    <span style="display: block; font-size:.9em">'.number_format($subtotal, 2, '.','').'</span>                    
                 </td>';
         $cadena .= '<td class="text-center">
-                    <span style="display: block; font-size:.7em">
+                    <span style="display: block; font-size:.9em">
                     <a class="btn btn-xs btn-danger quitarFila">Quitar</a></span>
                 </td>';
 
@@ -407,7 +443,11 @@ class CompraController extends Controller
             $cboDocumento = $cboDocumento + array( $value->id => $value->nombre);
         }
         $cboCredito        = array('S' => 'SI', "N" => 'NO');
-        $cboCajafarmacia        = array("N" => 'NO', 'S' => 'SI');
+        $user = Auth::user();
+        $cboCajafarmacia        = array("N" => 'NO');
+        if($user->usertype_id == 11) {
+            $cboCajafarmacia        = array('S' => 'SI');
+        }        
         $cboAfecto        = array('S' => 'SI', "N" => 'NO');
         $formData = array('compra.store');
         $formData = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
@@ -460,7 +500,28 @@ class CompraController extends Controller
         $sucursal_id = Session::get('sucursal_id');
 
         $error = DB::transaction(function() use($request,$sucursal_id,&$dat){
-            $total = str_replace(',', '', $request->input('totalcompra'));
+            $user = Auth::user();
+            $nomcaja = '';
+            if($user->usertype_id == 11) {
+                $nomcaja = 'FARMACIA';
+            } else if($user->usertype_id == 24) {
+                $nomcaja = 'CLINICA';
+            }
+            $caja = Caja::where('sucursal_id', $sucursal_id)->where('nombre', 'LIKE', $nomcaja.'%')->limit(1)->first();
+            if($sucursal_id == 2) {
+                if($user->usertype_id == 11) {
+                    $almacen_id = 3;
+                } else {
+                    $almacen_id = 4;
+                }            
+            } else {
+                if($user->usertype_id == 11) {
+                    $almacen_id = 1;
+                } else {
+                    $almacen_id = 2;
+                }
+            }
+            $total = str_replace(',', '', $request->input('total'));
             $igv = str_replace(',', '', $request->input('igv'));
             $compra                 = new Compra();
             $compra->sucursal_id    = $sucursal_id; 
@@ -485,7 +546,7 @@ class CompraController extends Controller
             $compra->doctor_id = Libreria::obtenerParametro($request->input('doctor_id'));
             $compra->numeroficha = Libreria::obtenerParametro($request->input('numeroficha'));
             $compra->cajaprueba = $request->input('cajafamarcia');
-            $compra->almacen_id = 1;
+            $compra->almacen_id = $almacen_id;
             $compra->fechaingreso  = Date::createFromFormat('d/m/Y', $request->input('fecha2'))->format('Y-m-d');
             $compra->save();
 
@@ -512,7 +573,7 @@ class CompraController extends Controller
                 $producto->precioventa = $request->input('precioventa'.$i);
                 $producto->preciokayros = $request->input('preciokayros'.$i);
                 $producto->save();
-                $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=',$request->input('producto_id'.$i))->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
+                $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=',$request->input('producto_id'.$i))->where('movimiento.almacen_id', '=',$almacen_id)->orderBy('kardex.id', 'DESC')->first();
                 //$ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->where('promarlab_id', '=', $lista[$i]['promarlab_id'])->where('kardex.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
 
                 // Creamos el lote para el producto
@@ -522,7 +583,7 @@ class CompraController extends Controller
                 $lote->cantidad = $cantidad;
                 $lote->queda = $cantidad;
                 $lote->producto_id = $request->input('producto_id'.$i);
-                $lote->almacen_id = 1;
+                $lote->almacen_id = $almacen_id;
                 $lote->save();
 
                 $stockanterior = 0;
@@ -537,7 +598,7 @@ class CompraController extends Controller
                     $kardex->stockactual = $stockactual;
                     $kardex->cantidad = $cantidad;
                     $kardex->preciocompra = $precio;
-                    //$kardex->almacen_id = 1;
+                    $kardex->almacen_id = $almacen_id;
                     $kardex->detallemovimiento_id = $detalleCompra->id;
                     $kardex->lote_id = $lote->id;
                     $kardex->save();
@@ -552,7 +613,7 @@ class CompraController extends Controller
                     $kardex->stockactual = $stockactual;
                     $kardex->cantidad = $cantidad;
                     $kardex->preciocompra = $precio;
-                    //$kardex->almacen_id = 1;
+                    $kardex->almacen_id = $almacen_id;
                     $kardex->detallemovimiento_id = $detalleCompra->id;
                     $kardex->lote_id = $lote->id;
                     $kardex->save();    
@@ -627,7 +688,7 @@ class CompraController extends Controller
                     $movimiento->responsable_id = $user->person_id;
                     $movimiento->conceptopago_id = 9;
                     
-                    $movimiento->caja_id = 4;
+                    $movimiento->caja_id = $caja_id;
                     
                     $movimiento->movimiento_id = $compra->id;
                     $movimiento->comentario = 'Compra de Medicamentos con dinero de caja de farmacia';

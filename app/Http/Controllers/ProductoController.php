@@ -251,14 +251,18 @@ class ProductoController extends Controller
     {
         $listar     = Libreria::getParam($request->input('listar'), 'NO');
         $reglas     = array(
-                'nombre'                  => 'required|max:100',
-                'preciocompra'                 => 'required',
-                'precioventa'                 => 'required'
+                'nombre'               => 'required|max:100',
+                'preciocompra'         => 'required',
+                'precioventa'          => 'required',
+                'fraccion'             => 'required',
+                'presentacion_id'      => 'required'
                 );
         $mensajes = array(
-            'nombre.required'         => 'Debe ingresar un nombre',
-            'preciocompra.required'         => 'Debe ingresar precio de compra',
-            'precioventa.required'         => 'Debe ingresar precio de venta'
+            'nombre.required'          => 'Debe ingresar un nombre',
+            'preciocompra.required'    => 'Debe ingresar precio de compra',
+            'precioventa.required'     => 'Debe ingresar precio de venta',
+            'fraccion.required'        => 'Debe ingresar una fracción',
+            'presentacion_id.required' => 'Debe ingresar una presentación'
             );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
@@ -281,6 +285,7 @@ class ProductoController extends Controller
             $producto->categoria_id = Libreria::obtenerParametro($request->input('categoria_id'));
             $producto->laboratorio_id = Libreria::obtenerParametro($request->input('laboratorio_id'));
             $producto->presentacion_id = Libreria::obtenerParametro($request->input('presentacion_id'));
+            $producto->fraccion = Libreria::obtenerParametro(str_replace(',', '', $request->input('fraccion'))); 
             $producto->especialidadfarmacia_id = Libreria::obtenerParametro($request->input('especialidadfarmacia_id'));
             $producto->proveedor_id = Libreria::obtenerParametro($request->input('proveedor_id'));
             $producto->origen_id = Libreria::obtenerParametro($request->input('origen_id'));
