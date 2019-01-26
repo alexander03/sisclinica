@@ -4922,7 +4922,7 @@ class VentaadmisionController extends Controller
 
         $consultas = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->orderBy('situacion2','ASC')->orderBy('id','ASC')
         ->where(function($q) {            
-            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'B');
+            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'B')->orWhere('situacion2', 'like', 'N');
         })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
@@ -5006,7 +5006,7 @@ class VentaadmisionController extends Controller
 
         $emergencias = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->orderBy('situacion2','ASC')->orderBy('id','ASC')
         ->where(function($q) {            
-            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'B');
+            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'B')->orWhere('situacion2', 'like', 'N');
         })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
@@ -5015,7 +5015,7 @@ class VentaadmisionController extends Controller
 
         $fondos = Movimiento::where('fecha', date('Y-m-d') )->whereNotNull('tiempo_fondo')->orderBy('situacion2','ASC')->orderBy('id','ASC')
         ->where(function($q) {            
-            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'B')->orWhere('situacion2', 'like', 'F');
+            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'B')->orWhere('situacion2', 'like', 'F')->orWhere('situacion2', 'like', 'N');
         })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
@@ -5024,7 +5024,7 @@ class VentaadmisionController extends Controller
 
         $lectura = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->orderBy('situacion2','ASC')->orderBy('id','ASC')
         ->where(function($q) {            
-            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'B');
+            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'B')->orWhere('situacion2', 'like', 'N');
         })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
@@ -5896,14 +5896,14 @@ class VentaadmisionController extends Controller
         if($consulta != null){
             $tabla = $tabla . "<tr>
                                 <td>".$consulta->persona->apellidopaterno." ".$consulta->persona->apellidomaterno." ".$consulta->persona->nombres."</td>
-                                <td align='right'><button data-paciente_id = '" . $consulta->persona->id . "' data-ticket_id = '" . $consulta->id . "' class='btn btn-success btn-sm btnLlamarPaciente' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
+                                <td align='right'><button data-paciente_id = '" . $consulta->persona->id . "' data-ticket_id = '" . $consulta->id . "' data-pantalla = 'SI' class='btn btn-success btn-sm btnLlamarPaciente' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
                             </tr>";
         }
 
         foreach($consultas_no as $value){
             $tabla = $tabla . " <tr>
                                     <td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>
-                                    <td align='right'><button data-paciente_id = '" . $value->persona->id . "' data-ticket_id = '" . $value->id . "' class='btn btn-warning btn-sm btnLlamarPaciente' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
+                                    <td align='right'><button data-paciente_id = '" . $value->persona->id . "' data-ticket_id = '" . $value->id . "' data-pantalla = 'SI' class='btn btn-warning btn-sm btnLlamarPaciente' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
                                 </tr>";
         }
 
@@ -5929,14 +5929,14 @@ class VentaadmisionController extends Controller
         if($emergencia != null){
             $tabla = $tabla . "<tr>
                                 <td>".$emergencia->persona->apellidopaterno." ".$emergencia->persona->apellidomaterno." ".$emergencia->persona->nombres."</td>
-                                <td align='right'><button data-paciente_id = '" . $emergencia->persona->id . "' data-ticket_id = '" . $emergencia->id . "' class='btn btn-success btn-sm btnLlamarPaciente' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
+                                <td align='right'><button data-paciente_id = '" . $emergencia->persona->id . "' data-ticket_id = '" . $emergencia->id . "' data-pantalla = 'SI' class='btn btn-success btn-sm btnLlamarPaciente' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
                             </tr>";
         }
 
         foreach($emergencias_no as $value){
             $tabla = $tabla . " <tr>
                                     <td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>
-                                    <td align='right'><button data-paciente_id = '" . $value->persona->id . "' data-ticket_id = '" . $value->id . "' class='btn btn-warning btn-sm btnLlamarPaciente' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
+                                    <td align='right'><button data-paciente_id = '" . $value->persona->id . "' data-ticket_id = '" . $value->id . "' data-pantalla = 'SI' class='btn btn-warning btn-sm btnLlamarPaciente' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
                                 </tr>";
         }
 
@@ -5965,14 +5965,14 @@ class VentaadmisionController extends Controller
         if($lectura != null){
             $tabla = $tabla . "<tr>
                                 <td>".$lectura->persona->apellidopaterno." ".$lectura->persona->apellidomaterno." ".$lectura->persona->nombres."</td>
-                                <td align='right'><button data-paciente_id = '" . $lectura->persona->id . "' data-ticket_id = '" . $lectura->id . "' class='btn btn-success btn-sm btnLlamarPaciente' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
+                                <td align='right'><button data-paciente_id = '" . $lectura->persona->id . "' data-ticket_id = '" . $lectura->id . "' data-pantalla = 'SI' class='btn btn-success btn-sm btnLlamarPaciente' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
                             </tr>";
         }
 
         foreach($lecturas_no as $value){
             $tabla = $tabla . " <tr>
                                     <td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>
-                                    <td align='right'><button data-paciente_id = '" . $value->persona->id . "' data-ticket_id = '" . $value->id . "' class='btn btn-warning btn-sm btnLlamarPaciente' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
+                                    <td align='right'><button data-paciente_id = '" . $value->persona->id . "' data-ticket_id = '" . $value->id . "' data-pantalla = 'SI' class='btn btn-warning btn-sm btnLlamarPaciente' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
                                 </tr>";
         }
 
@@ -6004,7 +6004,7 @@ class VentaadmisionController extends Controller
             if($diff > 40){
                 $tabla = $tabla . "<tr>
                                 <td>".$fondo->persona->apellidopaterno." ".$fondo->persona->apellidomaterno." ".$fondo->persona->nombres."</td>
-                                <td align='right'><button data-paciente_id = '" . $fondo->persona->id . "' data-ticket_id = '" . $fondo->id . "' class='btn btn-success btn-sm btnLlamarPaciente' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
+                                <td align='right'><button data-paciente_id = '" . $fondo->persona->id . "' data-ticket_id = '" . $fondo->id . "' data-pantalla = 'SI' class='btn btn-success btn-sm btnLlamarPaciente' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
                             </tr>";
 
             }else{
@@ -6015,7 +6015,7 @@ class VentaadmisionController extends Controller
         foreach($fondos_no as $value){
             $tabla = $tabla . " <tr>
                                     <td>".$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres."</td>
-                                    <td align='right'><button data-paciente_id = '" . $value->persona->id . "' data-ticket_id = '" . $value->id . "' class='btn btn-warning btn-sm btnLlamarPaciente' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
+                                    <td align='right'><button data-paciente_id = '" . $value->persona->id . "' data-ticket_id = '" . $value->id . "' data-pantalla = 'SI' class='btn btn-warning btn-sm btnLlamarPaciente' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
                                 </tr>";
         }
 
@@ -6023,5 +6023,63 @@ class VentaadmisionController extends Controller
                         </table>";
 
         return $tabla;
+    }
+
+    public function llamarPacienteNombre(Request $request){
+            
+        //A -> LLAMANDO
+        //B -> ATENDIENDO
+        //C -> COLA
+        //F -> FONDO
+        //N -> NO ESTA
+        //L -> LISTO
+
+        $paciente = $request->input('paciente');
+        
+        $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+        ->where('movimiento.tipodocumento_id','=','1')
+        ->where('movimiento.fecha', date('Y-m-d') )
+        ->where('movimiento.tiempo_fondo', null)
+        ->where(function($q) {            
+            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'N');
+        })
+        ->where(function($q) {            
+            $q->where('clasificacionconsulta','like','C')->orWhere('clasificacionconsulta','like','E')->orWhere('clasificacionconsulta','like','L');
+        })
+        ->where(function($q) {            
+            $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
+        });
+        if($paciente!="0"){
+            $resultado = $resultado->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'), 'LIKE', '%'.$paciente.'%');
+        }
+        $resultado        = $resultado->select('movimiento.*',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'))->orderBy('movimiento.id','DESC')->orderBy('movimiento.situacion','DESC');
+        $lista            = $resultado->get();
+
+
+        $tabla="<table class='table table-bordered table-striped table-condensed table-hover' style='width:100%; vertical-align:middle;'>
+                        <tbody>";
+
+        $tabla = $tabla . " <tr>
+                <th class='text-center' bgcolor='#ffa500' colspan='2'>RESULTADO DE BÚSQUEDA</th>
+            </tr>";
+
+        if(count($lista) == 0 ){
+            $tabla.= '<tr class="text-center"><td colspan="3">No se encontraron resultados</td></tr>';
+        }    
+
+        foreach ($lista as $value) {
+            
+            $tabla = $tabla . " <tr>
+                                    <td>".$value->paciente."</td>
+                                    <td align='right'><button data-paciente_id = '" . $value->persona->id . "' data-ticket_id = '" . $value->id . "' data-pantalla = 'NO' class='btn btn-primary btn-sm btnLlamarPaciente' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
+                                </tr>";
+
+        }
+
+        $tabla = $tabla . "</tbody>
+        </table>";
+
+        return $tabla;
+
     }
 }

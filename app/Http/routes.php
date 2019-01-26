@@ -666,6 +666,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('ventaadmision/cola', 'VentaadmisionController@cola');
     Route::post('ventaadmision/colamedico', 'VentaadmisionController@colamedico');
     Route::post('ventaadmision/llamarAtender', 'VentaadmisionController@llamarAtender');
+    Route::post('ventaadmision/llamarPacienteNombre', 'VentaadmisionController@llamarPacienteNombre');
     Route::post('ventaadmision/pacienteEstado', 'VentaadmisionController@pacienteEstado');
  
     /* MOVIMIENTO CAJA*/

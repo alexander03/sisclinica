@@ -49,6 +49,7 @@ $user = Auth::user();
 		{!! Form::hidden('doctor_id', '', array('id' => 'doctor_id')) !!}
 		{!! Form::hidden('ticket_id', '', array('id' => 'ticket_id')) !!}
 		{!! Form::hidden('fondo_si', '', array('id' => 'fondo_si')) !!}
+		{!! Form::hidden('pantalla', '', array('id' => 'pantalla')) !!}
 	    <div class="wrapper">
 			<!-- Content Header (Page header) -->
 			<section class="content-header">
@@ -164,6 +165,16 @@ $user = Auth::user();
 											<div class="col-xs-4">
 												<strong>SIGUIENTE PACIENTE: </strong>
 												<div class="box-body" id="atender">
+												</div>
+												<strong>BUSCAR PACIENTE: </strong>
+												<div class="col-sm-12" style="margin-top:15px;">
+													<div class=" col-sm-9">
+														{!! Form::text('buscarPaciente', '', array('class' => 'form-control input-xs', 'id' => 'buscarPaciente', 'style' => 'font-size: 16px;', 'placeholder' => 'Ingrese paciente',  'onkeyup' => 'if(event.keyCode == 13) llamarPacienteNombre();')) !!}
+													</div>
+													{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn-xs btn btn-success btn-sm col-sm-3', 'id' => 'btnBuscarPaciente', 'onclick' => 'llamarPacienteNombre();')) !!}
+												</div>
+												<div class="box-body" id="resultadoBusquedaPaciente" style="margin-top:40px;">
+												<h5 style="color: red; font-weight: bold;" id="mensajeBusquedaPaciente"></h5>
 												</div>
 											</div>
 										</div>
@@ -574,21 +585,51 @@ $user = Auth::user();
 		}).done(function(info){
 			$('#tablaCita').html(info);
 		});
-	}	
+	}
+
+	function llamarPacienteNombre(){
+
+		$('#mensajeBusquedaPaciente').html('');
+
+		var paciente = $("#buscarPaciente").val();
+
+		if(paciente != ""){
+
+			$.ajax({
+				"method": "POST",
+				"url": "{{ url('/ventaadmision/llamarPacienteNombre') }}",
+				"data": {
+					"paciente" : paciente, 
+					"_token": "{{ csrf_token() }}",
+					}
+			}).done(function(info){
+				$('#resultadoBusquedaPaciente').html(info);
+			});
+
+		}else{
+			$('#mensajeBusquedaPaciente').html('Ingrese paciente');
+			$('#resultadoBusquedaPaciente').html('');
+		}
+	}
 
     $(document).on('click', '.btnLlamarPaciente', function(event) {
     	event.preventDefault();
     	var paciente_id = $(this).data('paciente_id');
     	var ticket_id = $(this).data('ticket_id');
-		
-		$.ajax({
-			"method": "POST",
-			"url": "{{ url('/ventaadmision/colamedico') }}",
-			"data": {
-				"ticket_id" : ticket_id, 
-				"_token": "{{ csrf_token() }}",
-				}
-		});
+		var pantalla = $(this).data('pantalla');
+
+		$('#pantalla').val(pantalla);
+
+		if(pantalla == "SI"){
+			$.ajax({
+				"method": "POST",
+				"url": "{{ url('/ventaadmision/colamedico') }}",
+				"data": {
+					"ticket_id" : ticket_id, 
+					"_token": "{{ csrf_token() }}",
+					}
+			});
+		}
 
     	$.ajax({
 	        type: "POST",
@@ -845,15 +886,19 @@ $user = Auth::user();
 			$('#fondo').prop('checked', false);
 		}
 		var ticket_id = $('#ticket_id').val();
-		$.ajax({
-			"method": "POST",
-			"url": "{{ url('/ventaadmision/pacienteEstado') }}",
-			"data": {
-				"estado" : estado, 
-				"ticket_id" : ticket_id,
-				"_token": "{{ csrf_token() }}",
-				}
-		});
+		var pantalla = $('#pantalla').val();
+
+		if(pantalla == "SI"){
+			$.ajax({
+				"method": "POST",
+				"url": "{{ url('/ventaadmision/pacienteEstado') }}",
+				"data": {
+					"estado" : estado, 
+					"ticket_id" : ticket_id,
+					"_token": "{{ csrf_token() }}",
+					}
+			});
+		}
 	}
 </script>
 @endif
