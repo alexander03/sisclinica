@@ -117,7 +117,11 @@ $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
             @if ($value->caja_id == 4)
                 <td>{{ $nombrepaciente}}</td>
             @else
-                 <td>{{ $value->paciente}}</td>
+                @if($value->persona_id == '') 
+                    <td>{{ $value->nombrepaciente}}</td>
+                @else
+                    <td>{{ $value->paciente}}</td>
+                @endif
             @endif
            
             @if(!is_null($value->situacion) && $value->situacion<>'R' && !is_null($value->situacion2) && $value->situacion2<>'R')
