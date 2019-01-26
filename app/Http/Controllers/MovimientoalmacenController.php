@@ -102,7 +102,22 @@ class MovimientoalmacenController extends Controller
         //sucursal_id
         $sucursal_id = Session::get('sucursal_id');
 
-        $almacen_id           = $request->input('almacen_id');
+        $user=Auth::user();
+        if($sucursal_id == 1) {
+            if($user->usertype == 11) {
+                $almacen_id = 1;
+            } else {
+                $almacen_id = 2;
+            }
+        } else {
+            if($user->usertype == 11) {
+                $almacen_id = 3;
+            } else {
+                $almacen_id = 4;
+            }
+        }
+
+        //$almacen_id  = $request->input('almacen_id');
 
         $resultado        = Movimientoalmacen::where('tipomovimiento_id', '=', '5')
                             ->where('sucursal_id','=',$sucursal_id)
@@ -410,11 +425,11 @@ class MovimientoalmacenController extends Controller
             $total = $request->input('totalmovimiento');
             $almacen_id = $request->input('almacen_id');
             $sucursal_id = Session::get('sucursal_id');
-            $movimientoalmacen                 = new Movimientoalmacen();
-            $movimientoalmacen->tipodocumento_id = $request->input('tipo');
-            $movimientoalmacen->tipomovimiento_id    = 5;
-            $movimientoalmacen->almacen_id           = $almacen_id;
-            $movimientoalmacen->sucursal_id          = $sucursal_id;
+            $movimientoalmacen                    = new Movimientoalmacen();
+            $movimientoalmacen->tipodocumento_id  = $request->input('tipo');
+            $movimientoalmacen->tipomovimiento_id = 5;
+            $movimientoalmacen->almacen_id        = $almacen_id;
+            $movimientoalmacen->sucursal_id       = $sucursal_id;
             //$movimientoalmacen->persona_id = $request->input('person_id');
             $movimientoalmacen->comentario   = Libreria::obtenerParametro($request->input('comentario'));
             $movimientoalmacen->numero = $request->input('numerodocumento');

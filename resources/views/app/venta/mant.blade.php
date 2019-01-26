@@ -43,10 +43,12 @@
 		<div class="form-group" style="height: 12px;">
 			{!! Form::label('nombrepersona', 'Cliente:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			{!! Form::hidden('person_id', null, array('id' => 'person_id')) !!}
-			<div class="col-lg-7 col-md-7 col-sm-7 input-group">
-				{!! Form::text('nombrepersona', null, array('style' => 'background-color: #FFEEC5;' ,'class' => 'form-control input-xs', 'id' => 'nombrepersona', 'placeholder' => 'Seleccione Cliente')) !!}
-				<a class="btn btn-success btn-xs input-group-addon" id="btnnombrepersona" href="#">+</a>				
-			</div>
+			<div class="col-lg-7 col-md-7 col-sm-7">
+				<div class="input-group">
+					{!! Form::text('nombrepersona', null, array('style' => 'background-color: #FFEEC5;' ,'class' => 'form-control input-xs', 'id' => 'nombrepersona', 'placeholder' => 'Seleccione Cliente')) !!}				
+					<span style="cursor: pointer;" id="btnnombrepersona" class="btn-xs input-group-addon input-xs"><i class="glyphicon glyphicon-plus"></i></span>
+				</div>
+			</div>				
 		</div>
 		<div class="form-group" style="height: 12px;">
 		
@@ -147,14 +149,14 @@
 	</div>	
 	<div class="col-lg-5 col-md-5 col-sm-5" style="padding-right:10px;margin:0">
 		<div class="form-group" style="height: 12px;">
-			{!! Form::label('nombreproducto', 'Producto:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
-			<div class="col-lg-4 col-md-4 col-sm-4">
+			{!! Form::label('nombreproducto', 'Producto:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+			<div class="col-lg-6 col-md-6 col-sm-6" style="margin: 0;padding: 5px;">
 				{!! Form::text('nombreproducto', null, array('class' => 'form-control input-xs', 'id' => 'nombreproducto', 'placeholder' => 'Ingrese nombre','onkeypress' => '')) !!}
 			</div>
 			<input type="hidden" name="idsesioncarrito" id="idsesioncarrito" value="<?php echo date("YmdHis");?>">
-			{!! Form::label('cantidad', 'Cantidad:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
-			<div class="col-lg-2 col-md-2 col-sm-2">
-				{!! Form::text('cantidad', null, array('class' => 'form-control input-xs', 'id' => 'cantidad')) !!}
+			{!! Form::label('cantidad', 'Cantidad:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+			<div class="col-lg-2 col-md-2 col-sm-2" style="margin: 0; padding: 5px;">
+				{!! Form::text('cantidad', null, array('class' => 'form-control input-xs', 'id' => 'cantidad', 'onkeyup' => "javascript:this.value=this.value.toUpperCase();")) !!}
 			</div>
 			{!! Form::hidden('producto_id', null, array( 'id' => 'producto_id')) !!}
 			{!! Form::hidden('preciokayros', null, array( 'id' => 'preciokayros')) !!}
@@ -241,8 +243,8 @@
 		            <thead>
 		                <tr>
 		                    <th bgcolor="#E0ECF8" class='text-center'>N°</th>
-		                    <th bgcolor="#E0ECF8" class='text-center' style="width:750px;">Producto</th>
-		                    <th bgcolor="#E0ECF8" class='text-center' style="width:100px;">Cantidad</th>
+		                    <th bgcolor="#E0ECF8" class='text-center' style="width:550px;">Producto</th>
+		                    <th bgcolor="#E0ECF8" class='text-center' style="width:300px;">Cantidad</th>
 		                    <th bgcolor="#E0ECF8" class="text-center" style="width:100px;">Precio Unit</th>
 		                    <th bgcolor="#E0ECF8" class="text-center" style="width:90px;">Dscto</th>
 		                    <th bgcolor="#E0ECF8" class="text-center" style="width:90px;">Subtotal</th>
@@ -283,7 +285,8 @@ $(document).ready(function() {
 	init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'B', '{!! $entidad !!}');
 
 		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="total"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
-		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="cantidad"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
+
+		//$(IDFORMMANTENIMIENTO + '{! $entidad !!} :input[id="cantidad"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
 
 		
 	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="fecha"]').inputmask("dd/mm/yyyy");
@@ -300,31 +303,23 @@ $(document).ready(function() {
 		});
 
 	$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="nombrepersona"]').keydown( function(e) {
-			var key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0;
-			if(key == 13) {
-				/*var documento = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="documento"]').val();
-				if (documento == 4) {
-					modal('{{URL::route('venta.busquedaempresa')}}', '');
-				}else{
-					modal('{{URL::route('venta.busquedacliente')}}', '');
-				}*/
-					modal('{{URL::route('venta.busquedacliente')}}', '');
-			}
-		});
+		$('#person_id').val('');
+	});
 
-	$(document).click("#btnnombrepersona", function(e) {
-			alert('caca');
-			var key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0;
-			//if(key == 13) {
-				/*var documento = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="documento"]').val();
-				if (documento == 4) {
-					modal('{{URL::route('venta.busquedaempresa')}}', '');
-				}else{
-					modal('{{URL::route('venta.busquedacliente')}}', '');
-				}*/
-					modal('{{URL::route('venta.busquedacliente')}}', '');
-			//}
-		});
+	$(document).on("click", "#btnnombrepersona", function(e) {
+		e.preventDefault();
+		e.stopImmediatePropagation();
+		var key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0;
+		//if(key == 13) {
+			/*var documento = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="documento"]').val();
+			if (documento == 4) {
+				modal('{{URL::route('venta.busquedaempresa')}}', '');
+			}else{
+				modal('{{URL::route('venta.busquedacliente')}}', '');
+			}*/
+				modal('{{URL::route('venta.busquedacliente')}}', '');
+		//}
+	});
 
 	$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="nombredoctor"]').keydown( function(e) {
 			var key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0;
@@ -577,7 +572,16 @@ function buscarProducto(valor){
                 var pag=parseInt($("#pag").val());
                 var d=0;
                 for(c=0; c < datos.length; c++){
-                    var a="<tr style='cursor:pointer' class='escogerFila' id='"+datos[c].idproducto+"' onclick=\"seleccionarProducto('"+datos[c].idproducto+"','"+datos[c].precioventa+"','"+datos[c].preciokayros+"','"+datos[c].stock+"')\"><td align='center'><span style='display: block; font-size:.7em'>"+datos[c].principio+"</span></td><td><span style='display: block; font-size:.7em'>"+datos[c].nombre+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].presentacion+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].fraccion+"</span></td><td align='right'><span style='display: block; font-size:.7em' id='tdStock"+datos[c].idproducto+"'>"+datos[c].stock+"</span></td><td align='right'><span style='display: block; font-size:.7em' id='tdPrecioKayros"+datos[c].idproducto+"'>"+datos[c].preciokayros+"</span></td><td align='right'><span style='display: block; font-size:.7em' id='tdPrecioVenta"+datos[c].idproducto+"'>"+datos[c].precioventa+"</span></td></tr>";
+                	//Algoritmo para stock
+                	var stock = datos[c].stock;
+                	if(datos[c].presentacion !== 'UNIDAD') {
+                		var pres1 = 1;
+                		pres1 = Math.trunc(parseFloat(datos[c].stock)/parseFloat(datos[c].fraccion));
+                		entero = parseFloat(pres1);
+                		pres2 = parseFloat(datos[c].stock) - entero*parseFloat(datos[c].fraccion);
+                		stock = pres1.toString() + 'F' + pres2.toString();
+                	}
+                    var a="<tr style='cursor:pointer' class='escogerFila' id='"+datos[c].idproducto+"' onclick=\"seleccionarProducto('"+datos[c].idproducto+"','"+datos[c].precioventa+"','"+datos[c].preciokayros+"','"+datos[c].stock+"')\"><td align='center'><span style='display: block; font-size:.7em'>"+datos[c].principio+"</span></td><td><span style='display: block; font-size:.7em'>"+datos[c].nombre+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].presentacion+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].fraccion+"</span></td><td align='right' style='display: none;'><span style='display: none; font-size:.7em' id='tdStock"+datos[c].idproducto+"'>"+datos[c].stock+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+stock+"</span></td><td align='right'><span style='display: block; font-size:.7em' id='tdPrecioKayros"+datos[c].idproducto+"'>"+datos[c].preciokayros+"</span></td><td align='right'><span style='display: block; font-size:.7em' id='tdPrecioVenta"+datos[c].idproducto+"'>"+datos[c].precioventa+"</span></td></tr>";
                     $("#tablaProducto").append(a);           
                 }
                 $('#tablaProducto').DataTable({
@@ -875,10 +879,13 @@ function agregarempresa(id){
 }
 
 function addpurchasecart(elemento){
-	var cantidad = $('#cantidad').val();
-	var cantidad = cantidad.replace(",", "");
+	var venta = 1;
+	var cantidad = $('#cantidad').val();	
+	cantidad = cantidad.replace(",", "");
 	var price = $('#precioventa').val();
+	price = price.replace(",", "");
 	var preciokayros = $('#preciokayros').val();
+	preciokayros = preciokayros.replace(",", "");
 	var product_id = $('#producto_id').val();
 	var stock = $('#stock').val();
 	var tipoventa = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="tipoventa"]').val();
@@ -906,32 +913,35 @@ function addpurchasecart(elemento){
             setTimeout(function () {
                 $('#precioventa').focus();
             },2000) 
-	}else if(parseFloat(cantidad.trim()) > parseFloat(stock)){
-		bootbox.alert("No puede vender una cantidad mayor al stock actual");
-            setTimeout(function () {
-                $('#cantidad').focus();
-            },2000) 
 	}else{
 		var idsesioncarrito = $("#idsesioncarrito").val();
 		var detalle = $('#detalle').val();
 		$('#detalle').val(true);
-		$.post('{{ URL::route("venta.agregarcarritoventa")}}', {cantidad: cantidad,precio: price, producto_id: product_id, tipoventa: tipoventa, descuentokayros: descuentokayros, copago: copago, preciokayros: preciokayros, conveniofarmacia_id: conveniofarmacia_id, detalle: detalle,idsesioncarrito:idsesioncarrito,_token: _token} , function(data){
-			var producto_id = $('#producto_id').val();
-			if ($("#Product" + producto_id)[0]) {
-				$("#Product" + producto_id).html(data);
+		$.post('{{ URL::route("venta.agregarcarritoventa")}}', {cantidad: cantidad,precio: price, producto_id: product_id, tipoventa: tipoventa, descuentokayros: descuentokayros, copago: copago, preciokayros: preciokayros, conveniofarmacia_id: conveniofarmacia_id, detalle: detalle,idsesioncarrito:idsesioncarrito,_token: _token,stock:stock,venta:venta} , function(data){
+			if(data === '0-0') {
+				bootbox.alert('No es un formato válido de cantidad.');
+				$('#cantidad').val('').focus();
+			} else if(data === '0-1') {
+				bootbox.alert('No puede vender una cantidad mayor al stock actual');
+				$('#cantidad').val('').focus();
 			} else {
-				$('#detallesVenta').append('<tr id="Product' + producto_id + '">' + data + '</tr>');
-			}	
-			$("#Product" + producto_id).css('display', 'none').fadeIn(1000);				
-			calculatetotal();	
-			$('#efectivo').val($('#totalventa').val()).focus();	
-			calcularTotalPago();			
-			/*bootbox.alert("Producto Agregado");
-            setTimeout(function () {
-                $(IDFORMBUSQUEDA + '{ $entidad }} :input[id="nombre"]').focus();
-            },2000) */
-			//var totalpedido = $('#totalpedido').val();
-			//$('#total').val(totalpedido);
+				var producto_id = $('#producto_id').val();
+				if ($("#Product" + producto_id)[0]) {
+					$("#Product" + producto_id).html(data);
+				} else {
+					$('#detallesVenta').append('<tr id="Product' + producto_id + '">' + data + '</tr>');
+				}	
+				$("#Product" + producto_id).css('display', 'none').fadeIn(1000);				
+				calculatetotal();	
+				$('#efectivo').val($('#totalventa').val()).focus();	
+				calcularTotalPago();			
+				/*bootbox.alert("Producto Agregado");
+	            setTimeout(function () {
+	                $(IDFORMBUSQUEDA + '{ $entidad }} :input[id="nombre"]').focus();
+	            },2000) */
+				//var totalpedido = $('#totalpedido').val();
+				//$('#total').val(totalpedido);
+			}				
 		});
 	}
 }
@@ -1018,17 +1028,17 @@ function guardarVenta (entidad, idboton) {
 		mensaje = mensajepersonalizado;
 	}*/
 	if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="nombrepersona"]').val()==""){
-		alert("Debe agregar el nombre del cliente");
+		bootbox.alert("Debe agregar el nombre del cliente");
 		modal('{{URL::route('venta.busquedacliente')}}', '');
 		return false;
 	}
 	if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="documento"]').val()=="4" && $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="empresa_id"]').val()==""){
-		alert("Debe seleccionar una empresa para la factura");
+		bootbox.alert("Debe seleccionar una empresa para la factura");
 		modal('{{URL::route('venta.busquedaempresa')}}', '');
 		return false;
 	}
 	if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="formapago"]').val()=="T" && $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="nroref"]').val()==""){
-		alert("Debe agregar el nro de operacion de la tarjeta");
+		bootbox.alert("Debe agregar el nro de operacion de la tarjeta");
 		return false;
 	}
 	
@@ -1088,7 +1098,7 @@ function guardarVenta (entidad, idboton) {
 			                }
 			                
 						} else if(resp === 'ERROR') {
-							alert(dat[0].msg);
+							bootbox.alert(dat[0].msg);
 						} else {
 							mostrarErrores(respuesta, idformulario, entidad);
 						}
@@ -1119,7 +1129,7 @@ function validarFormaPago(formapago){
 function guardarito() {
 	var i = $('.numeration2').length;
 	if(i == 0) {
-		alert('Debes seleccionar al menos un producto.');
+		bootbox.alert('Debes seleccionar al menos un producto.');
 	} else {	
 		guardarVenta('Venta', $('#btnGuardar').value);
 	}
@@ -1239,21 +1249,21 @@ function camposNoVacios() {
 	if(!$('#efectivo').attr('readonly')) {
 		if($('#efectivo').val().length == 0) {
 			$('#efectivo').focus();
-			alert('Ingresa un monto para efectivo.');
+			bootbox.alert('Ingresa un monto para efectivo.');
 			return false;
 		}
 	} 
 	if(!$('#visa').attr('readonly')) {
 		if($('#visa').val().length == 0) {
 			$('#visa').focus();
-			alert('Ingresa un monto para visa.');
+			bootbox.alert('Ingresa un monto para visa.');
 			return false;
 		}
 	} 
 	if(!$('#master').attr('readonly')) {
 		if($('#master').val().length == 0) {
 			$('#master').focus();
-			alert('Ingresa un monto para master.');
+			bootbox.alert('Ingresa un monto para master.');
 			return false;
 		}
 	}
@@ -1267,7 +1277,7 @@ function enviar() {
 	} else {
 		if(!coincidenciasMontos()) {
 			$('#efectivo').focus();
-			alert('Los montos no coinciden.');
+			bootbox.alert('Los montos no coinciden.');
 			return false;
 		} else {
 			guardarito();

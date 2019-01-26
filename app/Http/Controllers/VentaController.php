@@ -531,6 +531,22 @@ class VentaController extends Controller
         $nombre = $request->input("nombre");
         $idtiposervicio = $request->input("idtiposervicio");
         $tipopago = $request->input('tipopaciente');
+
+        $sucursal_id = Session::get('sucursal_id');
+        $user = Auth::user();        
+        if($sucursal_id == 2) {
+            if($user->usertype_id == 11) {
+                $almacen_id = 3;
+            } else {
+                $almacen_id = 4;
+            }            
+        } else {
+            if($user->usertype_id == 11) {
+                $almacen_id = 1;
+            } else {
+                $almacen_id = 2;
+            }
+        }
         
         $resultado        = Producto::where('nombre', 'LIKE', ''.strtoupper($nombre).'%')
                             ->orWhere(function($query) use($nombre){
@@ -562,7 +578,7 @@ class VentaController extends Controller
                     $i++;
                 }
                 /*$currentstock = Kardex::leftjoin('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->leftjoin('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $value->id)->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();*/
-                $currentstock = Kardex::leftjoin('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->where('producto_id', '=', $value->id)->orderBy('kardex.id', 'DESC')->first();
+                $currentstock = Kardex::leftjoin('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->where('producto_id', '=', $value->id)->where('almacen_id', $almacen_id)->orderBy('kardex.id', 'DESC')->first();
                 $stock = 0;
                 if ($currentstock !== null) {
                     $stock=$currentstock->stockactual;
@@ -579,6 +595,7 @@ class VentaController extends Controller
                     'preciokayros' => number_format($value->preciokayros,2,'.',''),
                     'precioventa' => number_format($value->precioventa,2,'.',''),
                     'idproducto' => $value->id,
+                    'fraccion' => $value->fraccion,
                 );
                 $c++;
             }            
@@ -675,14 +692,41 @@ class VentaController extends Controller
             $precio = Libreria::getParam($request->input('precio'));
         }
 
-        $cantidad       = Libreria::getParam(str_replace(",", "", $request->input('cantidad')));
-        $producto_id       = Libreria::getParam($request->input('producto_id'));
-        $precio       = Libreria::getParam($request->input('precio'));
-        $preciokayros       = Libreria::getParam($request->input('preciokayros'));
-        $producto   = Producto::find($producto_id);
-        $tipoventa       = Libreria::getParam($request->input('tipoventa'));
-        $descuentokayros       = Libreria::getParam($request->input('descuentokayros'));
-        $copago       = Libreria::getParam($request->input('copago'));
+        $cantidades1      = Libreria::getParam(str_replace(",", "", $request->input('cantidad'))); 
+        $cantidades2      = explode("F", $cantidades1);              
+        $producto_id      = Libreria::getParam($request->input('producto_id'));
+        $precio           = Libreria::getParam($request->input('precio'));
+        $preciokayros     = Libreria::getParam($request->input('preciokayros'));
+        $producto         = Producto::find($producto_id);
+        $tipoventa        = Libreria::getParam($request->input('tipoventa'));
+        $descuentokayros  = Libreria::getParam($request->input('descuentokayros'));
+        $copago           = Libreria::getParam($request->input('copago'));
+        $mensajecantidad  = '';
+        ////
+        if($producto->fraccion != 1 && count($cantidades2) == 2) {
+            if(!is_numeric($cantidades2[0]) || !is_numeric($cantidades2[1])) {
+                return '0-0';
+            }
+            $cantidadpresentacion1 = (float) $cantidades2[0];
+            $cantidadpresentacion2 = (float) $cantidades2[1];
+            $cantidadunidades = ($producto->fraccion*$cantidadpresentacion1)+$cantidadpresentacion2;
+            $mensajecantidad .= (String) $cantidadpresentacion1 . ' ' . $producto->presentacion->nombre . 'S, ' . (String) $cantidadpresentacion2 . ' UNIDADES';
+        } else if($producto->fraccion == 1 && count($cantidades2) == 1) {            
+            if(!is_numeric($cantidades2[0])) {
+                return '0-0';
+            }
+            $cantidadunidades = $producto->fraccion * $cantidades2[0]; 
+            $mensajecantidad .= (String) $cantidadunidades . ' UNIDADES';
+        } else {
+            return '0-0';
+        }
+        if($request->input('venta') == 1) {
+            $stock = $request->input('stock');
+            if($stock < $cantidadunidades) {
+                return '0-1';
+            }
+        }
+        ////        
         if ($tipoventa == 'C') {
             //$precio = $preciokayros - ($preciokayros*($descuentokayros/100));
             //$precio = $precio*($copago/100);
@@ -694,10 +738,10 @@ class VentaController extends Controller
 
         if ($tipoventa == 'C') {
             $precioaux = $precio - ($precio*($descuentokayros/100));
-            $dscto = round(($precioaux*$cantidad),2);
+            $dscto = round(($precioaux*$cantidadunidades),2);
             $subtotal = round(($dscto*($copago/100)),2);
         }else{
-            $subtotal = round(($cantidad*$precio), 2);
+            $subtotal = round(($cantidadunidades*$precio), 2);
         }
         $cadena .= '<td class="numeration2"></td>
                     <td class="text-center infoProducto">
@@ -707,13 +751,13 @@ class VentaController extends Controller
                         <input type ="hidden" class="tipoventa" value="'.$tipoventa.'">
                         <input type ="hidden" class="descuentokayros" value="'.$descuentokayros.'">
                         <input type ="hidden" class="copago" value="'.$copago.'">
-                        <input type ="hidden" class="cantidad" value="'.$cantidad.'">
+                        <input type ="hidden" class="cantidad" value="'.$cantidadunidades.'">
                         <input type ="hidden" class="precio" value="'.$precio.'">
                         <input type ="hidden" class="dscto" value="'.$dscto.'">
                         <input type ="hidden" class="subtotal" value="'.$subtotal.'">
                     </td>';
         $cadena .= '<td class="text-center">
-                    <span style="display: block; font-size:.9em">'.$cantidad.'</span>                    
+                    <span style="display: block; font-size:.9em">'.$mensajecantidad.'</span>                    
                 </td>';
         $cadena .= '<td class="text-center">
                     <span style="display: block; font-size:.9em">'.$precio.'</span>                    
@@ -1189,9 +1233,9 @@ class VentaController extends Controller
         $formData = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton    = 'Registrar'; 
         //$numero              = Movimiento::NumeroSigue(4,5,4,'N');//movimiento caja y documento ingreso
-        $request->session()->forget('carritoventa');
-        $lista = array();
-        $request->session()->put('carritoventa', $lista);
+        //$request->session()->forget('carritoventa');
+        //$lista = array();
+        //$request->session()->put('carritoventa', $lista);
         return view($this->folderview.'.mant')->with(compact('venta', 'formData', 'entidad', 'boton', 'listar','cboDocumento','cboCredito','cboTipoventa','cboFormapago','cboTipoTarjeta','cboTipoTarjeta2','caja_id'));
     }
 
@@ -1272,7 +1316,7 @@ class VentaController extends Controller
 
         $dat=array();
         //if($request->input('formapago')=='C' || $request->input('formapago')=='T'){
-            $rst  = Movimiento::where('tipomovimiento_id','=',2)->where('caja_id','=',$caja->id)->orderBy('movimiento.id','DESC')->limit(1)->first();
+            $rst  = Movimiento::where('tipomovimiento_id','=',2)->where('sucursal_id','=',$sucursal_id)->where('caja_id','=',$caja->id)->orderBy('movimiento.id','DESC')->limit(1)->first();
             if(count($rst)==0){
                 $conceptopago_id=2;
             }else{
@@ -1284,296 +1328,65 @@ class VentaController extends Controller
             }
         //}
         
-
         $error = DB::transaction(function() use($request, $sucursal_id ,&$dat){
-            $sucursal_id = Session::get('sucursal_id');
+            $almacen_id = 1;
+            if($sucursal_id ==  2) {
+                $almacen_id = 3;
+            }
             $caja = Caja::where('sucursal_id', $sucursal_id)->where('nombre', 'FARMACIA')->limit(1)->first();
 
             $validar = Venta::where('serie','=','4')->where('manual','like','N')->where('tipodocumento_id','=',$request->input('documento'))->where('numero','=',$request->input('numerodocumento'))->where('sucursal_id', $sucursal_id)->where('caja_id', $caja->id)->where('tipomovimiento_id', '4')->first();
-            if ($validar == null) {            
-            
-            $ind = 0;
-            $montoafecto = 0;
-            $montonoafecto = 0;
-            //$lista = $request->session()->get('carritoventa');
-            $lista = (int) $request->input('cantproductos') + 1;
-            
-            for ($i=1; $i < $lista; $i++) {
-                $producto = Producto::find($request->input('producto_id'.$i));
-                $cantidad  = $request->input('cantidad'.$i);
-                $precio    = $request->input('precio'.$i);
-                $subtotal  = round(($cantidad*$precio), 2);
-                if($request->input('tipoventa')=='C'){
-                    $descuentokayros=$request->input('descuentokayros');
-                    $copago=$request->input('copago');
-                    $precioaux = $precio - ($precio*($descuentokayros/100));
-                    $dscto = round(($precioaux*$cantidad),2);
-                    $subtotal = round(($dscto*($copago/100)),2);
-                }
-                if ($producto->afecto == 'NO') {
-                    $ind = 1;
-                    $montonoafecto = $montonoafecto+$subtotal;
-                }else{
-                    $montoafecto = $montoafecto+$subtotal;
-                }
-            }
-
-            for ($i=1; $i < $lista; $i++) {
-                $producto = Producto::find($request->input('producto_id'.$i));
-                $cantidad  = $request->input('cantidad'.$i);
-                $precio    = $request->input('precio'.$i);
-                $subtotal  = round(($cantidad*$precio), 2);
-                if($request->input('tipoventa')=='C'){
-                    $descuentokayros=$request->input('descuentokayros');
-                    $copago=$request->input('copago');
-                    $precioaux = $precio - ($precio*($descuentokayros/100));
-                    $dscto = round(($precioaux*$cantidad),2);
-                    $subtotal = round(($dscto*($copago/100)),2);
-                }
-                if ($producto->afecto == 'NO') {
-                    $ind = 1;
-                    $montonoafecto = $montonoafecto+$subtotal;
-                }else{
-                    $montoafecto = $montoafecto+$subtotal;
-                }
-            }
-
-            if ($ind == 0) {
-                $total = $request->input('totalventa');
-                $venta                 = new Venta();
-                $venta->sucursal_id = $sucursal_id;
-                $venta->serie = '004';
-                $venta->tipodocumento_id          = $request->input('documento');
-                if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                    $venta->persona_id = $request->input('person_id');
-                }else{
-                    $venta->nombrepaciente = $request->input('nombrepersona');
-                }
-                if ($request->input('documento') == '5' || $request->input('documento') == '14' ) {
-                    $codigo="03";
-                    $abreviatura="B";
-                    
-                    
-                }else{
-                    $codigo="01";
-                    $abreviatura="F";
-                    $venta->empresa_id = $request->input('empresa_id');
-                }
-                $venta->tipomovimiento_id          = 4;
-                $venta->almacen_id          = 1;
+            if ($validar == null) { 
+                $ind = 0;
+                $montoafecto = 0;
+                $montonoafecto = 0;
+                //$lista = $request->session()->get('carritoventa');
+                $lista = (int) $request->input('cantproductos') + 1;
                 
-                $venta->numero = $request->input('numerodocumento');
-                $venta->fecha  = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
-                $venta->subtotal=number_format($total/1.18,2,'.','');
-                $venta->igv=number_format($total - $venta->subtotal,2,'.','');
-                $venta->total = $total;
-                $venta->totalpagado = $request->input('efectivo');
-                $venta->totalpagadovisa = $request->input('visa');
-                $venta->totalpagadomaster = $request->input('master');
-                $venta->credito = $request->input('credito');
-                $venta->tipoventa = $request->input('tipoventa');
-                $venta->formapago = $request->input('formapago');
-                $venta->sucursal_id = $sucursal_id;
-                $venta->caja_id = $caja->id;
-                /*if($request->input('formapago')=="T"){
-                    $venta->tarjeta=$request->input('tipotarjeta');//VISA/MASTER
-                    $venta->tipotarjeta=$request->input('tipotarjeta2');//DEBITO/CREDITO
-                }*/
-                if ($request->input('tipoventa') == 'C') {
-                    $venta->conveniofarmacia_id = $request->input('conveniofarmacia_id');
-                    $venta->descuentokayros = $request->input('descuentokayros');
-                    $venta->copago = $request->input('copago');
-                }
-                       
-                $venta->inicial = 'N';
-                $venta->estadopago = 'P';
-                $venta->ventafarmacia = 'S';
-                $venta->manual='N';
-                $venta->descuentoplanilla = $request->input('descuentoplanilla');
-                if($request->input('descuentoplanilla')=="SI"){
-                    $venta->personal_id=$request->input('personal_id');
-                }
-                /*if ($request->input('formapago')=="P") {
-                    $venta->estadopago = 'PP';
-                }*/
-                
-                $user = Auth::user();
-                $venta->responsable_id = $user->person_id;
-                $venta->doctor_id = Libreria::obtenerParametro($request->input('doctor_id'));
-                //$venta->numeroficha = Libreria::obtenerParametro($request->input('numeroficha'));
-                //$venta->cajaprueba = $request->input('cajafamarcia');
-                $venta->save();
-                $movimiento_id = $venta->id;
-                $arr=$lista;                
                 for ($i=1; $i < $lista; $i++) {
+                    $producto = Producto::find($request->input('producto_id'.$i));
                     $cantidad  = $request->input('cantidad'.$i);
                     $precio    = $request->input('precio'.$i);
                     $subtotal  = round(($cantidad*$precio), 2);
-                    $detalleVenta = new Detallemovimiento();
-                    $detalleVenta->cantidad = $cantidad;
-                    $detalleVenta->precio = $precio;
-                    $detalleVenta->subtotal = $subtotal;
-                    $detalleVenta->movimiento_id = $movimiento_id;
-                    $detalleVenta->producto_id = $request->input('producto_id'.$i);
-                    $detalleVenta->save();
-                    $producto = Producto::find($request->input('producto_id'.$i));
+                    if($request->input('tipoventa')=='C'){
+                        $descuentokayros=$request->input('descuentokayros');
+                        $copago=$request->input('copago');
+                        $precioaux = $precio - ($precio*($descuentokayros/100));
+                        $dscto = round(($precioaux*$cantidad),2);
+                        $subtotal = round(($dscto*($copago/100)),2);
+                    }
                     if ($producto->afecto == 'NO') {
                         $ind = 1;
-                        
+                        $montonoafecto = $montonoafecto+$subtotal;
                     }else{
-                        
+                        $montoafecto = $montoafecto+$subtotal;
                     }
-                    
-                    
-                    // consulta lotes
-                    $lotes = Lote::where('producto_id','=',$request->input('producto_id'.$i))->where('queda','>','0')->orderBy('fechavencimiento','ASC')->get();
-                    $aux = $request->input('cantidad'.$i);
-                    foreach ($lotes as $key => $value) {
-                        if ($value->queda >= $aux) {
-                            $queda = $value->queda-$aux;
-                            $value->queda = $queda;
-                            $value->save();
-                            $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $request->input('producto_id'.$i))->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
-                            $stockanterior = 0;
-                            $stockactual = 0;
-                            // ingresamos nuevo kardex
-                            if ($ultimokardex === NULL) {
-                                
-                                
-                            }else{
-                                $stockanterior = $ultimokardex->stockactual;
-                                $stockactual = $ultimokardex->stockactual-$aux;
-                                $kardex = new Kardex();
-                                $kardex->tipo = 'S';
-                                $kardex->fecha = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
-                                $kardex->stockanterior = $stockanterior;
-                                $kardex->stockactual = $stockactual;
-                                $kardex->cantidad = $aux;
-                                $kardex->precioventa = $precio;
-                                //$kardex->almacen_id = 1;
-                                $kardex->detallemovimiento_id = $detalleVenta->id;
-                                $kardex->lote_id = $value->id;
-                                $kardex->save();    
-
-                            }
-                            break;
-                        }else{
-                            $cantvendida = $value->queda;
-                            $aux = $aux-$value->queda;
-                            $value->queda = 0;
-                            $value->save();
-                            
-                            $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $request->input('producto_id'.$i))->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
-                            $stockanterior = 0;
-                            $stockactual = 0;
-                            // ingresamos nuevo kardex
-                            if ($ultimokardex === NULL) {
-                                
-                                
-                            }else{
-                                $stockanterior = $ultimokardex->stockactual;
-                                $stockactual = $ultimokardex->stockactual-$cantvendida;
-                                $kardex = new Kardex();
-                                $kardex->tipo = 'S';
-                                $kardex->fecha = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
-                                $kardex->stockanterior = $stockanterior;
-                                $kardex->stockactual = $stockactual;
-                                $kardex->cantidad = $cantvendida;
-                                $kardex->precioventa = $precio;
-                                //$kardex->almacen_id = 1;
-                                $kardex->detallemovimiento_id = $detalleVenta->id;
-                                $kardex->lote_id = $value->id;
-                                $kardex->save();    
-
-                            }
-                        }
-                    }          
                 }
 
-                # REGISTRO DE CREDITOS
-                
-                if ($request->input('formapago') == 'P') {
-                    
-                }else{
-
-                    if ( ($request->input('documento') == 15 && $venta->copago > 0 ) || ($request->input('documento') != 15)) {
-                        $total = $request->input('totalventa');
-                        $movimiento                 = new Movimiento();
-                        $movimiento->sucursal_id = $sucursal_id;
-                        $movimiento->caja_id = $caja->id;
-                        $movimiento->tipodocumento_id          = $request->input('documento');
-                        if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                            $movimiento->persona_id = $request->input('person_id');
-                        }else{
-                            $movimiento->nombrepaciente = $request->input('nombrepersona');
-                        }
-                        if ($request->input('documento') == '5') {
-                            if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                                $movimiento->persona_id = $request->input('person_id');
-                            }else{
-                                $movimiento->nombrepaciente = $request->input('nombrepersona');
-                            }
-                            
-                        }else{
-                            $movimiento->empresa_id = $request->input('empresa_id');
-                        }
-                        $movimiento->tipomovimiento_id          = 2;
-                        $movimiento->serie = '004';
-                        $movimiento->numero = $request->input('numerodocumento');
-                        $movimiento->fecha  = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
-                        $movimiento->total = $total;
-                        $movimiento->totalpagado = $request->input('efectivo');
-                        $movimiento->totalpagadovisa = $request->input('visa');
-                        $movimiento->totalpagadomaster = $request->input('master');
-                        
-                        $user = Auth::user();
-                        $movimiento->responsable_id = $user->person_id;
-                        $movimiento->conceptopago_id = 3;
-                        $movimiento->movimiento_id = $venta->id;
-                        /*if($request->input('formapago')=="T"){
-                            $movimiento->tipotarjeta=$request->input('tipotarjeta');
-                            $movimiento->tarjeta=$request->input('tipotarjeta2');
-                            $movimiento->voucher=$request->input('nroref');
-                            $movimiento->totalpagado=0;
-                        }else{
-                            $movimiento->totalpagado=$total;
-                        }*/
-                        
-                        $movimiento->save();
-
-                        $venta->movimiento_id = $movimiento->id;
-                        $venta->save();
-
-
-                        $movimientocaja = new Detallemovcaja();
-                        if ($request->input('documento') == '5') {
-                            if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                                $movimientocaja->persona_id = $request->input('person_id');
-                            }else{
-                                $movimientocaja->nombrepaciente = $request->input('nombrepersona');
-                            }
-                            
-                        }else{
-                            $movimientocaja->empresa_id = $request->input('empresa_id');
-                        }
-                        //$movimientocaja->persona_id = $request->input('persona_id');
-                        $movimientocaja->movimiento_id = $movimiento->id;
-                        //$aperturacierrecaja = Aperturacierrecaja::where('estado','=','A')->first();
-                        //$movimientocaja->aperturacierrecaja_id = $aperturacierrecaja->id;
-                        $movimientocaja->descripcion = 'PAGO DE CLIENTE';
-                        $movimientocaja->save();
+                for ($i=1; $i < $lista; $i++) {
+                    $producto = Producto::find($request->input('producto_id'.$i));
+                    $cantidad  = $request->input('cantidad'.$i);
+                    $precio    = $request->input('precio'.$i);
+                    $subtotal  = round(($cantidad*$precio), 2);
+                    if($request->input('tipoventa')=='C'){
+                        $descuentokayros=$request->input('descuentokayros');
+                        $copago=$request->input('copago');
+                        $precioaux = $precio - ($precio*($descuentokayros/100));
+                        $dscto = round(($precioaux*$cantidad),2);
+                        $subtotal = round(($dscto*($copago/100)),2);
                     }
-                        
+                    if ($producto->afecto == 'NO') {
+                        $ind = 1;
+                        $montonoafecto = $montonoafecto+$subtotal;
+                    }else{
+                        $montoafecto = $montoafecto+$subtotal;
+                    }
                 }
 
-            }else{
-                // Para Monto Afecto
-                if ($montoafecto > 0) {
-
-                    $total = str_replace(',', '', $request->input('totalventa'));
+                if ($ind == 0) {
+                    $total = $request->input('totalventa');
                     $venta                 = new Venta();
                     $venta->sucursal_id = $sucursal_id;
-                    $venta->caja_id = $caja->id;
                     $venta->serie = '004';
                     $venta->tipodocumento_id          = $request->input('documento');
                     if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
@@ -1583,42 +1396,37 @@ class VentaController extends Controller
                     }
                     if ($request->input('documento') == '5' || $request->input('documento') == '14' ) {
                         $codigo="03";
-                        $abreviatura="B";
-                        if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                            $venta->persona_id = $request->input('person_id');
-                        }else{
-                            $venta->nombrepaciente = $request->input('nombrepersona');
-                        }
-                        
+                        $abreviatura="B";                    
                     }else{
                         $codigo="01";
                         $abreviatura="F";
                         $venta->empresa_id = $request->input('empresa_id');
                     }
-                    $venta->tipomovimiento_id          = 4;
-                    $venta->almacen_id          = 1;
+                    $venta->tipomovimiento_id = 4;
+                    $venta->almacen_id = $almacen_id;
                     
                     $venta->numero = $request->input('numerodocumento');
                     $venta->fecha  = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
-                    $venta->subtotal=number_format($montoafecto/1.18,2,'.','');
-                    $venta->igv=number_format($montoafecto - $venta->subtotal,2,'.','');
-                    $venta->total = $montoafecto;
+                    $venta->subtotal=number_format($total/1.18,2,'.','');
+                    $venta->igv=number_format($total - $venta->subtotal,2,'.','');
+                    $venta->total = $total;
                     $venta->totalpagado = $request->input('efectivo');
                     $venta->totalpagadovisa = $request->input('visa');
                     $venta->totalpagadomaster = $request->input('master');
                     $venta->credito = $request->input('credito');
                     $venta->tipoventa = $request->input('tipoventa');
-                    $venta->formapago = $request->input('formapago');
-                    /*if($request->input('formapago')=="Tarjeta"){
+                    //$venta->formapago = $request->input('formapago');
+                    $venta->sucursal_id = $sucursal_id;
+                    $venta->caja_id = $caja->id;
+                    /*if($request->input('formapago')=="T"){
                         $venta->tarjeta=$request->input('tipotarjeta');//VISA/MASTER
                         $venta->tipotarjeta=$request->input('tipotarjeta2');//DEBITO/CREDITO
-                        $venta->voucher=$request->input('nroref');
                     }*/
-                    /*if ($request->input('tipoventa') == 'C') {*/
+                    if ($request->input('tipoventa') == 'C') {
                         $venta->conveniofarmacia_id = $request->input('conveniofarmacia_id');
                         $venta->descuentokayros = $request->input('descuentokayros');
                         $venta->copago = $request->input('copago');
-                    /*}*/
+                    }
                            
                     $venta->inicial = 'N';
                     $venta->estadopago = 'P';
@@ -1628,7 +1436,7 @@ class VentaController extends Controller
                     if($request->input('descuentoplanilla')=="SI"){
                         $venta->personal_id=$request->input('personal_id');
                     }
-                    /*if ($request->input('credito') == 'S') {
+                    /*if ($request->input('formapago')=="P") {
                         $venta->estadopago = 'PP';
                     }*/
                     
@@ -1639,225 +1447,8 @@ class VentaController extends Controller
                     //$venta->cajaprueba = $request->input('cajafamarcia');
                     $venta->save();
                     $movimiento_id = $venta->id;
-                    $arr=$lista;
+                    $arr=$lista;                
                     for ($i=1; $i < $lista; $i++) {
-                         $producto = Producto::find($request->input('producto_id'.$i));
-                        if ($producto->afecto != 'NO') {
-                            $cantidad  = str_replace(',', '',$request->input('cantidad'.$i));
-                            $precio    = str_replace(',', '',$request->input('precio'.$i));
-                            $subtotal  = round(($cantidad*$precio), 2);
-                            $detalleVenta = new Detallemovimiento();
-                            $detalleVenta->cantidad = $cantidad;
-                            $detalleVenta->precio = $precio;
-                            $detalleVenta->subtotal = $subtotal;
-                            $detalleVenta->movimiento_id = $movimiento_id;
-                            $detalleVenta->producto_id = $request->input('producto_id'.$i);
-                            $detalleVenta->save();          
-                            
-                            // consulta lotes
-                            $lotes = Lote::where('producto_id','=',$request->input('producto_id'.$i))->where('queda','>','0')->orderBy('fechavencimiento','ASC')->get();
-                            $aux = $request->input('producto_id'.$i);// 3
-                            foreach ($lotes as $key => $value) { 
-                                if ($value->queda >= $aux) {
-                                    $queda = $value->queda-$aux;
-                                    $value->queda = $queda;
-                                    $value->save();
-
-                                    $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $request->input('producto_id'.$i))->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
-                                    $stockanterior = 0;
-                                    $stockactual = 0;
-                                    // ingresamos nuevo kardex
-                                    if ($ultimokardex === NULL) {
-                                        
-                                        
-                                    }else{
-                                        $stockanterior = $ultimokardex->stockactual;
-                                        $stockactual = $ultimokardex->stockactual-$aux;
-                                        $kardex = new Kardex();
-                                        $kardex->tipo = 'S';
-                                        $kardex->fecha = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
-                                        $kardex->stockanterior = $stockanterior;
-                                        $kardex->stockactual = $stockactual;
-                                        $kardex->cantidad = $aux;
-                                        $kardex->precioventa = $precio;
-                                        //$kardex->almacen_id = 1;
-                                        $kardex->detallemovimiento_id = $detalleVenta->id;
-                                        $kardex->lote_id = $value->id;
-                                        $kardex->save();    
-
-                                    }
-                                    break;
-                                }else{
-                                    $cantvendida = $value->queda;
-                                    $aux = $aux-$value->queda;
-                                    $value->queda = 0;
-                                    $value->save();
-                                    
-                                    $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $request->input('producto_id'.$i))->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
-                                    $stockanterior = 0;
-                                    $stockactual = 0;
-                                    // ingresamos nuevo kardex
-                                    if ($ultimokardex === NULL) {
-                                        
-                                        
-                                    }else{
-                                        $stockanterior = $ultimokardex->stockactual;
-                                        $stockactual = $ultimokardex->stockactual-$cantvendida;
-                                        $kardex = new Kardex();
-                                        $kardex->tipo = 'S';
-                                        $kardex->fecha = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
-                                        $kardex->stockanterior = $stockanterior;
-                                        $kardex->stockactual = $stockactual;
-                                        $kardex->cantidad = $cantvendida;
-                                        $kardex->precioventa = $precio;
-                                        //$kardex->almacen_id = 1;
-                                        $kardex->detallemovimiento_id = $detalleVenta->id;
-                                        $kardex->lote_id = $value->id;
-                                        $kardex->save();    
-
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    # REGISTRO DE CREDITOS
-                    
-                    /*if ($request->input('formapago') == 'P') {
-                        
-                    }else{
-
-                        if ( ($request->input('documento') == 15 && $venta->copago > 0) || ($request->input('documento') != 15)) {
-                            $total = str_replace(',', '', $request->input('totalventa'));
-                            $movimiento                 = new Movimiento();
-                            $movimiento->sucursal_id = $sucursal_id;
-                            $movimiento->tipodocumento_id          = $request->input('documento');
-                            if ($request->input('documento') == '5') {
-                                if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                                    $movimiento->persona_id = $request->input('person_id');
-                                }else{
-                                    $movimiento->nombrepaciente = $request->input('nombrepersona');
-                                }
-                                
-                            }else{
-                                $movimiento->empresa_id = $request->input('empresa_id');
-                            }
-                            $movimiento->tipomovimiento_id          = 2;
-                            
-                            $movimiento->numero = $request->input('numerodocumento');
-                            $movimiento->fecha  = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
-                            $movimiento->total = $montoafecto;
-                            
-                            $user = Auth::user();
-                            $movimiento->responsable_id = $user->person_id;
-                            $movimiento->conceptopago_id = 3;
-                            $movimiento->caja_id = 4;
-                            $movimiento->movimiento_id = $venta->id;
-                            if($request->input('formapago')=="T"){
-                                $movimiento->tipotarjeta=$request->input('tipotarjeta');
-                                $movimiento->tarjeta=$request->input('tipotarjeta2');
-                                $movimiento->voucher=$request->input('nroref');
-                                $movimiento->totalpagado=0;
-                            }else{
-                                $movimiento->totalpagado=$request->input('total',0);
-                            }
-                            
-                            $movimiento->save();
-
-                            $venta->movimiento_id = $movimiento->id;
-                            $venta->save();
-
-                            $movimientocaja = new Detallemovcaja();
-                            if ($request->input('documento') == '5') {
-                                if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                                    $movimientocaja->persona_id = $request->input('person_id');
-                                }else{
-                                    $movimientocaja->nombrepaciente = $request->input('nombrepersona');
-                                }
-                                
-                            }else{
-                                $movimientocaja->empresa_id = $request->input('empresa_id');
-                            }
-                            //$movimientocaja->persona_id = $request->input('persona_id');
-                            $movimientocaja->movimiento_id = $movimiento->id;
-                            $movimientocaja->descripcion = 'PAGO DE CLIENTE';
-                            $movimientocaja->save();
-                        }
-                            
-                    }*/
-
-                }
-
-                // Para Monto Inafecto
-
-                $total = $request->input('totalventa');
-                $venta2                 = new Venta();
-                $venta2->sucursal_id = $sucursal_id;
-                $venta2->caja_id = $caja->id;
-                $venta2->serie = '004';
-                $venta2->tipodocumento_id          = $request->input('documento');
-                if ($request->input('documento') == '5' || $request->input('documento') == '14' ) {
-                    $codigo="03";
-                    $abreviatura="B";
-                    if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                        $venta2->persona_id = $request->input('person_id');
-                    }else{
-                        $venta2->nombrepaciente = $request->input('nombrepersona');
-                    }
-                    
-                }else{
-                    $codigo="01";
-                    $abreviatura="F";
-                    $venta2->empresa_id = $request->input('empresa_id');
-                    if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                        $venta2->persona_id = $request->input('person_id');
-                    }else{
-                        $venta2->nombrepaciente = $request->input('nombrepersona');
-                    }
-                }
-                $venta2->tipomovimiento_id          = 4;
-                $venta2->almacen_id          = 1;
-                
-                $venta2->numero = Movimiento::NumeroSigue(4,$request->input('documento'),4,'N');
-                $venta2->fecha  = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
-                $venta2->subtotal=number_format($montonoafecto,2,'.','');
-                $venta2->igv=0;
-                $venta2->total = $montonoafecto;
-                $venta2->totalpagado = $request->input('efectivo');
-                $venta2->totalpagadovisa = $request->input('visa');
-                $venta2->totalpagadomaster = $request->input('master');
-                $venta2->credito = $request->input('credito');
-                $venta2->tipoventa = $request->input('tipoventa');
-                $venta2->formapago = $request->input('formapago');
-                if($request->input('formapago')=="T"){
-                    $venta2->tarjeta=$request->input('tipotarjeta');//VISA/MASTER
-                    $venta2->tipotarjeta=$request->input('tipotarjeta2');//DEBITO/CREDITO
-                }
-                if ($request->input('tipoventa') == 'C') {
-                    $venta2->conveniofarmacia_id = $request->input('conveniofarmacia_id');
-                    $venta2->descuentokayros = $request->input('descuentokayros');
-                    $venta2->copago = $request->input('copago');
-                }
-                       
-                $venta2->inicial = 'N';
-                $venta2->manual='N';
-                $venta2->estadopago = 'P';
-                $venta2->ventafarmacia = 'S';
-                if ($request->input('credito') == 'S') {
-                    $venta2->estadopago = 'PP';
-                }
-                
-                $user = Auth::user();
-                $venta2->responsable_id = $user->person_id;
-                $venta2->doctor_id = Libreria::obtenerParametro($request->input('doctor_id'));
-                //$venta2->numeroficha = Libreria::obtenerParametro($request->input('numeroficha'));
-                //$venta2->cajaprueba = $request->input('cajafamarcia');
-                $venta2->save();
-                $movimiento_id = $venta2->id;
-                $arr=$lista;
-                for ($i=1; $i < $lista; $i++) {
-                    $producto = Producto::find($request->input('producto_id'.$i));
-                    if ($producto->afecto == 'NO') {
                         $cantidad  = $request->input('cantidad'.$i);
                         $precio    = $request->input('precio'.$i);
                         $subtotal  = round(($cantidad*$precio), 2);
@@ -1868,16 +1459,20 @@ class VentaController extends Controller
                         $detalleVenta->movimiento_id = $movimiento_id;
                         $detalleVenta->producto_id = $request->input('producto_id'.$i);
                         $detalleVenta->save();
-
+                        $producto = Producto::find($request->input('producto_id'.$i));
+                        if ($producto->afecto == 'NO') {
+                            $ind = 1;
+                        }
+                        
                         // consulta lotes
-                        $lotes = Lote::where('producto_id','=',$request->input('producto_id'.$i))->where('queda','>','0')->orderBy('fechavencimiento','ASC')->get();
+                        $lotes = Lote::where('producto_id','=',$request->input('producto_id'.$i))->where('almacen_id','=',$almacen_id)->where('queda','>','0')->orderBy('fechavencimiento','ASC')->get();
                         $aux = $request->input('cantidad'.$i);
                         foreach ($lotes as $key => $value) {
                             if ($value->queda >= $aux) {
                                 $queda = $value->queda-$aux;
                                 $value->queda = $queda;
                                 $value->save();
-                                $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $request->input('producto_id'.$i))->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
+                                $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $request->input('producto_id'.$i))->where('movimiento.almacen_id', '=',$almacen_id)->orderBy('kardex.id', 'DESC')->first();
                                 $stockanterior = 0;
                                 $stockactual = 0;
                                 // ingresamos nuevo kardex
@@ -1894,11 +1489,10 @@ class VentaController extends Controller
                                     $kardex->stockactual = $stockactual;
                                     $kardex->cantidad = $aux;
                                     $kardex->precioventa = $precio;
-                                    //$kardex->almacen_id = 1;
+                                    $kardex->almacen_id = $almacen_id;
                                     $kardex->detallemovimiento_id = $detalleVenta->id;
                                     $kardex->lote_id = $value->id;
-                                    $kardex->save();    
-
+                                    $kardex->save();   
                                 }
                                 break;
                             }else{
@@ -1907,7 +1501,7 @@ class VentaController extends Controller
                                 $value->queda = 0;
                                 $value->save();
                                 
-                                $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $request->input('producto_id'.$i))->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
+                                $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $request->input('producto_id'.$i))->where('movimiento.almacen_id', '=',$almacen_id)->orderBy('kardex.id', 'DESC')->first();
                                 $stockanterior = 0;
                                 $stockactual = 0;
                                 // ingresamos nuevo kardex
@@ -1924,34 +1518,33 @@ class VentaController extends Controller
                                     $kardex->stockactual = $stockactual;
                                     $kardex->cantidad = $cantvendida;
                                     $kardex->precioventa = $precio;
-                                    //$kardex->almacen_id = 1;
+                                    $kardex->almacen_id = $almacen_id;
                                     $kardex->detallemovimiento_id = $detalleVenta->id;
                                     $kardex->lote_id = $value->id;
                                     $kardex->save();    
 
                                 }
                             }
-                        }
-
-                        
-                        
+                        }          
                     }
+
+                    # REGISTRO DE CREDITOS
                     
+                    if ($request->input('formapago') == 'P') {
+                        
+                    }else{
 
-                }
-
-                # REGISTRO DE CREDITOS
-                
-                if ($request->input('formapago') == 'P') {
-                    
-                }else{
-
-                        if ( ($request->input('documento') == 15 && $venta2->copago > 0 ) || ($request->input('documento') != 15)) {
+                        if ( ($request->input('documento') == 15 && $venta->copago > 0 ) || ($request->input('documento') != 15)) {
                             $total = $request->input('totalventa');
                             $movimiento                 = new Movimiento();
                             $movimiento->sucursal_id = $sucursal_id;
                             $movimiento->caja_id = $caja->id;
                             $movimiento->tipodocumento_id          = $request->input('documento');
+                            if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
+                                $movimiento->persona_id = $request->input('person_id');
+                            }else{
+                                $movimiento->nombrepaciente = $request->input('nombrepersona');
+                            }
                             if ($request->input('documento') == '5') {
                                 if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
                                     $movimiento->persona_id = $request->input('person_id');
@@ -1962,33 +1555,32 @@ class VentaController extends Controller
                             }else{
                                 $movimiento->empresa_id = $request->input('empresa_id');
                             }
-                            $movimiento->tipomovimiento_id          = 2;
-                            
+                            $movimiento->tipomovimiento_id = 2;
+                            $movimiento->serie = '004';
                             $movimiento->numero = $request->input('numerodocumento');
                             $movimiento->fecha  = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
-                            $movimiento->total = $montonoafecto;
+                            $movimiento->total = $total;
+                            $movimiento->totalpagado = $request->input('efectivo');
+                            $movimiento->totalpagadovisa = $request->input('visa');
+                            $movimiento->totalpagadomaster = $request->input('master');
                             
                             $user = Auth::user();
                             $movimiento->responsable_id = $user->person_id;
                             $movimiento->conceptopago_id = 3;
-                            $movimiento->caja_id = 4;
-                            $movimiento->movimiento_id = $venta2->id;
+                            $movimiento->movimiento_id = $venta->id;
                             /*if($request->input('formapago')=="T"){
                                 $movimiento->tipotarjeta=$request->input('tipotarjeta');
                                 $movimiento->tarjeta=$request->input('tipotarjeta2');
                                 $movimiento->voucher=$request->input('nroref');
                                 $movimiento->totalpagado=0;
-                            }else{*/
-                                $movimiento->totalpagado=$request->input('totalventa',0);
-                                $movimiento->totalpagado = $request->input('efectivo', 0);
-                                $movimiento->totalpagadovisa = $request->input('visa', 0);
-                                $movimiento->totalpagadomaster = $request->input('master', 0);
-                            /*}*/
+                            }else{
+                                $movimiento->totalpagado=$total;
+                            }*/
                             
                             $movimiento->save();
 
-                            $venta2->movimiento_id = $movimiento->id;
-                            $venta2->save();
+                            $venta->movimiento_id = $movimiento->id;
+                            $venta->save();
 
 
                             $movimientocaja = new Detallemovcaja();
@@ -2004,531 +1596,970 @@ class VentaController extends Controller
                             }
                             //$movimientocaja->persona_id = $request->input('persona_id');
                             $movimientocaja->movimiento_id = $movimiento->id;
+                            //$aperturacierrecaja = Aperturacierrecaja::where('estado','=','A')->first();
+                            //$movimientocaja->aperturacierrecaja_id = $aperturacierrecaja->id;
                             $movimientocaja->descripcion = 'PAGO DE CLIENTE';
                             $movimientocaja->save();
                         }
-                        
-                }
-
-            }
-            
-            /*if ($request->input('documento') != '15') {
-                if($ind == 1 && $montoafecto>0){
-                    // Monto Afecto
-                    if ($request->input('documento') == '5') {
-                        if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                            $person = Person::find($venta->persona_id);
-                        }else{
-
-                        }
-                        
-                    }else{
-                        $empresa = Person::find($venta->empresa_id);
-                    }
-                    
-                    $columna1=6;
-                    $columna2="20480082673";//RUC HOSPITAL
-                    $columna3="HOSPITAL PRIVADO JUAN PABLO II SOCIEDAD ANONIMA CERRADA";//Razon social Hospital                
-                    $columna4=$codigo; // Revisar
-                    $columna5=$abreviatura.str_pad($venta->serie,3,'0',STR_PAD_LEFT).'-'.$venta->numero;
-                    $columna6=date('Y-m-d');
-                    $columna7="sistemas@hospitaljuanpablo.pe";
-                    if($codigo=="03"){//BOLETA
-                        $columna8=1;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                        if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                            if(strlen($person->dni)<>8){
-                                $columna9='-';
-                            }else{
-                                $columna9=$person->dni;
-                            }
-                        }else{
-                            $columna9='-';
-                        }
-                        
-                    }else{
-                        $columna8=6;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                        $columna9=$empresa->ruc;
-                    }
-                    //$columna9='00000000';
-                    
-                    if ($request->input('documento') == '5') {
-                        if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                            $columna10=trim($person->bussinesname." ".$person->apellidopaterno." ".$person->apellidomaterno." ".$person->nombres);//Razon social
-                            $columna101=trim($person->direccion);
-                        }else{
-                           $columna10=trim($venta->nombrepaciente);//Razon social
-                            $columna101=trim('-');
-                        }
-                        
-                    }else{
-                        $columna10=trim($empresa->bussinesname);//Razon social
-                        $columna101=trim($empresa->direccion);
-                    }
-                    //if($person->email!=""){
-                    //    $columna11=$person->email;
-                    //}else{
-                        $columna11="-";    
-                    //}
-
-                    $subtotal=number_format($montoafecto/1.18,2,'.','');
-                    $igv=number_format($montoafecto - $subtotal,2,'.','');
-
-
-                    $columna12="PEN";
-                    $columna13=$subtotal;
-                    $columna14='0.00';
-                    $columna15='0.00';
-                    $columna16="";
-                    $columna17=$igv;
-                    $columna18='0.00';
-                    $columna19='0.00';
-                    $columna20=$montoafecto;
-                    $columna21=1000;
-                    $letras = new EnLetras();
-                    $columna22=$letras->ValorEnLetras($columna20, "SOLES" );//letras
-                    DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER (
-                        tipoDocumentoEmisor,
-                        numeroDocumentoEmisor,
-                        razonSocialEmisor,
-                        tipoDocumento,
-                        serieNumero,
-                        fechaEmision,
-                        correoEmisor,
-                        tipoDocumentoAdquiriente,
-                        numeroDocumentoAdquiriente,
-                        razonSocialAdquiriente,
-                        correoAdquiriente,
-                        tipoMoneda,
-                        totalValorVentaNetoOpGravadas,
-                        totalValorVentaNetoOpNoGravada,
-                        totalValorVentaNetoOpExonerada,
-                        
-                        totalIgv,
-                        
-                        
-                        totalVenta,
-                        codigoLeyenda_1,
-                        textoLeyenda_1
-                        ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-                        [$columna1, $columna2, $columna3, $columna4, $columna5, $columna6, $columna7, $columna8, $columna9, $columna10, $columna11, $columna12, $columna13, $columna14, $columna15, $columna17, $columna20, $columna21, $columna22]);
-
-                    if($abreviatura=="F"){
-                        DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
-                            tipoDocumentoEmisor,
-                            numeroDocumentoEmisor,
-                            serieNumero,
-                            tipoDocumento,
-                            clave,
-                            valor) 
-                            values (?, ?, ?, ?, ?, ?)',
-                            [$columna1, $columna2, $columna5, $columna4, 'direccionAdquiriente', $columna101]);
-                    }else{
-                        DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
-                            tipoDocumentoEmisor,
-                            numeroDocumentoEmisor,
-                            serieNumero,
-                            tipoDocumento,
-                            clave,
-                            valor) 
-                            values (?, ?, ?, ?, ?, ?)',
-                            [$columna1, $columna2, $columna5, $columna4, 'lugarDestino', $columna101]);
-                    }
-                      //---
-                    
-                    //Array Insert Detalle Facturacion
-
-                    for($c=0;$c<count($arr);$c++){
-
-                        $producto = Producto::find($arr[$c]['producto_id']);
-                        if ($producto->afecto == 'SI') {
-                            $columnad1=$c+1;
-                            $columnad2=$producto->id;
-                            $columnad3=$producto->nombre;   
                             
-                            $columnad4=$arr[$c]['cantidad'];
-                            $columnad5="NIU";
-                            $columnad6=round($arr[$c]['precio']/1.18,2);
-                            $columnad7=$arr[$c]['precio'];
-                            $columnad8="01";
-                            $columnad9=round($columnad4*$columnad6,2);
-                            $columnad10="10";
-                            $columnad11=round($columnad9*0.18,2);
-                            $columnad12='0.00';
-                            $columnad13='0.00';
-                            DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEDETAIL(
-                            tipoDocumentoEmisor,
-                            numeroDocumentoEmisor,
-                            tipoDocumento,
-                            serieNumero,
-                            numeroOrdenItem,
-                            codigoProducto,
-                            descripcion,
-                            cantidad,
-                            unidadMedida,
-                            importeUnitarioSinImpuesto,
-                            importeUnitarioConImpuesto,
-                            codigoImporteUnitarioConImpues,
-                            importeTotalSinImpuesto,
-                            codigoRazonExoneracion,
-                            importeIgv
-                            )
-                            values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                            [$columna1, $columna2, $columna4, $columna5, $columnad1, $columnad2, $columnad3, $columnad4, $columnad5, $columnad6, $columnad7, $columnad8, $columnad9, $columnad10, $columnad11]);
-                        }
-                        
                     }
-                    DB::connection('sqlsrv')->update('update SPE_EINVOICEHEADER set bl_estadoRegistro = ? where serieNumero  = ?',
-                        ['A',$columna5]);
-                        
-                    //--
 
-                    // Monto Inafecto
-                    if ($request->input('documento') == '5') {
-                        if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                            $person = Person::find($venta2->persona_id);
-                        }else{
-
-                        }
-                        
-                    }else{
-                        $empresa = Person::find($venta2->empresa_id);
-                    }
-                    
-                    $columna1=6;
-                    $columna2="20480082673";//RUC HOSPITAL
-                    $columna3="HOSPITAL PRIVADO JUAN PABLO II SOCIEDAD ANONIMA CERRADA";//Razon social Hospital                
-                    $columna4=$codigo; // Revisar
-                    $columna5=$abreviatura.str_pad($venta2->serie,3,'0',STR_PAD_LEFT).'-'.$venta2->numero;
-                    $columna6=date('Y-m-d');
-                    $columna7="sistemas@hospitaljuanpablo.pe";
-                    if($codigo=="03"){//BOLETA
-                        $columna8=1;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                        if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                            if(strlen($person->dni)<>8){
-                                $columna9='00000000';
-                            }else{
-                                $columna9=$person->dni;
-                            }
-                        }else{
-                            $columna9='00000000';
-                        }
-                        
-                    }else{
-                        $columna8=6;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                        $columna9=$empresa->ruc;
-                    }
-                    //$columna9='00000000';
-                    
-                    if ($request->input('documento') == '5') {
-                        if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                            $columna10=trim($person->bussinesname." ".$person->apellidopaterno." ".$person->apellidomaterno." ".$person->nombres);//Razon social
-                            $columna101=trim($person->direccion);
-                        }else{
-                           $columna10=trim($venta2->nombrepaciente);//Razon social
-                            $columna101=trim('-');
-                        }
-                        
-                    }else{
-                        $columna10=trim($empresa->bussinesname);//Razon social
-                        $columna101=trim($empresa->direccion);
-                    }
-                    //if($person->email!=""){
-                    //    $columna11=$person->email;
-                    //}else{
-                        $columna11="-";    
-                    //}
-
-                    //$subtotal=number_format($montoafecto/1.18,2,'.','');
-                    //$igv=number_format($montoafecto - $subtotal,2,'.','');
-
-
-                    $columna12="PEN";
-                    $columna13='0.00';
-                    $columna14=$montonoafecto;
-                    $columna15='0.00';
-                    $columna16="";
-                    $columna17='0.00';
-                    $columna18='0.00';
-                    $columna19='0.00';
-                    $columna20=$montonoafecto;
-                    $columna21=1000;
-                    $letras = new EnLetras();
-                    $columna22=$letras->ValorEnLetras($columna20, "SOLES" );//letras
-                    DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER (
-                        tipoDocumentoEmisor,
-                        numeroDocumentoEmisor,
-                        razonSocialEmisor,
-                        tipoDocumento,
-                        serieNumero,
-                        fechaEmision,
-                        correoEmisor,
-                        tipoDocumentoAdquiriente,
-                        numeroDocumentoAdquiriente,
-                        razonSocialAdquiriente,
-                        correoAdquiriente,
-                        tipoMoneda,
-                        totalValorVentaNetoOpGravadas,
-                        totalValorVentaNetoOpNoGravada,
-                        totalValorVentaNetoOpExonerada,
-                        
-                        totalIgv,
-                        
-                        
-                        totalVenta,
-                        codigoLeyenda_1,
-                        textoLeyenda_1
-                        ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-                        [$columna1, $columna2, $columna3, $columna4, $columna5, $columna6, $columna7, $columna8, $columna9, $columna10, $columna11, $columna12, $columna13, $columna14, $columna15, $columna17, $columna20, $columna21, $columna22]);
-
-                    if($abreviatura=="F"){
-                        DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
-                            tipoDocumentoEmisor,
-                            numeroDocumentoEmisor,
-                            serieNumero,
-                            tipoDocumento,
-                            clave,
-                            valor) 
-                            values (?, ?, ?, ?, ?, ?)',
-                            [$columna1, $columna2, $columna5, $columna4, 'direccionAdquiriente', $columna101]);
-                    }else{
-                        DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
-                            tipoDocumentoEmisor,
-                            numeroDocumentoEmisor,
-                            serieNumero,
-                            tipoDocumento,
-                            clave,
-                            valor) 
-                            values (?, ?, ?, ?, ?, ?)',
-                            [$columna1, $columna2, $columna5, $columna4, 'lugarDestino', $columna101]);
-                    }
-                    //---
-                    
-                    //Array Insert Detalle Facturacion
-
-                    for($c=0;$c<count($arr);$c++){
-
-                        $producto = Producto::find($arr[$c]['producto_id']);
-                        if ($producto->afecto == 'NO') {
-                            $columnad1=$c+1;
-                            $columnad2=$producto->id;
-                            $columnad3=$producto->nombre;   
-                            
-                            $columnad4=$arr[$c]['cantidad'];
-                            $columnad5="NIU";
-                            $columnad6=$arr[$c]['precio'];
-                            $columnad7=$arr[$c]['precio'];
-                            $columnad8="01";
-                            $columnad9=round($columnad4*$columnad6,2);
-                            $columnad10="30";
-                            $columnad11='0.00';
-                            $columnad12='0.00';
-                            $columnad13='0.00';
-                            DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEDETAIL(
-                            tipoDocumentoEmisor,
-                            numeroDocumentoEmisor,
-                            tipoDocumento,
-                            serieNumero,
-                            numeroOrdenItem,
-                            codigoProducto,
-                            descripcion,
-                            cantidad,
-                            unidadMedida,
-                            importeUnitarioSinImpuesto,
-                            importeUnitarioConImpuesto,
-                            codigoImporteUnitarioConImpues,
-                            importeTotalSinImpuesto,
-                            codigoRazonExoneracion,
-                            importeIgv
-                            )
-                            values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                            [$columna1, $columna2, $columna4, $columna5, $columnad1, $columnad2, $columnad3, $columnad4, $columnad5, $columnad6, $columnad7, $columnad8, $columnad9, $columnad10, $columnad11]);
-                        }
-                        
-                    }
-                    DB::connection('sqlsrv')->update('update SPE_EINVOICEHEADER set bl_estadoRegistro = ? where serieNumero  = ?',
-                        ['A',$columna5]);
-                    
                 }else{
-                    //Array Insert facturacion
-                    if($montonoafecto>0){
-                        $venta=$venta2;
-                    }
-                    if ($request->input('documento') == '5') {
+                    // Para Monto Afecto
+                    if ($montoafecto > 0) {
+                        $total = str_replace(',', '', $request->input('totalventa'));
+                        $venta                 = new Venta();
+                        $venta->sucursal_id = $sucursal_id;
+                        $venta->caja_id = $caja->id;
+                        $venta->serie = '004';
+                        $venta->tipodocumento_id          = $request->input('documento');
                         if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                            $person = Person::find($venta->persona_id);
+                            $venta->persona_id = $request->input('person_id');
                         }else{
-
+                            $venta->nombrepaciente = $request->input('nombrepersona');
                         }
-                        
-                    }else{
-                        $empresa = Person::find($venta->empresa_id);
-                    }
-                    
-                    $columna1=6;
-                    $columna2="20480082673";//RUC HOSPITAL
-                    $columna3="HOSPITAL PRIVADO JUAN PABLO II SOCIEDAD ANONIMA CERRADA";//Razon social Hospital                
-                    $columna4=$codigo; // Revisar
-                    $columna5=$abreviatura.str_pad($venta->serie,3,'0',STR_PAD_LEFT).'-'.$venta->numero;
-                    $columna6=date('Y-m-d');
-                    $columna7="sistemas@hospitaljuanpablo.pe";
-                    if($codigo=="03"){//BOLETA
-                        $columna8=1;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                        if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                            if(strlen($person->dni)<>8){
-                                $columna9='00000000';
+                        if ($request->input('documento') == '5' || $request->input('documento') == '14' ) {
+                            $codigo="03";
+                            $abreviatura="B";
+                            if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
+                                $venta->persona_id = $request->input('person_id');
                             }else{
-                                $columna9=$person->dni;
+                                $venta->nombrepaciente = $request->input('nombrepersona');
                             }
+                            
                         }else{
-                            $columna9='00000000';
+                            $codigo="01";
+                            $abreviatura="F";
+                            $venta->empresa_id = $request->input('empresa_id');
                         }
+                        $venta->tipomovimiento_id = 4;
+                        $venta->almacen_id        = $almacen_id;
                         
-                    }else{
-                        $columna8=6;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                        $columna9=$empresa->ruc;
+                        $venta->numero = $request->input('numerodocumento');
+                        $venta->fecha  = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
+                        $venta->subtotal=number_format($montoafecto/1.18,2,'.','');
+                        $venta->igv=number_format($montoafecto - $venta->subtotal,2,'.','');
+                        $venta->total = $montoafecto;
+                        $venta->totalpagado = $request->input('efectivo');
+                        $venta->totalpagadovisa = $request->input('visa');
+                        $venta->totalpagadomaster = $request->input('master');
+                        $venta->credito = $request->input('credito');
+                        $venta->tipoventa = $request->input('tipoventa');
+                        //$venta->formapago = $request->input('formapago');
+                        /*if($request->input('formapago')=="Tarjeta"){
+                            $venta->tarjeta=$request->input('tipotarjeta');//VISA/MASTER
+                            $venta->tipotarjeta=$request->input('tipotarjeta2');//DEBITO/CREDITO
+                            $venta->voucher=$request->input('nroref');
+                        }*/
+                        /*if ($request->input('tipoventa') == 'C') {*/
+                            $venta->conveniofarmacia_id = $request->input('conveniofarmacia_id');
+                            $venta->descuentokayros = $request->input('descuentokayros');
+                            $venta->copago = $request->input('copago');
+                        /*}*/
+                               
+                        $venta->inicial = 'N';
+                        $venta->estadopago = 'P';
+                        $venta->ventafarmacia = 'S';
+                        $venta->manual='N';
+                        $venta->descuentoplanilla = $request->input('descuentoplanilla');
+                        if($request->input('descuentoplanilla')=="SI"){
+                            $venta->personal_id=$request->input('personal_id');
+                        }
+                        /*if ($request->input('credito') == 'S') {
+                            $venta->estadopago = 'PP';
+                        }*/
+                        
+                        $user = Auth::user();
+                        $venta->responsable_id = $user->person_id;
+                        $venta->doctor_id = Libreria::obtenerParametro($request->input('doctor_id'));
+                        //$venta->numeroficha = Libreria::obtenerParametro($request->input('numeroficha'));
+                        //$venta->cajaprueba = $request->input('cajafamarcia');
+                        $venta->save();
+                        $movimiento_id = $venta->id;
+                        $arr=$lista;
+                        for ($i=1; $i < $lista; $i++) {
+                             $producto = Producto::find($request->input('producto_id'.$i));
+                            if ($producto->afecto != 'NO') {
+                                $cantidad  = str_replace(',', '',$request->input('cantidad'.$i));
+                                $precio    = str_replace(',', '',$request->input('precio'.$i));
+                                $subtotal  = round(($cantidad*$precio), 2);
+                                $detalleVenta = new Detallemovimiento();
+                                $detalleVenta->cantidad = $cantidad;
+                                $detalleVenta->precio = $precio;
+                                $detalleVenta->subtotal = $subtotal;
+                                $detalleVenta->movimiento_id = $movimiento_id;
+                                $detalleVenta->producto_id = $request->input('producto_id'.$i);
+                                $detalleVenta->save();          
+                                
+                                // consulta lotes
+                                $lotes = Lote::where('producto_id','=',$request->input('producto_id'.$i))->where('almacen_id','=',$almacen_id)->where('queda','>','0')->orderBy('fechavencimiento','ASC')->get();
+                                $aux = $request->input('producto_id'.$i);// 3
+                                foreach ($lotes as $key => $value) { 
+                                    if ($value->queda >= $aux) {
+                                        $queda = $value->queda-$aux;
+                                        $value->queda = $queda;
+                                        $value->save();
+
+                                        $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $request->input('producto_id'.$i))->where('movimiento.almacen_id', '=',$almacen_id)->orderBy('kardex.id', 'DESC')->first();
+                                        $stockanterior = 0;
+                                        $stockactual = 0;
+                                        // ingresamos nuevo kardex
+                                        if ($ultimokardex === NULL) {
+                                            
+                                            
+                                        }else{
+                                            $stockanterior = $ultimokardex->stockactual;
+                                            $stockactual = $ultimokardex->stockactual-$aux;
+                                            $kardex = new Kardex();
+                                            $kardex->tipo = 'S';
+                                            $kardex->fecha = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
+                                            $kardex->stockanterior = $stockanterior;
+                                            $kardex->stockactual = $stockactual;
+                                            $kardex->cantidad = $aux;
+                                            $kardex->precioventa = $precio;
+                                            $kardex->almacen_id = $almacen_id;
+                                            $kardex->detallemovimiento_id = $detalleVenta->id;
+                                            $kardex->lote_id = $value->id;
+                                            $kardex->save(); 
+                                        }
+                                        break;
+                                    }else{
+                                        $cantvendida = $value->queda;
+                                        $aux = $aux-$value->queda;
+                                        $value->queda = 0;
+                                        $value->save();
+                                        
+                                        $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $request->input('producto_id'.$i))->where('movimiento.almacen_id', '=',$almacen_id)->orderBy('kardex.id', 'DESC')->first();
+                                        $stockanterior = 0;
+                                        $stockactual = 0;
+                                        // ingresamos nuevo kardex
+                                        if ($ultimokardex === NULL) {
+                                            
+                                            
+                                        }else{
+                                            $stockanterior = $ultimokardex->stockactual;
+                                            $stockactual = $ultimokardex->stockactual-$cantvendida;
+                                            $kardex = new Kardex();
+                                            $kardex->tipo = 'S';
+                                            $kardex->fecha = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
+                                            $kardex->stockanterior = $stockanterior;
+                                            $kardex->stockactual = $stockactual;
+                                            $kardex->cantidad = $cantvendida;
+                                            $kardex->precioventa = $precio;
+                                            $kardex->almacen_id = $almacen_id;
+                                            $kardex->detallemovimiento_id = $detalleVenta->id;
+                                            $kardex->lote_id = $value->id;
+                                            $kardex->save();    
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        # REGISTRO DE CREDITOS
+                        
+                        /*if ($request->input('formapago') == 'P') {
+                            
+                        }else{
+
+                            if ( ($request->input('documento') == 15 && $venta->copago > 0) || ($request->input('documento') != 15)) {
+                                $total = str_replace(',', '', $request->input('totalventa'));
+                                $movimiento                 = new Movimiento();
+                                $movimiento->sucursal_id = $sucursal_id;
+                                $movimiento->tipodocumento_id          = $request->input('documento');
+                                if ($request->input('documento') == '5') {
+                                    if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
+                                        $movimiento->persona_id = $request->input('person_id');
+                                    }else{
+                                        $movimiento->nombrepaciente = $request->input('nombrepersona');
+                                    }
+                                    
+                                }else{
+                                    $movimiento->empresa_id = $request->input('empresa_id');
+                                }
+                                $movimiento->tipomovimiento_id          = 2;
+                                
+                                $movimiento->numero = $request->input('numerodocumento');
+                                $movimiento->fecha  = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
+                                $movimiento->total = $montoafecto;
+                                
+                                $user = Auth::user();
+                                $movimiento->responsable_id = $user->person_id;
+                                $movimiento->conceptopago_id = 3;
+                                $movimiento->caja_id = 4;
+                                $movimiento->movimiento_id = $venta->id;
+                                if($request->input('formapago')=="T"){
+                                    $movimiento->tipotarjeta=$request->input('tipotarjeta');
+                                    $movimiento->tarjeta=$request->input('tipotarjeta2');
+                                    $movimiento->voucher=$request->input('nroref');
+                                    $movimiento->totalpagado=0;
+                                }else{
+                                    $movimiento->totalpagado=$request->input('total',0);
+                                }
+                                
+                                $movimiento->save();
+
+                                $venta->movimiento_id = $movimiento->id;
+                                $venta->save();
+
+                                $movimientocaja = new Detallemovcaja();
+                                if ($request->input('documento') == '5') {
+                                    if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
+                                        $movimientocaja->persona_id = $request->input('person_id');
+                                    }else{
+                                        $movimientocaja->nombrepaciente = $request->input('nombrepersona');
+                                    }
+                                    
+                                }else{
+                                    $movimientocaja->empresa_id = $request->input('empresa_id');
+                                }
+                                //$movimientocaja->persona_id = $request->input('persona_id');
+                                $movimientocaja->movimiento_id = $movimiento->id;
+                                $movimientocaja->descripcion = 'PAGO DE CLIENTE';
+                                $movimientocaja->save();
+                            }
+                                
+                        }*/
+
                     }
-                    //$columna9='00000000';
-                    
-                    if ($request->input('documento') == '5') {
+
+                    // Para Monto Inafecto
+
+                    $total = $request->input('totalventa');
+                    $venta2                 = new Venta();
+                    $venta2->sucursal_id = $sucursal_id;
+                    $venta2->caja_id = $caja->id;
+                    $venta2->serie = '004';
+                    $venta2->tipodocumento_id = $request->input('documento');
+                    if ($request->input('documento') == '5' || $request->input('documento') == '14' ) {
+                        $codigo="03";
+                        $abreviatura="B";
                         if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                            $columna10=trim($person->bussinesname." ".$person->apellidopaterno." ".$person->apellidomaterno." ".$person->nombres);//Razon social
-                            $columna101=trim($person->direccion);
+                            $venta2->persona_id = $request->input('person_id');
                         }else{
-                           $columna10=trim($venta->nombrepaciente);//Razon social
-                            $columna101=trim('-');
+                            $venta2->nombrepaciente = $request->input('nombrepersona');
                         }
                         
                     }else{
-                        $columna10=trim($empresa->bussinesname);//Razon social
-                        $columna101=trim($empresa->direccion);
+                        $codigo="01";
+                        $abreviatura="F";
+                        $venta2->empresa_id = $request->input('empresa_id');
+                        if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
+                            $venta2->persona_id = $request->input('person_id');
+                        }else{
+                            $venta2->nombrepaciente = $request->input('nombrepersona');
+                        }
                     }
-                    //if($person->email!=""){
-                    //    $columna11=$person->email;
-                    //}else{
-                        $columna11="-";    
-                    //}
-                    $columna12="PEN";
-                    if($venta->igv>0){
-                        $columna13=$venta->subtotal;
-                        $columna14='0.00';
-                        $columna15='0.00';
-                    }else{
-                        $columna13='0.00';
-                        $columna14=$venta->subtotal;
-                        $columna15='0.00';
-                    }
-                    $columna16="";
-                    $columna17=$venta->igv;
-                    $columna18='0.00';
-                    $columna19='0.00';
-                    $columna20=$venta->total;
-                    $columna21=1000;
-                    $letras = new EnLetras();
-                    $columna22=$letras->ValorEnLetras($columna20, "SOLES" );//letras
-                    DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER (
-                        tipoDocumentoEmisor,
-                        numeroDocumentoEmisor,
-                        razonSocialEmisor,
-                        tipoDocumento,
-                        serieNumero,
-                        fechaEmision,
-                        correoEmisor,
-                        tipoDocumentoAdquiriente,
-                        numeroDocumentoAdquiriente,
-                        razonSocialAdquiriente,
-                        correoAdquiriente,
-                        tipoMoneda,
-                        totalValorVentaNetoOpGravadas,
-                        totalValorVentaNetoOpNoGravada,
-                        totalValorVentaNetoOpExonerada,
-                        
-                        totalIgv,
-                        
-                        
-                        totalVenta,
-                        codigoLeyenda_1,
-                        textoLeyenda_1
-                        ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-                        [$columna1, $columna2, $columna3, $columna4, $columna5, $columna6, $columna7, $columna8, $columna9, $columna10, $columna11, $columna12, $columna13, $columna14, $columna15, $columna17, $columna20, $columna21, $columna22]);
-
-                    if($abreviatura=="F"){
-                        DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
-                            tipoDocumentoEmisor,
-                            numeroDocumentoEmisor,
-                            serieNumero,
-                            tipoDocumento,
-                            clave,
-                            valor) 
-                            values (?, ?, ?, ?, ?, ?)',
-                            [$columna1, $columna2, $columna5, $columna4, 'direccionAdquiriente', $columna101]);
-                    }else{
-                        DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
-                            tipoDocumentoEmisor,
-                            numeroDocumentoEmisor,
-                            serieNumero,
-                            tipoDocumento,
-                            clave,
-                            valor) 
-                            values (?, ?, ?, ?, ?, ?)',
-                            [$columna1, $columna2, $columna5, $columna4, 'lugarDestino', $columna101]);
-                    }
-                    //---
+                    $venta2->tipomovimiento_id = 4;
+                    $venta2->almacen_id        = $almacen_id;
                     
-                    //Array Insert Detalle Facturacion
-
-                    for($c=0;$c<count($arr);$c++){
-                        $columnad1=$c+1;
-                        $producto = Producto::find($arr[$c]['producto_id']);
-                        $columnad2=$producto->id;
-                        $columnad3=$producto->nombre;   
-                        
-                        $columnad4=$arr[$c]['cantidad'];
-                        $columnad5="NIU";
-                        if($venta->igv>0){
-                            $columnad6=round($arr[$c]['precio']/1.18,2);
-                            $columnad7=$arr[$c]['precio'];
-                            $columnad8="01";
-                            $columnad9=round($columnad4*$columnad6,2);
-                            $columnad10="10";
-                            $columnad11=round($columnad9*0.18,2);
-                        }else{
-                            $columnad6=$arr[$c]['precio'];
-                            $columnad7=$arr[$c]['precio'];
-                            $columnad8="01";
-                            $columnad9=round($columnad4*$columnad6,2);
-                            $columnad10="30";
-                            $columnad11='0.00';
-                        }
-                        $columnad12='0.00';
-                        $columnad13='0.00';
-                        DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEDETAIL(
-                        tipoDocumentoEmisor,
-                        numeroDocumentoEmisor,
-                        tipoDocumento,
-                        serieNumero,
-                        numeroOrdenItem,
-                        codigoProducto,
-                        descripcion,
-                        cantidad,
-                        unidadMedida,
-                        importeUnitarioSinImpuesto,
-                        importeUnitarioConImpuesto,
-                        codigoImporteUnitarioConImpues,
-                        importeTotalSinImpuesto,
-                        codigoRazonExoneracion,
-                        importeIgv
-                        )
-                        values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                        [$columna1, $columna2, $columna4, $columna5, $columnad1, $columnad2, $columnad3, $columnad4, $columnad5, $columnad6, $columnad7, $columnad8, $columnad9, $columnad10, $columnad11]);
+                    $venta2->numero = Movimiento::NumeroSigue($caja->id, $sucursal_id, 4,$request->input('documento'),4,'N');
+                    $venta2->fecha  = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
+                    $venta2->subtotal=number_format($montonoafecto,2,'.','');
+                    $venta2->igv=0;
+                    $venta2->total = $montonoafecto;
+                    $venta2->totalpagado = $request->input('efectivo');
+                    $venta2->totalpagadovisa = $request->input('visa');
+                    $venta2->totalpagadomaster = $request->input('master');
+                    $venta2->credito = $request->input('credito');
+                    $venta2->tipoventa = $request->input('tipoventa');
+                    $venta2->formapago = $request->input('formapago');
+                    if($request->input('formapago')=="T"){
+                        $venta2->tarjeta=$request->input('tipotarjeta');//VISA/MASTER
+                        $venta2->tipotarjeta=$request->input('tipotarjeta2');//DEBITO/CREDITO
                     }
-                    DB::connection('sqlsrv')->update('update SPE_EINVOICEHEADER set bl_estadoRegistro = ? where serieNumero  = ?',
-                        ['A',$columna5]);
+                    if ($request->input('tipoventa') == 'C') {
+                        $venta2->conveniofarmacia_id = $request->input('conveniofarmacia_id');
+                        $venta2->descuentokayros = $request->input('descuentokayros');
+                        $venta2->copago = $request->input('copago');
+                    }
+                           
+                    $venta2->inicial = 'N';
+                    $venta2->manual='N';
+                    $venta2->estadopago = 'P';
+                    $venta2->ventafarmacia = 'S';
+                    if ($request->input('credito') == 'S') {
+                        $venta2->estadopago = 'PP';
+                    }
+                    
+                    $user = Auth::user();
+                    $venta2->responsable_id = $user->person_id;
+                    $venta2->doctor_id = Libreria::obtenerParametro($request->input('doctor_id'));
+                    //$venta2->numeroficha = Libreria::obtenerParametro($request->input('numeroficha'));
+                    //$venta2->cajaprueba = $request->input('cajafamarcia');
+                    $venta2->save();
+                    $movimiento_id = $venta2->id;
+                    $arr=$lista;
+                    for ($i=1; $i < $lista; $i++) {
+                        $producto = Producto::find($request->input('producto_id'.$i));
+                        if ($producto->afecto == 'NO') {
+                            $cantidad  = $request->input('cantidad'.$i);
+                            $precio    = $request->input('precio'.$i);
+                            $subtotal  = round(($cantidad*$precio), 2);
+                            $detalleVenta = new Detallemovimiento();
+                            $detalleVenta->cantidad = $cantidad;
+                            $detalleVenta->precio = $precio;
+                            $detalleVenta->subtotal = $subtotal;
+                            $detalleVenta->movimiento_id = $movimiento_id;
+                            $detalleVenta->producto_id = $request->input('producto_id'.$i);
+                            $detalleVenta->save();
+
+                            // consulta lotes
+                            $lotes = Lote::where('producto_id','=',$request->input('producto_id'.$i))->where('almacen_id','=',$almacen_id)->where('queda','>','0')->orderBy('fechavencimiento','ASC')->get();
+                            $aux = $request->input('cantidad'.$i);
+                            foreach ($lotes as $key => $value) {
+                                if ($value->queda >= $aux) {
+                                    $queda = $value->queda-$aux;
+                                    $value->queda = $queda;
+                                    $value->save();
+                                    $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $request->input('producto_id'.$i))->where('movimiento.almacen_id', '=',$almacen_id)->orderBy('kardex.id', 'DESC')->first();
+                                    $stockanterior = 0;
+                                    $stockactual = 0;
+                                    // ingresamos nuevo kardex
+                                    if ($ultimokardex === NULL) {
+                                        
+                                        
+                                    }else{
+                                        $stockanterior = $ultimokardex->stockactual;
+                                        $stockactual = $ultimokardex->stockactual-$aux;
+                                        $kardex = new Kardex();
+                                        $kardex->tipo = 'S';
+                                        $kardex->fecha = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
+                                        $kardex->stockanterior = $stockanterior;
+                                        $kardex->stockactual = $stockactual;
+                                        $kardex->cantidad = $aux;
+                                        $kardex->precioventa = $precio;
+                                        $kardex->almacen_id = $almacen_id;
+                                        $kardex->detallemovimiento_id = $detalleVenta->id;
+                                        $kardex->lote_id = $value->id;
+                                        $kardex->save();    
+
+                                    }
+                                    break;
+                                }else{
+                                    $cantvendida = $value->queda;
+                                    $aux = $aux-$value->queda;
+                                    $value->queda = 0;
+                                    $value->save();
+                                    
+                                    $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $request->input('producto_id'.$i))->where('movimiento.almacen_id', '=',$almacen_id)->orderBy('kardex.id', 'DESC')->first();
+                                    $stockanterior = 0;
+                                    $stockactual = 0;
+                                    // ingresamos nuevo kardex
+                                    if ($ultimokardex === NULL) {
+                                        
+                                        
+                                    }else{
+                                        $stockanterior = $ultimokardex->stockactual;
+                                        $stockactual = $ultimokardex->stockactual-$cantvendida;
+                                        $kardex = new Kardex();
+                                        $kardex->tipo = 'S';
+                                        $kardex->fecha = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
+                                        $kardex->stockanterior = $stockanterior;
+                                        $kardex->stockactual = $stockactual;
+                                        $kardex->cantidad = $cantvendida;
+                                        $kardex->precioventa = $precio;
+                                        $kardex->almacen_id = $almacen_id;
+                                        $kardex->detallemovimiento_id = $detalleVenta->id;
+                                        $kardex->lote_id = $value->id;
+                                        $kardex->save();    
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    # REGISTRO DE CREDITOS
+                    
+                    if ($request->input('formapago') == 'P') {
                         
-                    //--
+                    }else{
+
+                            if ( ($request->input('documento') == 15 && $venta2->copago > 0 ) || ($request->input('documento') != 15)) {
+                                $total = $request->input('totalventa');
+                                $movimiento                 = new Movimiento();
+                                $movimiento->sucursal_id = $sucursal_id;
+                                $movimiento->caja_id = $caja->id;
+                                $movimiento->tipodocumento_id          = $request->input('documento');
+                                if ($request->input('documento') == '5') {
+                                    if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
+                                        $movimiento->persona_id = $request->input('person_id');
+                                    }else{
+                                        $movimiento->nombrepaciente = $request->input('nombrepersona');
+                                    }
+                                    
+                                }else{
+                                    $movimiento->empresa_id = $request->input('empresa_id');
+                                }
+                                $movimiento->tipomovimiento_id          = 2;
+                                
+                                $movimiento->numero = $request->input('numerodocumento');
+                                $movimiento->fecha  = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
+                                $movimiento->total = $montonoafecto;
+                                
+                                $user = Auth::user();
+                                $movimiento->responsable_id = $user->person_id;
+                                $movimiento->conceptopago_id = 3;
+                                $movimiento->caja_id = $caja->id;
+                                $movimiento->movimiento_id = $venta2->id;
+                                /*if($request->input('formapago')=="T"){
+                                    $movimiento->tipotarjeta=$request->input('tipotarjeta');
+                                    $movimiento->tarjeta=$request->input('tipotarjeta2');
+                                    $movimiento->voucher=$request->input('nroref');
+                                    $movimiento->totalpagado=0;
+                                }else{*/
+                                    $movimiento->totalpagado=$request->input('totalventa',0);
+                                    $movimiento->totalpagado = $request->input('efectivo', 0);
+                                    $movimiento->totalpagadovisa = $request->input('visa', 0);
+                                    $movimiento->totalpagadomaster = $request->input('master', 0);
+                                /*}*/
+                                
+                                $movimiento->save();
+
+                                $venta2->movimiento_id = $movimiento->id;
+                                $venta2->save();
+
+
+                                $movimientocaja = new Detallemovcaja();
+                                if ($request->input('documento') == '5') {
+                                    if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
+                                        $movimientocaja->persona_id = $request->input('person_id');
+                                    }else{
+                                        $movimientocaja->nombrepaciente = $request->input('nombrepersona');
+                                    }
+                                    
+                                }else{
+                                    $movimientocaja->empresa_id = $request->input('empresa_id');
+                                }
+                                //$movimientocaja->persona_id = $request->input('persona_id');
+                                $movimientocaja->movimiento_id = $movimiento->id;
+                                $movimientocaja->descripcion = 'PAGO DE CLIENTE';
+                                $movimientocaja->save();
+                            }
+                            
+                    }
 
                 }
                 
-            }*/
+                /*if ($request->input('documento') != '15') {
+                    if($ind == 1 && $montoafecto>0){
+                        // Monto Afecto
+                        if ($request->input('documento') == '5') {
+                            if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
+                                $person = Person::find($venta->persona_id);
+                            }else{
+
+                            }
+                            
+                        }else{
+                            $empresa = Person::find($venta->empresa_id);
+                        }
+                        
+                        $columna1=6;
+                        $columna2="20480082673";//RUC HOSPITAL
+                        $columna3="HOSPITAL PRIVADO JUAN PABLO II SOCIEDAD ANONIMA CERRADA";//Razon social Hospital                
+                        $columna4=$codigo; // Revisar
+                        $columna5=$abreviatura.str_pad($venta->serie,3,'0',STR_PAD_LEFT).'-'.$venta->numero;
+                        $columna6=date('Y-m-d');
+                        $columna7="sistemas@hospitaljuanpablo.pe";
+                        if($codigo=="03"){//BOLETA
+                            $columna8=1;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
+                            if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
+                                if(strlen($person->dni)<>8){
+                                    $columna9='-';
+                                }else{
+                                    $columna9=$person->dni;
+                                }
+                            }else{
+                                $columna9='-';
+                            }
+                            
+                        }else{
+                            $columna8=6;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
+                            $columna9=$empresa->ruc;
+                        }
+                        //$columna9='00000000';
+                        
+                        if ($request->input('documento') == '5') {
+                            if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
+                                $columna10=trim($person->bussinesname." ".$person->apellidopaterno." ".$person->apellidomaterno." ".$person->nombres);//Razon social
+                                $columna101=trim($person->direccion);
+                            }else{
+                               $columna10=trim($venta->nombrepaciente);//Razon social
+                                $columna101=trim('-');
+                            }
+                            
+                        }else{
+                            $columna10=trim($empresa->bussinesname);//Razon social
+                            $columna101=trim($empresa->direccion);
+                        }
+                        //if($person->email!=""){
+                        //    $columna11=$person->email;
+                        //}else{
+                            $columna11="-";    
+                        //}
+
+                        $subtotal=number_format($montoafecto/1.18,2,'.','');
+                        $igv=number_format($montoafecto - $subtotal,2,'.','');
+
+
+                        $columna12="PEN";
+                        $columna13=$subtotal;
+                        $columna14='0.00';
+                        $columna15='0.00';
+                        $columna16="";
+                        $columna17=$igv;
+                        $columna18='0.00';
+                        $columna19='0.00';
+                        $columna20=$montoafecto;
+                        $columna21=1000;
+                        $letras = new EnLetras();
+                        $columna22=$letras->ValorEnLetras($columna20, "SOLES" );//letras
+                        DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER (
+                            tipoDocumentoEmisor,
+                            numeroDocumentoEmisor,
+                            razonSocialEmisor,
+                            tipoDocumento,
+                            serieNumero,
+                            fechaEmision,
+                            correoEmisor,
+                            tipoDocumentoAdquiriente,
+                            numeroDocumentoAdquiriente,
+                            razonSocialAdquiriente,
+                            correoAdquiriente,
+                            tipoMoneda,
+                            totalValorVentaNetoOpGravadas,
+                            totalValorVentaNetoOpNoGravada,
+                            totalValorVentaNetoOpExonerada,
+                            
+                            totalIgv,
+                            
+                            
+                            totalVenta,
+                            codigoLeyenda_1,
+                            textoLeyenda_1
+                            ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+                            [$columna1, $columna2, $columna3, $columna4, $columna5, $columna6, $columna7, $columna8, $columna9, $columna10, $columna11, $columna12, $columna13, $columna14, $columna15, $columna17, $columna20, $columna21, $columna22]);
+
+                        if($abreviatura=="F"){
+                            DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
+                                tipoDocumentoEmisor,
+                                numeroDocumentoEmisor,
+                                serieNumero,
+                                tipoDocumento,
+                                clave,
+                                valor) 
+                                values (?, ?, ?, ?, ?, ?)',
+                                [$columna1, $columna2, $columna5, $columna4, 'direccionAdquiriente', $columna101]);
+                        }else{
+                            DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
+                                tipoDocumentoEmisor,
+                                numeroDocumentoEmisor,
+                                serieNumero,
+                                tipoDocumento,
+                                clave,
+                                valor) 
+                                values (?, ?, ?, ?, ?, ?)',
+                                [$columna1, $columna2, $columna5, $columna4, 'lugarDestino', $columna101]);
+                        }
+                          //---
+                        
+                        //Array Insert Detalle Facturacion
+
+                        for($c=0;$c<count($arr);$c++){
+
+                            $producto = Producto::find($arr[$c]['producto_id']);
+                            if ($producto->afecto == 'SI') {
+                                $columnad1=$c+1;
+                                $columnad2=$producto->id;
+                                $columnad3=$producto->nombre;   
+                                
+                                $columnad4=$arr[$c]['cantidad'];
+                                $columnad5="NIU";
+                                $columnad6=round($arr[$c]['precio']/1.18,2);
+                                $columnad7=$arr[$c]['precio'];
+                                $columnad8="01";
+                                $columnad9=round($columnad4*$columnad6,2);
+                                $columnad10="10";
+                                $columnad11=round($columnad9*0.18,2);
+                                $columnad12='0.00';
+                                $columnad13='0.00';
+                                DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEDETAIL(
+                                tipoDocumentoEmisor,
+                                numeroDocumentoEmisor,
+                                tipoDocumento,
+                                serieNumero,
+                                numeroOrdenItem,
+                                codigoProducto,
+                                descripcion,
+                                cantidad,
+                                unidadMedida,
+                                importeUnitarioSinImpuesto,
+                                importeUnitarioConImpuesto,
+                                codigoImporteUnitarioConImpues,
+                                importeTotalSinImpuesto,
+                                codigoRazonExoneracion,
+                                importeIgv
+                                )
+                                values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                                [$columna1, $columna2, $columna4, $columna5, $columnad1, $columnad2, $columnad3, $columnad4, $columnad5, $columnad6, $columnad7, $columnad8, $columnad9, $columnad10, $columnad11]);
+                            }
+                            
+                        }
+                        DB::connection('sqlsrv')->update('update SPE_EINVOICEHEADER set bl_estadoRegistro = ? where serieNumero  = ?',
+                            ['A',$columna5]);
+                            
+                        //--
+
+                        // Monto Inafecto
+                        if ($request->input('documento') == '5') {
+                            if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
+                                $person = Person::find($venta2->persona_id);
+                            }else{
+
+                            }
+                            
+                        }else{
+                            $empresa = Person::find($venta2->empresa_id);
+                        }
+                        
+                        $columna1=6;
+                        $columna2="20480082673";//RUC HOSPITAL
+                        $columna3="HOSPITAL PRIVADO JUAN PABLO II SOCIEDAD ANONIMA CERRADA";//Razon social Hospital                
+                        $columna4=$codigo; // Revisar
+                        $columna5=$abreviatura.str_pad($venta2->serie,3,'0',STR_PAD_LEFT).'-'.$venta2->numero;
+                        $columna6=date('Y-m-d');
+                        $columna7="sistemas@hospitaljuanpablo.pe";
+                        if($codigo=="03"){//BOLETA
+                            $columna8=1;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
+                            if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
+                                if(strlen($person->dni)<>8){
+                                    $columna9='00000000';
+                                }else{
+                                    $columna9=$person->dni;
+                                }
+                            }else{
+                                $columna9='00000000';
+                            }
+                            
+                        }else{
+                            $columna8=6;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
+                            $columna9=$empresa->ruc;
+                        }
+                        //$columna9='00000000';
+                        
+                        if ($request->input('documento') == '5') {
+                            if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
+                                $columna10=trim($person->bussinesname." ".$person->apellidopaterno." ".$person->apellidomaterno." ".$person->nombres);//Razon social
+                                $columna101=trim($person->direccion);
+                            }else{
+                               $columna10=trim($venta2->nombrepaciente);//Razon social
+                                $columna101=trim('-');
+                            }
+                            
+                        }else{
+                            $columna10=trim($empresa->bussinesname);//Razon social
+                            $columna101=trim($empresa->direccion);
+                        }
+                        //if($person->email!=""){
+                        //    $columna11=$person->email;
+                        //}else{
+                            $columna11="-";    
+                        //}
+
+                        //$subtotal=number_format($montoafecto/1.18,2,'.','');
+                        //$igv=number_format($montoafecto - $subtotal,2,'.','');
+
+
+                        $columna12="PEN";
+                        $columna13='0.00';
+                        $columna14=$montonoafecto;
+                        $columna15='0.00';
+                        $columna16="";
+                        $columna17='0.00';
+                        $columna18='0.00';
+                        $columna19='0.00';
+                        $columna20=$montonoafecto;
+                        $columna21=1000;
+                        $letras = new EnLetras();
+                        $columna22=$letras->ValorEnLetras($columna20, "SOLES" );//letras
+                        DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER (
+                            tipoDocumentoEmisor,
+                            numeroDocumentoEmisor,
+                            razonSocialEmisor,
+                            tipoDocumento,
+                            serieNumero,
+                            fechaEmision,
+                            correoEmisor,
+                            tipoDocumentoAdquiriente,
+                            numeroDocumentoAdquiriente,
+                            razonSocialAdquiriente,
+                            correoAdquiriente,
+                            tipoMoneda,
+                            totalValorVentaNetoOpGravadas,
+                            totalValorVentaNetoOpNoGravada,
+                            totalValorVentaNetoOpExonerada,
+                            
+                            totalIgv,
+                            
+                            
+                            totalVenta,
+                            codigoLeyenda_1,
+                            textoLeyenda_1
+                            ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+                            [$columna1, $columna2, $columna3, $columna4, $columna5, $columna6, $columna7, $columna8, $columna9, $columna10, $columna11, $columna12, $columna13, $columna14, $columna15, $columna17, $columna20, $columna21, $columna22]);
+
+                        if($abreviatura=="F"){
+                            DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
+                                tipoDocumentoEmisor,
+                                numeroDocumentoEmisor,
+                                serieNumero,
+                                tipoDocumento,
+                                clave,
+                                valor) 
+                                values (?, ?, ?, ?, ?, ?)',
+                                [$columna1, $columna2, $columna5, $columna4, 'direccionAdquiriente', $columna101]);
+                        }else{
+                            DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
+                                tipoDocumentoEmisor,
+                                numeroDocumentoEmisor,
+                                serieNumero,
+                                tipoDocumento,
+                                clave,
+                                valor) 
+                                values (?, ?, ?, ?, ?, ?)',
+                                [$columna1, $columna2, $columna5, $columna4, 'lugarDestino', $columna101]);
+                        }
+                        //---
+                        
+                        //Array Insert Detalle Facturacion
+
+                        for($c=0;$c<count($arr);$c++){
+
+                            $producto = Producto::find($arr[$c]['producto_id']);
+                            if ($producto->afecto == 'NO') {
+                                $columnad1=$c+1;
+                                $columnad2=$producto->id;
+                                $columnad3=$producto->nombre;   
+                                
+                                $columnad4=$arr[$c]['cantidad'];
+                                $columnad5="NIU";
+                                $columnad6=$arr[$c]['precio'];
+                                $columnad7=$arr[$c]['precio'];
+                                $columnad8="01";
+                                $columnad9=round($columnad4*$columnad6,2);
+                                $columnad10="30";
+                                $columnad11='0.00';
+                                $columnad12='0.00';
+                                $columnad13='0.00';
+                                DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEDETAIL(
+                                tipoDocumentoEmisor,
+                                numeroDocumentoEmisor,
+                                tipoDocumento,
+                                serieNumero,
+                                numeroOrdenItem,
+                                codigoProducto,
+                                descripcion,
+                                cantidad,
+                                unidadMedida,
+                                importeUnitarioSinImpuesto,
+                                importeUnitarioConImpuesto,
+                                codigoImporteUnitarioConImpues,
+                                importeTotalSinImpuesto,
+                                codigoRazonExoneracion,
+                                importeIgv
+                                )
+                                values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                                [$columna1, $columna2, $columna4, $columna5, $columnad1, $columnad2, $columnad3, $columnad4, $columnad5, $columnad6, $columnad7, $columnad8, $columnad9, $columnad10, $columnad11]);
+                            }
+                            
+                        }
+                        DB::connection('sqlsrv')->update('update SPE_EINVOICEHEADER set bl_estadoRegistro = ? where serieNumero  = ?',
+                            ['A',$columna5]);
+                        
+                    }else{
+                        //Array Insert facturacion
+                        if($montonoafecto>0){
+                            $venta=$venta2;
+                        }
+                        if ($request->input('documento') == '5') {
+                            if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
+                                $person = Person::find($venta->persona_id);
+                            }else{
+
+                            }
+                            
+                        }else{
+                            $empresa = Person::find($venta->empresa_id);
+                        }
+                        
+                        $columna1=6;
+                        $columna2="20480082673";//RUC HOSPITAL
+                        $columna3="HOSPITAL PRIVADO JUAN PABLO II SOCIEDAD ANONIMA CERRADA";//Razon social Hospital                
+                        $columna4=$codigo; // Revisar
+                        $columna5=$abreviatura.str_pad($venta->serie,3,'0',STR_PAD_LEFT).'-'.$venta->numero;
+                        $columna6=date('Y-m-d');
+                        $columna7="sistemas@hospitaljuanpablo.pe";
+                        if($codigo=="03"){//BOLETA
+                            $columna8=1;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
+                            if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
+                                if(strlen($person->dni)<>8){
+                                    $columna9='00000000';
+                                }else{
+                                    $columna9=$person->dni;
+                                }
+                            }else{
+                                $columna9='00000000';
+                            }
+                            
+                        }else{
+                            $columna8=6;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
+                            $columna9=$empresa->ruc;
+                        }
+                        //$columna9='00000000';
+                        
+                        if ($request->input('documento') == '5') {
+                            if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
+                                $columna10=trim($person->bussinesname." ".$person->apellidopaterno." ".$person->apellidomaterno." ".$person->nombres);//Razon social
+                                $columna101=trim($person->direccion);
+                            }else{
+                               $columna10=trim($venta->nombrepaciente);//Razon social
+                                $columna101=trim('-');
+                            }
+                            
+                        }else{
+                            $columna10=trim($empresa->bussinesname);//Razon social
+                            $columna101=trim($empresa->direccion);
+                        }
+                        //if($person->email!=""){
+                        //    $columna11=$person->email;
+                        //}else{
+                            $columna11="-";    
+                        //}
+                        $columna12="PEN";
+                        if($venta->igv>0){
+                            $columna13=$venta->subtotal;
+                            $columna14='0.00';
+                            $columna15='0.00';
+                        }else{
+                            $columna13='0.00';
+                            $columna14=$venta->subtotal;
+                            $columna15='0.00';
+                        }
+                        $columna16="";
+                        $columna17=$venta->igv;
+                        $columna18='0.00';
+                        $columna19='0.00';
+                        $columna20=$venta->total;
+                        $columna21=1000;
+                        $letras = new EnLetras();
+                        $columna22=$letras->ValorEnLetras($columna20, "SOLES" );//letras
+                        DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER (
+                            tipoDocumentoEmisor,
+                            numeroDocumentoEmisor,
+                            razonSocialEmisor,
+                            tipoDocumento,
+                            serieNumero,
+                            fechaEmision,
+                            correoEmisor,
+                            tipoDocumentoAdquiriente,
+                            numeroDocumentoAdquiriente,
+                            razonSocialAdquiriente,
+                            correoAdquiriente,
+                            tipoMoneda,
+                            totalValorVentaNetoOpGravadas,
+                            totalValorVentaNetoOpNoGravada,
+                            totalValorVentaNetoOpExonerada,
+                            
+                            totalIgv,
+                            
+                            
+                            totalVenta,
+                            codigoLeyenda_1,
+                            textoLeyenda_1
+                            ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+                            [$columna1, $columna2, $columna3, $columna4, $columna5, $columna6, $columna7, $columna8, $columna9, $columna10, $columna11, $columna12, $columna13, $columna14, $columna15, $columna17, $columna20, $columna21, $columna22]);
+
+                        if($abreviatura=="F"){
+                            DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
+                                tipoDocumentoEmisor,
+                                numeroDocumentoEmisor,
+                                serieNumero,
+                                tipoDocumento,
+                                clave,
+                                valor) 
+                                values (?, ?, ?, ?, ?, ?)',
+                                [$columna1, $columna2, $columna5, $columna4, 'direccionAdquiriente', $columna101]);
+                        }else{
+                            DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
+                                tipoDocumentoEmisor,
+                                numeroDocumentoEmisor,
+                                serieNumero,
+                                tipoDocumento,
+                                clave,
+                                valor) 
+                                values (?, ?, ?, ?, ?, ?)',
+                                [$columna1, $columna2, $columna5, $columna4, 'lugarDestino', $columna101]);
+                        }
+                        //---
+                        
+                        //Array Insert Detalle Facturacion
+
+                        for($c=0;$c<count($arr);$c++){
+                            $columnad1=$c+1;
+                            $producto = Producto::find($arr[$c]['producto_id']);
+                            $columnad2=$producto->id;
+                            $columnad3=$producto->nombre;   
+                            
+                            $columnad4=$arr[$c]['cantidad'];
+                            $columnad5="NIU";
+                            if($venta->igv>0){
+                                $columnad6=round($arr[$c]['precio']/1.18,2);
+                                $columnad7=$arr[$c]['precio'];
+                                $columnad8="01";
+                                $columnad9=round($columnad4*$columnad6,2);
+                                $columnad10="10";
+                                $columnad11=round($columnad9*0.18,2);
+                            }else{
+                                $columnad6=$arr[$c]['precio'];
+                                $columnad7=$arr[$c]['precio'];
+                                $columnad8="01";
+                                $columnad9=round($columnad4*$columnad6,2);
+                                $columnad10="30";
+                                $columnad11='0.00';
+                            }
+                            $columnad12='0.00';
+                            $columnad13='0.00';
+                            DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEDETAIL(
+                            tipoDocumentoEmisor,
+                            numeroDocumentoEmisor,
+                            tipoDocumento,
+                            serieNumero,
+                            numeroOrdenItem,
+                            codigoProducto,
+                            descripcion,
+                            cantidad,
+                            unidadMedida,
+                            importeUnitarioSinImpuesto,
+                            importeUnitarioConImpuesto,
+                            codigoImporteUnitarioConImpues,
+                            importeTotalSinImpuesto,
+                            codigoRazonExoneracion,
+                            importeIgv
+                            )
+                            values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                            [$columna1, $columna2, $columna4, $columna5, $columnad1, $columnad2, $columnad3, $columnad4, $columnad5, $columnad6, $columnad7, $columnad8, $columnad9, $columnad10, $columnad11]);
+                        }
+                        DB::connection('sqlsrv')->update('update SPE_EINVOICEHEADER set bl_estadoRegistro = ? where serieNumero  = ?',
+                            ['A',$columna5]);
+                            
+                        //--
+
+                    }
+                    
+                }*/
 
                 $guia = 'NO';
                 
@@ -2559,6 +2590,9 @@ class VentaController extends Controller
                     }*/
                     
                 }
+            } else {
+                $dat[0]=array("respuesta"=>"ERROR","msg"=>"Ya existe este número de movimiento");
+                return json_encode($dat);
             }
         });
         return is_null($error) ? json_encode($dat) : $error;
