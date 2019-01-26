@@ -174,7 +174,7 @@ $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
             <?php //echo $value->conceptopago_id.''; ?>
             @if($conceptopago_id<>2 && $value->situacion<>'A' && $value->conceptopago_id<>15 && $value->conceptopago_id<>17 && $value->conceptopago_id<>19 && $value->conceptopago_id<>21 && $value->conceptopago_id<>32)
                 @if($value->conceptopago_id<>1 && $value->conceptopago_id<>2 && $value->conceptopago_id<>14 && $value->conceptopago_id<>16 && $value->conceptopago_id<>18 && $value->conceptopago_id<>20)
-                    @if($user->usertype_id==8 || $user->usertype_id==1 || $user->usertype_id==7 || $user->usertype_id==23)
+                    @if($user->usertype_id==8 || $user->usertype_id==1 || $user->usertype_id==7 || $user->usertype_id==23 || $user->usertype_id==11)
                         <td align="center">{!! Form::button('<div class="glyphicon glyphicon-remove"></div>', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_anular.'\', this);', 'class' => 'btn btn-xs btn-danger', 'title' => 'Anular')) !!}</td>
                     @else
                         <td align="center"> - </td>

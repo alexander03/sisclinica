@@ -539,7 +539,7 @@ function buscarProducto(valor){
                 for(c=0; c < datos.length; c++){
                 	//Algoritmo para stock
                 	var stock = datos[c].stock;
-                	if(datos[c].presentacion !== 'UNIDAD') {
+                	if(datos[c].fraccion != 1) {
                 		var pres1 = 1;
                 		pres1 = Math.trunc(parseFloat(datos[c].stock)/parseFloat(datos[c].fraccion));
                 		entero = parseFloat(pres1);
@@ -925,7 +925,7 @@ function agregarconvenio(id){
 			$.post('{{ URL::route("compra.agregarcarritocompra")}}', {cantidad: cantidad,precio: precio, producto_id: product_id, tipoventa: tipoventa, descuentokayros: descuentokayros, copago: copago, precioventa: precioventa, preciokayros: preciokayros, lote: lote, fechavencimiento: fechavencimiento, detalle: $('#detalle').val(),_token: _token} , function(data){
 				$('#detalle').val(true);var producto_id = $('#producto_id').val();
 				if(data === '0-0') {
-					alert('No es un formato válido de cantidad.');
+					bootbox.alert('No es un formato válido de cantidad.');
 					$('#cantidad').val('').focus();
 					return false;
 				} else {
@@ -1026,12 +1026,12 @@ function agregarconvenio(id){
 
 function guardarCompra (entidad, idboton) {
 	if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="fecha2"]').val()==""){
-		alert("Debe ingresar una fecha de vencimiento");
+		bootbox.alert("Debe ingresar una fecha de vencimiento");
 		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="fecha2"]').focus();
 		return false;
 	}
 	if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="igv"]').val()==""){
-		alert("Debe ingresar igv");
+		bootbox.alert("Debe ingresar igv");
 		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="igv"]').focus();
 		return false;
 	}else{
@@ -1040,7 +1040,7 @@ function guardarCompra (entidad, idboton) {
 		var igv = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="igv"]').val();
 		igv = igv.replace(',','');
 		if(parseFloat(total)<parseFloat(igv)){
-			alert('Igv debe ser menor que total');
+			bootbox.alert('Igv debe ser menor que total');
 			return false;
 		}
 		var mensaje = '<h3 align = "center">Total = '+total+'</h3>';
@@ -1100,7 +1100,7 @@ function guardarCompra (entidad, idboton) {
 				                }*/
 				                
 							} else if(resp === 'ERROR') {
-								alert(dat[0].msg);
+								bootbox.alert(dat[0].msg);
 							} else {
 								mostrarErrores(respuesta, idformulario, entidad);
 							}

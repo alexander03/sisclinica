@@ -63,7 +63,9 @@ $url = URL::route($ruta["create"], array('listar'=>'SI'));
 							<?php if($user->usertype_id==11 || $user->usertype_id==1){
 							?> 
 							{!! Form::button('<i class="glyphicon glyphicon-plus"></i> Nuevo', array('class' => 'btn btn-info btn-xs', 'id' => 'btnNuevo', 'onclick' => 'modal (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
-							{!! Form::button('<i class="glyphicon glyphicon-plus"></i> Nuevo Pendiente Pasado', array('class' => 'btn btn-info btn-xs', 'id' => 'btnNuevo', 'onclick' => 'modal (\''.URL::route('venta.creatependientepasado', array('listar'=>'SI')).'\', \'Registrar Venta Pendiente\', this);')) !!}
+							@if($user->usertype_id==1)
+								{!! Form::button('<i class="glyphicon glyphicon-plus"></i> Nuevo Pendiente Pasado', array('class' => 'btn btn-info btn-xs', 'id' => 'btnNuevo', 'onclick' => 'modal (\''.URL::route('venta.creatependientepasado', array('listar'=>'SI')).'\', \'Registrar Venta Pendiente\', this);')) !!}
+							@endif
 							<?php 
 								}
 							?> 

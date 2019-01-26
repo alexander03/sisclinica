@@ -231,17 +231,17 @@ class CompraController extends Controller
         $cadena = '';
         $cantidades1      = Libreria::getParam(str_replace(",", "", $request->input('cantidad'))); 
         $cantidades2      = explode("F", $cantidades1);
-        $producto_id       = Libreria::getParam($request->input('producto_id'));
-        $precio       = Libreria::getParam(str_replace(",", "", $request->input('precio')));
-        $preciokayros       = Libreria::getParam(str_replace(",", "", $request->input('preciokayros')));
-        $precioventa       = Libreria::getParam(str_replace(",", "", $request->input('precioventa')));
-        $fechavencimiento       = Libreria::getParam($request->input('fechavencimiento'));
-        $lote       = Libreria::getParam($request->input('lote'));
-        $distribuidora_id       = Libreria::getParam($request->input('person_id'));
-        $producto   = Producto::find($producto_id);
-        $mensajecantidad = '';
+        $producto_id      = Libreria::getParam($request->input('producto_id'));
+        $precio           = Libreria::getParam(str_replace(",", "", $request->input('precio')));
+        $preciokayros     = Libreria::getParam(str_replace(",", "", $request->input('preciokayros')));
+        $precioventa      = Libreria::getParam(str_replace(",", "", $request->input('precioventa')));
+        $fechavencimiento = Libreria::getParam($request->input('fechavencimiento'));
+        $lote             = Libreria::getParam($request->input('lote'));
+        $distribuidora_id = Libreria::getParam($request->input('person_id'));
+        $producto         = Producto::find($producto_id);
+        $mensajecantidad  = '';
 
-        if($producto->presentacion->nombre != 'UNIDAD' && count($cantidades2) == 2) {
+        if($producto->fraccion != 1 && count($cantidades2) == 2) {
             if(!is_numeric($cantidades2[0]) || !is_numeric($cantidades2[1])) {
                 return '0-0';
             }
@@ -249,7 +249,7 @@ class CompraController extends Controller
             $cantidadpresentacion2 = (float) $cantidades2[1];
             $cantidadunidades = ($producto->fraccion*$cantidadpresentacion1)+$cantidadpresentacion2;
             $mensajecantidad .= (String) $cantidadpresentacion1 . ' ' . $producto->presentacion->nombre . 'S, ' . (String) $cantidadpresentacion2 . ' UNIDADES';
-        } else if($producto->presentacion->nombre == 'UNIDAD' && count($cantidades2) == 1) {            
+        } else if($producto->fraccion == 1 && count($cantidades2) == 1) {            
             if(!is_numeric($cantidades2[0])) {
                 return '0-0';
             }
