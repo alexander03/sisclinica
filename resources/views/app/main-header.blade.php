@@ -6,6 +6,8 @@ use App\Sucursal;
 use Jenssegers\Date\Date;
 use Illuminate\Support\Facades\Session;
 
+$user = Auth::user();
+
 $sucursal_id = Session::get('sucursal_id');
 $sucursal = null;
 if($sucursal_id != null){
@@ -20,7 +22,7 @@ $usertype = Usertype::find($user->usertype_id);
 $date     = Date::instance($usertype->created_at)->format('l j F Y');
 ?>
 <style>
-.enlaces{
+.enlaces{   
     float: left;
     background-image: none;
     padding: 15px 15px;
@@ -55,6 +57,13 @@ $date     = Date::instance($usertype->created_at)->format('l j F Y');
                     <div id="sucursalsession" style="margin-top: 15px; margin-right: 15px;"></div>
                 @else
                     <div id="sucursalsession" style="margin-top: 15px; margin-right: 15px;">SUCURSAL: {{ $sucursal->razonsocial }}</div>
+                @endif
+                </li>
+                <li>
+                @if($user->sucursal_id == null)
+                    <div style="margin-top: 10px; margin-right: 15px;">
+                        <button class='btn btn-success btn-sm btnSucursal' id='btnSucursal' onclick='cargarRuta("usuario/escogerSucursal", "container");' type='button'>Escoger Sucursal</button> 
+                    </div>
                 @endif
                 </li>
                 <!-- User Account: style can be found in dropdown.less -->

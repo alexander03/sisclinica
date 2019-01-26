@@ -61,6 +61,7 @@ $user = Auth::user();
 			  <li><a data-toggle="tab" href="#Farmacia">Farmacia</a></li>
 			  <li><a data-toggle="tab" href="#cie">CIE 10</a></li>
 			  <li class="active" id="pestanaPacienteCola"><a data-toggle="tab" href="#cola">Pacientes en cola</a></li>
+			  <li><a data-toggle="tab" href="#atendidos">Atenciones del día</a></li>
 			  <li style="" id="pestanaAtencion"><a data-toggle="tab" href="#atencion">Atención de Paciente</a></li>
 			</ul>
 			<div class="tab-content">
@@ -168,9 +169,34 @@ $user = Auth::user();
 										</div>
 									</div>
 									<!-- /.box-header -->
-									<div class="box-body" id="listado2{{ $entidad }}">
+								</div>
+								<!-- /.box -->
+							</div>
+							<!-- /.col -->
+						</div>
+						<!-- /.row -->
+					</section>
+					<!-- /.content -->	
+				</div>
+
+				<div id="atendidos" class="tab-pane fade">
+					<!-- Main content -->
+					<section class="content">
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="box">
+									<div class="box-header">
+										<div class="row">
+											
+											<div class="col-xs-12">
+												<h3 class='text-center' style='font-weight:bold;color:blue'>ATENCIONES DEL DÍA</h3>
+												<div id="tablaAtendidos">
+												</div>
+											</div>
+
+										</div>
 									</div>
-									<!-- /.box-body -->
+									<!-- /.box-header -->
 								</div>
 								<!-- /.box -->
 							</div>
@@ -284,9 +310,6 @@ $user = Auth::user();
 										</div>
 									</div>
 									<!-- /.box-header -->
-									<div class="box-body" id="listado2{{ $entidad }}">
-									</div>
-									<!-- /.box-body -->
 								</div>
 								<!-- /.box -->
 							</div>
@@ -310,13 +333,109 @@ $user = Auth::user();
 				    </div>
 				</div>
 			</div>
+			<!-- Modal -->
+			<div class="modal fade" id="exampleModal2" tabindex="-1" role="dialog" aria-labelledby="tituloeditar" aria-hidden="true">
+				<div class="modal-dialog modal-lg" role="document">
+				    <div class="modal-content">
+						<div class="modal-header">
+							<h3 class="modal-title" id="tituloeditar">Editar Atención</h3>
+						</div>
+					    <div>
+							<div class="form-horizontal">
+								<input type="hidden" id="atencion_id" name="atencion_id">
+								<div class="col-sm-12" style="font-size: 15px;margin-top:20px;">
+									<div class="form-group col-sm-4">
+										<label for="fechaeditar" class="col-sm-4 control-label">Fecha:</label>
+										<div class="col-sm-8">
+											<input class="form-control input-xs" id="fechaeditar" readonly style="font-size: 16px;"  name="fechaeditar" type="text">
+										</div>
+									</div>
+									<div class="form-group col-sm-4">
+										<label for="historiaeditar" class="col-sm-4 control-label">Historia:</label>
+										<div class="col-sm-8">
+											<input class="form-control input-xs" id="historiaeditar" readonly style="font-size: 16px;" name="historiaeditar" type="text">
+										</div>
+									</div>
+									<div class="form-group col-sm-4">
+										<label for="numeroeditar" class="col-sm-4 control-label">Tratam.:</label>
+										<div class="col-sm-8">
+											<input class="form-control input-xs" id="numeroeditar" readonly style="font-size: 16px;" name="numeroeditar" type="text">
+										</div>
+									</div>
+								</div>
+								<div class="col-sm-12" style="font-size: 15px;">
+									<div class="form-group col-sm-6">
+										<label for="pacienteeditar" class="col-sm-3 control-label">Paciente:</label>
+										<div class="col-sm-9">
+											<input class="form-control input-xs" id="pacienteeditar" readonly style="font-size: 14px;" name="pacienteeditar" type="text">
+										</div>
+									</div>
+									<div class="form-group col-sm-6">
+										<label for="doctoreditar" class="col-sm-3 control-label">Doctor:</label>
+										<div class="col-sm-9">
+											<input class="form-control input-xs" id="doctoreditar" readonly style="font-size: 14px;" name="doctoreditar" type="text">
+										</div>
+									</div>
+								</div>
+								<div class="col-sm-12" style="font-size: 15px;">
+									<div class="form-group col-sm-4">
+										<label for="cie10editar" class="col-sm-3 control-label">Cie10:</label>
+										<div class="col-sm-5">
+											<input class="form-control input-xs" id="cie10editar" readonly style="font-size: 16px;" name="cie10editar" type="text">
+										</div>
+									</div>
+									<div class="form-group col-sm-4">
+										<label for="fondoeditar" class="col-sm-9 control-label">Fondo de ojos:</label>
+										<div class="col-sm-3">
+											<input style="margin-top: 11px;" disabled type="checkbox" id="fondoeditar"><br>
+										</div>
+									</div>		
+								</div>
+								<div class="col-sm-6" style="font-size: 15px;">
+									<div class="form-group" style="margin: 5px;">
+										{!! Form::label('motivoeditar', 'Motivo:') !!}
+										<textarea class="form-control input-xs" id="motivoeditar" cols="10" rows="2" style="font-size: 16px;"></textarea>
+									</div>	
+									<div class="form-group" style="margin: 5px;">
+										{!! Form::label('sintomaseditar', 'Sintomas:') !!}
+										<textarea class="form-control input-xs" id="sintomaseditar" cols="10" rows="3" style="font-size: 16px;"></textarea>
+									</div>
+									<div class="form-group" style="margin: 5px;">
+										{!! Form::label('diagnosticoeditar', 'Diagnostico:') !!}
+										<textarea class="form-control input-xs" id="diagnosticoeditar" cols="10" rows="3" style="font-size: 16px;"></textarea>
+									</div>
+								</div>
+								<div class="col-sm-6" style="font-size: 15px;">
+									<div class="form-group" style="margin: 5px;">
+										{!! Form::label('tratamientoeditar', 'Tratamiento:') !!}
+										<textarea class="form-control input-xs" id="tratamientoeditar" cols="10" rows="3" style="font-size: 16px;"></textarea>
+									</div>
+									<div class="form-group" style="margin: 5px;">
+										{!! Form::label('exploracion_fisicaeditar', 'Exploración Física:') !!}
+										<textarea class="form-control input-xs" id="exploracion_fisicaeditar" cols="10" rows="3" style="font-size: 16px;"></textarea>
+									</div>
+									<div class="form-group" style="margin: 5px;">
+										{!! Form::label('exameneseditar', 'Exámenes:') !!}
+										<textarea class="form-control input-xs" id="exameneseditar" cols="10" rows="3" style="font-size: 16px;"></textarea>
+									</div>												
+								</div>
+							</div>
+
+						</div>
+				        <div class="modal-footer">
+							<button type="button" id="btnGuardarEditar" class="btn btn-success" data-dismiss="modal"><i class="glyphicon glyphicon-check"></i> Guardar</button>
+				            <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="glyphicon glyphicon-remove"></i> Cerrar</button>
+				        </div>
+				    </div>
+				</div>
+			</div>
 	        <!-- /.content-wrapper -->
 	        <footer class="navbar-default navbar-fixed-bottom" style="padding-left: 20px !important; padding-bottom: 20px; padding-top: 20px; padding-right: 20px;">
 	            <div class="container-fluid">
 	    			<div class="pull-right hidden-xs">
 	    				<b>Version</b> 2.3.8
 	    			</div>
-	    			<strong>Copyright © 2018 <a href="#">GARZATEC</a>.</strong> All rights
+	    			<strong>Copyright © 2018 <a href="#">GARZASOFT</a>.</strong> All rights
 	    			reserved.
 	            </div>
 			</footer>
@@ -373,6 +492,7 @@ $user = Auth::user();
 			}
 		});
 		buscar4();
+		tablaAtendidos();
 		$('#pestanaAtencion').css('display', 'none');
 		$("#cie102").prop('disabled', true);
 		$("#sintomas").prop('disabled', true);
@@ -430,8 +550,19 @@ $user = Auth::user();
 	    });
 	}	
     setInterval(buscar4, 1000);
-
 	
+	function tablaAtendidos(){
+		$.ajax({
+			"method": "POST",
+			"url": "{{ url('/historiaclinica/tablaAtendidos') }}",
+			"data": {
+				"_token": "{{ csrf_token() }}",
+				}
+		}).done(function(info){
+			$('#tablaAtendidos').html(info);
+		});
+	}	
+
 	function tablaCita(historia_id){
 		$.ajax({
 			"method": "POST",
@@ -589,6 +720,7 @@ $user = Auth::user();
 					$("#btnGuardar").prop('disabled', true);
 					$("#fondo").prop('disabled', true);
 					$('#fondo').prop('checked', false);
+					tablaAtendidos();
 	        	}
 	        }
 	    });
@@ -605,7 +737,67 @@ $user = Auth::user();
 		}).done(function(info){
 			$('#verCita').html(info);
 		});
+	}
+
+	function editar(cita_id){
+		$.ajax({
+	        type: "POST",
+	        url: "historiaclinica/editarCita",
+	        data: "_token=<?php echo csrf_token(); ?>" + "&cita_id=" + cita_id,
+	        dataType: "json",
+	        success: function(a) {
+				$('#atencion_id').val(a.atencion_id);
+	        	$('#fechaeditar').val(a.fecha);
+				$('#doctoreditar').val(a.doctor);
+				$('#historiaeditar').val(a.numhistoria);
+				$('#pacienteeditar').val(a.paciente);
+				$('#numeroeditar').val(a.numero);
+				$('#cie10editar').val(a.cie10);
+				$('#motivoeditar').val(a.motivo);
+				$('#sintomaseditar').val(a.sintomas);
+				$('#tratamientoeditar').val(a.tratamiento);
+				$('#diagnosticoeditar').val(a.diagnostico);
+				$('#exploracion_fisicaeditar').val(a.exploracion_fisica);
+				$('#exameneseditar').val(a.examenes);
+				if(a.fondo == "SI"){
+					$('#fondoeditar').prop('checked', true);
+				}else{
+					$('#fondoeditar').prop('checked', false);
+				}
+	        }
+	    });
 	}	
+
+	$(document).on('click', '#btnGuardarEditar', function(event) {	
+
+		var cita_id = $("#atencion_id").val();
+		var tratamiento = $('#tratamientoeditar').val().replace(/\r?\n/g, "<br>");
+    	var sintomas = $('#sintomaseditar').val().replace(/\r?\n/g, "<br>");
+    	var diagnostico = $('#diagnosticoeditar').val().replace(/\r?\n/g, "<br>");
+		var examenes = $('#exameneseditar').val().replace(/\r?\n/g, "<br>");
+    	var motivo = $('#motivoeditar').val().replace(/\r?\n/g, "<br>");
+    	var exploracion_fisica = $('#exploracion_fisicaeditar').val().replace(/\r?\n/g, "<br>");
+
+		$.ajax({
+			"method": "POST",
+			"url": "{{ url('/historiaclinica/guardarEditado') }}",
+			"data": {
+				"cita_id" : cita_id, 
+				"tratamiento" : tratamiento,
+				"sintomas" : sintomas,
+				"diagnostico" : diagnostico,
+				"examenes" : examenes,
+				"motivo" : motivo,
+				"exploracion_fisica" : exploracion_fisica,
+				"_token": "{{ csrf_token() }}",
+				}
+		}).done(function(info){
+			if(info == 'OK') {
+				alert('TRATAMIENTO REGISTRADO CORRECTAMENTE...');
+			}
+		});
+
+	});
 
 	function presente(estado){
 		if(estado == "SI"){
@@ -617,7 +809,7 @@ $user = Auth::user();
 			$("#exploracion_fisica").prop('disabled', false);
 			$("#examenes").prop('disabled', false);
 			$("#motivo").prop('disabled', false);
-			$("#divpresente").css('display','none');
+			//$("#divpresente").css('display','none');
 			if( $('#fondo_si').val() == "SI" ){
 				$("#fondo").prop('disabled', true);
 				$('#fondo').prop('checked', false);
@@ -641,6 +833,16 @@ $user = Auth::user();
 			$('#examenes').val('');
 			$('#motivo').val('');
 			$('#exploracion_fisica').val('');
+			$("#cie102").prop('disabled', true);
+			$("#sintomas").prop('disabled', true);
+			$("#diagnostico").prop('disabled', true);
+			$("#tratamiento").prop('disabled', true);
+			$("#exploracion_fisica").prop('disabled', true);
+			$("#examenes").prop('disabled', true);
+			$("#motivo").prop('disabled', true);
+			$("#btnGuardar").prop('disabled', true);
+			$("#fondo").prop('disabled', true);
+			$('#fondo').prop('checked', false);
 		}
 		var ticket_id = $('#ticket_id').val();
 		$.ajax({

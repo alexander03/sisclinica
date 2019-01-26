@@ -15,6 +15,7 @@ use App\Movimiento;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class HistoriaClinicaController extends Controller
 {
@@ -372,4 +373,108 @@ class HistoriaClinicaController extends Controller
 
         return $texto;
     }
+
+    public function tablaAtendidos(Request $request){
+
+        $ruta             = $this->rutas;
+
+        $resultado = HistoriaClinica::whereDate('fecha_atencion', '=' ,Carbon::now()->format('Y-m-d') )->orderBy('numero', 'ASC')->get();
+
+        $tabla = "<table class='table table-bordered table-striped table-condensed table-hover'>
+                            <thead>
+                                <tr>
+                                    <th class='text-center'>Nro</th>
+                                    <th class='text-center'>Hora</th>
+                                    <th class='text-center'>Paciente</th>
+                                    <th class='text-center'>Doctor</th>
+                                    <th class='text-center' colspan='2'>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>";
+
+        if(count($resultado) == '0') {
+            $tabla .= '<tr><td colspan="5"><center>No Hay Atenciones</center></td></tr>';
+        } else {
+            $c = 1;
+            foreach($resultado as $value){
+
+                $historia            = Historia::find($value->historia_id);
+
+                $doctor              = Person::find($value->doctor_id);
+
+                $tabla = $tabla . "<tr>
+                <td><center>" . $c . "</center></td>
+                <td><center>" . date('h:i:s a',strtotime($value->fecha_atencion)) . "</center></td>
+                <td><center>" . $historia->persona->apellidopaterno . ' ' . $historia->persona->apellidomaterno . ' ' . $historia->persona->nombres  . "</center></td>
+                <td><center>" .  $doctor->apellidopaterno . ' ' . $doctor->apellidomaterno . ' ' . $doctor->nombres . "</center></td>
+                <td><center><button class='btn btn-success btn-sm btnVerCita' id='btnVerCita' onclick='ver(".$value->id.")' data-toggle='modal' data-target='#exampleModal1' type='button'><i class='fa fa-eye fa-lg'></i> Ver Cita</button></center>
+                <td><center><button class='btn btn-primary btn-sm btnEditarCita' id='btnEditarCita' onclick='editar(".$value->id.")' data-toggle='modal' data-target='#exampleModal2' type='button'><i class='fa fa-pencil fa-lg'></i> Editar</button></center>
+                </td></tr>";
+                $c++;
+            }
+        }           
+
+        $tabla = $tabla . "</tbody></table>";
+
+        return $tabla;
+
+    }
+
+    public function editarCita(Request $request){
+
+        $historiaclinica = HistoriaClinica::find($request->input('cita_id'));
+
+        $historia = Historia::find($historiaclinica->historia_id);
+
+        $Ticket   = Movimiento::find($historiaclinica->ticket_id);
+
+        $detallemovcaja = Detallemovcaja::where('movimiento_id', $historiaclinica->ticket_id)->first();
+
+        $doctor = Person::find($detallemovcaja->persona_id);
+
+        $fondo = "NO";
+        if($Ticket->tiempo_fondo != null){
+            $fondo = "SI";
+        }
+
+        $cie10 = Cie::find($historiaclinica->cie_id);
+
+        $jsondata = array(
+            'atencion_id' => $request->input('cita_id'),
+            'fecha' => date('d-m-Y',strtotime($historiaclinica->fecha_atencion)) ,
+            'fondo' => $fondo,
+            'doctor' => $doctor->apellidopaterno . ' ' . $doctor->apellidomaterno . ' ' . $doctor->nombres,
+            'paciente' => $historia->persona->apellidopaterno . ' ' . $historia->persona->apellidomaterno . ' ' . $historia->persona->nombres,
+            'numhistoria' => $historia->numero,
+            'numero' => $historiaclinica->numero,
+            'motivo' => $historiaclinica->motivo,
+            'cie10' => $cie10->codigo,
+            'sintomas' => $historiaclinica->sintomas,
+            'tratamiento' => $historiaclinica->tratamiento,
+            'diagnostico' => $historiaclinica->diagnostico,
+            'exploracion_fisica' => $historiaclinica->exploracion_fisica,
+            'examenes' => $historiaclinica->examenes,
+        );
+
+        return json_encode($jsondata);
+
+    }
+
+    public function guardarEditado(Request $request){
+
+        $error = DB::transaction(function() use($request){
+            $historiaclinica   = HistoriaClinica::find($request->input('cita_id'));
+            $historiaclinica->tratamiento    = strtoupper($request->input('tratamiento'));
+            $historiaclinica->sintomas       = strtoupper($request->input('sintomas'));
+            $historiaclinica->diagnostico    = strtoupper($request->input('diagnostico'));
+            $historiaclinica->examenes             = strtoupper($request->input('examenes'));
+            $historiaclinica->motivo               = strtoupper($request->input('motivo'));
+            $historiaclinica->exploracion_fisica   = strtoupper($request->input('exploracion_fisica'));
+            $historiaclinica->save();
+        });
+
+        return is_null($error) ? "OK" : $error;
+
+    }
+
 }

@@ -21,8 +21,6 @@ $user = Auth::user();
 	--}}
 </section>
 
-<?php echo $sucursal_session ?>
-
 <!-- Main content -->
 <section class="content">
 	<div class="row">

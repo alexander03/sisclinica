@@ -11,6 +11,13 @@ $sucursal_id = Session::get('sucursal_id');
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    @if($user != null)
+        @if($user->usertype_id == 18)
+            <meta http-equiv="refresh" content="0;URL= {{ url('/vistamedico') }} ">
+        @endif
+    @endif
+
     <title>{{ config('app.name', 'SIGHO') }}</title>
     <link rel="icon" href="{{ asset('dist/img/user2-160x160.jpg') }}" sizes="16x16 32x32 48x48 64x64" type="image/vnd.microsoft.icon">
     <!-- Tell the browser to be responsive to screen width -->
@@ -295,18 +302,6 @@ $sucursal_id = Session::get('sucursal_id');
 
     @endif
 
-    @if($user != null)
-    @if($user->usertype_id == 18 || $user->usertype_id == 1)
-
-        <script>
-        $(document).ready(function() {
-            
-            window.open(' {{ url("/vistamedico") }}','_blank');
-        });
-        </script>
-
-    @endif
-    @endif
 
 </body>
 </html>
