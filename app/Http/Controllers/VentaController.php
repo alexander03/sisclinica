@@ -1394,6 +1394,7 @@ class VentaController extends Controller
                     }else{
                         $venta->nombrepaciente = $request->input('nombrepersona');
                     }
+                    $abreviatura="G"; 
                     if ($request->input('documento') == '5' || $request->input('documento') == '14' ) {
                         $codigo="03";
                         $abreviatura="B";                    
@@ -1445,6 +1446,7 @@ class VentaController extends Controller
                     $venta->doctor_id = Libreria::obtenerParametro($request->input('doctor_id'));
                     //$venta->numeroficha = Libreria::obtenerParametro($request->input('numeroficha'));
                     //$venta->cajaprueba = $request->input('cajafamarcia');
+                    $venta->comentario='Pago de : '.$abreviatura.'004-'.$request->input('numerodocumento');
                     $venta->save();
                     $movimiento_id = $venta->id;
                     $arr=$lista;                
@@ -1576,6 +1578,13 @@ class VentaController extends Controller
                             }else{
                                 $movimiento->totalpagado=$total;
                             }*/
+                            $abreviatura="G"; 
+                            if ($request->input('documento') == '5') {
+                                $abreviatura="B";                    
+                            }else{
+                                $abreviatura="F";
+                            }
+                            $movimiento->comentario='Pago de : '.$abreviatura.'004-'.$request->input('numerodocumento');
                             
                             $movimiento->save();
 
@@ -1618,6 +1627,7 @@ class VentaController extends Controller
                         }else{
                             $venta->nombrepaciente = $request->input('nombrepersona');
                         }
+                        $abreviatura="G";
                         if ($request->input('documento') == '5' || $request->input('documento') == '14' ) {
                             $codigo="03";
                             $abreviatura="B";
@@ -1645,6 +1655,7 @@ class VentaController extends Controller
                         $venta->totalpagadomaster = $request->input('master');
                         $venta->credito = $request->input('credito');
                         $venta->tipoventa = $request->input('tipoventa');
+                        $venta->comentario='Pago de : '.$abreviatura.'004-'.$request->input('numerodocumento');
                         //$venta->formapago = $request->input('formapago');
                         /*if($request->input('formapago')=="Tarjeta"){
                             $venta->tarjeta=$request->input('tipotarjeta');//VISA/MASTER
@@ -1832,6 +1843,7 @@ class VentaController extends Controller
                     $venta2->caja_id = $caja->id;
                     $venta2->serie = '004';
                     $venta2->tipodocumento_id = $request->input('documento');
+                    $abreviatura="G";
                     if ($request->input('documento') == '5' || $request->input('documento') == '14' ) {
                         $codigo="03";
                         $abreviatura="B";
@@ -1885,6 +1897,7 @@ class VentaController extends Controller
                     
                     $user = Auth::user();
                     $venta2->responsable_id = $user->person_id;
+                    $venta2->comentario='Pago de : '.$abreviatura.'004-'.Movimiento::NumeroSigue($caja->id, $sucursal_id, 4,$request->input('documento'),4,'N');
                     $venta2->doctor_id = Libreria::obtenerParametro($request->input('doctor_id'));
                     //$venta2->numeroficha = Libreria::obtenerParametro($request->input('numeroficha'));
                     //$venta2->cajaprueba = $request->input('cajafamarcia');
@@ -2015,6 +2028,14 @@ class VentaController extends Controller
                                     $movimiento->totalpagadovisa = $request->input('visa', 0);
                                     $movimiento->totalpagadomaster = $request->input('master', 0);
                                 /*}*/
+
+                                $abreviatura="G"; 
+                                if ($request->input('documento') == '5') {
+                                    $abreviatura="B";                    
+                                }else{
+                                    $abreviatura="F";
+                                }
+                                $movimiento->comentario='Pago de : '.$abreviatura.'004-'.$request->input('numerodocumento');
                                 
                                 $movimiento->save();
 
