@@ -281,6 +281,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('movimientoalmacen/corregir/{listarluego}', 'MovimientoalmacenController@corregir')->name('movimientoalmacen.corregir');
     Route::post('movimientoalmacen/cuadrarstock', 'MovimientoalmacenController@cuadrarstock')->name('movimientoalmacen.cuadrarstock');
     Route::get('movimientoalmacen/pdfComprobante/{id}', 'MovimientoalmacenController@pdfComprobante')->name('movimientoalmacen.pdfComprobante');
+    Route::get('movimientoalmacen/consultarlotes/{producto_id}', 'MovimientoalmacenController@consultarlotes')->name('movimientoalmacen.consultarlotes');
+    Route::get('movimientoalmacen/addcarritolote/{cantidad}/{stocklote}/{producto_id}/{fraccion}', 'MovimientoalmacenController@addcarritolote')->name('movimientoalmacen.addcarritolote');
 
     /* REQUERIMIENTO */
     Route::post('requerimiento/buscar', 'RequerimientoController@buscar')->name('requerimiento.buscar');

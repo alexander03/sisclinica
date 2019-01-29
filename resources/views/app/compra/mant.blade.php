@@ -923,12 +923,13 @@ function agregarconvenio(id){
 	            },2000) 
 		}else{
 			$.post('{{ URL::route("compra.agregarcarritocompra")}}', {cantidad: cantidad,precio: precio, producto_id: product_id, tipoventa: tipoventa, descuentokayros: descuentokayros, copago: copago, precioventa: precioventa, preciokayros: preciokayros, lote: lote, fechavencimiento: fechavencimiento, detalle: $('#detalle').val(),_token: _token} , function(data){
-				$('#detalle').val(true);var producto_id = $('#producto_id').val();
+				$('#detalle').val(true);
 				if(data === '0-0') {
 					bootbox.alert('No es un formato válido de cantidad.');
 					$('#cantidad').val('').focus();
 					return false;
 				} else {
+					var producto_id = $('#producto_id').val();
 					if ($("#Product" + producto_id)[0]) {
 						$("#Product" + producto_id).html(data);
 					} else {

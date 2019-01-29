@@ -596,6 +596,7 @@ class VentaController extends Controller
                     'precioventa' => number_format($value->precioventa,2,'.',''),
                     'idproducto' => $value->id,
                     'fraccion' => $value->fraccion,
+                    'lote' => $value->lote,
                 );
                 $c++;
             }            

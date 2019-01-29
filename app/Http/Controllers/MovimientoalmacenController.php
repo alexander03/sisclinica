@@ -104,13 +104,13 @@ class MovimientoalmacenController extends Controller
 
         $user=Auth::user();
         if($sucursal_id == 1) {
-            if($user->usertype == 11) {
+            if($user->usertype_id == 11) {
                 $almacen_id = 1;
             } else {
                 $almacen_id = 2;
             }
         } else {
-            if($user->usertype == 11) {
+            if($user->usertype_id == 11) {
                 $almacen_id = 3;
             } else {
                 $almacen_id = 4;
@@ -265,7 +265,9 @@ class MovimientoalmacenController extends Controller
 
         }
         else{*/
-            $cantidad          = Libreria::getParam($request->input('cantidad'));
+            //$cantidad          = Libreria::getParam($request->input('cantidad'));
+            $cantidades1       = Libreria::getParam(str_replace(",", "", $request->input('cantidad'))); 
+            $cantidades2       = explode("F", $cantidades1);
             $producto_id       = Libreria::getParam($request->input('producto_id'));
             $precio            = Libreria::getParam($request->input('precio'));
             $preciokayros      = Libreria::getParam($request->input('preciokayros'));
@@ -274,15 +276,42 @@ class MovimientoalmacenController extends Controller
             $fechavencimiento  = Libreria::getParam($request->input('fechavencimiento'));
             $lote              = Libreria::getParam($request->input('lote'));
             $distribuidora_id  = Libreria::getParam($request->input('distribuidora_id'));
-            $subtotal          = round(($cantidad*$precio), 2);
+            $mensajecantidad  = '';
+
+            if($producto->fraccion != 1 && count($cantidades2) == 2) {
+                if(!is_numeric($cantidades2[0]) || !is_numeric($cantidades2[1])) {
+                    return '0-0';
+                }
+                $cantidadpresentacion1 = (float) $cantidades2[0];
+                $cantidadpresentacion2 = (float) $cantidades2[1];
+                $cantidadunidades = ($producto->fraccion*$cantidadpresentacion1)+$cantidadpresentacion2;
+                $mensajecantidad .= (String) $cantidadpresentacion1 . ' ' . $producto->presentacion->nombre . 'S, ' . (String) $cantidadpresentacion2 . ' UNIDADES';
+            } else if($producto->fraccion == 1 && count($cantidades2) == 1) {            
+                if(!is_numeric($cantidades2[0])) {
+                    return '0-0';
+                }
+                $cantidadunidades = $producto->fraccion * $cantidades2[0]; 
+                $mensajecantidad .= (String) $cantidadunidades . ' UNIDADES';
+            } else {
+                return '0-0';
+            }
+
+            if($request->input('tipo') == '9') {
+                if($request->input('stock') < $cantidadunidades || $request->input('stock') == 0) {
+                    return '0-1';
+                }
+            }
+
+            $subtotal          = round(($cantidadunidades*$precio), 2);
+
             $cadena .= '<td class="numeration3"></td>
                     <td class="text-center infoProducto">
-                        <span style="display: block; font-size:.7em">'.$producto->nombre.'</span>
+                        <span style="display: block; font-size:.9em">'.$producto->nombre.'</span>
                         <input type ="hidden" class="productonombre" value="'.$producto->nombre.'">
                         <input type ="hidden" class="fechavencimiento" value="'.$fechavencimiento.'">
                         <input type ="hidden" class="lote" value="'.$lote.'">
                         <input type ="hidden" class="distribuidora_id" value="'.$distribuidora_id.'">
-                        <input type ="hidden" class="cantidad" value="'.$cantidad.'">
+                        <input type ="hidden" class="cantidad" value="'.$cantidadunidades.'">
                         <input type ="hidden" class="subtotal" value="'.$subtotal.'">
                         <input type ="hidden" class="producto_id"  value="'.$producto_id.'">
                         <input type ="hidden" class="codigobarra" value="'.$producto->codigobarra.'">
@@ -290,20 +319,23 @@ class MovimientoalmacenController extends Controller
                         <input type ="hidden" class="preciokayros" value="'.$preciokayros.'">
                         <input type ="hidden" class="precio" value="'.$precio.'">
                     </td>';
+            if($lote == '') {
+                $lote = '-';
+            }
             $cadena .= '<td class="text-center">
-                        <span style="display: block; font-size:.7em">'.$lote.'</span>                    
+                        <span style="display: block; font-size:.9em">'.$lote.'</span>                    
                     </td>';
             $cadena .= '<td class="text-center">
-                        <span style="display: block; font-size:.7em">'.$cantidad.'</span>                    
+                        <span style="display: block; font-size:.9em">'.$mensajecantidad.'</span>                    
                     </td>';
             $cadena .= '<td class="text-center">
-                        <span style="display: block; font-size:.7em">'.$precio.'</span>                    
+                        <span style="display: block; font-size:.9em">'.$precio.'</span>                    
                     </td>';
             $cadena .= '<td class="text-center">
-                        <span style="display: block; font-size:.7em">'.$subtotal.'</span>                    
+                        <span style="display: block; font-size:.9em">'.$subtotal.'</span>                    
                     </td>';
             $cadena .= '<td class="text-center">
-                        <span style="display: block; font-size:.7em">
+                        <span style="display: block; font-size:.9em">
                         <a class="btn btn-xs btn-danger quitarFila">Quitar</a></span>
                     </td>';
             //$lista[]  = array('cantidad' => $cantidad, 'precio' => $precio, 'productonombre' => $producto->nombre,'producto_id' => $producto_id,'fechavencimiento' => $fechavencimiento,'lote' => $lote,'distribuidora_id' => $distribuidora_id, 'codigobarra' => $producto->codigobarra, 'preciokayros' => $preciokayros, 'precioventa' => $precioventa);
@@ -418,13 +450,28 @@ class MovimientoalmacenController extends Controller
             return $validacion->messages()->toJson();
         }
 
+        $sucursal_id = Session::get('sucursal_id');
+
+        $user=Auth::user();
+        if($sucursal_id == 1) {
+            if($user->usertype_id == 11) {
+                $almacen_id = 1;
+            } else {
+                $almacen_id = 2;
+            }
+        } else {
+            if($user->usertype_id == 11) {
+                $almacen_id = 3;
+            } else {
+                $almacen_id = 4;
+            }
+        }
+
         $dat=array();
-        $error = DB::transaction(function() use($request,&$dat){
+        $error = DB::transaction(function() use($request,&$dat, $sucursal_id, $almacen_id){
             //$lista = $request->session()->get('carritomovimientoalmacen');
             $lista = $request->input('cantproductos');
             $total = $request->input('totalmovimiento');
-            $almacen_id = $request->input('almacen_id');
-            $sucursal_id = Session::get('sucursal_id');
             $movimientoalmacen                    = new Movimientoalmacen();
             $movimientoalmacen->tipodocumento_id  = $request->input('tipo');
             $movimientoalmacen->tipomovimiento_id = 5;
@@ -958,5 +1005,57 @@ class MovimientoalmacenController extends Controller
             $pdf::Ln();
         }
         $pdf::Output('DocAlmacen.pdf');
+    }
+
+    public function consultarlotes($producto_id) {
+        $sucursal_id = Session::get('sucursal_id');
+        $user = Auth::user();        
+        if($sucursal_id == 2) {
+            if($user->usertype_id == 11) {
+                $almacen_id = 3;
+            } else {
+                $almacen_id = 4;
+            }            
+        } else {
+            if($user->usertype_id == 11) {
+                $almacen_id = 1;
+            } else {
+                $almacen_id = 2;
+            }
+        }
+        $producto = Producto::find($producto_id);
+        $lotes = Lote::select('lote.*', 'producto.fraccion')
+                ->where('producto_id','=',$producto_id)
+                ->join('producto', 'producto.id', '=', 'lote.producto_id')
+                ->where('almacen_id','=',$almacen_id)
+                ->where('queda','>','0')
+                ->orderBy('fechavencimiento','ASC')
+                ->get();
+        return view($this->folderview.'.lotes')->with(compact('producto', 'lotes'));
+    }
+
+    public function addcarritolote($cantidad, $stocklote, $producto_id, $fraccion) {
+        $cantidades = explode("F", $cantidad);
+        if($fraccion != 1 && count($cantidades) == 2) {
+            if(!is_numeric($cantidades[0]) || !is_numeric($cantidades[1])) {
+                return '0-1';
+            }
+            $cantidadpresentacion1 = (float) $cantidades[0];
+            $cantidadpresentacion2 = (float) $cantidades[1];
+            $cantidadunidades = ($fraccion*$cantidadpresentacion1)+$cantidadpresentacion2;
+        } else if($fraccion == 1 && count($cantidades) == 1) {            
+            if(!is_numeric($cantidades[0])) {
+                return '0-1';
+            }
+            $cantidadunidades = $fraccion * $cantidades[0]; 
+        } else {
+            return '0-0';
+        }
+
+        if($stocklote < $cantidadunidades || $stocklote == 0) {
+            return '0-2';
+        }
+
+        return $cantidad;
     }
 }
