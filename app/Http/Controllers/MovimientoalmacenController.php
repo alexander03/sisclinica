@@ -276,7 +276,42 @@ class MovimientoalmacenController extends Controller
             $fechavencimiento  = Libreria::getParam($request->input('fechavencimiento'));
             $lote              = Libreria::getParam($request->input('lote'));
             $distribuidora_id  = Libreria::getParam($request->input('distribuidora_id'));
-            $mensajecantidad  = '';
+            $mensajecantidad   = '';
+            $elemento          = Libreria::getParam($request->input('elemento'));
+            $lotess = '';
+
+            if($elemento != 'N') {
+                //Calculamos el total  
+                $totallote = 0;
+                $cantidadeslote = explode(";", $elemento);
+                $lotess = '';
+                $cantidadesloteindiv = '';
+                $elementos = (count($cantidadeslote) - 1)/2;
+                if($producto->fraccion != 1) {                
+                    for ($i=0; $i < $elementos; $i++) { 
+                        $cantidadesloteindiv = explode("F", $cantidadeslote[$i]);
+                        $totallote += $cantidadesloteindiv[0]*$producto->fraccion + $cantidadesloteindiv[1];  
+                        $objLote = Lote::find($cantidadeslote[$i + $elementos]); 
+                        $lotess .= $objLote->nombre;               
+                        if($i != $elementos - 1) {
+                           $lotess .= '/';
+                        }
+                    }
+                    $parte1 = floor($totallote/$producto->fraccion);
+                    $parte2 = $totallote - $parte1*$producto->fraccion;
+                    $cantidades2 = explode("F", (String) $parte1 . 'F' . (String) $parte2);
+                } else {
+                    for ($i=0; $i < $elementos; $i++) { 
+                        $totallote += $cantidadeslote[$i + $elementos];
+                        $objLote = Lote::find($cantidadeslote[$i + $elementos]); 
+                        $lotess .= $objLote->nombre;                       
+                        if($i != $elementos - 1) {
+                           $lotess .= '/';
+                        }
+                    }
+                    $cantidades2 = explode("F", (String) $totallote);
+                }
+            }
 
             if($producto->fraccion != 1 && count($cantidades2) == 2) {
                 if(!is_numeric($cantidades2[0]) || !is_numeric($cantidades2[1])) {
@@ -316,11 +351,18 @@ class MovimientoalmacenController extends Controller
                         <input type ="hidden" class="producto_id"  value="'.$producto_id.'">
                         <input type ="hidden" class="codigobarra" value="'.$producto->codigobarra.'">
                         <input type ="hidden" class="precioventa" value="'.$precioventa.'">
-                        <input type ="hidden" class="preciokayros" value="'.$preciokayros.'">
-                        <input type ="hidden" class="precio" value="'.$precio.'">
+                        <input type ="hidden" class="preciokayros" value="'.$preciokayros.'">';
+            if($elemento != 'N') {
+                $cadena .= '<input type ="hidden" class="datoLote" value="'.$elemento.'">';                
+            }
+
+            $cadena .= '<input type ="hidden" class="precio" value="'.$precio.'">
                     </td>';
             if($lote == '') {
                 $lote = '-';
+            }
+            if($elemento != 'N') {
+                $lote = $lotess;
             }
             $cadena .= '<td class="text-center">
                         <span style="display: block; font-size:.9em">'.$lote.'</span>                    
@@ -513,7 +555,14 @@ class MovimientoalmacenController extends Controller
                     $lote->almacen_id = $almacen_id;
                     $lote->save();
                 }elseif ($request->input('tipo') == 'S') {
+                    //Algoritmo para ver de qué lote reduzco xd
+
+
                     $lotes = Lote::where('producto_id','=',$request->input('producto_id'.$i))->where('queda','>','0')->orderBy('fechavencimiento','ASC')->get();
+
+
+
+
                     foreach ($lotes as $key => $value) {
                         $aux = $cantidad;
                         if ($value->queda >= $aux) {
@@ -1024,7 +1073,7 @@ class MovimientoalmacenController extends Controller
             }
         }
         $producto = Producto::find($producto_id);
-        $lotes = Lote::select('lote.*', 'producto.fraccion')
+        $lotes = Lote::select('lote.*', 'producto.fraccion', 'lote.id as loteid', 'producto.id as productoid')
                 ->where('producto_id','=',$producto_id)
                 ->join('producto', 'producto.id', '=', 'lote.producto_id')
                 ->where('almacen_id','=',$almacen_id)

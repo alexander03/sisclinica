@@ -13,7 +13,7 @@
 		<div class="form-group" style="height: 12px;">
 			{!! Form::label('tipo', 'Tipo:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::select('tipo', $cboTipo, null, array('style' => 'background-color: #D4F0FF;' ,'class' => 'form-control input-xs', 'id' => 'tipo', 'onclick' => 'generarNumero(this.value);', 'onchange' => 'gestionlotes(this.value);')) !!}
+				{!! Form::select('tipo', $cboTipo, null, array('style' => 'background-color: #D4F0FF;' ,'class' => 'form-control input-xs', 'id' => 'tipo', 'onclick' => 'generarNumero(this.value);', 'onchange' => 'gestionlotes(this.value, "S");')) !!}
 			</div>
 		</div>
 		<div class="form-group" id="divDescuentokayros" style="height: 12px;">
@@ -51,6 +51,7 @@
     		</div>
 			{!! Form::hidden('producto_id', null, array( 'id' => 'producto_id')) !!}
 			{!! Form::hidden('tienelote', null, array( 'id' => 'tienelote')) !!}
+			{!! Form::hidden('pfraccion', null, array( 'id' => 'pfraccion')) !!}
 			{!! Form::hidden('preciokayros', null, array( 'id' => 'preciokayros')) !!}
 
 			{!! Form::hidden('precioventa', null, array('id' => 'precioventa')) !!}
@@ -501,6 +502,7 @@ function seleccionarProducto(idproducto){
 		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="stock"]').val(datos[3]);
 		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="preciocompra"]').val(datos[4]);
 		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tienelote"]').val(datos[5]);
+		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="pfraccion"]').val(datos[6]);
 		if(datos[5] == 'SI') {
 			$('#lote').attr('readonly', false);
 		} else {
@@ -509,7 +511,6 @@ function seleccionarProducto(idproducto){
 		gestionlotes($('#tipo').val());
 	});
 	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="cantidad"]').focus();
-
 }
 
 function ventanaproductos() {
@@ -758,7 +759,8 @@ function agregarconvenio(id){
 	//}
 	}
 
-	function addpurchasecart(elemento){
+	function addpurchasecart(elemento = 'N'){
+		var fraccion = $('#pfraccion').val();
 		var tipo = $('#tipo').val();
 		var cantidad = $('#cantidad').val();
 		cantidad = cantidad.replace(",", "");
@@ -777,27 +779,27 @@ function agregarconvenio(id){
 		var copago = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="copago"]').val();
 
 		var _token =$('input[name=_token]').val();
-		if(cantidad.trim() == '' ){
+		if(cantidad.trim() === '' && tipo === '8' && fraccion === '1'){
 			bootbox.alert("Ingrese Cantidad");
 	            setTimeout(function () {
 	                $('#cantidad').focus();
 	            },2000) 
-		}else if(cantidad.trim() == 0){
+		}else if(cantidad.trim() === 0 && tipo === '8' && fraccion === '1'){
 			bootbox.alert("la cantidad debe ser mayor a 0");
 	            setTimeout(function () {
 	                $('#cantidad').focus();
 	            },2000) 
-		}else if(precio.trim() == '' ){
+		}else if(precio.trim() === '' ){
 			bootbox.alert("Ingrese Precio");
 	            setTimeout(function () {
 	                $('#preciocompra').focus();
 	            },2000) 
-		}else if(precio.trim() == 0){
+		}else if(precio.trim() === 0){
 			bootbox.alert("el precio debe ser mayor a 0");
 	            setTimeout(function () {
 	                $('#preciocompra').focus();
 	            },2000) 
-		}else if(fechavencimiento.trim() == '' && $('#tipo').val() != '9'){
+		}else if(fechavencimiento.trim() === '' && $('#tipo').val() === '8'){
 			bootbox.alert("Ingrese Fecha Vencimiento");
             setTimeout(function () {
                 $('#fechavencimiento').focus();
@@ -808,7 +810,7 @@ function agregarconvenio(id){
 	                $('#cantidad').focus();
 	            },2000) 
 		}*/else{
-			$.post('{{ URL::route("movimientoalmacen.agregarcarritomovimientoalmacen")}}', {cantidad: cantidad,precio: precio, producto_id: product_id, tipoventa: tipoventa, descuentokayros: descuentokayros, copago: copago, precioventa: precioventa, preciokayros: preciokayros, lote: lote, fechavencimiento: fechavencimiento,_token: _token,tipo:tipo,stock:stock} , function(data){
+			$.post('{{ URL::route("movimientoalmacen.agregarcarritomovimientoalmacen")}}', {cantidad: cantidad,precio: precio, producto_id: product_id, tipoventa: tipoventa, descuentokayros: descuentokayros, copago: copago, precioventa: precioventa, preciokayros: preciokayros, lote: lote, fechavencimiento: fechavencimiento,_token: _token,tipo:tipo,stock:stock, elemento: elemento} , function(data){
 				//$('#divDetail').html(data);
 				if(data === '0-0') {
 					bootbox.alert('No es un formato válido de cantidad.');
@@ -1012,19 +1014,21 @@ $(document).on('click', '.escogerFila', function(){
 	$(this).css('background-color', 'yellow');
 });
 
-function gestionlotes(valor){
-	if(valor == '9') {
+function gestionlotes(valor, borrar = 'N'){
+	if(valor === '9') {
 		//SALIDA
 		$('.fechavencimiento').css('display', 'none');
 		$('#fechavencimiento').val('');
-		$('#detallesMovimiento').html('');
-		$('#totalmovimiento2').html('0');
-		$('#totalmovimiento').val('0');
+		if(borrar === 'S') {
+			$('#detallesMovimiento').html('');
+			$('#totalmovimiento2').html('0');
+			$('#totalmovimiento').val('0');
+		}		
 		$('#lote').val('');
 		$('.lote').css('display', 'none');		
 		$('#cantidad').val('');		
-		if($('#tienelote').val() != '') {
-			if($('#tienelote').val() == 'SI') {
+		if($('#tienelote').val() !== '') {
+			if($('#tienelote').val() === 'SI') {
 				$('.botonlotes').css('display', 'block').attr('onclick', 'modal("movimientoalmacen/consultarlotes/' + $('#producto_id').val() + '","Seleccionar Lotes para Salida de Productos")');
 				$('.cantidad').css('display', 'none');
 			} else {

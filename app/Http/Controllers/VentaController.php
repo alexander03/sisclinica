@@ -666,7 +666,7 @@ class VentaController extends Controller
             $stock=$currentstock->stockactual;
         }
 
-        return $producto->id.'@'.$producto->preciokayros.'@'.$producto->precioventa.'@'.$stock.'@'.$producto->preciocompra.'@'.$producto->lote;
+        return $producto->id.'@'.$producto->preciokayros.'@'.$producto->precioventa.'@'.$stock.'@'.$producto->preciocompra.'@'.$producto->lote.'@'.$producto->fraccion;
     }
 
     public function agregarcarritoventa(Request $request)
