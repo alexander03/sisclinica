@@ -866,7 +866,7 @@ class CajaController extends Controller
                 ->where('movimiento.sucursal_id', '=', $sucursal_id)
                 ->where('movimiento.id', '>=', $movimiento_mayor)
                 ->where('movimiento.caja_id', '=', $caja_id);
-        $resultadoventas = $resultadoventas->select('movimiento.serie','movimiento.tipodocumento_id','movimiento.id','movimiento.comentario','movimiento.movimiento_id','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+        $resultadoventas = $resultadoventas->select('movimiento.doctor_id','movimiento.serie','movimiento.tipodocumento_id','movimiento.id','movimiento.comentario','movimiento.movimiento_id','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
         
         $listaventas           = $resultadoventas->get();
 
@@ -897,8 +897,8 @@ class CajaController extends Controller
                         $pdf::Cell(8,7,'',0,0,'C');
                         $pdf::Cell(12,7,'',0,0,'C');
                     }                        
-                    $pdf::Cell(100,7,$row2['comentario'].': '.substr($detalle->servicio->nombre,0,53) . '.',1,0,'L');
-                    $pdf::Cell(14,7,number_format($detalle->precio,2,',',''),1,0,'L');                    
+                    $pdf::Cell(100,7,substr($detalle->servicio->nombre,0,53) . '.',1,0,'L');
+                    $pdf::Cell(14,7,number_format($detalle->precio,2,',',''),1,0,'R');                    
                     if($i == 0) {
                         if($row2['situacion'] == 'N') {
                             $pdf::Cell(14,7*count($detalles),'',1,0,'L');
@@ -920,7 +920,7 @@ class CajaController extends Controller
                         $pdf::Cell(14,7,'',0,0,'R');
                         $pdf::Cell(14,7,'',0,0,'R');                        
                     }
-                    $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');                        
+                    $pdf::Cell(20,7,utf8_decode($detalle->persona->apellidopaterno),1,0,'C');                        
                     $pdf::Ln();
                     $i++;
                 }  
@@ -6254,8 +6254,8 @@ class CajaController extends Controller
 
             //Solo si se genera un comprobante de pago
 
-            if($request->input('total') == $request->input('total2')){
-                if($pagohospital>0){//Puse con pago hospital por generar F.E.            
+            if(number_format($request->input('total')) == number_format($request->input('total2'))){
+                if($pagohospital>=0){//Puse con pago hospital por generar F.E.            
                     //Genero Documento de Venta
                     //Boleta
                     if($request->input('tipodocumento')=="Boleta"){
