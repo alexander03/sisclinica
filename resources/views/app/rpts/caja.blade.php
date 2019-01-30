@@ -29,12 +29,13 @@
 
 							<div class="form-group" id="cajas"></div>
 
-							{!! Form::button('<i class="glyphicon glyphicon-search"></i> Reporte', array('class' => 'btn btn-info btn-xs', 'id' => 'btnBuscar', 'onclick' => 'imprimirDetalleF()')) !!}
+							{!! Form::button('<i class="glyphicon glyphicon-file"></i> Exportar PDF', array('class' => 'btn btn-warning btn-xs', 'id' => 'btnBuscar', 'onclick' => 'imprimirDetalleF()')) !!}
 							@if($user->usertype_id==1 || $user->usertype_id==14 || $user->usertype_id==8)
 								{!! Form::button('<i class="glyphicon glyphicon-print"></i> Movilidad', array('class' => 'btn btn-warning btn-xs', 'id' => 'btnBuscar', 'onclick' => 'imprimirMovilidadF()')) !!}
-								{!! Form::button('<i class="glyphicon glyphicon-file"></i> Excel', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar', 'onclick' => 'imprimirExcelF()')) !!}
+								<!--{! Form::button('<i class="glyphicon glyphicon-file"></i> Excel', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar', 'onclick' => 'imprimirExcelF()')) !!}-->
 								{!! Form::button('<i class="glyphicon glyphicon-file"></i> Egresos', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnBuscar', 'onclick' => 'egresosExcel()')) !!}
 							@endif
+							{!! Form::button('<i class="glyphicon glyphicon-file"></i> Exportar Excel', array('class' => 'btn btn-success btn-xs','onclick' => 'pdfDetalleCierreExcelF()')) !!}
 							{!! Form::close() !!}
 						</div>
 					</div>
@@ -87,14 +88,14 @@
         }
     }
 
-	function imprimirExcelF(){
+	function pdfDetalleCierreExcelF(){
 		var fi = $('#fechainicial').val();
 		var ff = $('#fechafinal').val();
-        if ($('#Medico').val() != 6) {
+        //if ($('#Medico').val() != 6) {
         	//window.open('caja/pdfDetalleCierreF?caja_id='+$('#Medico').val()+'&fi='+fi+'&ff='+ff,"_blank");
-        } else {
-        	window.open('cajatesoreria/excelF?caja_id='+$('#Medico').val()+'&fi='+fi+'&ff='+ff,"_blank");
-        }
+        //} else {
+        	window.open('caja/pdfDetalleCierreExcelF?caja_id='+$('#Medico').val()+'&fi='+fi+'&ff='+ff,"_blank");
+        //}
     }
 
     function egresosExcel(){

@@ -564,6 +564,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('caja/pdfHonorarioF', 'CajaController@pdfHonorarioF')->name('caja.pdfHonorarioF');
     Route::get('caja/pdfDetalleCierre', 'CajaController@pdfDetalleCierre')->name('caja.pdfDetalleCierre');
     Route::get('caja/pdfDetalleCierreF', 'CajaController@pdfDetalleCierreF')->name('caja.pdfDetalleCierreF');
+    Route::get('caja/pdfDetalleCierreExcel', 'CajaController@pdfDetalleCierreExcel')->name('caja.pdfDetalleCierreExcel');
+    Route::get('caja/pdfDetalleCierreExcelF', 'CajaController@pdfDetalleCierreExcelF')->name('caja.pdfDetalleCierreExcelF');
     Route::get('caja/pdfRecibo', 'CajaController@pdfRecibo')->name('caja.pdfRecibo');
     Route::get('caja/pdfReciboCuota', 'CajaController@pdfReciboCuota')->name('caja.pdfReciboCuota');
     Route::post('caja/venta', 'CajaController@venta')->name('caja.venta');

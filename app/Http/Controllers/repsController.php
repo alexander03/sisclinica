@@ -27,6 +27,7 @@ use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Excel;
 
 class repsController extends Controller
@@ -207,10 +208,30 @@ class repsController extends Controller
         return $response;
     }
     public function cajas(){
+        $sucursal_id = Session::get('sucursal_id');
+        $user = Auth::user();  
+        if($user->usertype_id == 1) {
+            $resultado = Caja::orderBy('nombre','ASC');
+        } else {
+            if($sucursal_id == 1) {
+                if($user->usertype_id == 11) {
+                    $id = 3;
+                } else {
+                    $id = 1;
+                }
+            } else {
+                if($user->usertype_id == 11) {
+                    $id = 4;
+                } else {
+                    $id = 2;
+                }
+            }
+            $resultado = Caja::where('id', $id);
+        }
         $response = '<div class="form-group">
                   <label for="Medico">Caja:</label>
                   <select class="form-control input-xs" id="Medico">';
-        $resultado        = Caja::orderBy('nombre','ASC');
+        
         $list      = $resultado->get();
         $data = array();
         foreach ($list as $key => $value) {

@@ -56,6 +56,10 @@
     function imprimirDetalle(){
         window.open("caja/pdfDetalleCierre?caja_id="+$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="caja_id"]').val(),"_blank");
     }
+
+    function imprimirDetalleExcel(){
+        window.open("caja/pdfDetalleCierreExcel?caja_id="+$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="caja_id"]').val(),"_blank");
+    }
         
     function imprimirRecibo(id){
         window.open("caja/pdfRecibo?id="+id,"_blank");
