@@ -271,7 +271,7 @@ if(!is_null($ticket)){
             <div class="form-group fecha_reprogramar">
                 {!! Form::label('fecha_reprogramar', 'Fecha de reprogramación:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
         		<div class="col-lg-3 col-md-3 col-sm-3">
-        			{!! Form::date('fecha', '', array('class' => 'form-control input-xs', 'id' => 'fecha_reprogramar')) !!}
+        			{!! Form::date('fecha_reprogramar', '', array('class' => 'form-control input-xs', 'id' => 'fecha_reprogramar')) !!}
         		</div>
             </div>
             <div class="col-lg-6 col-md-6 col-sm-6 text-right">

@@ -1028,6 +1028,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('historiaclinica/ver', 'HistoriaClinicaController@ver');
     Route::post('historiaclinica/editarCita', 'HistoriaClinicaController@editarCita');
     Route::post('historiaclinica/guardarEditado', 'HistoriaClinicaController@guardarEditado');
+    Route::post('historiaclinica/infoPaciente', 'HistoriaClinicaController@infoPaciente');
 
       /* MIGRAR EXCEL*/
     Route::get('importHistoria', 'ExcelController@importHistoria');

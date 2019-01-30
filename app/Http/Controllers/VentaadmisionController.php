@@ -4941,14 +4941,14 @@ class VentaadmisionController extends Controller
                             <tr>
                                 <th class='text-center' width='10%'>Nro</th>
                                 <th class='text-center' width='70%'>Cliente</th>
-                                <th class='text-center' width='20%'>Tiempo</th>
+                                <th class='text-center' style='display:none;' width='20%'>Tiempo</th>
                             </tr>
                         </thead>
                         <tbody>";
         $c=1;
 
         if(count($lista) == 0) {
-            $sconsultas.= '<tr class="text-center"><td colspan="3">No Hay consultas.</td></tr>';
+            $sconsultas.= '<tr class="text-center"><td colspan="2">No Hay consultas.</td></tr>';
         }
 
         foreach ($lista as $key => $value) {
@@ -4997,7 +4997,7 @@ class VentaadmisionController extends Controller
 
 
            // $consultas.= "<td>". $diff->format('%H:%i:%s') ."</td>";
-            $sconsultas.= "<td class='text-center'>". $tiempo ."</td>";
+            $sconsultas.= "<td class='text-center' style='display:none;'>". $tiempo ."</td>";
             $sconsultas.= "</tr>";
             $c=$c+1;
         }
@@ -5037,13 +5037,13 @@ class VentaadmisionController extends Controller
                                 <tr>
                                     <th class='text-center' width='10%'>Nro</th>
                                     <th class='text-center' width='70%'>Cliente</th>
-                                    <th class='text-center' width='20%'>Tiempo</th>
+                                    <th class='text-center' style='display:none;' width='20%'>Tiempo</th>
                                 </tr>
                             </thead>
                             <tbody>";
 
         if(count($lista2) == 0) {
-            $semergencias.= '<tr class="text-center"><td colspan="3">No Hay emergencias.</td></tr>';
+            $semergencias.= '<tr class="text-center"><td colspan="2">No Hay emergencias.</td></tr>';
         }
         $c=1;
         foreach ($lista2 as $key => $value) {
@@ -5090,7 +5090,7 @@ class VentaadmisionController extends Controller
 
 
            // $semergencias.= "<td>". $diff->format('%H:%i:%s') ."</td>";
-            $semergencias.= "<td class='text-center'>". $tiempo ."</td>";
+            $semergencias.= "<td class='text-center' style='display:none;'>". $tiempo ."</td>";
             $semergencias.= "</tr>";
             $c=$c+1;
         }
@@ -5103,14 +5103,14 @@ class VentaadmisionController extends Controller
                                 <tr>
                                     <th class='text-center' width='10%'>Nro</th>
                                     <th class='text-center' width='70%'>Cliente</th>
-                                    <th class='text-center' width='20%'>Tiempo</th>
+                                    <th class='text-center' style='display:none;' width='20%'>Tiempo</th>
                                 </tr>
                             </thead>
                             <tbody>";
         $c=1;
 
         if(count($lista3) == 0) {
-            $sojos.= '<tr class="text-center"><td colspan="3">No Hay fondo de ojos.</td></tr>';
+            $sojos.= '<tr class="text-center"><td colspan="2">No Hay fondo de ojos.</td></tr>';
         }
 
         //fondos 
@@ -5159,7 +5159,7 @@ class VentaadmisionController extends Controller
 
 
            // $registro.= "<td>". $diff->format('%H:%i:%s') ."</td>";
-            $sojos.= "<td class='text-center'>". $tiempo ."</td>";
+            $sojos.= "<td class='text-center' style='display:none;'>". $tiempo ."</td>";
             $sojos.= "</tr>";
             $c=$c+1;
         }
@@ -5172,14 +5172,14 @@ class VentaadmisionController extends Controller
                                 <tr>
                                     <th class='text-center' width='10%'>Nro</th>
                                     <th class='text-center' width='70%'>Cliente</th>
-                                    <th class='text-center' width='20%'>Tiempo</th>
+                                    <th class='text-center' style='display:none;' width='20%'>Tiempo</th>
                                 </tr>
                             </thead>
                             <tbody>";
         $c=1;
 
         if(count($lista4) == 0) {
-            $slectura.= '<tr class="text-center"><td colspan="3">No Hay lectura de resultados.</td></tr>';
+            $slectura.= '<tr class="text-center"><td colspan="2">No Hay lectura de resultados.</td></tr>';
         }
 
         //lectura 
@@ -5228,7 +5228,7 @@ class VentaadmisionController extends Controller
 
 
            // $registro.= "<td>". $diff->format('%H:%i:%s') ."</td>";
-            $slectura.= "<td class='text-center'>". $tiempo ."</td>";
+            $slectura.= "<td class='text-center' style='display:none;'>". $tiempo ."</td>";
             $slectura.= "</tr>";
             $c=$c+1;
         }
@@ -5286,18 +5286,18 @@ class VentaadmisionController extends Controller
                             <tr>
                                 <th class='text-center' width='10%'>Nro</th>
                                 <th class='text-center' width='70%'>Cliente</th>
-                                <th class='text-center' width='20%'>Tiempo</th>
+                                <th class='text-center' style='display:none;' width='20%'>Tiempo</th>
                             </tr>
                         </thead>
                         <tbody>";
         $c=1;
 
         if(count($listam) == 0 && count($listat) == 0) {
-            $sconsultas.= '<tr class="text-center"><td colspan="3">No Hay consultas.</td></tr>';
+            $sconsultas.= '<tr class="text-center"><td colspan="2">No Hay consultas.</td></tr>';
         }
 
         if(count($listam) != 0) {
-            $sconsultas.= '<tr class="text-center"><td colspan="3">Turno Mañana</td></tr>';
+            $sconsultas.= '<tr class="text-center"><td colspan="2">Turno Mañana</td></tr>';
         }
 
         foreach ($listam as $key => $value) {
@@ -5346,13 +5346,13 @@ class VentaadmisionController extends Controller
 
 
            // $consultas.= "<td>". $diff->format('%H:%i:%s') ."</td>";
-            $sconsultas.= "<td class='text-center'>". $tiempo ."</td>";
+            $sconsultas.= "<td class='text-center' style='display:none;'>". $tiempo ."</td>";
             $sconsultas.= "</tr>";
             $c=$c+1;
         }
 
         if(count($listat) != 0) {
-            $sconsultas.= '<tr class="text-center"><td colspan="3">Turno Tarde</td></tr>';
+            $sconsultas.= '<tr class="text-center"><td colspan="2">Turno Tarde</td></tr>';
         }
 
         $c=1;
@@ -5403,7 +5403,7 @@ class VentaadmisionController extends Controller
 
 
            // $consultas.= "<td>". $diff->format('%H:%i:%s') ."</td>";
-            $sconsultas.= "<td class='text-center'>". $tiempo ."</td>";
+            $sconsultas.= "<td class='text-center' style='display:none;'>". $tiempo ."</td>";
             $sconsultas.= "</tr>";
             $c=$c+1;
         }
@@ -5467,17 +5467,17 @@ class VentaadmisionController extends Controller
                                 <tr>
                                     <th class='text-center' width='10%'>Nro</th>
                                     <th class='text-center' width='70%'>Cliente</th>
-                                    <th class='text-center' width='20%'>Tiempo</th>
+                                    <th class='text-center' style='display:none;' width='20%'>Tiempo</th>
                                 </tr>
                             </thead>
                             <tbody>";
 
         if(count($lista2m) == 0 && count($lista2t) == 0) {
-            $semergencias.= '<tr class="text-center"><td colspan="3">No Hay emergencias.</td></tr>';
+            $semergencias.= '<tr class="text-center"><td colspan="2">No Hay emergencias.</td></tr>';
         }
 
         if(count($lista2m) != 0) {
-            $semergencias.= '<tr class="text-center"><td colspan="3">Turno Mañana</td></tr>';
+            $semergencias.= '<tr class="text-center"><td colspan="2">Turno Mañana</td></tr>';
         }
         $c=1;
         foreach ($lista2m as $key => $value) {
@@ -5524,13 +5524,13 @@ class VentaadmisionController extends Controller
 
 
            // $semergencias.= "<td>". $diff->format('%H:%i:%s') ."</td>";
-            $semergencias.= "<td class='text-center'>". $tiempo ."</td>";
+            $semergencias.= "<td class='text-center' style='display:none;'>". $tiempo ."</td>";
             $semergencias.= "</tr>";
             $c=$c+1;
         }
 
         if(count($lista2t) != 0) {
-            $semergencias.= '<tr class="text-center"><td colspan="3">Turno Tarde</td></tr>';
+            $semergencias.= '<tr class="text-center"><td colspan="2">Turno Tarde</td></tr>';
         }
         $c=1;
         foreach ($lista2t as $key => $value) {
@@ -5577,7 +5577,7 @@ class VentaadmisionController extends Controller
 
 
            // $semergencias.= "<td>". $diff->format('%H:%i:%s') ."</td>";
-            $semergencias.= "<td class='text-center'>". $tiempo ."</td>";
+            $semergencias.= "<td class='text-center' style='display:none;'>". $tiempo ."</td>";
             $semergencias.= "</tr>";
             $c=$c+1;
         }
@@ -5590,17 +5590,17 @@ class VentaadmisionController extends Controller
                                 <tr>
                                     <th class='text-center' width='10%'>Nro</th>
                                     <th class='text-center' width='70%'>Cliente</th>
-                                    <th class='text-center' width='20%'>Tiempo</th>
+                                    <th class='text-center' style='display:none;' width='20%'>Tiempo</th>
                                 </tr>
                             </thead>
                             <tbody>";
 
         if(count($lista3m) == 0 && count($lista3t) == 0) {
-            $sojos.= '<tr class="text-center"><td colspan="3">No Hay fondo de ojos.</td></tr>';
+            $sojos.= '<tr class="text-center"><td colspan="2">No Hay fondo de ojos.</td></tr>';
         }
 
         if(count($lista3m) != 0) {
-            $sojos.= '<tr class="text-center"><td colspan="3">Turno Mañana</td></tr>';
+            $sojos.= '<tr class="text-center"><td colspan="2">Turno Mañana</td></tr>';
         }
 
         //fondos 
@@ -5650,13 +5650,13 @@ class VentaadmisionController extends Controller
 
 
            // $registro.= "<td>". $diff->format('%H:%i:%s') ."</td>";
-            $sojos.= "<td class='text-center'>". $tiempo ."</td>";
+            $sojos.= "<td class='text-center' style='display:none;'>". $tiempo ."</td>";
             $sojos.= "</tr>";
             $c=$c+1;
         }
 
         if(count($lista3t) != 0) {
-            $sojos.= '<tr class="text-center"><td colspan="3">Turno Tarde</td></tr>';
+            $sojos.= '<tr class="text-center"><td colspan="2">Turno Tarde</td></tr>';
         }
 
         //fondos 
@@ -5706,7 +5706,7 @@ class VentaadmisionController extends Controller
 
 
            // $registro.= "<td>". $diff->format('%H:%i:%s') ."</td>";
-            $sojos.= "<td class='text-center'>". $tiempo ."</td>";
+            $sojos.= "<td class='text-center' style='display:none;'>". $tiempo ."</td>";
             $sojos.= "</tr>";
             $c=$c+1;
         }
@@ -5719,17 +5719,17 @@ class VentaadmisionController extends Controller
                                 <tr>
                                     <th class='text-center' width='10%'>Nro</th>
                                     <th class='text-center' width='70%'>Cliente</th>
-                                    <th class='text-center' width='20%'>Tiempo</th>
+                                    <th class='text-center' style='display:none;' width='20%'>Tiempo</th>
                                 </tr>
                             </thead>
                             <tbody>";
 
         if(count($lista4m) == 0 && count($lista4t) == 0) {
-            $slectura.= '<tr class="text-center"><td colspan="3">No Hay lectura de resultados.</td></tr>';
+            $slectura.= '<tr class="text-center"><td colspan="2">No Hay lectura de resultados.</td></tr>';
         }
 
         if(count($lista4m) != 0) {
-            $slectura.= '<tr class="text-center"><td colspan="3">Turno Mañana</td></tr>';
+            $slectura.= '<tr class="text-center"><td colspan="2">Turno Mañana</td></tr>';
         }
 
         //lectura 
@@ -5779,13 +5779,13 @@ class VentaadmisionController extends Controller
 
 
            // $registro.= "<td>". $diff->format('%H:%i:%s') ."</td>";
-            $slectura.= "<td class='text-center'>". $tiempo ."</td>";
+            $slectura.= "<td class='text-center' style='display:none;'>". $tiempo ."</td>";
             $slectura.= "</tr>";
             $c=$c+1;
         }
 
         if(count($lista4t) != 0) {
-            $slectura.= '<tr class="text-center"><td colspan="3">Turno Tarde</td></tr>';
+            $slectura.= '<tr class="text-center"><td colspan="2">Turno Tarde</td></tr>';
         }
 
         //lectura 
@@ -5835,7 +5835,7 @@ class VentaadmisionController extends Controller
 
 
            // $registro.= "<td>". $diff->format('%H:%i:%s') ."</td>";
-            $slectura.= "<td class='text-center'>". $tiempo ."</td>";
+            $slectura.= "<td class='text-center' style='display:none;'>". $tiempo ."</td>";
             $slectura.= "</tr>";
             $c=$c+1;
         }

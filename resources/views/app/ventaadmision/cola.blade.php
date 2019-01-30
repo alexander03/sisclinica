@@ -104,7 +104,7 @@
             });
             $('.llamando').fadeTo(500, .1).fadeTo(500, 1) ;
         }
-        setInterval(buscar2, 1000);
+        setInterval(buscar2, 3000);
     </script> 
     </body>
 </html>

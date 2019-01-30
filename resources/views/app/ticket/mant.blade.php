@@ -62,17 +62,19 @@ if(!is_null($ticket)){
                     <select class="form-control input-xs" name="turno" id="turno">
                         @if($ticket != null)
                             @if($ticket->turno == "M")
-                                <option checked id="manana" value="M">MAÑANA</option>
-                                <option id="tarde" value="T">TARDE</option>
+                                <option selected id="manana" value="M">MAÑANA</option>
                             @else
                                 <option id="manana" value="M">MAÑANA</option>
-                                <option checked id="tarde" value="T">TARDE</option>
+                            @endif
+                            @if($ticket->turno == "T")
+                                <option selected id="tarde" value="T">TARDE</option>
+                            @else
+                                <option id="tarde" value="T">TARDE</option>
                             @endif
                         @else
-                            <<option id="manana" value="M">MAÑANA</option>
+                            <option id="manana" value="M">MAÑANA</option>
                             <option id="tarde" value="T">TARDE</option>
                         @endif
-                        
                     </select>
                 </div>
             </div>
@@ -378,11 +380,16 @@ $(document).ready(function() {
 
     console.log(hora);
     
-    if(hora < 14){
-        $('#turno').val('M');
-    }else{
-        $('#turno').val('T');
+    <?php
+    if($ticket == null){
+        echo "
+        if(hora < 14){
+            $('#turno').val('M');
+        }else{
+            $('#turno').val('T');
+        }";
     }
+    ?>
 
     var personas = new Bloodhound({
 		datumTokenizer: function (d) {

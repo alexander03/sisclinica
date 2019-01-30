@@ -67,6 +67,7 @@ class HistoriaClinicaController extends Controller
                 'motivo' => $historiaclinica->motivo,
                 'cie10' => $cie10->codigo,
                 'sintomas' => $historiaclinica->sintomas,
+                'citaproxima' => $historiaclinica->citaproxima,
                 'tratamiento' => $historiaclinica->tratamiento,
                 'diagnostico' => $historiaclinica->diagnostico,
                 'exploracion_fisica' => $historiaclinica->exploracion_fisica,
@@ -108,6 +109,7 @@ class HistoriaClinicaController extends Controller
             $historiaclinica->diagnostico    = strtoupper($request->input('diagnostico'));
             $historiaclinica->examenes             = strtoupper($request->input('examenes'));
             $historiaclinica->motivo               = strtoupper($request->input('motivo'));
+            $historiaclinica->citaproxima               = strtoupper($request->input('citaproxima'));
             $historiaclinica->exploracion_fisica   = strtoupper($request->input('exploracion_fisica'));
             $historiaclinica->ticket_id =  $request->input('ticket_id');
             $historiaclinica->doctor_id =  $request->input('doctor_id');
@@ -220,18 +222,18 @@ class HistoriaClinicaController extends Controller
                 </tr>
                 <tr>
                     <td>
-                        <strong><font style='color:blue'>Motivo</font></strong><br>
+                        <strong><font style='color:blue'>Próxima cita</font></strong><br>
                     </td>
                     <td>"
-                        . $cita->motivo .
+                        . date('d-m-Y',strtotime( $cita->citaproxima )) .
                     "</td>
                 </tr>
                 <tr>
                     <td>
-                        <strong><font style='color:blue'>Síntomas</font></strong><br>
+                        <strong><font style='color:blue'>Motivo</font></strong><br>
                     </td>
                     <td>"
-                        . $cita->sintomas .
+                        . $cita->motivo .
                     "</td>
                 </tr>
                 <tr>
@@ -310,6 +312,14 @@ class HistoriaClinicaController extends Controller
                 </tr>
                 <tr>
                     <td>
+                        <strong><font style='color:blue'>Próxima cita</font></strong><br>
+                    </td>
+                    <td>"
+                        . date('d-m-Y',strtotime( $cita->citaproxima )) .
+                    "</td>
+                </tr>
+                <tr>
+                    <td>
                         <strong><font style='color:blue'>Cie 10</font></strong><br>
                     </td>
                     <td>"
@@ -324,14 +334,6 @@ class HistoriaClinicaController extends Controller
                     </td>
                     <td>"
                         . $cita->motivo .
-                    "</td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong><font style='color:blue'>Síntomas</font></strong><br>
-                    </td>
-                    <td>"
-                        . $cita->sintomas .
                     "</td>
                 </tr>
                 <tr>
@@ -378,7 +380,7 @@ class HistoriaClinicaController extends Controller
 
         $ruta             = $this->rutas;
 
-        $resultado = HistoriaClinica::whereDate('fecha_atencion', '=' ,Carbon::now()->format('Y-m-d') )->orderBy('numero', 'ASC')->get();
+        $resultado = HistoriaClinica::whereDate('fecha_atencion', '=' ,Carbon::now()->format('Y-m-d') )->orderBy('id', 'ASC')->get();
 
         $tabla = "<table class='table table-bordered table-striped table-condensed table-hover'>
                             <thead>
@@ -448,6 +450,7 @@ class HistoriaClinicaController extends Controller
             'numhistoria' => $historia->numero,
             'numero' => $historiaclinica->numero,
             'motivo' => $historiaclinica->motivo,
+            'citaproxima' => $historiaclinica->citaproxima,
             'cie10' => $cie10->codigo,
             'sintomas' => $historiaclinica->sintomas,
             'tratamiento' => $historiaclinica->tratamiento,
@@ -469,11 +472,70 @@ class HistoriaClinicaController extends Controller
             $historiaclinica->diagnostico    = strtoupper($request->input('diagnostico'));
             $historiaclinica->examenes             = strtoupper($request->input('examenes'));
             $historiaclinica->motivo               = strtoupper($request->input('motivo'));
+            $historiaclinica->citaproxima               = strtoupper($request->input('citaproxima'));
             $historiaclinica->exploracion_fisica   = strtoupper($request->input('exploracion_fisica'));
             $historiaclinica->save();
         });
 
         return is_null($error) ? "OK" : $error;
+
+    }
+
+    public function infoPaciente(Request $request){
+        
+        $numhistoria = $request->input('historia');
+        $historia = Historia::where('numero','=', $numhistoria)->first();
+        $paciente = Person::find($historia->person_id);
+
+        $texto = "<table class='table table-responsive table-hover'>
+            <thead>
+                <tr>
+                    <td colspan='2'>
+                        <center style='color:red'>
+                            <h3>
+                                Paciente: ". $historia->persona->apellidopaterno . ' ' . $historia->persona->apellidomaterno . ' ' . $historia->persona->nombres ."
+                            </h3>
+                        </center>
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td width='30%'>
+                        <strong><font style='color:blue'>DNI:</font></strong>
+                    </td>
+                    <td width='70%'>"
+                        . $paciente->dni .
+                    "</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong><font style='color:blue'>Fecha de nacimiento:</font></strong><br>
+                    </td>
+                    <td>"
+                        . date('d-m-Y',strtotime($paciente->fechanacimiento)).
+                    "</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong><font style='color:blue'>Teléfono:</font></strong><br>
+                    </td>
+                    <td>"
+                       .$paciente->telefono.
+                    "</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong><font style='color:blue'>Dirección</font></strong><br>
+                    </td>
+                    <td>"
+                        . $paciente->direccion .
+                    "</td>
+                </tr>
+            </tbody>
+        </table>";
+
+        return $texto;
 
     }
 
