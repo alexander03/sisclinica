@@ -67,9 +67,9 @@
 				</tr>					
 			</thead>
 			<tbody>
-				<?php $i = 0; $totaltotal = 0; ?>				
+				<?php $i = 0; $totaltotal = 0; $subtot = 0; ?>				
 				@foreach($cuotas as $cuota)
-					<tr>
+					<tr @if($cuota->situacion == 'A') style="background-color: #FFBFB1" @endif>
 						<td>{{ $cuota->numero }}</td>
 						<td>{{ $cuota->fecha }}</td>
 						<td>
@@ -81,15 +81,26 @@
 						<td>
 							<input readonly="" class="form-control input-xs precio" type="text" value="{{ $cuota->totalpagadomaster }}">
 						</td>
-						<?php $subtot = $cuota->totalpagado + $cuota->totalpagadovisa + $cuota->totalpagadomaster; 
-								$totaltotal += $subtot;
-							?>
+						<?php 
+						if($cuota->situacion != 'A') {
+							$subtot = $cuota->totalpagado + $cuota->totalpagadovisa + $cuota->totalpagadomaster; 
+							$totaltotal += $subtot;
+						}
+
+						?>
 						<td>
 							<input readonly="" class="form-control input-xs precio" type="text" value="{{ round($subtot,3) }}">
 						</td>
-						<td>
-							<center><a class="btn btn-info btn-xs" href="#" onclick="imprimirReciboCuota({{ $cuota->id }})"><i class="glyphicon glyphicon-print"></i></a></center>
-						</td>
+						@if($cuota->situacion != 'A')
+							<td>
+								<center><a class="btn btn-info btn-xs" href="#" onclick="imprimirReciboCuota({{ $cuota->id }})"><i class="glyphicon glyphicon-print"></i></a></center>
+							</td>
+						@else 
+							<td>
+								<center><a class="btn btn-danger btn-xs" href="#">Anul.</a></center>
+							</td>
+						@endif
+						
 					</tr>
 					<?php $i++; ?>
 				@endforeach

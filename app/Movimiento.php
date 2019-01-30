@@ -149,6 +149,7 @@ class Movimiento extends Model
         
         $rs=$query->where('caja_id', $caja_id)
                     ->where('situacion','like',$situacion)
+                    ->orWhere('situacion','like','A')
                     ->where('tipomovimiento_id', $tipomovimiento_id)
                     ->where('sucursal_id', $sucursal_id)
                     ->select(DB::raw("max((CASE WHEN numero IS NULL THEN 0 ELSE numero END)*1) AS maximo"))

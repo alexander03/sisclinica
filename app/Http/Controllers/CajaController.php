@@ -535,6 +535,20 @@ class CajaController extends Controller
             $listar = $listarLuego;
         }
         $modelo   = Caja::find($id);
+        $obj = Movimiento::find($id);
+        //SOLO PARA CUOTAS
+        if($obj->situacion2 == 'Z') {
+            $cuota = Movimiento::find($obj->numeroserie2);
+            $cuota->situacion = 'A';
+            $cuota->save();
+            //AUMENTO RESUMEN DE CUOTAS DE LA ANULADA
+            $rescuotas = Movimiento::find($cuota->movimiento_id);
+            $rescuotas->total -= $obj->totalpagado - $obj->totalpagadovisa - $obj->totalpagadomaster;
+            $rescuotas->totalpagado -= $obj->totalpagado;
+            $rescuotas->totalpagadovisa -= $obj->totalpagadovisa;
+            $rescuotas->totalpagadomaster -= $obj->totalpagadomaster;
+            $rescuotas->save(); 
+        }
         $entidad  = 'Caja';
         $ticket  = 'Ticket';
         $formData = array('route' => array('caja.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
@@ -872,7 +886,7 @@ class CajaController extends Controller
                 foreach ($detalles as $detalle) {
                     if($i == 0) {
                         $pdf::SetFont('helvetica','',6);                   
-                        $pdf::Cell(15,7*count($detalles),utf8_decode($row['fecha']),1,0,'C');
+                        $pdf::Cell(15,7*count($detalles ),utf8_decode($row['fecha']),1,0,'C');
                         $pdf::Cell(56,7*count($detalles),$row['paciente'],1,0,'L');
                         $pdf::Cell(8,7*count($detalles),$row->tipodocumento->abreviatura,1,0,'C');
                         $pdf::Cell(12,7*count($detalles),utf8_decode($row['serie'] .'-'. $row['numero']),1,0,'C');
@@ -883,36 +897,41 @@ class CajaController extends Controller
                         $pdf::Cell(8,7,'',0,0,'C');
                         $pdf::Cell(12,7,'',0,0,'C');
                     }                        
-                    $pdf::Cell(100,7,$row2['comentario'].': '.substr($detalle->servicio->nombre,0,58),1,0,'L');
+                    $pdf::Cell(100,7,$row2['comentario'].': '.substr($detalle->servicio->nombre,0,53) . '.',1,0,'L');
                     $pdf::Cell(14,7,number_format($detalle->precio,2,',',''),1,0,'L');                    
                     if($i == 0) {
-                        $pdf::Cell(14,7*count($detalles),'',1,0,'L');
-                        $valuetp = number_format($row2['totalpagado'],2,'.','');
-                        $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
-                        $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
-                        if($valuetp == 0){$valuetp='';}
-                        if($valuetpv == 0){$valuetpv='';}
-                        if($valuetpm == 0){$valuetpm='';}
-                        $pdf::Cell(14,7*count($detalles),$valuetp,1,0,'R');                    
-                        $pdf::Cell(14,7*count($detalles),$valuetpv,1,0,'R');
-                        $pdf::Cell(14,7*count($detalles),$valuetpm,1,0,'R');
+                        if($row2['situacion'] == 'N') {
+                            $pdf::Cell(14,7*count($detalles),'',1,0,'L');
+                            $valuetp = number_format($row2['totalpagado'],2,'.','');
+                            $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
+                            $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
+                            if($valuetp == 0){$valuetp='';}
+                            if($valuetpv == 0){$valuetpv='';}
+                            if($valuetpm == 0){$valuetpm='';}
+                            $pdf::Cell(14,7*count($detalles),$valuetp,1,0,'R');                    
+                            $pdf::Cell(14,7*count($detalles),$valuetpv,1,0,'R');
+                            $pdf::Cell(14,7*count($detalles),$valuetpm,1,0,'R');
+                        } else {
+                            $pdf::Cell(56,7*count($detalles),'ANULADO',1,0,'C');
+                        }
                     } else {
                         $pdf::Cell(14,7,'',0,0,'L');
                         $pdf::Cell(14,7,'',0,0,'R');                    
                         $pdf::Cell(14,7,'',0,0,'R');
-                        $pdf::Cell(14,7,'',0,0,'R');
-                        
+                        $pdf::Cell(14,7,'',0,0,'R');                        
                     }
                     $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');                        
                     $pdf::Ln();
                     $i++;
-                }                    
-                $totalvisa += number_format($row2['totalpagadovisa'],2,'.','');
-                $totalmaster += number_format($row2['totalpagadomaster'],2,'.','');
-                $totalefectivo += number_format($row2['totalpagado'],2,'.','');
-                $subtotalefectivo += number_format($row2['totalpagadovisa'],2,'.','');
-                $subtotalvisa     += number_format($row2['totalpagadomaster'],2,'.','');
-                $subtotalmaster   += number_format($row2['totalpagado'],2,'.','');
+                }  
+                if($row2['situacion'] == 'N') {                  
+                    $totalvisa += number_format($row2['totalpagadovisa'],2,'.','');
+                    $totalmaster += number_format($row2['totalpagadomaster'],2,'.','');
+                    $totalefectivo += number_format($row2['totalpagado'],2,'.','');
+                    $subtotalefectivo += number_format($row2['totalpagadovisa'],2,'.','');
+                    $subtotalvisa     += number_format($row2['totalpagadomaster'],2,'.','');
+                    $subtotalmaster   += number_format($row2['totalpagado'],2,'.','');
+                }
             } 
             $pdf::SetFont('helvetica','B',8.5);
             $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
@@ -930,11 +949,11 @@ class CajaController extends Controller
                 ->where('movimiento.tipomovimiento_id', '=', 2)
                 ->where('movimiento.tipodocumento_id', '=', 2)
                 ->where('movimiento.situacion2','=','Z')
-                ->where('movimiento.situacion','=','N')
+                //->where('movimiento.situacion','=','N')
                 ->where('movimiento.sucursal_id', '=', $sucursal_id)
                 ->where('movimiento.id', '>=', $movimiento_mayor)
                 ->where('movimiento.caja_id', '=', $caja_id);
-        $resultadoventas = $resultadoventas->select('movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+        $resultadoventas = $resultadoventas->select('movimiento.numeroserie2','movimiento.movimiento_id','movimiento.situacion','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
         
         $listaventas           = $resultadoventas->get();
 
@@ -946,30 +965,36 @@ class CajaController extends Controller
             $subtotalvisa = 0;
             $subtotalmaster = 0;
             foreach ($listaventas as $row) { 
+                $cuota = Movimiento::find($row['numeroserie2']);
                 $pdf::SetFont('helvetica','',6);                   
                 $pdf::Cell(15,7,utf8_decode($row['fecha']),1,0,'C');
                 $pdf::Cell(56,7,$row['paciente'],1,0,'L');
                 $pdf::Cell(8,7,'C',1,0,'C');
-                $pdf::Cell(12,7,utf8_decode($row['numero']),1,0,'C');
+                $pdf::Cell(12,7,utf8_decode($cuota->numero),1,0,'C');
                 $pdf::Cell(114,7,"PAGO DE CUOTA DE TICKET N° " . $row['numeroticket'],1,0,'L');
-                $pdf::Cell(14,7,'',1,0,'R');
-                $valuetp = number_format($row['totalpagado'],2,'.','');
-                $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
-                $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
-                if($valuetp == 0){$valuetp='';}
-                if($valuetpv == 0){$valuetpv='';}
-                if($valuetpm == 0){$valuetpm='';}
-                $pdf::Cell(14,7,$valuetp,1,0,'R');                    
-                $pdf::Cell(14,7,$valuetpv,1,0,'R');
-                $pdf::Cell(14,7,$valuetpm,1,0,'R');
+
+                if($row['situacion'] == 'N') {
+                    $valuetp = number_format($row['totalpagado'],2,'.','');
+                    $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
+                    $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
+                    if($valuetp == 0){$valuetp='';}
+                    if($valuetpv == 0){$valuetpv='';}
+                    if($valuetpm == 0){$valuetpm='';}
+                    $pdf::Cell(14,7,'',1,0,'R');
+                    $pdf::Cell(14,7,$valuetp,1,0,'R');                    
+                    $pdf::Cell(14,7,$valuetpv,1,0,'R');
+                    $pdf::Cell(14,7,$valuetpm,1,0,'R');
+                    $totalvisa += number_format($row['totalpagadovisa'],2,'.','');
+                    $totalmaster += number_format($row['totalpagadomaster'],2,'.','');
+                    $totalefectivo += number_format($row['totalpagado'],2,'.','');
+                    $subtotalefectivo += number_format($row['totalpagadovisa'],2,'.','');
+                    $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
+                    $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
+                } else {
+                    $pdf::Cell(56,7,'ANULADO',1,0,'C');                    
+                }  
                 $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
-                $pdf::Ln();
-                $totalvisa += number_format($row['totalpagadovisa'],2,'.','');
-                $totalmaster += number_format($row['totalpagadomaster'],2,'.','');
-                $totalefectivo += number_format($row['totalpagado'],2,'.','');
-                $subtotalefectivo += number_format($row['totalpagadovisa'],2,'.','');
-                $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
-                $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
+                $pdf::Ln();                  
             } 
             $pdf::SetFont('helvetica','B',8.5);
             $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
@@ -1055,9 +1080,8 @@ class CajaController extends Controller
                 ->where('movimiento.caja_id', '=', $caja_id)
                 ->where('movimiento.id', '>=', $movimiento_mayor)
                 ->where('movimiento.situacion2', '=', 'Q')
-                ->where('movimiento.situacion', '=', 'N')
                 ->where('conceptopago.tipo', '=', 'I');
-        $listaingresosvarios = $listaingresosvarios->select('movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'), 'conceptopago.nombre', 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+        $listaingresosvarios = $listaingresosvarios->select('movimiento.situacion','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'), 'conceptopago.nombre', 'movimiento.total')->orderBy('movimiento.numero', 'asc');
         
         $listaingresosvarios = $listaingresosvarios->get();
 
@@ -1074,24 +1098,30 @@ class CajaController extends Controller
                 $pdf::Cell(56,7,$row['paciente'],1,0,'L');
                 $pdf::Cell(8,7,$row['formapago'],1,0,'C');
                 $pdf::Cell(12,7,utf8_decode($row['voucher']),1,0,'C');
-                $pdf::Cell(128,7,$row['nombre'].': '.$row['comentario'],1,0,'L');
-                $valuetp = number_format($row['totalpagado'],2,'.','');
-                $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
-                $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
-                if($valuetp == 0){$valuetp='';}
-                if($valuetpv == 0){$valuetpv='';}
-                if($valuetpm == 0){$valuetpm='';}
-                $pdf::Cell(14,7,$valuetp,1,0,'R');                    
-                $pdf::Cell(14,7,$valuetpv,1,0,'R');
-                $pdf::Cell(14,7,$valuetpm,1,0,'R');
+                $pdf::Cell(114,7,$row['nombre'].': '.$row['comentario'],1,0,'L');
+                if($row['situacion'] == 'N') {
+                    $valuetp = number_format($row['totalpagado'],2,'.','');
+                    $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
+                    $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
+                    if($valuetp == 0){$valuetp='';}
+                    if($valuetpv == 0){$valuetpv='';}
+                    if($valuetpm == 0){$valuetpm='';}
+                    $pdf::Cell(14,7,'',1,0,'R');                    
+                    $pdf::Cell(14,7,$valuetp,1,0,'R');                    
+                    $pdf::Cell(14,7,$valuetpv,1,0,'R');
+                    $pdf::Cell(14,7,$valuetpm,1,0,'R');                    
+                    $totalvisa += number_format($row['totalpagadovisa'],2,'.','');
+                    $totalmaster += number_format($row['totalpagadomaster'],2,'.','');
+                    $totalefectivo += number_format($row['totalpagado'],2,'.','');
+                    $subtotalefectivo += number_format($row['totalpagadovisa'],2,'.','');
+                    $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
+                    $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
+                } else {
+                    $pdf::Cell(56,7,'ANULADO',1,0,'C');
+                }
                 $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
                 $pdf::Ln();
-                $totalvisa += number_format($row['totalpagadovisa'],2,'.','');
-                $totalmaster += number_format($row['totalpagadomaster'],2,'.','');
-                $totalefectivo += number_format($row['totalpagado'],2,'.','');
-                $subtotalefectivo += number_format($row['totalpagadovisa'],2,'.','');
-                $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
-                $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
+                    
             }   
             $pdf::SetFont('helvetica','B',8.5);
             $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
@@ -1115,8 +1145,8 @@ class CajaController extends Controller
                     ->whereNotIn('movimiento.conceptopago_id',[31])
                     ->orWhere('m2.situacion','<>','R');
             })
-            ->where('movimiento.situacion', '<>', 'A')
-            ->where('movimiento.situacion', '<>', 'R')
+            //->where('movimiento.situacion', '<>', 'A')
+            //->where('movimiento.situacion', '<>', 'R')
             ->where('conceptopago.tipo', '=', 'E')
             ->where('movimiento.situacion2', '=', 'Q');
 
@@ -1136,11 +1166,15 @@ class CajaController extends Controller
                 $pdf::Cell(8,7,$row['formapago'],1,0,'C');
                 $pdf::Cell(12,7,utf8_decode($row['voucher']),1,0,'C');
                 $pdf::Cell(114,7,$row['nombre'].': '.$row['comentario'],1,0,'L');
-                $pdf::Cell(14,7,number_format($row['total'],2,'.',''),1,0,'R');
-                $pdf::Cell(42,7,utf8_decode(""),1,0,'C');
+                if($row['situacion'] == 'N') {
+                    $pdf::Cell(14,7,number_format($row['total'],2,'.',''),1,0,'R');
+                    $pdf::Cell(42,7,utf8_decode(""),1,0,'C');                    
+                    $subtotalegresos += number_format($row['total'],2,'.','');
+                } else {
+                    $pdf::Cell(56,7,utf8_decode("ANULADO"),1,0,'C');
+                }  
                 $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
-                $pdf::Ln();
-                $subtotalegresos += number_format($row['total'],2,'.','');
+                $pdf::Ln();              
             }      
             $pdf::SetFont('helvetica','B',8.5);
             $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
@@ -6386,6 +6420,7 @@ class CajaController extends Controller
                     $movimiento->caja_id=$request->input('caja_id');
                     $movimiento->situacion='N';
                     $movimiento->situacion2='Z';
+                    $movimiento->numeroserie2 = $primeracuota->id;
                     $movimiento->movimiento_id=$Ticket->id;
                     $movimiento->save();               
                 }
@@ -6643,6 +6678,7 @@ class CajaController extends Controller
             $movimiento->caja_id=$request->input('caja_id');
             $movimiento->situacion='N';
             $movimiento->situacion2='Z'; //pARA IDENTIFICAR UNA CUOTA
+            $movimiento->numeroserie2=$cuota->id;
             $movimiento->movimiento_id=$Ticket->id;
             $movimiento->save();
         });
@@ -6701,33 +6737,48 @@ class CajaController extends Controller
         $pdf::Ln();
 
         $pdf::SetFont('helvetica','B',8);
-        $pdf::Cell(30,6,utf8_decode("N° CUOTA"),1,0,'C');
-        $pdf::Cell(40,6,utf8_decode("EFECTIVO (S/.)"),1,0,'C');
-        $pdf::Cell(40,6,utf8_decode("VISA (S/.)"),1,0,'C');
-        $pdf::Cell(40,6,utf8_decode("MASTER (S/.)"),1,0,'C');
-        $pdf::Cell(40,6,utf8_decode("SUBTOTAL (S/.)"),1,0,'C'); 
+        $pdf::Cell(15,6,utf8_decode("N° CUOTA"),1,0,'C');
+        $pdf::Cell(25,6,utf8_decode("FECHA"),1,0,'C');
+        $pdf::Cell(30,6,utf8_decode("ESTADO"),1,0,'C');
+        $pdf::Cell(30,6,utf8_decode("EFECTIVO (S/.)"),1,0,'C');
+        $pdf::Cell(30,6,utf8_decode("VISA (S/.)"),1,0,'C');
+        $pdf::Cell(30,6,utf8_decode("MASTER (S/.)"),1,0,'C');
+        $pdf::Cell(30,6,utf8_decode("SUBTOTAL (S/.)"),1,0,'C'); 
 
         $pdf::Ln();
 
         $totalpagado = 0.000;
 
         foreach($cuotas as $cuota) {
-            $pdf::Cell(30,6,$cuota->numero,1,0,'C');
-            $pdf::Cell(40,6,number_format($cuota->totalpagado,2,",",""),1,0,'C');
-            $pdf::Cell(40,6,number_format($cuota->totalpagadovisa,2,",",""),1,0,'C');
-            $pdf::Cell(40,6,number_format($cuota->totalpagadomaster,2,",",""),1,0,'C');            
-            $pdf::Cell(40,6,number_format($cuota->totalpagado+$cuota->totalpagadovisa+$cuota->totalpagadomaster,2,",",""),1,0,'C');
+            if($cuota->situacion == 'A') {
+                $sit = 'ANULADO';
+            } else {
+                $sit = 'PAGADO';
+            }
+            $pdf::Cell(15,6,$cuota->numero,1,0,'C');
+            $pdf::Cell(25,6,$cuota->fecha,1,0,'C');
+            $pdf::Cell(30,6,$sit,1,0,'C');
+            $pdf::Cell(30,6,number_format($cuota->totalpagado,2,",",""),1,0,'C');
+            $pdf::Cell(30,6,number_format($cuota->totalpagadovisa,2,",",""),1,0,'C');
+            $pdf::Cell(30,6,number_format($cuota->totalpagadomaster,2,",",""),1,0,'C');  
+            if($cuota->situacion != 'A') {          
+                $pdf::Cell(30,6,number_format($cuota->totalpagado+$cuota->totalpagadovisa+$cuota->totalpagadomaster,2,",",""),1,0,'C');
+            } else {
+                $pdf::Cell(30,6,number_format(0.00,2,",",""),1,0,'C');
+            }
             $pdf::Ln();
-            $totalpagado += $cuota->totalpagado+$cuota->totalpagadovisa+$cuota->totalpagadomaster;
+            if($cuota->situacion != 'A') {
+                $totalpagado += $cuota->totalpagado+$cuota->totalpagadovisa+$cuota->totalpagadomaster;
+            }            
         }
 
-        $pdf::Cell(150,6,'TOTAL PAGADO (S/.)',1,0,'C');            
-        $pdf::Cell(40,6,number_format($totalpagado,2,",",""),1,0,'C');
+        $pdf::Cell(160,6,'TOTAL PAGADO (S/.)',1,0,'C');            
+        $pdf::Cell(30,6,number_format($totalpagado,2,",",""),1,0,'C');
 
         $pdf::Ln();
 
-        $pdf::Cell(150,6,'A CUENTA (S/.)',1,0,'C');            
-        $pdf::Cell(40,6,number_format($lista->total-$totalpagado,2,",",""),1,0,'C');
+        $pdf::Cell(160,6,'A CUENTA (S/.)',1,0,'C');            
+        $pdf::Cell(30,6,number_format($lista->total-$totalpagado,2,",",""),1,0,'C');
 
         $pdf::Output('ReciboCaja.pdf');        
     }
