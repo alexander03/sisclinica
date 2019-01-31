@@ -550,6 +550,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('caja/listaticketspendientes/{numero}/{fecha}/{paciente}', 'CajaController@listaticketspendientes')->name('caja.listaticketspendientes');
     Route::get('caja/cuentaspendientes', 'CajaController@cuentaspendientes')->name('caja.cuentaspendientes');
     Route::get('caja/listacuentaspendientes/{numero}/{fecha}/{paciente}', 'CajaController@listacuentaspendientes')->name('caja.listacuentaspendientes');
+    Route::get('caja/reporteCiruProConDetalle', 'CajaController@reporteCiruProConDetalle')->name('caja.reporteCiruProConDetalle');
+    Route::get('caja/reporteCiruProSinDetalle', 'CajaController@reporteCiruProSinDetalle')->name('caja.reporteCiruProSinDetalle');
+    Route::get('caja/cirupro', 'CajaController@cirupro')->name('caja.cirupro');
     Route::post('caja/cerrar', 'CajaController@cerrar')->name('caja.cerrar');
     Route::post('caja/generarConcepto', 'CajaController@generarConcepto')->name('caja.generarconcepto');
     Route::post('caja/generarNumero', 'CajaController@generarNumero')->name('caja.generarnumero');

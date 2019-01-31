@@ -8701,4 +8701,18 @@ class CajaController extends Controller
 
         $pdf::Output('ReciboCaja.pdf');        
     }
+
+    public function cirupro(Request $request) {
+        return view($this->folderview.'.cirupro');
+    }
+
+    public function reporteCiruProConDetalle(Request $request) {
+        $fecha = $request->input('fecha');
+        echo 'YES ' . $fecha;
+    }
+
+    public function reporteCiruProSinDetalle(Request $request) {
+        $fecha = $request->input('fecha');
+        echo 'NO ' . $fecha;
+    }
 }

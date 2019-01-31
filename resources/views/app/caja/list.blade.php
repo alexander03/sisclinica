@@ -19,10 +19,13 @@
 <!--{! Form::button('<i class="glyphicon glyphicon-print"></i> Honorario', array('class' => 'btn btn-warning btn-xs', 'id' => 'btnHonorario', 'onclick' => 'imprimirHonorario();')) !!}-->
 @if($tipousuario!=11)
     {!! Form::button('<i class="glyphicon glyphicon-list"></i> Tickets Pendientes', array('class' => 'btn btn-primary btn-xs', 'id' => 'btnTicketsPendientes', 'onclick' => 'modalCaja (\''.URL::route($ruta["ticketspendientes"], array('listar'=>'SI')).'\', \''.$titulo_ticketspendientes.'\', this);')) !!}
-    {!! Form::button('<i class="glyphicon glyphicon-tags"></i>&nbsp;&nbsp;Cuentas por Cobrar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnCuentasPendientes', 'onclick' => 'modalCaja (\''.URL::route($ruta["cuentaspendientes"], array('listar'=>'SI')).'\', \''.$titulo_cuentaspendientes.'\', this);')) !!}
+    {!! Form::button('<i class="glyphicon glyphicon-tags"></i>&nbsp;&nbsp;Cuentas por Cobrar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnCuentasPendientes', 'onclick' => 'modalCaja (\''.URL::route($ruta["cuentaspendientes"], array('listar'=>'SI')).'\', \''.$titulo_cuentaspendientes.'\', this);')) !!}    
 @endif
 {!! Form::button('<i class="glyphicon glyphicon-print"></i> Exportar PDF', array('class' => 'btn btn-warning btn-xs', 'id' => 'btnDetalle', 'onclick' => 'imprimirDetalle();')) !!}
-{!! Form::button('<i class="glyphicon glyphicon-print"></i> Exportar Excel', array('class' => 'btn btn-success btn-xs', 'id' => 'btnDetalle', 'onclick' => 'imprimirDetalleExcel();')) !!}   
+{!! Form::button('<i class="glyphicon glyphicon-print"></i> Exportar Excel', array('class' => 'btn btn-success btn-xs', 'id' => 'btnDetalle', 'onclick' => 'imprimirDetalleExcel();')) !!}  
+@if($tipousuario!=11)
+    {!! Form::button('<i class="glyphicon glyphicon-plus-sign"></i>&nbsp;&nbsp;Cirugías/Procedimientos', array('class' => 'btn btn-info btn-xs', 'id' => 'btncirupro', 'onclick' => 'modal("caja/cirupro", "Cirugías/Procedimientos");')) !!}
+@endif 
 <?php 
 $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
 ?>
