@@ -9,12 +9,14 @@ use App\Http\Requests;
 use App\HistoriaClinica;
 use App\Historia;
 use App\Cie;
+use App\User;
 use App\Person;
 use App\Detallemovcaja;
 use App\Movimiento;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class HistoriaClinicaController extends Controller
@@ -57,6 +59,7 @@ class HistoriaClinicaController extends Controller
             $cie10 = Cie::find($historiaclinica->cie_id);
             $jsondata = array(
                 'historia_id' => $historia->id,
+                'antecedentes' => $historia->antecedentes,
                 'ticket_id' => $ticket_id,
                 'fondo' => $fondo,
                 'doctor_id' => $doctor->id,
@@ -76,6 +79,7 @@ class HistoriaClinicaController extends Controller
         }else{
             $jsondata = array(
                 'historia_id' => $historia->id,
+                'antecedentes' => $historia->antecedentes,
                 'ticket_id' => $ticket_id,
                 'fondo' => $fondo,
                 'doctor_id' => $doctor->id,
@@ -113,6 +117,8 @@ class HistoriaClinicaController extends Controller
             $historiaclinica->exploracion_fisica   = strtoupper($request->input('exploracion_fisica'));
             $historiaclinica->ticket_id =  $request->input('ticket_id');
             $historiaclinica->doctor_id =  $request->input('doctor_id');
+            $user = Auth::user();
+            $historiaclinica->user_id   = $user->id;
 
             $now = new \DateTime();
 
@@ -130,6 +136,10 @@ class HistoriaClinicaController extends Controller
             }
 
             $Ticket->save();
+
+            $historia  = Historia::find($request->input('historia_id'));
+            $historia->antecedentes = strtoupper($request->input('antecedentes'));
+            $historia->save();
 
         });
         return is_null($error) ? "OK" : $error;
@@ -180,6 +190,7 @@ class HistoriaClinicaController extends Controller
         $historia            = Historia::find($cita->historia_id);
         $cie10               = Cie::find($cita->cie_id);
         $doctor              = Person::find($cita->doctor_id);
+        $user                = User::find($cita->user_id);
 
         if($cie10 == null){
 
@@ -266,6 +277,14 @@ class HistoriaClinicaController extends Controller
                     </td>
                     <td>"
                         . $cita->exploracion_fisica .
+                    "</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong><font style='color:blue'>Responsable</font></strong><br>
+                    </td>
+                    <td>"
+                        . $user->person->apellidopaterno . ' ' . $user->person->apellidomaterno . ' ' . $user->person->nombres .
                     "</td>
                 </tr>
             </tbody>
@@ -368,6 +387,14 @@ class HistoriaClinicaController extends Controller
                         . $cita->exploracion_fisica .
                     "</td>
                 </tr>
+                <tr>
+                    <td>
+                        <strong><font style='color:blue'>Responsable</font></strong><br>
+                    </td>
+                    <td>"
+                        . $user->person->apellidopaterno . ' ' . $user->person->apellidomaterno . ' ' . $user->person->nombres .
+                    "</td>
+                </tr>
             </tbody>
         </table>";
 
@@ -448,6 +475,7 @@ class HistoriaClinicaController extends Controller
             'doctor' => $doctor->apellidopaterno . ' ' . $doctor->apellidomaterno . ' ' . $doctor->nombres,
             'paciente' => $historia->persona->apellidopaterno . ' ' . $historia->persona->apellidomaterno . ' ' . $historia->persona->nombres,
             'numhistoria' => $historia->numero,
+            'antecedentes' => $historia->antecedentes,
             'numero' => $historiaclinica->numero,
             'motivo' => $historiaclinica->motivo,
             'citaproxima' => $historiaclinica->citaproxima,
@@ -474,7 +502,13 @@ class HistoriaClinicaController extends Controller
             $historiaclinica->motivo               = strtoupper($request->input('motivo'));
             $historiaclinica->citaproxima               = strtoupper($request->input('citaproxima'));
             $historiaclinica->exploracion_fisica   = strtoupper($request->input('exploracion_fisica'));
+            $user = Auth::user();
+            $historiaclinica->user_id   = $user->id;
             $historiaclinica->save();
+
+            $historia = Historia::find($historiaclinica->historia_id);
+            $historia->antecedentes = strtoupper($request->input('antecedentes'));
+            $historia->save();
         });
 
         return is_null($error) ? "OK" : $error;

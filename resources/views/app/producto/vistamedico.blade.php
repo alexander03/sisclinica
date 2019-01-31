@@ -431,9 +431,9 @@ $user = Auth::user();
 										{!! Form::label('motivoeditar', 'Motivo:') !!}
 										<textarea class="form-control input-xs" id="motivoeditar" cols="10" rows="3" style="font-size: 16px;"></textarea>
 									</div>	
-									<div class="form-group" style="margin: 5px; display: none;">
-										{!! Form::label('sintomaseditar', 'Sintomas:') !!}
-										<textarea class="form-control input-xs" id="sintomaseditar" cols="10" rows="3" style="font-size: 16px;"></textarea>
+									<div class="form-group" style="margin: 5px;">
+										{!! Form::label('antecedenteseditar', 'Antecedentes:') !!}
+										<textarea class="form-control input-xs" id="antecedenteseditar" cols="10" rows="3" style="font-size: 16px;"></textarea>
 									</div>
 									<div class="form-group" style="margin: 5px;">
 										{!! Form::label('diagnosticoeditar', 'Diagnostico:') !!}
@@ -706,7 +706,7 @@ $user = Auth::user();
   				$('#cie102').focus();
 				$('#motivo').val(a.motivo);
 				//ANTECEDENTES
-				//$('#sintomas').val(a.sintomas);
+				$('#antecedentes').val(a.antecedentes);
 				//FIN ANTECEDENTES
 				$('#tratamiento').val(a.tratamiento);
 				$('#diagnostico').val(a.diagnostico);
@@ -723,9 +723,9 @@ $user = Auth::user();
     		return 0;
     	}
     	/* ANTECEDENTES
-		if($('#sintomas').val() == '') {
-    		$('#sintomas').focus();
-    		$('#mensajeHistoriaClinica').html('Debes ingresar síntomas.');
+		if($('#antecedentes').val() == '') {
+    		$('#antecedentes').focus();
+    		$('#mensajeHistoriaClinica').html('Debes ingresar antecedentes.');
     		return 0;
     	}*/
     	if($('#diagnostico').val() == '') {
@@ -754,9 +754,8 @@ $user = Auth::user();
     		return 0;
     	}
     	var tratamiento = $('#tratamiento').val().replace(/\r?\n/g, "<br>");
-    	/* ANTECEDENTES
+    	//ANTECEDENTES
 		var antecedentes = $('#antecedentes').val().replace(/\r?\n/g, "<br>");
-		*/
     	var diagnostico = $('#diagnostico').val().replace(/\r?\n/g, "<br>");
 		var examenes = $('#examenes').val().replace(/\r?\n/g, "<br>");
     	var motivo = $('#motivo').val().replace(/\r?\n/g, "<br>");
@@ -770,7 +769,7 @@ $user = Auth::user();
 		$.ajax({
 	        type: "POST",
 	        url: "historiaclinica/registrarHistoriaClinica",
-	        data: $('#formHistoriaClinica').serialize() + "&_token=<?php echo csrf_token(); ?>&tratamiento=" + tratamiento +/* "&sintomas=" + sintomas +*/ "&diagnostico=" + diagnostico + "&examenes=" + examenes + "&motivo=" + motivo + "&exploracion_fisica=" + exploracion_fisica + "&fondo=" + fondo + "&doctor_id=" + doctor_id,
+	        data: $('#formHistoriaClinica').serialize() + "&_token=<?php echo csrf_token(); ?>&tratamiento=" + tratamiento + "&antecedentes=" + antecedentes + "&diagnostico=" + diagnostico + "&examenes=" + examenes + "&motivo=" + motivo + "&exploracion_fisica=" + exploracion_fisica + "&fondo=" + fondo + "&doctor_id=" + doctor_id,
 	        success: function(a) {
 	        	if(a == 'El Código CIE no existe') {
 	        		$('#mensajeHistoriaClinica').html(a);
@@ -787,7 +786,7 @@ $user = Auth::user();
 	  				$("#pestanaPacienteCola").addClass('active');	
 	  				$('#cie102').val('');
 	  				$('#tratamiento').val('');
-	  				//$('#sintomas').val('');
+	  				$('#antecedentes').val('');
 	  				$('#diagnostico').val('');
 					$('#examenes').val('');
 					$('#motivo').val('');
@@ -843,9 +842,8 @@ $user = Auth::user();
 				$('#motivoeditar').val(a.motivo);
 				console.log(a.citaproxima);
 				$('#citaproximaeditar').val(a.citaproxima);
-				/* ANTECEDENTES
-				$('#sintomaseditar').val(a.sintomas);
-				*/
+				//ANTECEDENTES
+				$('#antecedenteseditar').val(a.antecedentes);
 				$('#tratamientoeditar').val(a.tratamiento);
 				$('#diagnosticoeditar').val(a.diagnostico);
 				$('#exploracion_fisicaeditar').val(a.exploracion_fisica);
@@ -863,7 +861,7 @@ $user = Auth::user();
 
 		var cita_id = $("#atencion_id").val();
 		var tratamiento = $('#tratamientoeditar').val().replace(/\r?\n/g, "<br>");
-    	//var sintomas = $('#sintomaseditar').val().replace(/\r?\n/g, "<br>");
+    	var antecedentes = $('#antecedenteseditar').val().replace(/\r?\n/g, "<br>");
     	var diagnostico = $('#diagnosticoeditar').val().replace(/\r?\n/g, "<br>");
 		var examenes = $('#exameneseditar').val().replace(/\r?\n/g, "<br>");
     	var motivo = $('#motivoeditar').val().replace(/\r?\n/g, "<br>");
@@ -876,7 +874,7 @@ $user = Auth::user();
 			"data": {
 				"cita_id" : cita_id, 
 				"tratamiento" : tratamiento,
-				//"sintomas" : sintomas,
+				"antecedentes" : antecedentes,
 				"diagnostico" : diagnostico,
 				"examenes" : examenes,
 				"citaproxima" : citaproxima,
