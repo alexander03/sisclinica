@@ -863,7 +863,7 @@ class CajaController extends Controller
         $caja_id = $request->input('caja_id');
         $resultadoventas = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
                 ->leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
-                ->where('movimiento.situacion','=','N')
+                //->where('movimiento.situacion','=','N')
                 ->where('movimiento.ventafarmacia','=','N')
                 ->where('movimiento.sucursal_id', '=', $sucursal_id)
                 ->where('movimiento.id', '>=', $movimiento_mayor)
@@ -1267,7 +1267,7 @@ class CajaController extends Controller
         $caja_id = $request->input('caja_id');
         $resultadoventas = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
                 ->leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
-                ->where('movimiento.situacion','=','N')
+                //->where('movimiento.situacion','=','N')
                 ->where('movimiento.ventafarmacia','=','N')
                 ->where('movimiento.sucursal_id', '=', $sucursal_id)
                 ->where('movimiento.id', '>=', $movimiento_mayor)
@@ -1994,7 +1994,7 @@ class CajaController extends Controller
         $caja_id = $request->input('caja_id');
         $resultadoventas = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
                 ->leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
-                ->where('movimiento.situacion','=','N')
+                //->where('movimiento.situacion','=','N')
                 ->where('movimiento.ventafarmacia','=','N')
                 ->where('movimiento.sucursal_id', '=', $sucursal_id)
                 ->whereBetween('movimiento.fecha', [$fi, $ff])
@@ -4346,7 +4346,7 @@ class CajaController extends Controller
         $caja_id = $request->input('caja_id');
         $resultadoventas = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
                 ->leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
-                ->where('movimiento.situacion','=','N')
+                //->where('movimiento.situacion','=','N')
                 ->where('movimiento.ventafarmacia','=','N')
                 ->where('movimiento.sucursal_id', '=', $sucursal_id)
                 ->whereBetween('movimiento.fecha', [$fi, $ff])
@@ -8708,8 +8708,80 @@ class CajaController extends Controller
     }
 
     public function reporteCiruProConDetalle(Request $request) {
-        $fecha = $request->input('fecha');
-        echo 'YES ' . $fecha;
+        $fecha1 = $request->input('fecha');
+        $fecha = date("d/m/Y", strtotime($fecha1));
+        $pdf = new TCPDF();
+        $pdf::SetTitle('Operaciones ' . $fecha);
+        $pdf::AddPage('L');
+        $pdf::SetFont('helvetica','B',15);
+        $pdf::Cell(0,10,'Operaciones ' . $fecha,0,0,'C');
+        $pdf::Ln();
+        $pdf::Ln();
+        $pdf::SetFont('helvetica','B',8);
+        $pdf::Cell(14,7,utf8_decode("NRO"),1,0,'C');
+        $pdf::Cell(45,7,utf8_decode("PACIENTE"),1,0,'C');
+        $pdf::Cell(20,7,utf8_decode("DNI"),1,0,'C');
+        $pdf::Cell(45,7,utf8_decode("DOCTOR"),1,0,'C');
+        $pdf::Cell(10,7,utf8_decode("DESC"),1,0,'C');
+        $pdf::Cell(60,7,utf8_decode("TIPO CIRUGIA/PROCEDIMIENTO"),1,0,'C');
+        $pdf::Cell(14,7,utf8_decode("COSTO"),1,0,'C');
+        $pdf::Cell(42,7,utf8_decode("DOC. SUSTENTATORIO"),1,0,'C');
+        $pdf::Cell(14,7,utf8_decode("RECIBO"),1,0,'C');
+        $pdf::Cell(14,7,utf8_decode("IMPORTE"),1,0,'C');
+        $pdf::Ln();
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+        if($sucursal_id == 2) {
+            $caja_id=2;
+        } else {
+            $caja_id=1;
+        }  
+
+        $resultadoventas = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
+                ->leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+                //->where('movimiento.situacion','=','N')
+                ->where('movimiento.ventafarmacia','=','N')
+                ->where('movimiento.sucursal_id', '=', $sucursal_id)
+                ->where('m2.fecha', '=', $fecha1)
+                ->where('movimiento.caja_id', '=', $caja_id);
+        $resultadoventas = $resultadoventas->select('movimiento.doctor_id','movimiento.serie','movimiento.tipodocumento_id','movimiento.id','movimiento.comentario','movimiento.movimiento_id','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total', 'paciente.dni')->orderBy('movimiento.numero', 'asc');
+        
+        $listaventas = $resultadoventas->get();
+
+        if(count($listaventas) > 0) {
+            $i = 1;
+            foreach ($listaventas as $row) {                
+                $row2 = Movimiento::where('movimiento_id', $row['id'])->limit(1)->first();
+                //if($row2->situacion == 'N') {
+                    $row3 = Movimiento::find($row['movimiento_id']);
+                    $detalles = Detallemovcaja::where('movimiento_id', $row3['id'])->get();                      
+                    if(count($detalles) > 0) {             
+                        foreach ($detalles as $detalle) {
+                            $pdf::SetFont('helvetica','',6);                   
+                            $pdf::Cell(14,7,$i,1,0,'C');
+                            $pdf::Cell(45,7,$row['paciente'],1,0,'L');
+                            $pdf::Cell(20,7,$row['dni'],1,0,'L');
+                            $pdf::Cell(45,7,utf8_decode($detalle->persona->apellidopaterno),1,0,'C'); 
+                            if($detalle->tipodescuento == 'P') {
+                                $pdf::Cell(10,7,utf8_decode($detalle->descuento . '%'),1,0,'C'); 
+                            } else {
+                                $pdf::Cell(10,7,utf8_decode('S/. ' . $detalle->descuento),1,0,'C'); 
+                            }  
+                            $pdf::Cell(60,7,substr($detalle->servicio->nombre,0,40) . '.',1,0,'L');  
+                            $pdf::Cell(14,7,number_format($detalle->precio,2,',',''),1,0,'L');  
+                            $pdf::Cell(42,7,'',1,0,'L');  
+                            $pdf::Cell(14,7,$row3['numero'],1,0,'C');  
+                            $pdf::Cell(14,7,'',1,0,'C');
+                            $pdf::Ln();
+                            $i++;
+                        } 
+                    } 
+                //}
+            } 
+        }
+
+        $pdf::Output('ReciboCaja.pdf'); 
     }
 
     public function reporteCiruProSinDetalle(Request $request) {
