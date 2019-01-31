@@ -98,7 +98,11 @@ if(!is_null($ticket)){
                             @else
                             <option value="L">LECT. RESULTADOS</option>
                             @endif
+                            @if($ticket->clasificacionconsulta == 'P')
+                            <option selected value="P">PROCEDIMIENTO</option>
+                            @else
                             <option value="P">PROCEDIMIENTO</option>
+                            @endif
                         @else
                         <option value="C">CONSULTA</option>
                         <option value="E">EMERGENCIA</option>

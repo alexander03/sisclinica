@@ -12,6 +12,7 @@ use App\Caja;
 use App\Person;
 use App\Venta;
 use App\Movimiento;
+use App\Servicio;
 use App\Tipodocumento;
 use App\Conceptopago;
 use App\Detallemovcaja;
@@ -8785,6 +8786,92 @@ class CajaController extends Controller
 
     public function reporteCiruProSinDetalle(Request $request) {
         $fecha = $request->input('fecha');
-        echo 'NO ' . $fecha;
+
+        $rs = Movimiento::where('fecha', date('Y-m-d' , strtotime($fecha)) )->where('clasificacionconsulta','like','P')->get();
+
+        $pdf = new TCPDF();
+        $pdf::SetTitle('Reporte de cirujías y procedimientos sin detalle');
+        $pdf::AddPage('L', 'A4');
+
+        $pdf::SetFont('helvetica','B',15);
+        $pdf::Cell(0,10,'REPORTE DE CIRUJÍAS Y PROCEDIMIENTOS',0,0,'C');
+        $pdf::Ln();
+
+        $pdf::SetFont('helvetica','B',8);
+        $pdf::Cell(10,10,utf8_decode("N"),1,0,'C');
+        $pdf::Cell(60,10,utf8_decode("PACIENTE"),1,0,'C');
+        $pdf::Cell(20,10,utf8_decode("DESCUENTO"),1,0,'C');
+        $pdf::Cell(30,10,utf8_decode("DIAGNOSTICO"),1,0,'C');
+        //$pdf::Cell(40,6,utf8_decode("TIPO DE CIRUJIA / PROCEDIMIENTO"),1,0,'C');
+        $pdf::MultiCell(70, 10,'TIPO DE CIRUJIA / PROCEDIMIENTO', 1, 'C', 0, 0, '', '', true, 0, false, true, 10, 'M');
+        $pdf::MultiCell(20, 10,'COSTO TOTAL (S/.)', 1, 'C', 0, 0, '', '', true, 0, false, true, 10, 'M');
+        //$pdf::Cell(30,10,utf8_decode("COSTO TOTAL (S/.)"),1,0,'C');
+        $pdf::Cell(20,10,utf8_decode("FECHA"),1,0,'C'); 
+        $pdf::Cell(15,10,utf8_decode("SI / NO"),1,0,'C'); 
+        $pdf::Cell(30,10,utf8_decode("FIRMA"),1,0,'C'); 
+
+        $pdf::Ln();
+
+        $contador = 1;
+
+        foreach ($rs as $value) {
+            $cont = 1;
+            $detalles = Detallemovcaja::where('movimiento_id','=', $value->id )->get();
+            $tipo ="";
+            foreach ($detalles as $detalle) {
+                $servicio = Servicio::find($detalle->servicio_id);
+                if($cont == 1){
+                    $tipo.= $cont . " - " . $servicio->nombre;    
+                }else{
+                    if(count($detalles) >= 4){
+                        $tipo.= "\n\n" . $cont . " - " . $servicio->nombre;
+                    }else{
+                        $tipo.= "\n" . $cont . " - " . $servicio->nombre;
+                    }
+                }
+                $cont++;
+            }
+            if($cont == 2){
+                $pdf::Cell(10,15,$contador,1,0,'C');
+                $pdf::Cell(60,15,$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres,1,0,'L');
+                $pdf::Cell(20,15,"",1,0,'C');
+                $pdf::Cell(30,15,"",1,0,'C');
+                $pdf::MultiCell(70, 15 ,$tipo, 1, 'L', 0, 0, '', '', true, 0, false, true,  15 , 'M');
+                $pdf::Cell(20,15,number_format($value->total,2,",",""),1,0,'C');
+                $pdf::Cell(20,15,date('d/m/Y' , strtotime($value->fecha) ),1,0,'C'); 
+                if($value->situacion =="C"){
+                    $pdf::Cell(15,15,utf8_decode("SI"),1,0,'C'); 
+                }else if($value->situacion == "D"){
+                    $pdf::Cell(15,15,utf8_decode("NO"),1,0,'C'); 
+                }else{
+                    $pdf::Cell(15,15 * ($cont - 1),utf8_decode("NO"),1,0,'C'); 
+                }
+                $pdf::Cell(30,15,"",1,0,'C'); 
+            }else{
+                $pdf::Cell(10,10 * ($cont - 1),$contador,1,0,'C');
+                $pdf::Cell(60,10 * ($cont - 1),$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres,1,0,'L');
+                $pdf::Cell(20,10 * ($cont - 1),"",1,0,'C');
+                $pdf::Cell(30,10 * ($cont - 1),"",1,0,'C');
+                $pdf::MultiCell(70, 10 * ($cont - 1) ,$tipo, 1, 'L', 0, 0, '', '', true, 0, false, true,  10 * ($cont -1) , 'M');
+                $pdf::Cell(20,10 * ($cont - 1),number_format($value->total,2,",",""),1,0,'C');
+                $pdf::Cell(20,10 * ($cont - 1),date('d/m/Y' , strtotime($value->fecha) ),1,0,'C'); 
+                if($value->situacion =="C"){
+                    $pdf::Cell(15,10 * ($cont - 1),utf8_decode("SI"),1,0,'C'); 
+                }else if($value->situacion == "D"){
+                    $pdf::Cell(15,10 * ($cont - 1),utf8_decode("NO"),1,0,'C'); 
+                }else{
+                    $pdf::Cell(15,10 * ($cont - 1),utf8_decode("NO"),1,0,'C'); 
+                }
+                $pdf::Cell(30,10 * ($cont - 1),"",1,0,'C'); 
+            }
+
+            $contador++;
+            $pdf::Ln();
+        }
+
+
+
+        $pdf::Output('ReporteCirujiasSinDetalle.pdf');   
+
     }
 }
