@@ -8832,6 +8832,12 @@ class CajaController extends Controller
         $pdf::SetFont('helvetica','B',8);
         
         foreach ($rs as $value) {
+            $x = $pdf::GetY();
+
+            if($x > 140){
+                $pdf::AddPage(); 
+            }
+
             $pdf::Cell(60,10,utf8_decode("PACIENTE"),1,0,'C');
             $pdf::Cell(20,10,utf8_decode("DESCUENTO"),1,0,'C');
             $pdf::MultiCell(110, 10,'TIPO DE CIRUJIA / PROCEDIMIENTO', 1, 'C', 0, 0, '', '', true, 0, false, true, 10, 'M');
@@ -8839,8 +8845,6 @@ class CajaController extends Controller
             $pdf::Cell(20,10,utf8_decode("FECHA"),1,0,'C'); 
             $pdf::Cell(15,10,utf8_decode("SI / NO"),1,0,'C'); 
             $pdf::Cell(30,10,utf8_decode("FIRMA"),1,0,'C'); 
-
-        
 
 /*
             $pdf::MultiCell(60, 12,utf8_decode("PACIENTE"), 1, 'C', 0, 0, '', '', true, 0, false, true,  12  , 'M');
@@ -8880,48 +8884,44 @@ class CajaController extends Controller
             }
 
             if($cont == 2){
-                $pdf::MultiCell(60, 12 * $cont ,$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres, 1, 'L', 0, 0, '', '', true, 0, false, true,  12 * $cont , 'M');
-                //$pdf::Cell(20,10 * $cont,$descuento,1,0,'C');
-                $pdf::MultiCell(20, 12 * $cont ,$descuento, 1, 'L', 0, 0, '', '', true, 0, false, true,  12 * $cont , 'M');
-                $pdf::MultiCell(110, 12 * $cont ,$tipo, 1, 'L', 0, 0, '', '', true, 0, false, true,  12 * $cont , 'M');
-                $pdf::MultiCell(20, 12 * $cont ,number_format($value->total,2,",",""), 1, 'C', 0, 0, '', '', true, 0, false, true,  12 * $cont , 'M');
-                $pdf::MultiCell(20, 12 * $cont ,date('d/m/Y' , strtotime($value->fecha) ), 1, 'C', 0, 0, '', '', true, 0, false, true,  12 * $cont , 'M');
-                //$pdf::Cell(20,12 * ($cont - 1),date('d/m/Y' , strtotime($value->fecha) ),1,0,'C'); 
+                $pdf::MultiCell(60, 9 * $cont ,$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres, 1, 'L', 0, 0, '', '', true, 0, false, true,  9 * $cont , 'M');
+                //$pdf::Cell(20,9 * $cont,$descuento,1,0,'C');
+                $pdf::MultiCell(20, 9 * $cont ,$descuento, 1, 'L', 0, 0, '', '', true, 0, false, true,  9 * $cont , 'M');
+                $pdf::MultiCell(110, 9 * $cont ,$tipo, 1, 'L', 0, 0, '', '', true, 0, false, true,  9 * $cont , 'M');
+                $pdf::MultiCell(20, 9 * $cont ,number_format($value->total,2,",",""), 1, 'C', 0, 0, '', '', true, 0, false, true,  9 * $cont , 'M');
+                $pdf::MultiCell(20, 9 * $cont ,date('d/m/Y' , strtotime($value->fecha) ), 1, 'C', 0, 0, '', '', true, 0, false, true,  9 * $cont , 'M');
+                //$pdf::Cell(20,9 * ($cont - 1),date('d/m/Y' , strtotime($value->fecha) ),1,0,'C'); 
                 if($value->situacion =="C"){
-                    //$pdf::Cell(15,12 * ($cont - 1),utf8_decode("SI"),1,0,'C'); 
-                    $pdf::MultiCell(15, 12 * $cont ,utf8_decode("SI"), 1, 'C', 0, 0, '', '', true, 0, false, true,  12 * $cont , 'M');
+                    //$pdf::Cell(15,9 * ($cont - 1),utf8_decode("SI"),1,0,'C'); 
+                    $pdf::MultiCell(15, 9 * $cont ,utf8_decode("SI"), 1, 'C', 0, 0, '', '', true, 0, false, true,  9 * $cont , 'M');
                 }else if($value->situacion == "D"){
-                    $pdf::Cell(15,12 * $cont ,utf8_decode("NO"),1,0,'C'); 
+                    $pdf::MultiCell(15, 9 * $cont ,utf8_decode("NO"), 1, 'C', 0, 0, '', '', true, 0, false, true,  9 * $cont , 'M');
                 }else{
-                    $pdf::Cell(15,12 * $cont ,utf8_decode("NO"),1,0,'C'); 
+                    $pdf::MultiCell(15, 9 * $cont ,utf8_decode("NO"), 1, 'C', 0, 0, '', '', true, 0, false, true,  9 * $cont , 'M');
                 }
-                $pdf::MultiCell(30, 12 * $cont ,"", 1, 'C', 0, 0, '', '', true, 0, false, true,  12 * ($cont -1) , 'M');
+                $pdf::MultiCell(30, 9 * $cont ,"", 1, 'C', 0, 0, '', '', true, 0, false, true,  9 * ($cont -1) , 'M');
             }else{
-                $pdf::MultiCell(60, 12 * ($cont - 1) ,$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres, 1, 'L', 0, 0, '', '', true, 0, false, true,  12 * ($cont -1) , 'M');
-                $pdf::MultiCell(20, 12 * ($cont -1) ,$descuento, 1, 'L', 0, 0, '', '', true, 0, false, true,  12 * ($cont -1) , 'M');
-                $pdf::MultiCell(110, 12 * ($cont - 1) ,$tipo, 1, 'L', 0, 0, '', '', true, 0, false, true,  12 * ($cont -1) , 'M');
-                //$pdf::Cell(20,12 * ($cont - 1),number_format($value->total,2,",",""),1,0,'C');
-                $pdf::MultiCell(20, 12 * ($cont - 1) ,number_format($value->total,2,",",""), 1, 'C', 0, 0, '', '', true, 0, false, true,  12 * ($cont -1) , 'M');
-                $pdf::MultiCell(20, 12 * ($cont - 1) ,date('d/m/Y' , strtotime($value->fecha) ), 1, 'C', 0, 0, '', '', true, 0, false, true,  12 * ($cont -1) , 'M');
-                //$pdf::Cell(20,12 * ($cont - 1),date('d/m/Y' , strtotime($value->fecha) ),1,0,'C'); 
+                $pdf::MultiCell(60, 9 * ($cont - 1) ,$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres, 1, 'L', 0, 0, '', '', true, 0, false, true,  9 * ($cont -1) , 'M');
+                $pdf::MultiCell(20, 9 * ($cont -1) ,$descuento, 1, 'L', 0, 0, '', '', true, 0, false, true,  9 * ($cont -1) , 'M');
+                $pdf::MultiCell(110, 9 * ($cont - 1) ,$tipo, 1, 'L', 0, 0, '', '', true, 0, false, true,  9 * ($cont -1) , 'M');
+                //$pdf::Cell(20,9 * ($cont - 1),number_format($value->total,2,",",""),1,0,'C');
+                $pdf::MultiCell(20, 9 * ($cont - 1) ,number_format($value->total,2,",",""), 1, 'C', 0, 0, '', '', true, 0, false, true,  9 * ($cont -1) , 'M');
+                $pdf::MultiCell(20, 9 * ($cont - 1) ,date('d/m/Y' , strtotime($value->fecha) ), 1, 'C', 0, 0, '', '', true, 0, false, true,  9 * ($cont -1) , 'M');
+                //$pdf::Cell(20,9 * ($cont - 1),date('d/m/Y' , strtotime($value->fecha) ),1,0,'C'); 
                 if($value->situacion =="C"){
-                    //$pdf::Cell(15,12 * ($cont - 1),utf8_decode("SI"),1,0,'C'); 
-                    $pdf::MultiCell(15, 12 * ($cont - 1) ,utf8_decode("SI"), 1, 'C', 0, 0, '', '', true, 0, false, true,  12 * ($cont -1) , 'M');
+                    //$pdf::Cell(15,9 * ($cont - 1),utf8_decode("SI"),1,0,'C'); 
+                    $pdf::MultiCell(15, 9 * ($cont - 1) ,utf8_decode("SI"), 1, 'C', 0, 0, '', '', true, 0, false, true,  9 * ($cont -1) , 'M');
                 }else if($value->situacion == "D"){
-                    $pdf::Cell(15, 12 * ($cont - 1),utf8_decode("NO"),1,0,'C'); 
+                    $pdf::MultiCell(15, 9 * ($cont - 1) ,utf8_decode("NO"), 1, 'C', 0, 0, '', '', true, 0, false, true,  9 * ($cont -1) , 'M');
                 }else{
-                    $pdf::Cell(15, 12 * ($cont - 1),utf8_decode("NO"),1,0,'C'); 
+                    $pdf::MultiCell(15, 9 * ($cont - 1) ,utf8_decode("NO"), 1, 'C', 0, 0, '', '', true, 0, false, true,  9 * ($cont -1) , 'M');
                 }
-                $pdf::MultiCell(30, 12 * ($cont - 1) ,"", 1, 'C', 0, 0, '', '', true, 0, false, true,  12 * ($cont -1) , 'M');
+                $pdf::MultiCell(30, 9 * ($cont - 1) ,"", 1, 'C', 0, 0, '', '', true, 0, false, true,  9 * ($cont -1) , 'M');
             }
-
-            //$pdf::Cell(60,10 * ($cont - 1),$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres,1,0,'L');
-            
+            //$pdf::Cell(60,9 * ($cont - 1),$value->persona->apellidopaterno." ".$value->persona->apellidomaterno." ".$value->persona->nombres,1,0,'L');
             //$pdf::Ln();
             $pdf::Ln();
         }
-
-
 
         $pdf::Output('ReporteCirujiasSinDetalle.pdf');   
 
