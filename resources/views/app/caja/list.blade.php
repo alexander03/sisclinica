@@ -155,16 +155,22 @@ $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
             @endif
             @if($value->totalpagadovisa!=0)
                 <?php 
+                    
                     $formapago .= 'Visa = '; 
                     $formapago .= (String)number_format($value->totalpagadovisa,2,'.','') .'<br>';
-                    $visa2 += $value->totalpagadovisa;
+                    if($value->situacion == 'N') {
+                        $visa2 += $value->totalpagadovisa;
+                    }
                 ?>
             @endif
             @if($value->totalpagadomaster!=0)
                 <?php 
+                    $row2 = Movimiento::where('movimiento_id', '=', $value->id)->limit(1)->first();
                     $formapago .= 'Master = '; 
                     $formapago .= (String)number_format($value->totalpagadomaster,2,'.','') . '<br>';
-                    $master2 += $value->totalpagadomaster;
+                    if($value->situacion == 'N') {
+                        $master2 += $value->totalpagadomaster;
+                    }
                 ?>
             @endif
 
