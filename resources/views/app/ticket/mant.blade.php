@@ -37,6 +37,7 @@ if(!is_null($ticket)){
     $referido="SIN REFERIDO";
 }
 ?>
+@if($cobrado == 'NO')
 <style>
 .tr_hover{
 	color:red;
@@ -1514,3 +1515,7 @@ if(!is_null($ticket)){
 ?>
 
 </script>
+@else
+<h3 style="color:red">El ticket ya ha sido cobrado, no puedes modificarlo.</h3>
+{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cerrar', array('class' => 'btn btn-warning btn-sm', 'onclick' => 'cerrarModal();')) !!}
+@endif

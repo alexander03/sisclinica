@@ -116,9 +116,19 @@
 		<div id="divMensajeError{!! $entidad !!}"></div>
 		<div class="form-group">
 		    {!! Form::label('numero', 'Nro. Doc.', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
-		    {!! Form::label('numero', $movimiento->numero, array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm', 'style' => 'font-weight:normal;text-align:left;text-align:left')) !!}
-		    {!! Form::label('plan', 'Plan', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
-			{!! Form::label('plan', $movimiento->plan->nombre, array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
+		    {!! Form::label('numero', $movimiento->numero, array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm', 'style' => 'font-weight:normal;text-align:left;text-align:left')) !!}		    	
+			{!! Form::label('clasificacionconsulta', 'Tipo:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
+			@if($movimiento->clasificacionconsulta == 'C')
+				{!! Form::label('clasificacionconsulta', 'CONSULTA', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
+			@elseif($movimiento->clasificacionconsulta == 'E')
+				{!! Form::label('clasificacionconsulta', 'EMERGENCIA', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
+			@elseif($movimiento->clasificacionconsulta == 'L')
+				{!! Form::label('clasificacionconsulta', 'LECT. RESULTADOS', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
+			@else
+				{!! Form::label('clasificacionconsulta', 'PROCEDIMIENTO', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
+			@endif
+			{!! Form::label('plan', 'Plan', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
+			{!! Form::label('plan', $movimiento->plan->nombre, array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
 		</div>
 		<div class="form-group">
 			{!! Form::label('paciente', 'Paciente', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}

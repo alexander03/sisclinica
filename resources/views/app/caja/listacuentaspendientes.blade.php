@@ -14,7 +14,7 @@
 		?>
 		@foreach ($lista as $key => $value)
 		<tr>
-			<td>{{ date('d/m/Y',strtotime($value->fecha)) }}</td>
+			<td>{{ date('d/m/Y',strtotime($value->fecha2)) }}</td>
             <td>{{ $value->numero }}</td>
             <td>{{ $value->paciente }}</td>
             <td align="center">{{ number_format($value->total,2,'.','') }}</td>

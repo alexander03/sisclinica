@@ -222,32 +222,31 @@ $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
     </thead>
     <tbody>
         <tr>
-            <th>Ingresos :</th>
+            <th>INGRESOS</th>
             <th class="text-right">{{ number_format($ingreso,2,'.','') }}</th>
         </tr>
         <tr>
-            <td>Efectivo :</td>
+            <td>Efectivo</td>
             <td align="right">{{ number_format($efectivo-$visa2-$master2,2,'.','') }}</td>
         </tr>
         <tr>
-            <td>VISA :</td>
+            <td>Master</td>
+            <td align="right">{{ number_format($master+$master2,2,'.','') }}</td>
+        </tr>
+        <tr>
+            <td>Visa</td>
             <td align="right">{{ number_format($visa+$visa2,2,'.','') }}</td>
         </tr>
         <tr>
-            <td>MASTER :</td>
-            <td align="right">{{ number_format($master+$master2,2,'.','') }}</td>
-        </tr>
-
-        <tr>
-            <th>Egresos :</th>
+            <th>Egresos</th>
             <th class="text-right">{{ number_format($egreso,2,'.','') }}</th>
         </tr>
         <tr>
-            <th>Saldo :</th>
+            <th>SALDO</th>
             <th class="text-right">{{ number_format($ingreso - $egreso - $visa - $master,2,'.','') }}</th>
         </tr>
         <tr style="display:none;">
-            <th>Garantia :</th>
+            <th>Garantia</th>
             <th class="text-right">{{ number_format($garantia,2,'.','') }}</th>
         </tr>
     </tbody>

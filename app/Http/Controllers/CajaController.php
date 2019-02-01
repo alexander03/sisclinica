@@ -883,61 +883,63 @@ class CajaController extends Controller
                 $row2 = Movimiento::where('movimiento_id', $row['id'])->limit(1)->first();
                 $row3 = Movimiento::find($row['movimiento_id']);
                 //$row3 = Movimiento::where('movimiento_id', $row2['id'])->limit(1)->first();
-                $detalles = Detallemovcaja::where('movimiento_id', $row3['id'])->get();  
-                $i = 0;              
-                foreach ($detalles as $detalle) {
-                    if($i == 0) {
-                        $pdf::SetFont('helvetica','',6);                   
-                        $pdf::Cell(15,7*count($detalles ),utf8_decode($row['fecha']),1,0,'C');
-                        $pdf::Cell(56,7*count($detalles),$row['paciente'],1,0,'L');
-                        $pdf::Cell(8,7*count($detalles),$row->tipodocumento->abreviatura,1,0,'C');
-                        $pdf::Cell(12,7*count($detalles),utf8_decode($row['serie'] .'-'. $row['numero']),1,0,'C');
-                    } else {
-                        $pdf::SetFont('helvetica','',6);                   
-                        $pdf::Cell(15,7,'',0,0,'C');
-                        $pdf::Cell(56,7,'',0,0,'L');
-                        $pdf::Cell(8,7,'',0,0,'C');
-                        $pdf::Cell(12,7,'',0,0,'C');
-                    }       
-                    if($row3['plan_id'] != '') {
-                        $pdf::Cell(40,7,substr($row3->plan->nombre,0,30) . '.',1,0,'L');
-                    } else {
-                        $pdf::Cell(40,7,'',1,0,'L');
-                    }                  
-                    $pdf::Cell(60,7,substr($detalle->servicio->nombre,0,40) . '.',1,0,'L');
-                    $pdf::Cell(14,7,number_format($detalle->precio,2,',',''),1,0,'R');                    
-                    if($i == 0) {
-                        if($row2['situacion'] == 'N') {
-                            $pdf::Cell(14,7*count($detalles),'',1,0,'L');
-                            $valuetp = number_format($row2['totalpagado'],2,'.','');
-                            $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
-                            $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
-                            if($valuetp == 0){$valuetp='';}
-                            if($valuetpv == 0){$valuetpv='';}
-                            if($valuetpm == 0){$valuetpm='';}
-                            $pdf::Cell(14,7*count($detalles),$valuetp,1,0,'R');                    
-                            $pdf::Cell(14,7*count($detalles),$valuetpv,1,0,'R');
-                            $pdf::Cell(14,7*count($detalles),$valuetpm,1,0,'R');
+                if($row2['situacion'] != '') {
+                    $detalles = Detallemovcaja::where('movimiento_id', $row3['id'])->get();  
+                    $i = 0;              
+                    foreach ($detalles as $detalle) {
+                        if($i == 0) {
+                            $pdf::SetFont('helvetica','',6);                   
+                            $pdf::Cell(15,7*count($detalles ),utf8_decode($row['fecha']),1,0,'C');
+                            $pdf::Cell(56,7*count($detalles),$row['paciente'],1,0,'L');
+                            $pdf::Cell(8,7*count($detalles),$row->tipodocumento->abreviatura,1,0,'C');
+                            $pdf::Cell(12,7*count($detalles),utf8_decode($row['serie'] .'-'. $row['numero']),1,0,'C');
                         } else {
-                            $pdf::Cell(56,7*count($detalles),'ANULADO',1,0,'C');
+                            $pdf::SetFont('helvetica','',6);                   
+                            $pdf::Cell(15,7,'',0,0,'C');
+                            $pdf::Cell(56,7,'',0,0,'L');
+                            $pdf::Cell(8,7,'',0,0,'C');
+                            $pdf::Cell(12,7,'',0,0,'C');
+                        }       
+                        if($row3['plan_id'] != '') {
+                            $pdf::Cell(40,7,substr($row3->plan->nombre,0,30) . '.',1,0,'L');
+                        } else {
+                            $pdf::Cell(40,7,'',1,0,'L');
+                        }                  
+                        $pdf::Cell(60,7,substr($detalle->servicio->nombre,0,40) . '.',1,0,'L');
+                        $pdf::Cell(14,7,number_format($detalle->precio,2,',',''),1,0,'R');                    
+                        if($i == 0) {
+                            if($row2['situacion'] == 'N') {
+                                $pdf::Cell(14,7*count($detalles),'',1,0,'L');
+                                $valuetp = number_format($row2['totalpagado'],2,'.','');
+                                $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
+                                $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
+                                if($valuetp == 0){$valuetp='';}
+                                if($valuetpv == 0){$valuetpv='';}
+                                if($valuetpm == 0){$valuetpm='';}
+                                $pdf::Cell(14,7*count($detalles),$valuetp,1,0,'R');                    
+                                $pdf::Cell(14,7*count($detalles),$valuetpv,1,0,'R');
+                                $pdf::Cell(14,7*count($detalles),$valuetpm,1,0,'R');
+                            } else {
+                                $pdf::Cell(56,7*count($detalles),'ANULADO',1,0,'C');
+                            }
+                        } else {
+                            $pdf::Cell(14,7,'',0,0,'L');
+                            $pdf::Cell(14,7,'',0,0,'R');                    
+                            $pdf::Cell(14,7,'',0,0,'R');
+                            $pdf::Cell(14,7,'',0,0,'R');                        
                         }
-                    } else {
-                        $pdf::Cell(14,7,'',0,0,'L');
-                        $pdf::Cell(14,7,'',0,0,'R');                    
-                        $pdf::Cell(14,7,'',0,0,'R');
-                        $pdf::Cell(14,7,'',0,0,'R');                        
+                        $pdf::Cell(20,7,utf8_decode($detalle->persona->apellidopaterno),1,0,'C');                        
+                        $pdf::Ln();
+                        $i++;
+                    }  
+                    if($row2['situacion'] == 'N') {                  
+                        $totalvisa += number_format($row2['totalpagadovisa'],2,'.','');
+                        $totalmaster += number_format($row2['totalpagadomaster'],2,'.','');
+                        $totalefectivo += number_format($row2['totalpagado'],2,'.','');
+                        $subtotalefectivo += number_format($row2['totalpagadovisa'],2,'.','');
+                        $subtotalvisa     += number_format($row2['totalpagadomaster'],2,'.','');
+                        $subtotalmaster   += number_format($row2['totalpagado'],2,'.','');
                     }
-                    $pdf::Cell(20,7,utf8_decode($detalle->persona->apellidopaterno),1,0,'C');                        
-                    $pdf::Ln();
-                    $i++;
-                }  
-                if($row2['situacion'] == 'N') {                  
-                    $totalvisa += number_format($row2['totalpagadovisa'],2,'.','');
-                    $totalmaster += number_format($row2['totalpagadomaster'],2,'.','');
-                    $totalefectivo += number_format($row2['totalpagado'],2,'.','');
-                    $subtotalefectivo += number_format($row2['totalpagadovisa'],2,'.','');
-                    $subtotalvisa     += number_format($row2['totalpagadomaster'],2,'.','');
-                    $subtotalmaster   += number_format($row2['totalpagado'],2,'.','');
                 }
             } 
             $pdf::SetFont('helvetica','B',8.5);
@@ -1441,59 +1443,61 @@ class CajaController extends Controller
                     foreach ($listaventas as $row) {                
                         $row2 = Movimiento::where('movimiento_id', $row['id'])->limit(1)->first();
                         $row3 = Movimiento::find($row['movimiento_id']);
-                        $detalles = Detallemovcaja::where('movimiento_id', $row3['id'])->get();  
-                        $i = 0;              
-                        foreach ($detalles as $detalle) {
-                            $fila[] = utf8_decode($row['fecha']);
-                            $fila[] = $row['paciente'];
-                            $fila[] = $row->tipodocumento->abreviatura;
-                            $fila[] = utf8_decode($row['serie'] .'-'. $row['numero']); 
-                            if($row3['plan_id'] != '') {
-                                $fila[] = substr($row3->plan->nombre, 0, 30);
-                            } else {
-                                $fila[] = '-';
-                            }                            
-                            $fila[] = substr($detalle->servicio->nombre,0,42);
-                            $fila[] = number_format($detalle->precio,2,'.','');                    
-                            if($row2['situacion'] == 'N') {
-                                $fila[] = '';
-                                $valuetp = number_format($row2['totalpagado'],2,'.','');
-                                $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
-                                $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
-                                if($valuetp == 0){$valuetp='';}
-                                if($valuetpv == 0){$valuetpv='';}
-                                if($valuetpm == 0){$valuetpm='';}
-                                $fila[] = $valuetp;                    
-                                $fila[] = $valuetpv;
-                                $fila[] = $valuetpm;
-                            } else {
-                                $fila[] = 'ANULADO';
-                                $fila[] = '';
-                                $fila[] = '';
-                                $fila[] = '';
-                                $sheet->mergeCells('I'.$a.':K'.($a+count($detalles)-1));
+                        if($row2['situacion'] != '') {
+                            $detalles = Detallemovcaja::where('movimiento_id', $row3['id'])->get();  
+                            $i = 0;              
+                            foreach ($detalles as $detalle) {
+                                $fila[] = utf8_decode($row['fecha']);
+                                $fila[] = $row['paciente'];
+                                $fila[] = $row->tipodocumento->abreviatura;
+                                $fila[] = utf8_decode($row['serie'] .'-'. $row['numero']); 
+                                if($row3['plan_id'] != '') {
+                                    $fila[] = substr($row3->plan->nombre, 0, 30);
+                                } else {
+                                    $fila[] = '-';
+                                }                            
+                                $fila[] = substr($detalle->servicio->nombre,0,42);
+                                $fila[] = number_format($detalle->precio,2,'.','');                    
+                                if($row2['situacion'] == 'N') {
+                                    $fila[] = '';
+                                    $valuetp = number_format($row2['totalpagado'],2,'.','');
+                                    $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
+                                    $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
+                                    if($valuetp == 0){$valuetp='';}
+                                    if($valuetpv == 0){$valuetpv='';}
+                                    if($valuetpm == 0){$valuetpm='';}
+                                    $fila[] = $valuetp;                    
+                                    $fila[] = $valuetpv;
+                                    $fila[] = $valuetpm;
+                                } else {                                
+                                    $fila[] = '';
+                                    $fila[] = 'ANULADO';
+                                    $fila[] = '';
+                                    $fila[] = '';
+                                    $sheet->mergeCells('I'.$a.':K'.($a+count($detalles)-1));
+                                }
+                                $fila[] = utf8_decode($detalle->persona->apellidopaterno);                           
+                                $sheet->row($a, $fila);
+                                $sheet->mergeCells('A'.$a.':A'.($a+count($detalles)-1));
+                                $sheet->mergeCells('B'.$a.':B'.($a+count($detalles)-1));
+                                $sheet->mergeCells('C'.$a.':C'.($a+count($detalles)-1));
+                                $sheet->mergeCells('D'.$a.':D'.($a+count($detalles)-1));
+                                $sheet->mergeCells('E'.$a.':E'.($a+count($detalles)-1));
+                                $sheet->mergeCells('I'.$a.':I'.($a+count($detalles)-1));
+                                $sheet->mergeCells('J'.$a.':J'.($a+count($detalles)-1));
+                                $sheet->mergeCells('K'.$a.':K'.($a+count($detalles)-1));
+                                $a++;
+                                $i++;    
+                                $fila = array();                      
+                            }  
+                            if($row2['situacion'] == 'N') {                  
+                                $totalvisa += number_format($row2['totalpagadovisa'],2,'.','');
+                                $totalmaster += number_format($row2['totalpagadomaster'],2,'.','');
+                                $totalefectivo += number_format($row2['totalpagado'],2,'.','');
+                                $subtotalefectivo += number_format($row2['totalpagadovisa'],2,'.','');
+                                $subtotalvisa     += number_format($row2['totalpagadomaster'],2,'.','');
+                                $subtotalmaster   += number_format($row2['totalpagado'],2,'.','');
                             }
-                            $fila[] = utf8_decode($detalle->persona->apellidopaterno);                           
-                            $sheet->row($a, $fila);
-                            $sheet->mergeCells('A'.$a.':A'.($a+count($detalles)-1));
-                            $sheet->mergeCells('B'.$a.':B'.($a+count($detalles)-1));
-                            $sheet->mergeCells('C'.$a.':C'.($a+count($detalles)-1));
-                            $sheet->mergeCells('D'.$a.':D'.($a+count($detalles)-1));
-                            $sheet->mergeCells('E'.$a.':E'.($a+count($detalles)-1));
-                            $sheet->mergeCells('I'.$a.':I'.($a+count($detalles)-1));
-                            $sheet->mergeCells('J'.$a.':J'.($a+count($detalles)-1));
-                            $sheet->mergeCells('K'.$a.':K'.($a+count($detalles)-1));
-                            $a++;
-                            $i++;    
-                            $fila = array();                      
-                        }  
-                        if($row2['situacion'] == 'N') {                  
-                            $totalvisa += number_format($row2['totalpagadovisa'],2,'.','');
-                            $totalmaster += number_format($row2['totalpagadomaster'],2,'.','');
-                            $totalefectivo += number_format($row2['totalpagado'],2,'.','');
-                            $subtotalefectivo += number_format($row2['totalpagadovisa'],2,'.','');
-                            $subtotalvisa     += number_format($row2['totalpagadomaster'],2,'.','');
-                            $subtotalmaster   += number_format($row2['totalpagado'],2,'.','');
                         }
                     } 
                     $fila[] = 'SUBTOTAL';                           
@@ -2168,59 +2172,61 @@ class CajaController extends Controller
                     foreach ($listaventas as $row) {                
                         $row2 = Movimiento::where('movimiento_id', $row['id'])->limit(1)->first();
                         $row3 = Movimiento::find($row['movimiento_id']);
-                        $detalles = Detallemovcaja::where('movimiento_id', $row3['id'])->get();  
-                        $i = 0;              
-                        foreach ($detalles as $detalle) {
-                            $fila[] = utf8_decode($row['fecha']);
-                            $fila[] = $row['paciente'];
-                            $fila[] = $row->tipodocumento->abreviatura;
-                            $fila[] = utf8_decode($row['serie'] .'-'. $row['numero']); 
-                            if($row3['plan_id'] != '') {
-                                $fila[] = substr($row3->plan->nombre, 0, 30);
-                            } else {
-                                $fila[] = '-';
-                            }                            
-                            $fila[] = substr($detalle->servicio->nombre,0,42);
-                            $fila[] = number_format($detalle->precio,2,'.','');                    
-                            if($row2['situacion'] == 'N') {
-                                $fila[] = '';
-                                $valuetp = number_format($row2['totalpagado'],2,'.','');
-                                $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
-                                $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
-                                if($valuetp == 0){$valuetp='';}
-                                if($valuetpv == 0){$valuetpv='';}
-                                if($valuetpm == 0){$valuetpm='';}
-                                $fila[] = $valuetp;                    
-                                $fila[] = $valuetpv;
-                                $fila[] = $valuetpm;
-                            } else {
-                                $fila[] = 'ANULADO';
-                                $fila[] = '';
-                                $fila[] = '';
-                                $fila[] = '';
-                                $sheet->mergeCells('I'.$a.':K'.($a+count($detalles)-1));
+                        if($row2['situacion'] != '') {
+                            $detalles = Detallemovcaja::where('movimiento_id', $row3['id'])->get();  
+                            $i = 0;              
+                            foreach ($detalles as $detalle) {
+                                $fila[] = utf8_decode($row['fecha']);
+                                $fila[] = $row['paciente'];
+                                $fila[] = $row->tipodocumento->abreviatura;
+                                $fila[] = utf8_decode($row['serie'] .'-'. $row['numero']); 
+                                if($row3['plan_id'] != '') {
+                                    $fila[] = substr($row3->plan->nombre, 0, 30);
+                                } else {
+                                    $fila[] = '-';
+                                }                            
+                                $fila[] = substr($detalle->servicio->nombre,0,42);
+                                $fila[] = number_format($detalle->precio,2,'.','');                    
+                                if($row2['situacion'] == 'N') {
+                                    $fila[] = '';
+                                    $valuetp = number_format($row2['totalpagado'],2,'.','');
+                                    $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
+                                    $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
+                                    if($valuetp == 0){$valuetp='';}
+                                    if($valuetpv == 0){$valuetpv='';}
+                                    if($valuetpm == 0){$valuetpm='';}
+                                    $fila[] = $valuetp;                    
+                                    $fila[] = $valuetpv;
+                                    $fila[] = $valuetpm;
+                                } else {                                
+                                    $fila[] = '';
+                                    $fila[] = 'ANULADO';
+                                    $fila[] = '';
+                                    $fila[] = '';
+                                    $sheet->mergeCells('I'.$a.':K'.($a+count($detalles)-1));
+                                }
+                                $fila[] = utf8_decode($detalle->persona->apellidopaterno);                           
+                                $sheet->row($a, $fila);
+                                $sheet->mergeCells('A'.$a.':A'.($a+count($detalles)-1));
+                                $sheet->mergeCells('B'.$a.':B'.($a+count($detalles)-1));
+                                $sheet->mergeCells('C'.$a.':C'.($a+count($detalles)-1));
+                                $sheet->mergeCells('D'.$a.':D'.($a+count($detalles)-1));
+                                $sheet->mergeCells('E'.$a.':E'.($a+count($detalles)-1));
+                                $sheet->mergeCells('I'.$a.':I'.($a+count($detalles)-1));
+                                $sheet->mergeCells('J'.$a.':J'.($a+count($detalles)-1));
+                                $sheet->mergeCells('K'.$a.':K'.($a+count($detalles)-1));
+                                $a++;
+                                $i++;    
+                                $fila = array();                      
+                            }  
+                            if($row2['situacion'] == 'N') {                  
+                                $totalvisa += number_format($row2['totalpagadovisa'],2,'.','');
+                                $totalmaster += number_format($row2['totalpagadomaster'],2,'.','');
+                                $totalefectivo += number_format($row2['totalpagado'],2,'.','');
+                                $subtotalefectivo += number_format($row2['totalpagadovisa'],2,'.','');
+                                $subtotalvisa     += number_format($row2['totalpagadomaster'],2,'.','');
+                                $subtotalmaster   += number_format($row2['totalpagado'],2,'.','');
                             }
-                            $fila[] = utf8_decode($detalle->persona->apellidopaterno);                           
-                            $sheet->row($a, $fila);
-                            $sheet->mergeCells('A'.$a.':A'.($a+count($detalles)-1));
-                            $sheet->mergeCells('B'.$a.':B'.($a+count($detalles)-1));
-                            $sheet->mergeCells('C'.$a.':C'.($a+count($detalles)-1));
-                            $sheet->mergeCells('D'.$a.':D'.($a+count($detalles)-1));
-                            $sheet->mergeCells('E'.$a.':E'.($a+count($detalles)-1));
-                            $sheet->mergeCells('I'.$a.':I'.($a+count($detalles)-1));
-                            $sheet->mergeCells('J'.$a.':J'.($a+count($detalles)-1));
-                            $sheet->mergeCells('K'.$a.':K'.($a+count($detalles)-1));
-                            $a++;
-                            $i++;    
-                            $fila = array();                      
-                        }  
-                        if($row2['situacion'] == 'N') {                  
-                            $totalvisa += number_format($row2['totalpagadovisa'],2,'.','');
-                            $totalmaster += number_format($row2['totalpagadomaster'],2,'.','');
-                            $totalefectivo += number_format($row2['totalpagado'],2,'.','');
-                            $subtotalefectivo += number_format($row2['totalpagadovisa'],2,'.','');
-                            $subtotalvisa     += number_format($row2['totalpagadomaster'],2,'.','');
-                            $subtotalmaster   += number_format($row2['totalpagado'],2,'.','');
                         }
                     } 
                     $fila[] = 'SUBTOTAL';                           
@@ -4366,61 +4372,63 @@ class CajaController extends Controller
                 $row2 = Movimiento::where('movimiento_id', $row['id'])->limit(1)->first();
                 $row3 = Movimiento::find($row['movimiento_id']);
                 //$row3 = Movimiento::where('movimiento_id', $row2['id'])->limit(1)->first();
-                $detalles = Detallemovcaja::where('movimiento_id', $row3['id'])->get();  
-                $i = 0;              
-                foreach ($detalles as $detalle) {
-                    if($i == 0) {
-                        $pdf::SetFont('helvetica','',6);                   
-                        $pdf::Cell(15,7*count($detalles ),utf8_decode($row['fecha']),1,0,'C');
-                        $pdf::Cell(56,7*count($detalles),$row['paciente'],1,0,'L');
-                        $pdf::Cell(8,7*count($detalles),$row->tipodocumento->abreviatura,1,0,'C');
-                        $pdf::Cell(12,7*count($detalles),utf8_decode($row['serie'] .'-'. $row['numero']),1,0,'C');
-                    } else {
-                        $pdf::SetFont('helvetica','',6);                   
-                        $pdf::Cell(15,7,'',0,0,'C');
-                        $pdf::Cell(56,7,'',0,0,'L');
-                        $pdf::Cell(8,7,'',0,0,'C');
-                        $pdf::Cell(12,7,'',0,0,'C');
-                    }                        
-                    if($row3['plan_id'] != '') {
-                        $pdf::Cell(40,7,substr($row3->plan->nombre,0,30) . '.',1,0,'L');
-                    } else {
-                        $pdf::Cell(40,7,'',1,0,'L');
-                    }                  
-                    $pdf::Cell(60,7,substr($detalle->servicio->nombre,0,40) . '.',1,0,'L');
-                    $pdf::Cell(14,7,number_format($detalle->precio,2,',',''),1,0,'R');                    
-                    if($i == 0) {
-                        if($row2['situacion'] == 'N') {
-                            $pdf::Cell(14,7*count($detalles),'',1,0,'L');
-                            $valuetp = number_format($row2['totalpagado'],2,'.','');
-                            $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
-                            $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
-                            if($valuetp == 0){$valuetp='';}
-                            if($valuetpv == 0){$valuetpv='';}
-                            if($valuetpm == 0){$valuetpm='';}
-                            $pdf::Cell(14,7*count($detalles),$valuetp,1,0,'R');                    
-                            $pdf::Cell(14,7*count($detalles),$valuetpv,1,0,'R');
-                            $pdf::Cell(14,7*count($detalles),$valuetpm,1,0,'R');
+                if($row2['situacion'] != '') {
+                    $detalles = Detallemovcaja::where('movimiento_id', $row3['id'])->get();  
+                    $i = 0;              
+                    foreach ($detalles as $detalle) {
+                        if($i == 0) {
+                            $pdf::SetFont('helvetica','',6);                   
+                            $pdf::Cell(15,7*count($detalles ),utf8_decode($row['fecha']),1,0,'C');
+                            $pdf::Cell(56,7*count($detalles),$row['paciente'],1,0,'L');
+                            $pdf::Cell(8,7*count($detalles),$row->tipodocumento->abreviatura,1,0,'C');
+                            $pdf::Cell(12,7*count($detalles),utf8_decode($row['serie'] .'-'. $row['numero']),1,0,'C');
                         } else {
-                            $pdf::Cell(56,7*count($detalles),'ANULADO',1,0,'C');
+                            $pdf::SetFont('helvetica','',6);                   
+                            $pdf::Cell(15,7,'',0,0,'C');
+                            $pdf::Cell(56,7,'',0,0,'L');
+                            $pdf::Cell(8,7,'',0,0,'C');
+                            $pdf::Cell(12,7,'',0,0,'C');
+                        }                        
+                        if($row3['plan_id'] != '') {
+                            $pdf::Cell(40,7,substr($row3->plan->nombre,0,30) . '.',1,0,'L');
+                        } else {
+                            $pdf::Cell(40,7,'',1,0,'L');
+                        }                  
+                        $pdf::Cell(60,7,substr($detalle->servicio->nombre,0,40) . '.',1,0,'L');
+                        $pdf::Cell(14,7,number_format($detalle->precio,2,',',''),1,0,'R');                    
+                        if($i == 0) {
+                            if($row2['situacion'] == 'N') {
+                                $pdf::Cell(14,7*count($detalles),'',1,0,'L');
+                                $valuetp = number_format($row2['totalpagado'],2,'.','');
+                                $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
+                                $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
+                                if($valuetp == 0){$valuetp='';}
+                                if($valuetpv == 0){$valuetpv='';}
+                                if($valuetpm == 0){$valuetpm='';}
+                                $pdf::Cell(14,7*count($detalles),$valuetp,1,0,'R');                    
+                                $pdf::Cell(14,7*count($detalles),$valuetpv,1,0,'R');
+                                $pdf::Cell(14,7*count($detalles),$valuetpm,1,0,'R');
+                            } else {
+                                $pdf::Cell(56,7*count($detalles),'ANULADO',1,0,'C');
+                            }
+                        } else {
+                            $pdf::Cell(14,7,'',0,0,'L');
+                            $pdf::Cell(14,7,'',0,0,'R');                    
+                            $pdf::Cell(14,7,'',0,0,'R');
+                            $pdf::Cell(14,7,'',0,0,'R');                        
                         }
-                    } else {
-                        $pdf::Cell(14,7,'',0,0,'L');
-                        $pdf::Cell(14,7,'',0,0,'R');                    
-                        $pdf::Cell(14,7,'',0,0,'R');
-                        $pdf::Cell(14,7,'',0,0,'R');                        
+                        $pdf::Cell(20,7,utf8_decode($detalle->persona->apellidopaterno),1,0,'C');                        
+                        $pdf::Ln();
+                        $i++;
+                    }  
+                    if($row2['situacion'] == 'N') {                  
+                        $totalvisa += number_format($row2['totalpagadovisa'],2,'.','');
+                        $totalmaster += number_format($row2['totalpagadomaster'],2,'.','');
+                        $totalefectivo += number_format($row2['totalpagado'],2,'.','');
+                        $subtotalefectivo += number_format($row2['totalpagadovisa'],2,'.','');
+                        $subtotalvisa     += number_format($row2['totalpagadomaster'],2,'.','');
+                        $subtotalmaster   += number_format($row2['totalpagado'],2,'.','');
                     }
-                    $pdf::Cell(20,7,utf8_decode($detalle->persona->apellidopaterno),1,0,'C');                        
-                    $pdf::Ln();
-                    $i++;
-                }  
-                if($row2['situacion'] == 'N') {                  
-                    $totalvisa += number_format($row2['totalpagadovisa'],2,'.','');
-                    $totalmaster += number_format($row2['totalpagadomaster'],2,'.','');
-                    $totalefectivo += number_format($row2['totalpagado'],2,'.','');
-                    $subtotalefectivo += number_format($row2['totalpagadovisa'],2,'.','');
-                    $subtotalvisa     += number_format($row2['totalpagadomaster'],2,'.','');
-                    $subtotalmaster   += number_format($row2['totalpagado'],2,'.','');
                 }
             } 
             $pdf::SetFont('helvetica','B',8.5);
@@ -8361,15 +8369,16 @@ class CajaController extends Controller
 
     public function listacuentaspendientes($numero, $fecha, $paciente) {
         $ruta = $this->rutas;
-        $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id');
+        $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+                            ->leftjoin('movimiento as m2', 'movimiento.movimiento_id', '=', 'm2.id');
         if($fecha!=""){
-            $resultado = $resultado->where('movimiento.fecha', '=', ''.$fecha.'')
+            $resultado = $resultado->where('m2.fecha', '=', ''.$fecha.'')
         ->where('movimiento.situacion','=','Z')->where('movimiento.comentario', 'TOTAL DE CUOTAS');
         }
         if($paciente!="0"){
             $resultado = $resultado->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'), 'LIKE', '%'.$paciente.'%');
         }
-        $resultado        = $resultado->select('movimiento.*',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'), DB::raw('total as pendiente'))->orderBy('movimiento.id','DESC')->orderBy('movimiento.situacion','DESC');
+        $resultado        = $resultado->select('movimiento.*', 'm2.fecha as fecha2',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'), DB::raw('movimiento.total as pendiente'))->orderBy('movimiento.id','DESC')->orderBy('movimiento.situacion','DESC');
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => 'Fecha', 'numero' => '1');

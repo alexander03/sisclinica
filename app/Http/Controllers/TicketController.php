@@ -139,6 +139,7 @@ class TicketController extends Controller
         $entidad             = 'Ticket';
         $ticket = null;
         $cboConvenio = array();
+        $cobrado = 'NO';
         $convenios = Convenio::where(DB::raw('1'),'=','1')->orderBy('nombre','ASC')->get();
         foreach ($convenios as $key => $value) {
             $cboConvenio = $cboConvenio + array($value->id => $value->nombre);
@@ -181,7 +182,7 @@ class TicketController extends Controller
         $serie='00'.$serie;
         $formData            = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton               = 'Registrar'; 
-        return view($this->folderview.'.mant')->with(compact('ticket', 'formData', 'entidad', 'boton', 'listar', 'cboTipoPaciente', 'cboConvenio', 'cboTipoDocumento', 'cboFormaPago', 'cboTipoTarjeta', 'cboTipoServicio', 'cboTipoTarjeta2', 'numero', 'cboCaja', 'numeroventa','serie','idcaja'));
+        return view($this->folderview.'.mant')->with(compact('ticket', 'formData', 'entidad', 'boton', 'listar', 'cboTipoPaciente', 'cboConvenio', 'cboTipoDocumento', 'cboFormaPago', 'cboTipoTarjeta', 'cboTipoServicio', 'cboTipoTarjeta2', 'numero', 'cboCaja', 'numeroventa','serie','idcaja', 'cobrado'));
     }
 
     /**
@@ -564,6 +565,7 @@ class TicketController extends Controller
         }
         $listar              = Libreria::getParam($request->input('listar'), 'NO');
         $ticket = Movimiento::find($id);
+        $cobrado = 'NO';        
         $entidad             = 'Ticket';
         $cboConvenio = array();
         $convenios = Convenio::where(DB::raw('1'),'=','1')->orderBy('nombre','ASC')->get();
@@ -606,7 +608,11 @@ class TicketController extends Controller
         $formData            = array('ticket.update', $id);
         $formData            = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton               = 'Modificar';
-        return view($this->folderview.'.mant')->with(compact('ticket', 'formData', 'entidad', 'boton', 'listar', 'cboTipoPaciente', 'cboConvenio', 'cboTipoDocumento', 'cboFormaPago', 'cboTipoTarjeta', 'cboTipoServicio', 'cboTipoTarjeta2', 'numero', 'cboCaja', 'numeroventa','serie','idcaja'));
+        if($ticket->situacion != 'P') {
+            $cobrado = 'SI';
+            return view($this->folderview.'.mant')->with(compact('ticket', 'formData', 'entidad', 'boton', 'listar', 'cboTipoPaciente', 'cboConvenio', 'cboTipoDocumento', 'cboFormaPago', 'cboTipoTarjeta', 'cboTipoServicio', 'cboTipoTarjeta2', 'numero', 'cboCaja', 'numeroventa','serie','idcaja', 'cobrado'));
+        }
+        return view($this->folderview.'.mant')->with(compact('ticket', 'formData', 'entidad', 'boton', 'listar', 'cboTipoPaciente', 'cboConvenio', 'cboTipoDocumento', 'cboFormaPago', 'cboTipoTarjeta', 'cboTipoServicio', 'cboTipoTarjeta2', 'numero', 'cboCaja', 'numeroventa','serie','idcaja', 'cobrado'));
     }
 
     /**
@@ -642,7 +648,7 @@ class TicketController extends Controller
             return $validacion->messages()->toJson();
         }
         $error = DB::transaction(function() use($request, $id){
-            $Ticket = Movimiento::find($id);
+            $Ticket = Movimiento::find($id);            
             $Ticket->turno = $request->input('turno');
             $Ticket->persona_id = $request->input('person_id');
             $Ticket->plan_id = $request->input('plan_id');

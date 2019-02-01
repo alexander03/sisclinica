@@ -21,7 +21,7 @@
 							</div>
 							<div class="form-group">
 								{!! Form::label('filas', 'Filas a mostrar:')!!}
-								{!! Form::selectRange('filas', 1, 30, 10, array('class' => 'form-control input-xs', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
+								{!! Form::selectRange('filas', 300, 500, 100, array('class' => 'form-control input-xs', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
 							</div>
 							{!! Form::close() !!}
 						</div>
