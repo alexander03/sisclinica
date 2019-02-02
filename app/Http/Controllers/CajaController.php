@@ -8796,8 +8796,6 @@ class CajaController extends Controller
     public function reporteCiruProSinDetalle(Request $request) {
         $fecha1 = $request->input('fecha');
 
-       
-
         $sucursal_id = Session::get('sucursal_id');
         if($sucursal_id == 2) {
             $caja_id=2;
@@ -8813,13 +8811,19 @@ class CajaController extends Controller
                 ->where('m2.fecha', '=', $fecha1)
                 ->where('movimiento.caja_id', '=', $caja_id);*/
 
-         $rs = Movimiento::where('fecha', $fecha1)
-                        ->where('clasificacionconsulta','like','P')
-                        //->where('ventafarmacia','=','N')
-                        ->where('sucursal_id', '=', $sucursal_id);
-                        //->where('caja_id', '=', $caja_id);
+         $rs = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
+                        ->where('m2.fecha', $fecha1)
+                        ->where('m2.clasificacionconsulta','like','P')
+                        ->where(function($q) {            
+                            $q->where('m2.situacion', 'like', 'C')->orWhere('m2.situacion', 'like', 'D')->orWhere('m2.situacion', 'like', 'R');
+                        })
+                        ->where('m2.tipomovimiento_id','=',1)
+                        ->where('movimiento.situacion2','!=','Z')
+                        ->where('movimiento.sucursal_id', '=', $sucursal_id)
+                        ->where('movimiento.caja_id', '=', $caja_id)
+                        ->groupBy('m2.id');
         
-        $rs = $rs->get();
+        $rs = $rs->select('m2.*')->get();
 
         $pdf = new TCPDF();
         $pdf::SetTitle('Reporte de cirujías y procedimientos sin detalle');
