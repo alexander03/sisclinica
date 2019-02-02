@@ -8720,23 +8720,29 @@ class CajaController extends Controller
         $fecha1 = $request->input('fecha');
         $fecha = date("d/m/Y", strtotime($fecha1));
         $pdf = new TCPDF();
-        $pdf::SetTitle('Operaciones ' . $fecha);
-        $pdf::AddPage('L');
+        $pdf::SetTitle('Reporte de cirujías y procedimientos con detalle ' . $fecha);
+        $pdf::AddPage('L', 'A4');
         $pdf::SetFont('helvetica','B',15);
-        $pdf::Cell(0,10,'REPORTE DE CIRUJÍAS Y PROCEDIMIENTOS DETALLADO' . $fecha,0,0,'C');
-        $pdf::Ln();
+        $pdf::Cell(0,10,'REPORTE DE CIRUJÍAS Y PROCEDIMIENTOS DETALLADO ' . $fecha,0,0,'C');
         $pdf::Ln();
         $pdf::SetFont('helvetica','B',8);
         $pdf::Cell(14,7,utf8_decode("NRO"),1,0,'C');
-        $pdf::Cell(45,7,utf8_decode("PACIENTE"),1,0,'C');
-        $pdf::Cell(20,7,utf8_decode("DNI"),1,0,'C');
-        $pdf::Cell(45,7,utf8_decode("DOCTOR"),1,0,'C');
-        $pdf::Cell(10,7,utf8_decode("DESC"),1,0,'C');
-        $pdf::Cell(60,7,utf8_decode("TIPO CIRUGIA/PROCEDIMIENTO"),1,0,'C');
+        $pdf::Cell(60,7,utf8_decode("PACIENTE"),1,0,'C');
+        $pdf::Cell(15,7,utf8_decode("DNI"),1,0,'C');
+        $pdf::Cell(30,7,utf8_decode("DOCTOR"),1,0,'C');
+        $pdf::Cell(15,7,utf8_decode("DESC"),1,0,'C');
+        $pdf::Cell(60,7,utf8_decode("TIPO CIRUGIA / PROCEDIMIENTO"),1,0,'C');
         $pdf::Cell(14,7,utf8_decode("COSTO"),1,0,'C');
         $pdf::Cell(42,7,utf8_decode("DOC. SUSTENTATORIO"),1,0,'C');
         $pdf::Cell(14,7,utf8_decode("RECIBO"),1,0,'C');
         $pdf::Cell(14,7,utf8_decode("IMPORTE"),1,0,'C');
+        $pdf::Ln();
+
+        $pdf::Cell(208,7,utf8_decode(""),1,0,'C');
+        $pdf::Cell(14,7,utf8_decode("FECHA"),1,0,'C');
+        $pdf::Cell(14,7,utf8_decode("TIPO"),1,0,'C');
+        $pdf::Cell(14,7,utf8_decode("NUMERO"),1,0,'C');
+        $pdf::Cell(28,7,utf8_decode(""),1,0,'C');
         $pdf::Ln();
 
         //sucursal_id
@@ -8747,46 +8753,115 @@ class CajaController extends Controller
             $caja_id=1;
         }  
 
-        $resultadoventas = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
+        $resultadoventas = Movimiento::select('movimiento.id as idmov','movimiento.situacion', 'paciente.*')
                 ->leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                 //->where('movimiento.situacion','=','N')
-                ->where('movimiento.ventafarmacia','=','N')
                 ->where('movimiento.sucursal_id', '=', $sucursal_id)
-                ->where('m2.fecha', '=', $fecha1)
-                ->where('movimiento.caja_id', '=', $caja_id);
-        $resultadoventas = $resultadoventas->select('movimiento.doctor_id','movimiento.serie','movimiento.tipodocumento_id','movimiento.id','movimiento.comentario','movimiento.movimiento_id','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total', 'paciente.dni')->orderBy('movimiento.numero', 'asc');
+                ->where('movimiento.fecha', '=', $fecha1)
+                ->where('movimiento.clasificacionconsulta','like','P');
         
         $listaventas = $resultadoventas->get();
 
+        
         if(count($listaventas) > 0) {
             $i = 1;
-            foreach ($listaventas as $row) {                
-                $row2 = Movimiento::where('movimiento_id', $row['id'])->limit(1)->first();
-                //if($row2->situacion == 'N') {
-                    $row3 = Movimiento::find($row['movimiento_id']);
-                    $detalles = Detallemovcaja::where('movimiento_id', $row3['id'])->get();                      
-                    if(count($detalles) > 0) {             
-                        foreach ($detalles as $detalle) {
-                            $pdf::SetFont('helvetica','',6);                   
-                            $pdf::Cell(14,7,$i,1,0,'C');
-                            $pdf::Cell(45,7,$row['paciente'],1,0,'L');
-                            $pdf::Cell(20,7,$row['dni'],1,0,'L');
-                            $pdf::Cell(45,7,utf8_decode($detalle->persona->apellidopaterno),1,0,'C'); 
-                            if($detalle->tipodescuento == 'P') {
-                                $pdf::Cell(10,7,utf8_decode($detalle->descuento . '%'),1,0,'C'); 
-                            } else {
-                                $pdf::Cell(10,7,utf8_decode('S/. ' . $detalle->descuento),1,0,'C'); 
-                            }  
-                            $pdf::Cell(60,7,substr($detalle->servicio->nombre,0,40) . '.',1,0,'L');  
-                            $pdf::Cell(14,7,number_format($detalle->precio,2,',',''),1,0,'L');  
-                            $pdf::Cell(42,7,'',1,0,'L');  
-                            $pdf::Cell(14,7,$row3['numero'],1,0,'C');  
-                            $pdf::Cell(14,7,'',1,0,'C');
-                            $pdf::Ln();
-                            $i++;
+            foreach ($listaventas as $row) {  
+
+                $movimiento = Movimiento::where('movimiento_id', $row['idmov'])->orderBy('id', 'asc')->first();
+                if($movimiento['situacion'] == 'N') {
+                    //En este caso se ha pagado de frente todo => movimiento = comprobante de pago
+                    $movcaja = Movimiento::where('movimiento_id', $movimiento['id'])->first();
+                    if($movcaja['situacion'] != 'A') {
+                        $detalles = Detallemovcaja::where('movimiento_id', $row['idmov'])->get();                                        
+                        if(count($detalles) > 0) { 
+                            $a = 0;
+                            foreach ($detalles as $detalle) {
+                                $pdf::SetFont('helvetica','',6);
+                                $pdf::Cell(14,7,$i,1,0,'C');
+                                $pdf::Cell(60,7,$row['apellidopaterno'] . ' ' . $row['apellidomaterno'] . ' ' . $row['nombres'],1,0,'L');
+                                $pdf::Cell(15,7,$row['dni'],1,0,'C');
+                                $pdf::Cell(30,7,utf8_decode($detalle->persona->apellidopaterno),1,0,'C');
+                                if($detalle->tipodescuento == 'P') {
+                                    $pdf::Cell(15,7,utf8_decode($detalle->descuento . '%'),1,0,'R'); 
+                                } else {
+                                    $pdf::Cell(15,7,utf8_decode('S/. ' . $detalle->descuento),1,0,'R'); 
+                                }  
+                                $pdf::Cell(60,7,substr($detalle->servicio->nombre,0,40) . '.',1,0,'L');  
+                                $pdf::Cell(14,7,number_format($detalle->precio,2,',',''),1,0,'R');
+                                if($a == 0) {
+                                    $pdf::Cell(14,7*count($detalles),date("d/m/Y", strtotime($movimiento['fecha'])),1,0,'C');  
+                                    $pdf::Cell(14,7*count($detalles),$movimiento->tipodocumento->abreviatura,1,0,'C');  
+                                    $pdf::Cell(14,7*count($detalles),$movimiento['numero'],1,0,'C');
+                                    $pdf::Cell(14,7*count($detalles),$movcaja['numero'],1,0,'C');
+                                    $pdf::Cell(14,7*count($detalles),number_format($movimiento['total'],2,',',''),1,0,'R');
+                                }  
+                                $pdf::Cell(0,7,'',0,0,'C');                       
+                                $pdf::Ln();                            
+                                $a++;
+                                $i++;
+                            } 
                         } 
-                    } 
-                //}
+                    }
+                } else {
+                    //En este caso se ha pagado en cuotas => movimiento = resumen de cuotas
+                    $movimientoscuotas = Movimiento::where('movimiento_id', $row['idmov'])->where('situacion2', 'Z')->get();
+                    if(count($movimientoscuotas) > 0) {
+                        $numeroscuotas = '';
+                        $e = 1;
+                        foreach ($movimientoscuotas as $cuota) {
+                            if($cuota['situacion'] != 'A') {
+                                if($e == 1) {
+                                    $numeroscuotas .= 'C';
+                                }
+                                $pcuota = Movimiento::find($cuota['numeroserie2']);
+                                $numeroscuotas .= $pcuota['numero'] . '/';
+                                $e++;
+                            }
+                        }
+                        $numeroscuotas = substr($numeroscuotas, 0, strlen($numeroscuotas) - 1);
+                        $detalles = Detallemovcaja::where('movimiento_id', $row['idmov'])->get();                                        
+                        if(count($detalles) > 0) {
+                            $a = 0;
+                            foreach ($detalles as $detalle) {
+                                $pdf::SetFont('helvetica','',6);
+                                $pdf::Cell(14,7,$i,1,0,'C');
+                                $pdf::Cell(60,7,$row['apellidopaterno'] . ' ' . $row['apellidomaterno'] . ' ' . $row['nombres'],1,0,'L');
+                                $pdf::Cell(15,7,$row['dni'],1,0,'C');
+                                $pdf::Cell(30,7,utf8_decode($detalle->persona->apellidopaterno),1,0,'C');
+                                if($detalle->tipodescuento == 'P') {
+                                    $pdf::Cell(15,7,utf8_decode($detalle->descuento . '%'),1,0,'R'); 
+                                } else {
+                                    $pdf::Cell(15,7,utf8_decode('S/. ' . $detalle->descuento),1,0,'R'); 
+                                }  
+                                $pdf::Cell(60,7,substr($detalle->servicio->nombre,0,40) . '.',1,0,'L');  
+                                $pdf::Cell(14,7,number_format($detalle->precio,2,',',''),1,0,'R');
+                                if($a == 0) {
+                                    //Compruebo si ya se terminó de pagar todo
+                                    if($row['situacion'] == 'C') {
+                                        //Busco el comprobante de pago
+                                        $comprobante = Movimiento::where('movimiento_id', $row['idmov'])->where('ventafarmacia', 'N')->first();
+                                        $pdf::Cell(14,7*count($detalles),date("d/m/Y", strtotime($comprobante['fecha'])),1,0,'C');  
+                                        $pdf::Cell(14,7*count($detalles),$comprobante->tipodocumento->abreviatura,1,0,'C');  
+                                        $pdf::Cell(14,7*count($detalles),$comprobante['numero'],1,0,'C');
+                                    } else {
+                                        $pdf::Cell(14,7*count($detalles),'-',1,0,'C');  
+                                        $pdf::Cell(14,7*count($detalles),'-',1,0,'C');  
+                                        $pdf::Cell(14,7*count($detalles),'-',1,0,'C');
+                                    }                                        
+                                    $pdf::Cell(14,7*count($detalles),$numeroscuotas,1,0,'C');
+                                    $pdf::Cell(14,7*count($detalles),number_format($movimiento['total'],2,',',''),1,0,'R');
+                                }  
+                                $pdf::Cell(0,7,'',0,0,'C');                       
+                                $pdf::Ln();                            
+                                $a++;
+                                $i++;
+                            } 
+                        }
+
+                    }
+                }
+                $row2 = Movimiento::where('movimiento_id', $movimiento['id'])->limit(1)->first();
+                    
             } 
         }
 
@@ -8795,7 +8870,7 @@ class CajaController extends Controller
 
     public function reporteCiruProSinDetalle(Request $request) {
         $fecha1 = $request->input('fecha');
-
+        $fecha = date("d/m/Y", strtotime($fecha1));
         $sucursal_id = Session::get('sucursal_id');
         if($sucursal_id == 2) {
             $caja_id=2;
@@ -8826,11 +8901,11 @@ class CajaController extends Controller
         $rs = $rs->select('m2.*')->get();
 
         $pdf = new TCPDF();
-        $pdf::SetTitle('Reporte de cirujías y procedimientos sin detalle');
+        $pdf::SetTitle('Reporte de cirujías y procedimientos sin detalle ' . $fecha);
         $pdf::AddPage('L', 'A4');
 
         $pdf::SetFont('helvetica','B',15);
-        $pdf::Cell(0,10,'REPORTE DE CIRUJÍAS Y PROCEDIMIENTOS GENERALES ' . $fecha1,0,0,'C');
+        $pdf::Cell(0,10,'REPORTE DE CIRUJÍAS Y PROCEDIMIENTOS GENERALES ' . $fecha,0,0,'C');
         $pdf::Ln();
 
         $pdf::SetFont('helvetica','B',8);
