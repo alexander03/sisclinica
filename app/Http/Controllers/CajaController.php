@@ -8826,7 +8826,7 @@ class CajaController extends Controller
         $pdf::AddPage('L', 'A4');
 
         $pdf::SetFont('helvetica','B',15);
-        $pdf::Cell(0,10,'REPORTE DE CIRUJÍAS Y PROCEDIMIENTOS',0,0,'C');
+        $pdf::Cell(0,10,'REPORTE DE CIRUJÍAS Y PROCEDIMIENTOS GENERALES ' . $fecha1,0,0,'C');
         $pdf::Ln();
 
         $pdf::SetFont('helvetica','B',8);
