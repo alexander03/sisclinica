@@ -1164,7 +1164,7 @@ class CajaController extends Controller
             ->where('conceptopago.tipo', '=', 'E')
             ->where('movimiento.situacion2', '=', 'Q');
 
-        $resultadoegresos        = $resultadoegresos->select('movimiento.*','m2.situacion as situacion2','responsable.nombres as responsable2',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'conceptopago.nombre')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
+        $resultadoegresos        = $resultadoegresos->select('movimiento.*','m2.situacion as situacion2','responsable.nombres as responsable2',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'),'paciente.ruc as ruc' ,DB::raw('concat(paciente.ruc,\' \',paciente.bussinesname) as razonsocial'), 'conceptopago.nombre')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
 
         $listaegresos = $resultadoegresos->get();
 
@@ -1176,7 +1176,11 @@ class CajaController extends Controller
             foreach ($listaegresos as $row) { 
                 $pdf::SetFont('helvetica','',6);                   
                 $pdf::Cell(15,7,utf8_decode($row['fecha']),1,0,'C');
-                $pdf::Cell(56,7,$row['paciente'],1,0,'L');
+                if($row['ruc'] == null){
+                    $pdf::Cell(56,7,$row['paciente'],1,0,'L');
+                }else{
+                    $pdf::Cell(56,7,$row['razonsocial'],1,0,'L');
+                }
                 $pdf::Cell(8,7,$row['formapago'],1,0,'C');
                 $pdf::Cell(12,7,utf8_decode($row['voucher']),1,0,'C');
                 $pdf::Cell(114,7,$row['nombre'].': '.$row['comentario'],1,0,'L');
@@ -1196,6 +1200,67 @@ class CajaController extends Controller
             $pdf::Cell(42,7,number_format(0,2,'.',''),1,0,'R');
             $pdf::Ln();                  
         }
+
+        
+        //Solo para egresos por compra farmacia
+
+        $resultadoegresos        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+            ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
+            ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
+            ->leftjoin('movimiento as m2','m2.movimiento_id','=','movimiento.id')
+            ->where('movimiento.caja_id', '=', $caja_id)
+            ->whereNull('m2.caja_id')
+            ->where('movimiento.sucursal_id','=',$sucursal_id)
+            ->where('movimiento.tipomovimiento_id','=',2)
+            ->where('paciente.dni','=',null)
+            //->where('m2.tipomovimiento_id','=',3)
+            ->where('movimiento.id', '>', $movimiento_mayor)
+            ->whereNull('movimiento.cajaapertura_id')
+            /*->where(function($query){
+                $query
+                    ->whereNotIn('movimiento.conceptopago_id',[31])
+                    ->orWhere('m2.situacion','<>','R');
+            })*/
+            //->where('movimiento.situacion', '<>', 'A')
+            //->where('movimiento.situacion', '<>', 'R')
+            ->where('conceptopago.tipo', '=', 'E');
+            //->where('movimiento.situacion2', '=', 'Q');
+
+        $resultadoegresos        = $resultadoegresos->select('movimiento.*','responsable.nombres as responsable2',DB::raw('concat(paciente.ruc,\' - \',paciente.bussinesname) as paciente'), 'conceptopago.nombre')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
+
+        $listaegresos = $resultadoegresos->get();
+
+        if(count($listaegresos)>0){
+            $pdf::SetFont('helvetica','B',8.5);
+            $pdf::Cell(281,7,'EGRESOS POR COMPRA',1,0,'L');
+            $pdf::Ln();
+            $subtotalegresoscompra = 0;
+            foreach ($listaegresos as $row) { 
+                if($row['situacion2'] == null){
+                    $pdf::SetFont('helvetica','',6);                   
+                    $pdf::Cell(15,7,utf8_decode($row['fecha']),1,0,'C');
+                    $pdf::Cell(56,7,$row['paciente'],1,0,'L');
+                    $pdf::Cell(8,7,$row['formapago'],1,0,'C');
+                    $pdf::Cell(12,7,utf8_decode($row['voucher']),1,0,'C');
+                    $pdf::Cell(114,7,$row['nombre'].': '.$row['comentario'],1,0,'L');
+                    if($row['situacion'] == 'N') {
+                        $pdf::Cell(14,7,number_format($row['total'],2,'.',''),1,0,'R');
+                        $pdf::Cell(42,7,utf8_decode(""),1,0,'C');                    
+                        $subtotalegresoscompra += number_format($row['total'],2,'.','');
+                    } else {
+                        $pdf::Cell(56,7,utf8_decode("ANULADO"),1,0,'C');
+                    }  
+                    $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
+                    $pdf::Ln();     
+                }         
+            }      
+            $pdf::SetFont('helvetica','B',8.5);
+            $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
+            $pdf::Cell(14,7,number_format($subtotalegresoscompra,2,'.',''),1,0,'R');
+            $pdf::Cell(42,7,number_format(0,2,'.',''),1,0,'R');
+            $pdf::Ln();                  
+        }
+
 
         $pdf::SetFont('helvetica','',7);   
         $pdf::Ln();
@@ -1222,11 +1287,11 @@ class CajaController extends Controller
         $pdf::Ln();
         $pdf::Cell(120,7,utf8_decode(""),0,0,'C');
         $pdf::Cell(30,7,utf8_decode("EGRESOS :"),1,0,'L');
-        $pdf::Cell(20,7,number_format($subtotalegresos,2,'.',''),1,0,'R');
+        $pdf::Cell(20,7,number_format($subtotalegresos + $subtotalegresoscompra,2,'.',''),1,0,'R');
         $pdf::Ln();
         $pdf::Cell(120,7,utf8_decode(""),0,0,'C');
         $pdf::Cell(30,7,utf8_decode("SALDO :"),1,0,'L');
-        $pdf::Cell(20,7,number_format($totalefectivo + $totalmaster + $totalvisa - $subtotalegresos,2,'.',''),1,0,'R');
+        $pdf::Cell(20,7,number_format($totalefectivo + $totalmaster + $totalvisa - $subtotalegresos - $subtotalegresoscompra,2,'.',''),1,0,'R');
         $pdf::Ln();
         /*$pdf::Cell(120,7,utf8_decode(""),0,0,'C');
         $pdf::Cell(30,7,utf8_decode("GARANTIA :"),1,0,'L');

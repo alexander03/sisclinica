@@ -696,7 +696,7 @@ class CompraController extends Controller
                     $movimiento->responsable_id = $user->person_id;
                     $movimiento->conceptopago_id = 9;
                     
-                    $movimiento->caja_id = $caja_id;
+                    $movimiento->caja_id = $caja->id;
                     
                     $movimiento->movimiento_id = $compra->id;
                     $movimiento->comentario = 'Compra de Medicamentos con dinero de caja de farmacia';
