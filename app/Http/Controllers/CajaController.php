@@ -1207,6 +1207,7 @@ class CajaController extends Controller
         $resultadoegresos        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
             ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
             ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
+            ->join('tipodocumento','tipodocumento.id','=','movimiento.tipodocumento_id')
             ->leftjoin('movimiento as m2','m2.movimiento_id','=','movimiento.id')
             ->where('movimiento.caja_id', '=', $caja_id)
             ->whereNull('m2.caja_id')
@@ -1226,7 +1227,7 @@ class CajaController extends Controller
             ->where('conceptopago.tipo', '=', 'E');
             //->where('movimiento.situacion2', '=', 'Q');
 
-        $resultadoegresos        = $resultadoegresos->select('movimiento.*','responsable.nombres as responsable2',DB::raw('concat(paciente.ruc,\' - \',paciente.bussinesname) as paciente'), 'conceptopago.nombre')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
+        $resultadoegresos        = $resultadoegresos->select('movimiento.*','tipodocumento.abreviatura as formapago2','responsable.nombres as responsable2',DB::raw('concat(paciente.ruc,\' - \',paciente.bussinesname) as paciente'), 'conceptopago.nombre')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
 
         $listaegresos = $resultadoegresos->get();
 
@@ -1240,7 +1241,7 @@ class CajaController extends Controller
                     $pdf::SetFont('helvetica','',6);                   
                     $pdf::Cell(15,7,utf8_decode($row['fecha']),1,0,'C');
                     $pdf::Cell(56,7,$row['paciente'],1,0,'L');
-                    $pdf::Cell(8,7,$row['formapago'],1,0,'C');
+                    $pdf::Cell(8,7,$row['formapago2'],1,0,'C');
                     $pdf::Cell(12,7,utf8_decode($row['voucher']),1,0,'C');
                     $pdf::Cell(114,7,$row['nombre'].': '.$row['comentario'],1,0,'L');
                     if($row['situacion'] == 'N') {
