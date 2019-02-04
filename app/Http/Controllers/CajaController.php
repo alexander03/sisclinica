@@ -10706,6 +10706,65 @@ class CajaController extends Controller
     }
 
     public function pdfDetalleEgresos(Request $request) {
+        setlocale(LC_TIME, 'spanish');
+        $caja    = Caja::find($request->input('caja_id'));
+        $caja_id = Libreria::getParam($request->input('caja_id'),'1');
 
+        $user=Auth::user();
+        $responsable = $user->login;
+
+        $fi = Libreria::getParam($request->input('fi'),'1');
+        $ff = Libreria::getParam($request->input('ff'),'1');
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+        $nomcierre = 'Egresos';
+        $nomcierre = 'Clínica Especialidades'; 
+        if($sucursal_id == 1) {
+            $nomcierre = 'BM Clínica de Ojos';
+        }  
+        if($caja->nombre == 'FARMACIA') {
+            $nomcierre = ' Farmacia - ' . $nomcierre;
+        } 
+
+        $nomcierre = substr($nomcierre, 0, 20);
+
+        //Consulta
+
+        $egresos        = Movimiento::join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
+            ->where('movimiento.situacion','=','N')
+            ->where('movimiento.caja_id', '=', $caja_id)
+            ->where('movimiento.sucursal_id','=',$sucursal_id)
+            ->whereNull('movimiento.cajaapertura_id')
+            ->whereBetween('movimiento.fecha', [$fi, $ff])
+            ->Where('conceptopago.tipo', '=', 'E')
+            ->whereNotIn('movimiento.conceptopago_id',[31, 2])
+            ->where('movimiento.situacion2', '=', 'Q')
+            ->select('conceptopago.id', 'conceptopago.nombre')
+            ->groupBy('conceptopago.id')
+            ->orderBy('conceptopago.id', 'DESC')
+            ->get();
+
+        $aperturas = Movimiento::where('conceptopago_id', 1)->where('caja_id', $caja_id)->where('sucursal_id', $sucursal_id)->whereBetween('fecha', [$fi, $ff])->get();
+
+        //Comprobamos si la ultima fecha tiene cierre
+
+        $cierrefinal = Movimiento::where('conceptopago_id', 2)->where('caja_id', $caja_id)->where('sucursal_id', $sucursal_id)->where('fecha', '=', $ff)->get();
+
+        $numcajas = count($aperturas);
+        if(count($cierrefinal) == 0) {
+            //Si no hay cierre en la ultima fecha, no considero la ultima caja
+            $numcajas--;
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        
+        Excel::create('ExcelReporte', function($excel) use($egresos, $aperturas, $numcajas, $caja_id, $sucursal_id, $nomcierre) {
+
+            $excel->sheet("Det. Egresos " . $nomcierre, function ($sheet) use ($egresos, $aperturas, $numcajas, $caja_id, $sucursal_id) {
+                $sheet->loadView('app.rpts.egresos')->with(compact('egresos', 'aperturas', 'numcajas', 'caja_id', 'sucursal_id'));
+            });
+
+        })->export('xls');
     }
 }
