@@ -52,9 +52,6 @@
 			{!! Form::hidden('producto_id', null, array( 'id' => 'producto_id')) !!}
 			{!! Form::hidden('tienelote', null, array( 'id' => 'tienelote')) !!}
 			{!! Form::hidden('pfraccion', null, array( 'id' => 'pfraccion')) !!}
-			{!! Form::hidden('preciokayros', null, array( 'id' => 'preciokayros')) !!}
-
-			{!! Form::hidden('precioventa', null, array('id' => 'precioventa')) !!}
 			{!! Form::hidden('stock', null, array('id' => 'stock')) !!}
 		</div>
 
@@ -632,6 +629,7 @@ function calculatetotal () {
 		$(this).find('.precio').attr('name', '').attr('name', 'precio' + i);
 		$(this).find('.precioventa').attr('name', '').attr('name', 'precioventa' + i);
 		$(this).find('.subtotal').attr('name', '').attr('name', 'subtotal' + i);
+		$(this).find('.datoLote').attr('name', '').attr('name', 'datoLote' + i);
 		total += parseFloat($(this).find('.subtotal').val());
 		i++;
 	});
@@ -762,16 +760,16 @@ function agregarconvenio(id){
 	function addpurchasecart(elemento = 'N'){
 		var fraccion = $('#pfraccion').val();
 		var tipo = $('#tipo').val();
-		var cantidad = $('#cantidad').val();
+		var cantidad = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="cantidad"]').val();
 		cantidad = cantidad.replace(",", "");
-		var precio = $('#preciocompra').val();
+		var precio = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="preciocompra"]').val();
 		precio = precio.replace(",", "");
-		var precioventa = $('#precioventa').val();
+		var precioventa = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="precioventa"]').val();
 		precioventa = precioventa.replace(",", "");
-		var preciokayros = $('#preciokayros').val();
+		var preciokayros = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="preciokayros"]').val();
 		preciokayros = preciokayros.replace(",", "");
 		var product_id = $('#producto_id').val();
-		var fechavencimiento = $('#fechavencimiento').val();
+		var fechavencimiento = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="fechavencimiento"]').val();
 		var lote = $('#lote').val();
 		var stock = $('#stock').val();
 		var tipoventa = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="tipoventa"]').val();
@@ -844,6 +842,7 @@ function agregarconvenio(id){
 					$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="lote"]').val('');
 					$(IDFORMMANTENIMIENTO+'{!! $entidad !!}' + ' :input[id="nombreproducto"]').focus();
 					$('.escogerFila').css('background-color', 'white');
+					$('.botonlotes').css('display', 'none');
 				}
 			});
 		}
@@ -929,7 +928,7 @@ function guardarMovimiento (entidad, idboton) {
 		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="fecha"]').focus();
 		return false;
 	} else if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="totalmovimiento"]').val()==0){
-		alert("Debe ingresar al menos un producto");
+		alert("Corrige los precios, no puedes registrar precio de compra, venta o kayros como 0");
 		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="nombreproducto"]').focus();
 		return false;
 	} else {
@@ -1015,15 +1014,16 @@ $(document).on('click', '.escogerFila', function(){
 });
 
 function gestionlotes(valor, borrar = 'N'){
+	$('#detallesMovimiento').html('');
+	$('.botonlotes').css('display', 'none');
 	if(valor === '9') {
 		//SALIDA
 		$('.fechavencimiento').css('display', 'none');
 		$('#fechavencimiento').val('');
-		if(borrar === 'S') {
-			$('#detallesMovimiento').html('');
+		if(borrar === 'S') {			
 			$('#totalmovimiento2').html('0');
 			$('#totalmovimiento').val('0');
-		}		
+		}
 		$('#lote').val('');
 		$('.lote').css('display', 'none');		
 		$('#cantidad').val('');		
