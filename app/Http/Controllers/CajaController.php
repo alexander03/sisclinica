@@ -16,6 +16,7 @@ use App\Servicio;
 use App\Tipodocumento;
 use App\Conceptopago;
 use App\Detallemovcaja;
+use App\Detallemovimiento;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -9080,4 +9081,214 @@ class CajaController extends Controller
         $pdf::Output('ReporteCirujiasSinDetalle.pdf');   
 
     }
+
+
+
+
+    public function pdfDetallePorProducto(Request $request){
+        
+        $caja    = Caja::find($request->input('caja_id'));
+        $caja_id = Libreria::getParam($request->input('caja_id'),'1');
+
+        $fi = Libreria::getParam($request->input('fi'),'1');
+        $ff = Libreria::getParam($request->input('ff'),'1');
+
+        $user=Auth::user();
+        $responsable = $user->login;
+        $responsable_nombre = $user->person->apellidos . " " . $user->person->nombres;
+
+        $totalvisa     = 0;
+        $totalmaster   = 0;
+        $totalefectivo = 0;
+        $totalegresos  = 0;
+        $subtotalegresos = 0;
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+        $nomcierre = '';
+        $nomcierre = 'Clínica Especialidades'; 
+        if($sucursal_id == 1) {
+            $nomcierre = 'BM Clínica de Ojos';
+        }  
+        if($caja->nombre == 'FARMACIA') {
+            $nomcierre = ' Farmacia - ' . $nomcierre;
+        }     
+        $pdf = new TCPDF();
+        //$pdf::SetIma�
+        $pdf::SetTitle('Detalle Cierre por Producto de '.$nomcierre);
+        $pdf::AddPage('L');
+        $pdf::SetFont('helvetica','B',12);
+        $pdf::Cell(0,10,"Detalle de Cierre por Producto de ".$nomcierre,0,0,'C');
+        $pdf::Ln();
+        $pdf::SetFont('helvetica','B',7);
+        $pdf::Cell(15,7,utf8_decode("FECHA"),1,0,'C');
+        $pdf::Cell(56,7,utf8_decode("PERSONA"),1,0,'C');
+        $pdf::Cell(20,7,utf8_decode("NRO"),1,0,'C');
+        $pdf::Cell(64,7,utf8_decode("PRODUCTO"),1,0,'C');
+        $pdf::Cell(25,7,utf8_decode("DESCUENTO"),1,0,'C');
+        $pdf::Cell(25,7,utf8_decode("ESTADO"),1,0,'C');
+        //$pdf::Cell(14,7,utf8_decode("PRECIO"),1,0,'C');
+        //$pdf::Cell(14,7,utf8_decode("EGRESO"),1,0,'C');
+        //$pdf::Cell(56,7,utf8_decode("INGRESO"),1,0,'C');
+        $pdf::Cell(25,7,utf8_decode("FORMA DE PAGO"),1,0,'C');
+        $pdf::Cell(20,7,utf8_decode("PRECIO"),1,0,'C');
+        $pdf::Cell(31,7,utf8_decode("DOCTOR"),1,0,'C');
+        $pdf::Ln();/*
+        $pdf::Cell(205,7,utf8_decode(""),1,0,'C');
+        $pdf::Cell(14,7,utf8_decode("EFECTIVO"),1,0,'C');
+        $pdf::Cell(14,7,utf8_decode("VISA"),1,0,'C');
+        $pdf::Cell(14,7,utf8_decode("MASTER"),1,0,'C');
+        $pdf::Cell(14,7,utf8_decode("TOTAL"),1,0,'C');
+        $pdf::Cell(20,7,utf8_decode(""),1,0,'C');
+        $pdf::Ln();*/
+        if($caja_id==1){//ADMISION 1
+            $serie=3;
+        }elseif($caja_id==2){//ADMISION 2
+            $serie=7;
+        }elseif($caja_id==3){//CONVENIOS
+            $serie=8;
+        }elseif($caja_id==5){//EMERGENCIA
+            $serie=9;
+        }elseif($caja_id==4){//FARMACIA
+            $serie=4;
+        }/*elseif($caja_id==8){//PROCEDIMIENTOS
+            $serie=5;
+        }*/
+
+        $ingreso=0;
+        $egreso=0;
+        $transferenciai=0;
+        $transferenciae=0;
+        $garantia=0;
+        $efectivo=0;
+        $visa=0;
+        $master=0;
+
+        //Solo para ventas de farmacia
+
+        $listaventasfarmacia = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
+                ->leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+                ->leftjoin('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
+                ->where('movimiento.sucursal_id', '=', $sucursal_id)
+                ->where('movimiento.caja_id', '=', $caja_id)
+                ->whereBetween('movimiento.fecha', [$fi, $ff])
+                ->where('movimiento.ventafarmacia', '=', 'S');
+        $listaventasfarmacia = $listaventasfarmacia->select('movimiento.situacion','movimiento.doctor_id','movimiento.serie','movimiento.id','movimiento.nombrepaciente','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+        
+        $listaventasfarmacia = $listaventasfarmacia->get();
+
+        if(count($listaventasfarmacia)>0){
+            $pdf::SetFont('helvetica','B',8.5);
+            //$pdf::Cell(281,7,'INGRESOS POR VENTAS',1,0,'L');
+            //$pdf::Ln();
+            $subtotalefectivo = 0;
+            $subtotalvisa = 0;
+            $subtotalmaster = 0;
+            foreach ($listaventasfarmacia as $row) { 
+                $mov = Movimiento::where('movimiento_id', $row['id'])->limit(1)->first();
+                //aquí detalle
+                $detalleproductos = Detallemovimiento::where('movimiento_id', $row['id'])->get();
+                //fin detalle
+                foreach ($detalleproductos as $value) {
+                    $producto = $value->producto->nombre;
+                    $precio = number_format($value->subtotal,2,'.','');
+                    
+                    $pdf::SetFont('helvetica','',6);                   
+                    $pdf::Cell(15,7,utf8_decode($row['fecha']),1,0,'C');
+                    if($row['paciente'] == '') {
+                        $pdf::Cell(56,7,$row['nombrepaciente'],1,0,'L');
+                    } else {
+                        $pdf::Cell(56,7,$row['paciente'],1,0,'L');
+                    }                
+                    $pdf::Cell(8,7,$mov->tipodocumento->abreviatura,1,0,'C');
+                    $pdf::Cell(12,7,utf8_decode($row['serie'] . '-' . $row['numero']),1,0,'C');
+                    //$pdf::Cell(64,7,$mov->conceptopago->nombre.': '.$row['comentario'],1,0,'L'); 
+                    $pdf::Cell(64,7,$producto,1,0,'L'); 
+                    $pdf::Cell(25,7,utf8_decode(" - "),1,0,'C');
+                    if($row['situacion'] == 'N') {
+                        $pdf::Cell(25,7,utf8_decode("EMITIDO"),1,0,'C');
+                    } else {
+                        $pdf::Cell(25,7,utf8_decode("ANULADO"),1,0,'C');
+                    } 
+                    if($row['situacion'] == 'N') {
+                        $valuetp = number_format($row['totalpagado'],2,'.','');
+                        $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
+                        $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
+                        $valuet = number_format($row['total'],2,'.','');
+                        $formapago = "";
+                        if($valuetp == 0){$valuetp='';}else{ $formapago .= " - E";}
+                        if($valuetpv == 0){$valuetpv='';}else{ $formapago .= " - V";}
+                        if($valuetpm == 0){$valuetpm='';}else{  $formapago .= " - M";}
+                        $pdf::Cell(25,7,$formapago,1,0,'L');                    
+                        //$pdf::Cell(14,7,$valuetpv,1,0,'R');
+                        //$pdf::Cell(14,7,$valuetpm,1,0,'R');
+                        $pdf::Cell(20,7,$precio,1,0,'R');
+                    } else {
+                        $pdf::Cell(42,7,'ANULADO',1,0,'C');
+                    } 
+                    if($row['doctor_id'] != '') {
+                        $pdf::Cell(31,7,$row->doctor->apellidopaterno,1,0,'C');
+                    } else {
+                        $pdf::Cell(31,7,utf8_decode("-"),1,0,'C');
+                    }                
+                    $pdf::Ln();
+                    
+                }
+                if($row['situacion'] == 'N') {
+                    $totalvisa        += number_format($row['totalpagadovisa'],2,'.','');
+                    $totalmaster      += number_format($row['totalpagadomaster'],2,'.','');
+                    $totalefectivo    += number_format($row['totalpagado'],2,'.','');
+                    $subtotalefectivo += number_format($row['totalpagadovisa'],2,'.','');
+                    $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
+                    $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
+                }
+            } 
+            $pdf::SetFont('helvetica','B',8.5);
+            $pdf::Cell(230,7,'TOTAL',1,0,'R');
+            //$pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
+            $pdf::Cell(20,7,number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.',''),1,0,'R');
+            $pdf::Ln();                 
+        }
+
+        $pdf::SetFont('helvetica','',7);   
+        $pdf::Ln();
+        $pdf::Ln();
+        $pdf::Cell(120,7,('RESPONSABLE: '.$responsable_nombre),0,0,'L');
+        $pdf::SetFont('helvetica','B',9);
+        $pdf::Cell(50,7,utf8_decode("RESUMEN DE CAJA"),1,0,'C');
+        $pdf::Ln();
+        $pdf::Cell(120,7,utf8_decode(""),0,0,'C');
+        $pdf::Cell(30,7,utf8_decode("INGRESOS :"),1,0,'L');
+        $pdf::Cell(20,7,number_format($totalefectivo + $totalmaster + $totalvisa,2,'.',''),1,0,'R');
+        $pdf::Ln();
+        $pdf::Cell(120,7,utf8_decode(""),0,0,'C');
+        $pdf::Cell(30,7,utf8_decode("Efectivo :"),1,0,'L');
+        $pdf::Cell(20,7,number_format($totalefectivo,2,'.',''),1,0,'R');
+        $pdf::Ln();
+        $pdf::Cell(120,7,utf8_decode(""),0,0,'C');
+        $pdf::Cell(30,7,utf8_decode("Master :"),1,0,'L');
+        $pdf::Cell(20,7,number_format($totalmaster,2,'.',''),1,0,'R');
+        $pdf::Ln();
+        $pdf::Cell(120,7,utf8_decode(""),0,0,'C');
+        $pdf::Cell(30,7,utf8_decode("Visa :"),1,0,'L');
+        $pdf::Cell(20,7,number_format($totalvisa,2,'.',''),1,0,'R');
+        $pdf::Ln();
+        $pdf::Cell(120,7,utf8_decode(""),0,0,'C');
+        $pdf::Cell(30,7,utf8_decode("EGRESOS :"),1,0,'L');
+        $pdf::Cell(20,7,number_format($subtotalegresos,2,'.',''),1,0,'R');
+        $pdf::Ln();
+        $pdf::Cell(120,7,utf8_decode(""),0,0,'C');
+        $pdf::Cell(30,7,utf8_decode("SALDO :"),1,0,'L');
+        $pdf::Cell(20,7,number_format($totalefectivo + $totalmaster + $totalvisa - $subtotalegresos,2,'.',''),1,0,'R');
+        $pdf::Ln();
+        /*$pdf::Cell(120,7,utf8_decode(""),0,0,'C');
+        $pdf::Cell(30,7,utf8_decode("GARANTIA :"),1,0,'L');
+        $pdf::Cell(20,7,number_format($garantia,2,'.',''),1,0,'R');*/
+        $pdf::Ln();
+        $pdf::Output('ListaCaja.pdf');
+    }
+
+
+
+
 }

@@ -2,7 +2,7 @@
 <section class="content-header">
 	<h1>
 		{{ $title }}
-		{{-- <small>Descripción</small> --}}
+		{{-- <small>Descripciï¿½n</small> --}}
 	</h1>
 </section>
 
@@ -34,6 +34,9 @@
 								{!! Form::button('<i class="glyphicon glyphicon-print"></i> Movilidad', array('class' => 'btn btn-warning btn-xs', 'id' => 'btnBuscar', 'onclick' => 'imprimirMovilidadF()')) !!}
 								<!--{! Form::button('<i class="glyphicon glyphicon-file"></i> Excel', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar', 'onclick' => 'imprimirExcelF()')) !!}-->
 								{!! Form::button('<i class="glyphicon glyphicon-file"></i> Egresos', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnBuscar', 'onclick' => 'egresosExcel()')) !!}
+							@endif
+							@if($user->usertype_id==1 || $user->usertype_id==11 )
+								{!! Form::button('<i class="glyphicon glyphicon-print"></i> Por Producto', array('class' => 'btn btn-primary btn-xs', 'id' => 'btnBuscar', 'onclick' => 'detallePorProducto();')) !!}
 							@endif
 							{!! Form::button('<i class="glyphicon glyphicon-file"></i> Exportar Excel', array('class' => 'btn btn-success btn-xs','onclick' => 'pdfDetalleCierreExcelF()')) !!}
 							{!! Form::close() !!}
@@ -77,6 +80,16 @@
         	@endif
         }
     }
+
+	@if($user->usertype_id==1 || $user->usertype_id==11 )
+		
+	function detallePorProducto(){
+		var fi = $('#fechainicial').val();
+		var ff = $('#fechafinal').val();
+		window.open('caja/pdfDetallePorProducto?caja_id='+$('#Medico').val()+'&fi='+fi+'&ff='+ff,"_blank");
+	}
+
+	@endif
 
     function imprimirMovilidadF(){
 		var fi = $('#fechainicial').val();
