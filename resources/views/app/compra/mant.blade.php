@@ -69,11 +69,11 @@
 				</div>
 			</div>
 		</div>
-		<div class="form-group" id="divDescuentokayros" style="height: 12px;">
+		<div class="form-group" id="divDescuentokayros" style="height: 12px; display: none;">
 			{!! Form::label('fecha2', 'Fecha Venc.:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-3 col-md-3 col-sm-3">
 				<div class='input-group input-group-xs' id='divfecha2'>
-					{!! Form::text('fecha2', null, array('class' => 'form-control input-xs', 'id' => 'fecha2', 'placeholder' => 'Ingrese fecha')) !!}
+					{!! Form::text('fecha2', date('d/m/Y'), array('class' => 'form-control input-xs', 'id' => 'fecha2', 'placeholder' => 'Ingrese fecha')) !!}
 					
 				</div>
 			</div>

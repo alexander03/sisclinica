@@ -9896,6 +9896,24 @@ class CajaController extends Controller
                         $tipodocumento_id=4;
                         $codigo="01";
                         $abreviatura="F";
+
+                        //Algoritmo para la empresa
+
+                        $empresa = Person::where('ruc', $request->input('ccruc'))->first();
+
+                        if(count($empresa) == 1) {
+                            $idempresa = $empresa->id;
+                        } else {
+                            //Guardo la empresa como una nueva person
+                            $nuevaempresa = new Person();
+                            $nuevaempresa->ruc = $request->input('ccruc');
+                            $nuevaempresa->bussinesname = $request->input('ccrazon');
+                            $nuevaempresa->direccion = $request->input('ccdireccion');
+                            $nuevaempresa->save();
+
+                            $idempresa = $nuevaempresa->id;
+                        }
+
                     } else {
                         $tipodocumento_id=12;
                         //$codigo="01";
@@ -9913,6 +9931,11 @@ class CajaController extends Controller
                     $venta->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,4,$tipodocumento_id,$request->input('serieventa') + 0,'N');
 
                     $venta->serie = '00'.$request->input('serieventa');
+
+                    if($request->input('tipodocumento')=="Factura"){
+                        $venta->empresa_id = $idempresa;
+                    }
+
                     $venta->responsable_id=$user->person_id;
                     $venta->persona_id=$Ticket->persona_id;
                     if($request->input('tipodocumento')=="Boleta"){
@@ -10175,6 +10198,24 @@ class CajaController extends Controller
                         $tipodocumento_id=4;
                         $codigo="01";
                         $abreviatura="F";
+
+                        //Algoritmo para la empresa
+
+                        $empresa = Person::where('ruc', $request->input('cruc'))->first();
+
+                        if(count($empresa) == 1) {
+                            $idempresa = $empresa->id;
+                        } else {
+                            //Guardo la empresa como una nueva person
+                            $nuevaempresa = new Person();
+                            $nuevaempresa->ruc = $request->input('cruc');
+                            $nuevaempresa->bussinesname = $request->input('crazon');
+                            $nuevaempresa->direccion = $request->input('cdireccion');
+                            $nuevaempresa->save();
+
+                            $idempresa = $nuevaempresa->id;
+                        }
+
                     } else {
                         $tipodocumento_id=12;
                         //$codigo="01";
@@ -10191,6 +10232,11 @@ class CajaController extends Controller
 
                     $venta->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,4,$tipodocumento_id,$request->input('serieventa')+0,'N');
                     $venta->serie = '00'.$request->input('serieventa');
+
+                    if($request->input('tipodocumento')=="Factura") {
+                        $venta->empresa_id = $idempresa;
+                    }
+                    
                     $venta->responsable_id=$user->person_id;
                     $venta->persona_id=$Ticket->persona_id;
                     if($request->input('tipodocumento')=="Boleta"){
@@ -10202,7 +10248,7 @@ class CajaController extends Controller
                         $venta->igv=number_format($pagohospital - $venta->subtotal,2,'.','');
                         $venta->total=number_format($pagohospital,2,'.','');                     
                     } else {
-                        $venta->subtotal=number_format($pagohospital,'.','');
+                        $venta->subtotal=number_format($pagohospital,2,'.','');
                         $venta->igv=0;
                         $venta->total=number_format($pagohospital,2,'.','');  
                     }

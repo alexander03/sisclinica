@@ -2153,5 +2153,20 @@ class TicketController extends Controller
         return is_null($error) ? json_encode($dat) : $error;
     }
 
+    public function buscarEmpresa(Request $request) {
+        $ruc = $request->input('ruc');
 
+        $empresa = Person::where('ruc', $ruc)->first();
+
+        if(count($empresa) == 0) {
+            $data = '';
+        } else {
+            $data = $empresa->bussinesname;
+            if($empresa->bussinesname == '') {
+                $data = $empresa->nombres . ' ' . $empresa->apellidopaterno;
+            }
+            $data .= ';;' . $empresa->direccion;
+        }
+        echo $data;
+    }
 }

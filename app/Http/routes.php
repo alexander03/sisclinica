@@ -414,6 +414,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('ticket/reingreso/{id}', 'TicketController@reingreso')->name('ticket.reingreso');
     Route::put('ticket/guardarreingreso/{id}', 'TicketController@guardarreingreso')->name('ticket.guardarreingreso');
 
+    Route::get('ticket/buscarEmpresa', 'TicketController@buscarEmpresa')->name('ticket.buscarEmpresa');
+
     /* HOJA COSTO */
     Route::post('hojacosto/buscar', 'HojacostoController@buscar')->name('hojacosto.buscar');
     Route::get('hojacosto/eliminar/{id}/{listarluego}', 'HojacostoController@eliminar')->name('hojacosto.eliminar');
