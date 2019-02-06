@@ -562,7 +562,9 @@
             success: function (data, textStatus, jqXHR) {
                 if(data.RazonSocial == null) {
                     alert('El RUC ingresado no existe... Digite uno válido.');
-	        		$('#cruc').focus();
+                    $("#cruc").val('').focus();
+                    $("#crazon").val('');
+                    $("#cdireccion").val('');
                 } else {
                     $("#cruc").val(ruc);
                     $("#crazon").val(data.RazonSocial);

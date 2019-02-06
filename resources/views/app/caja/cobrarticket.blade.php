@@ -513,11 +513,13 @@
             success: function (data, textStatus, jqXHR) {
                 if(data.RazonSocial == null) {
                     alert('El RUC ingresado no existe... Digite uno válido.');
-	        		$('#ccruc').focus();
+	        		$("#ccruc").val('').focus();
+                    $("#ccrazon").val('');
+                    $("#ccdireccion").val('');
                 } else {
                     $("#ccruc").val(ruc);
                     $("#ccrazon").val(data.RazonSocial);
-                    $("#cdireccion").val('-');
+                    $("#ccdireccion").val('-');
                 }
             }
         });

@@ -18,6 +18,8 @@ use App\Origen;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Jenssegers\Date\Date;
+use Illuminate\Support\Facades\Session;
 
 ini_set('memory_limit', '512M'); //Raise to 512 MB
 ini_set('max_execution_time', '60000'); //Raise to 512 MB 
@@ -577,5 +579,37 @@ class ProductoController extends Controller
         }
         $registro.="</tbody></table>";
         return $registro;
+    }
+
+    public function actualizarKayrosMensual(Request $request) {
+        $mes = date('m-Y');
+        $producto = Producto::where('tipo', 'Z')->first();
+
+        if($producto === NULL) {
+            $product = new Producto();
+            $product->tipo = 'Z';
+            $product->nombre = 'CAMBIO KAYROS';
+            $product->codigobarra = $mes;
+            $product->save();
+            $productos = Producto::where('tipo', '!=', 'Z')->get();
+            foreach ($productos as $prod) {
+                $prod->preciokayros = 0;
+                $prod->save();
+            }
+            echo '';
+        } else {
+            if($producto->codigobarra != $mes) {
+                $productos = Producto::where('tipo', '!=', 'Z')->get();
+                foreach ($productos as $prod) {
+                    $prod->preciokayros = 0;
+                    $prod->save();
+                }
+                $producto->codigobarra = $mes;
+                $producto->save();
+                echo 'P';
+            } else {
+                echo '';
+            }            
+        }        
     }
 }
