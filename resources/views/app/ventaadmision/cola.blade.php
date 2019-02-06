@@ -22,14 +22,14 @@
                 min-height:100%;
             }
             .quad{
-                width:50%;
+                //width:50%;
                 height:100%;
                 float:left;
                 border-style: double;
                 border-color: #2ECC71;
             }
             .line{
-                height:50%;
+                height:100%;
                 width:100%;
             }              
 
@@ -43,11 +43,11 @@
             }
 
             .centrado {
-                display:block; 
+                display:none; 
                 width:150px; 
                 height:50px; 
                 position:absolute; 
-                top:50%; 
+                top:5%; 
                 left:50%; 
                 margin-top:-25px; 
                 margin-left:-75px;
@@ -78,10 +78,10 @@
             <?php echo $fechahoy; ?>
         </div>
         <div class="line">
-            <div class="col-md-6 quad" id="listadoConsultas"></div>
-            <div class="col-md-6 quad" id="listadoEmergencias"></div>
-            <div class="col-md-6 quad" id="listadoOjos"></div>
-            <div class="col-md-6 quad" id="listadoLectura"></div>
+            <div class="col-md-3 quad" id="listadoConsultas"></div>
+            <div class="col-md-3 quad" id="listadoEmergencias"></div>
+            <div class="col-md-3 quad" id="listadoOjos"></div>
+            <div class="col-md-3 quad" id="listadoLectura"></div>
         </div>
         
     {!! Html::script('plugins/jQuery/jquery-2.2.3.min.js') !!}
