@@ -549,6 +549,7 @@ class VentaController extends Controller
         }
         
         $resultado        = Producto::where('nombre', 'LIKE', ''.strtoupper($nombre).'%')
+                            ->where('tipo', '!=', 'Z')
                             ->orWhere(function($query) use($nombre){
                                 $query->WhereIn('id',function($q) use($nombre){
                                     $q->select('producto_id')

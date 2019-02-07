@@ -308,12 +308,22 @@ class TicketController extends Controller
 
             //Guardamos el Ticket
 
+            $arr=explode(",",$request->input('listServicio'));
+
+            for ($x=0; $x < count($arr); $x++) { 
+                if ($request->input('txtIdServicio'.$arr[$x]) == '13') {
+                    //Si es alquiler en dólares
+                    $Ticket->numeroserie2 = 'DOLAR';
+                    break;
+                }
+            }
+
             $Ticket->save();
 
             //Registro de detalles del movimiento
 
             $pagohospital=0;
-            $arr=explode(",",$request->input('listServicio'));
+            
             for($c=0;$c<count($arr);$c++){
                 $Detalle = new Detallemovcaja();
                 $Detalle->movimiento_id=$Ticket->id;
