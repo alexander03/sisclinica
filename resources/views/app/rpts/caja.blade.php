@@ -46,7 +46,9 @@
 							@if($user->usertype_id==1 || $user->usertype_id==11 )
 								{!! Form::button('<i class="glyphicon glyphicon-print"></i> Por Producto', array('class' => 'btn btn-primary btn-xs', 'id' => 'btnBuscar', 'onclick' => 'detallePorProducto();')) !!}
 							@endif
-							{!! Form::button('<i class="glyphicon glyphicon-file"></i> Exportar Excel', array('class' => 'btn btn-success btn-xs','onclick' => 'pdfDetalleCierreExcelF()')) !!}
+							<!--
+							{! Form::button('<i class="glyphicon glyphicon-file"></i> Exportar Excel', array('class' => 'btn btn-success btn-xs','onclick' => 'pdfDetalleCierreExcelF()')) !!}
+							-->
 							{!! Form::close() !!}
 						</div>
 					</div>

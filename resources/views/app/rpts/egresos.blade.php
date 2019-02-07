@@ -5,7 +5,7 @@
 <table border="1">
 	<tr>
 		<td></td>
-		<td style="background-color: #B9FCBB" colspan="{{ 7 + count($egresos) }}">CAJA DIARIA</td>
+		<td style="background-color: #B9FCBB" colspan="{{ 8 + count($egresos) }}">CAJA DIARIA</td>
 	</tr>
     <tr>
     	<td></td>
@@ -19,6 +19,7 @@
         <td style="background-color: #B9FCBB">TOTAL MASTER</td>
         <td style="background-color: #B9FCBB">TOTAL VISA</td>
         <td style="background-color: #B9FCBB">TOTAL</td>
+        <td style="background-color: #C39CFF">TOTAL DÓLARES</td>
     </tr>
     @foreach ($aperturas as $apertura)
 
@@ -28,7 +29,8 @@
     	$totalvuelto = 0;
     	$totalotrosingresos = 0;
     	$totalvisa = 0;
-    	$totalmaster = 0;
+        $totalmaster = 0;
+    	$totaldolares = 0;
 
     	//Cierre de la presente caja
 
@@ -39,15 +41,30 @@
                 ->where('id' , '>', $apertura->id)
                 ->limit(1)->first();
 
-        //Pagos de tickets   
+        //Pagos de tickets sin dólares
                 
         $listaventas = Movimiento::leftjoin('movimiento as m2','m2.movimiento_id','=','movimiento.id')
+                ->leftjoin('movimiento as m3','movimiento.movimiento_id','=','m3.id')
+                ->where('m3.numeroserie2', '!=', 'DOLAR')
         		->where('m2.situacion', 'N')
         		->where('movimiento.ventafarmacia','=','N')
                 ->where('movimiento.sucursal_id', '=', $sucursal_id)
                 ->whereBetween('movimiento.id', [$apertura->id,(int)$cierre['id']])
                 ->where('movimiento.caja_id', '=', $caja_id)
                 ->select(DB::raw('SUM(movimiento.total) as tot'), DB::raw('SUM(m2.totalpagadovisa) as totvisa'),DB::raw('SUM(m2.totalpagadomaster) as totmaster'))
+                ->get();
+
+        //Pagos de tickets solo dólares
+
+        $listadolares = Movimiento::leftjoin('movimiento as m2','m2.movimiento_id','=','movimiento.id')
+                ->leftjoin('movimiento as m3','movimiento.movimiento_id','=','m3.id')
+                ->where('m3.numeroserie2', '=', 'DOLAR')
+                ->where('m2.situacion', 'N')
+                ->where('movimiento.ventafarmacia','=','N')
+                ->where('movimiento.sucursal_id', '=', $sucursal_id)
+                ->whereBetween('movimiento.id', [$apertura->id,(int)$cierre['id']])
+                ->where('movimiento.caja_id', '=', $caja_id)
+                ->select(DB::raw('SUM(movimiento.total) as tot'))
                 ->get();
 
         //Solo para cuotas
@@ -95,9 +112,15 @@
         if(count($listaventas) > 0){
             foreach ($listaventas as $row) { 
                 $totalventas += $row->tot;
-		    	$totalvisa += $row->totvisa;
-		    	$totalmaster += $row->totmaster;
+                $totalvisa += $row->totvisa;
+                $totalmaster += $row->totmaster;
 	        }  
+        }
+
+        if(count($listadolares) > 0){
+            foreach ($listadolares as $row) { 
+                $totaldolares += $row->tot;
+            }  
         }
 
         if(count($listacuotas)>0){
@@ -143,6 +166,7 @@
         <td>{{ $totalmaster != 0 ? $totalmaster : '' }}</td>
 		<td>{{ $totalvisa != 0 ? $totalvisa : '' }}</td>
 		<td style="background-color: #B9FCBB">{{ $totalegresos + $totalvisa + $totalmaster }}</td>
+        <td style="background-color: #C39CFF">{{ $totaldolares }}</td>
     </tr>
 
     @endforeach
