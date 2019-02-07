@@ -113,7 +113,7 @@ $date     = Date::instance($usertype->created_at)->format('l j F Y');
 
     //setInterval(function(){ alertaCierre(); }, 60000);
     var alerta="";
-    function alertaArchivo(){
+    function alertaArchivo(){        
         $.ajax({
             type: "POST",
             url: "seguimiento/alerta",
@@ -135,4 +135,5 @@ $date     = Date::instance($usertype->created_at)->format('l j F Y');
     @if($usertype->id==16)
         setInterval(function(){ alertaArchivo(); }, 4000);
     @endif
+   
 </script>

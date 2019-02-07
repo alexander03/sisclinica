@@ -113,6 +113,20 @@
     		{!! Form::text('numeroventa', '', array('class' => 'form-control input-xs', 'id' => 'numeroventa', 'readonly' => 'true')) !!}
         		</div>	        
 	    </div>
+	    <div class="form-group" id="opcEmpresa" style="display: none;">
+				{!! Form::label('ccruc', 'Ruc:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
+				<div class="col-lg-3 col-md-3 col-sm-3">
+	    			{!! Form::text('ccruc','', array('class' => 'form-control input-xs datocaja', 'id' => 'ccruc', 'maxlength' => '11')) !!}
+	    		</div> 
+	    		{!! Form::label('ccrazon', 'Razón:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
+				<div class="col-lg-3 col-md-3 col-sm-3">
+	    			{!! Form::text('ccrazon','', array('class' => 'form-control input-xs datocaja', 'id' => 'ccrazon', 'readonly' => 'readonly')) !!}
+	    		</div> 
+	    		{!! Form::label('ccdireccion', 'Direcc:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
+				<div class="col-lg-3 col-md-3 col-sm-3">
+	    			{!! Form::text('ccdireccion','-', array('class' => 'form-control input-xs datocaja', 'id' => 'ccdireccion')) !!}
+	    		</div> 	
+		    </div>
 	    <div class="form-group">
 			<div class="col-lg-12 col-md-12 col-sm-12">
 				{!! Form::label('formapago', 'Forma Pago:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label datocaja caja input-sm')) !!}
@@ -165,6 +179,24 @@
 	{!! Form::close() !!}
 </div>
 <script type="text/javascript">
+	$(document).on('change', '#tipodocumento', function(e) {
+		e.preventDefault();
+		if ($(this).val() == 'Factura') {
+			$('#opcEmpresa').css('display', '');
+			$('#ccruc').focus();
+		} else {
+			$('#opcEmpresa').css('display', 'none');
+		}
+	});
+
+	$(document).on('keyup', '#ccruc', function(e) {
+		e.preventDefault();
+		e.stopImmediatePropagation();
+		if ($(this).val().length == 11) {
+			buscarEmpresa();
+		}
+	});
+
 	$(document).ready(function() {
 		configurarAnchoModal('1200');
 		init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'B', '{!! $entidad !!}');
@@ -363,6 +395,12 @@
 	}
 
 	function enviar() {
+		if ($('#tipodocumento').val() == 'Factura') {
+			if($('#ccruc').val().length != 11 || $('#ccrazon').val() == '' || $('#ccdireccion').val() == '') {
+				alert('No olvide digitar un RUC válido.' + $('#ccrazon').val().length);
+				return false;
+			}
+		}
 		form = $('#formMantenimientoMovimiento');
 		if(!camposNoVacios()) {
 			return false;
@@ -441,4 +479,49 @@
 	        }
 	    });
 	}
+
+	function buscarEmpresa() {
+    	ruc = $("#ccruc").val();     
+        $.ajax({
+            type: 'GET',
+            url: "ticket/buscarEmpresa",
+            data: "ruc="+ruc,
+            beforeSend(){
+                $("#ccruc").val('Comprobando...');
+            },
+            success: function (a) {
+                if(a == '')  {
+	        		buscarEmpresa2(ruc);
+	        	} else {
+	        		var e = a.split(';;');
+	        		$("#ccruc").val(ruc);
+	        		$('#ccrazon').val(e[0]);
+	        		$('#ccdireccion').val(e[1]);
+	        	}
+            }
+        });
+    }
+
+    function buscarEmpresa2(ruc){  
+        $.ajax({
+            type: 'GET',
+            url: "../SunatPHP/demo.php",
+            data: "ruc="+ruc,
+            beforeSend(){
+                $("#ccruc").val('Comprobando...');
+            },
+            success: function (data, textStatus, jqXHR) {
+                if(data.RazonSocial == null) {
+                    alert('El RUC ingresado no existe... Digite uno válido.');
+	        		$("#ccruc").val('').focus();
+                    $("#ccrazon").val('');
+                    $("#ccdireccion").val('');
+                } else {
+                    $("#ccruc").val(ruc);
+                    $("#ccrazon").val(data.RazonSocial);
+                    $("#ccdireccion").val('-');
+                }
+            }
+        });
+    }
 </script>

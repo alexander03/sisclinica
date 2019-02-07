@@ -193,6 +193,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('producto/vistamedico', 'ProductoController@vistamedico');
     Route::post('producto/cie10', 'ProductoController@cie10');
 
+    Route::get('producto/actualizarKayrosMensual', 'ProductoController@actualizarKayrosMensual')->name('producto.actualizarKayrosMensual');
+
     /* ESPECIALIDAD */
     Route::post('especialidad/buscar', 'EspecialidadController@buscar')->name('especialidad.buscar');
     Route::get('especialidad/eliminar/{id}/{listarluego}', 'EspecialidadController@eliminar')->name('especialidad.eliminar');
@@ -413,6 +415,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('ticket/listaticketsreprogramados/{numero}/{fecha}/{paciente}', 'TicketController@listaticketsreprogramados')->name('ticket.listaticketsreprogramados');
     Route::get('ticket/reingreso/{id}', 'TicketController@reingreso')->name('ticket.reingreso');
     Route::put('ticket/guardarreingreso/{id}', 'TicketController@guardarreingreso')->name('ticket.guardarreingreso');
+
+    Route::get('ticket/buscarEmpresa', 'TicketController@buscarEmpresa')->name('ticket.buscarEmpresa');
 
     /* HOJA COSTO */
     Route::post('hojacosto/buscar', 'HojacostoController@buscar')->name('hojacosto.buscar');

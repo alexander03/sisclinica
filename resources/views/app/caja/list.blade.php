@@ -1,3 +1,4 @@
+<?php use App\Movimiento; ?>
 <style>
     table tbody tr td {
         font-size: 12px;
@@ -48,7 +49,8 @@ $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
 		<?php
         $contador = $inicio + 1;
         $visa2 = 0;
-		$master2 = 0;
+        $master2 = 0;
+		$totaldolares = 0;
 		?>
 		@foreach ($lista as $key => $value)
         <?php
@@ -146,32 +148,57 @@ $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
                 @endif
             @endif 
 
-            <?php $formapago = ''; ?>
-            @if($value->totalpagado!=0)
-                <?php 
+            <?php
+
+            $vnt = Movimiento::where('ventafarmacia', 'N')->where('id', $value->movimiento_id)->first();
+            $formapago = '';
+
+            if($vnt !== NULL) {
+                $tkt = Movimiento::find($vnt->movimiento_id);
+                if($tkt->numeroserie2 == 'DOLAR') {
+                    $totaldolares += number_format($value->total,2,'.','');
+                } else {
+                    if($value->totalpagado!=0) {
+                        $formapago .= 'Efectivo = ';
+                        $formapago .= (String)number_format($value->totalpagado,2,'.','').'<br>';
+                    }
+                    if($value->totalpagadovisa!=0) {
+                        $formapago .= 'Visa = '; 
+                        $formapago .= (String)number_format($value->totalpagadovisa,2,'.','') .'<br>';
+                        if($value->situacion == 'N') {
+                            $visa2 += $value->totalpagadovisa;
+                        }
+                    }
+                    if($value->totalpagadomaster!=0) {
+                        $formapago .= 'Master = '; 
+                        $formapago .= (String)number_format($value->totalpagadomaster,2,'.','') . '<br>';
+                        if($value->situacion == 'N') {
+                            $master2 += $value->totalpagadomaster;
+                        }
+                    }
+                }
+            } else {
+                if($value->totalpagado!=0) {
                     $formapago .= 'Efectivo = ';
                     $formapago .= (String)number_format($value->totalpagado,2,'.','').'<br>';
-                ?>
-            @endif
-            @if($value->totalpagadovisa!=0)
-                <?php 
-                    
+                }
+                if($value->totalpagadovisa!=0) {
                     $formapago .= 'Visa = '; 
                     $formapago .= (String)number_format($value->totalpagadovisa,2,'.','') .'<br>';
                     if($value->situacion == 'N') {
                         $visa2 += $value->totalpagadovisa;
                     }
-                ?>
-            @endif
-            @if($value->totalpagadomaster!=0)
-                <?php 
+                }
+                if($value->totalpagadomaster!=0) {
                     $formapago .= 'Master = '; 
                     $formapago .= (String)number_format($value->totalpagadomaster,2,'.','') . '<br>';
                     if($value->situacion == 'N') {
                         $master2 += $value->totalpagadomaster;
                     }
-                ?>
-            @endif
+                }
+
+
+            } ?>
 
             <td align="center"><?php echo $formapago; ?></td>
             <td>{{ $value->comentario }}</td>
@@ -228,11 +255,11 @@ $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
     <tbody>
         <tr>
             <th>INGRESOS</th>
-            <th class="text-right">{{ number_format($ingreso,2,'.','') }}</th>
+            <th class="text-right">{{ number_format($ingreso-$totaldolares,2,'.','') }}</th>
         </tr>
         <tr>
             <td>Efectivo</td>
-            <td align="right">{{ number_format($efectivo-$visa2-$master2,2,'.','') }}</td>
+            <td align="right">{{ number_format($efectivo-$visa2-$master2-$totaldolares,2,'.','') }}</td>
         </tr>
         <tr>
             <td>Master</td>
@@ -247,8 +274,12 @@ $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
             <th class="text-right">{{ number_format($egreso,2,'.','') }}</th>
         </tr>
         <tr>
-            <th>SALDO</th>
-            <th class="text-right">{{ number_format($ingreso - $egreso - $visa - $master,2,'.','') }}</th>
+            <th>SALDO (S/.)</th>
+            <th class="text-right">{{ number_format($ingreso - $egreso - $visa - $master - $totaldolares,2,'.','') }}</th>
+        </tr>
+        <tr>
+            <th>SALDO ($)</th>
+            <th class="text-right">{{ number_format($totaldolares,2,'.','') }}</th>
         </tr>
         <tr style="display:none;">
             <th>Garantia</th>

@@ -302,6 +302,28 @@ $sucursal_id = Session::get('sucursal_id');
 
     @endif
 
+    @if($user->usertype_id == 11)
+
+        <script>
+            $(document).ready(function(){
+                $.ajax({
+                    url: 'producto/actualizarKayrosMensual',
+                    type: 'GET',
+                    /*beforeSend: function() {
+                        alert('Inicializando Precios Kayros. Espere un momento por favor...');
+                    },
+                    success: function(e) {
+                        alert(e);
+                        if(e === 'P') {
+                            alert('NOTA: SE INICIALIZARON LOS PRECIOS KAYROS DE { date('m-Y') }}');
+                        }         
+                    }*/
+                });
+            });
+        </script>
+
+    @endif
+
 
 </body>
 </html>

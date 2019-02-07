@@ -174,6 +174,20 @@
 	    		{!! Form::text('numeroventa', '', array('class' => 'form-control input-xs', 'id' => 'numeroventa', 'readonly' => 'true')) !!}
 	        	</div>   	
 		    </div>
+		    <div class="form-group" id="opcEmpresa" style="display: none;">
+				{!! Form::label('cruc', 'Ruc:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
+				<div class="col-lg-3 col-md-3 col-sm-3">
+	    			{!! Form::text('cruc','', array('class' => 'form-control input-xs datocaja', 'id' => 'cruc', 'maxlength' => '11')) !!}
+	    		</div> 
+	    		{!! Form::label('crazon', 'Razón:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
+				<div class="col-lg-3 col-md-3 col-sm-3">
+	    			{!! Form::text('crazon','', array('class' => 'form-control input-xs datocaja', 'id' => 'crazon', 'readonly' => 'readonly')) !!}
+	    		</div> 
+	    		{!! Form::label('cdireccion', 'Direcc:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
+				<div class="col-lg-3 col-md-3 col-sm-3">
+	    			{!! Form::text('cdireccion','-', array('class' => 'form-control input-xs datocaja', 'id' => 'cdireccion')) !!}
+	    		</div> 	
+		    </div>
 		    <div class="form-group">
 				<div class="col-lg-12 col-md-12 col-sm-12">
 					{!! Form::label('formapago', 'Forma Pago:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label datocaja caja input-sm')) !!}
@@ -236,6 +250,24 @@
 	{!! Form::close() !!}
 </div>
 <script type="text/javascript">
+	$(document).on('change', '#tipodocumento', function(e) {
+		e.preventDefault();
+		if ($(this).val() == 'Factura') {
+			$('#opcEmpresa').css('display', '');
+			$('#cruc').focus();
+		} else {
+			$('#opcEmpresa').css('display', 'none');
+		}
+	});
+
+	$(document).on('keyup', '#cruc', function(e) {
+		e.preventDefault();
+		e.stopImmediatePropagation();
+		if ($(this).val().length == 11) {
+			buscarEmpresa();
+		}
+	});
+
 	$(document).ready(function() {
 		$('#tipodescuento').val('{{ $detalles[0]->tipodescuento }}');
 		$('#tipodescuento2').val('{{ $detalles[0]->tipodescuento }}').attr('disabled', 'disabled');
@@ -408,6 +440,12 @@
 	}
 
 	function enviar() {
+		if ($('#tipodocumento').val() == 'Factura') {
+			if($('#cruc').val().length != 11 || $('#crazon').val() == '' || $('#cdireccion').val() == '') {
+				alert('No olvide digitar un RUC válido.');
+				return false;
+			}
+		}
 		form = $('#formMantenimientoMovimiento');
 		if(!camposNoVacios()) {
 			return false;
@@ -489,5 +527,50 @@
 
 	function imprimirReciboCuota(id){
         window.open("caja/pdfReciboCuota?id="+id,"_blank");
+    }
+
+    function buscarEmpresa() {
+    	ruc = $("#cruc").val();     
+        $.ajax({
+            type: 'GET',
+            url: "ticket/buscarEmpresa",
+            data: "ruc="+ruc,
+            beforeSend(){
+                $("#cruc").val('Comprobando...');
+            },
+            success: function (a) {
+                if(a == '')  {
+	        		buscarEmpresa2(ruc);
+	        	} else {
+	        		var e = a.split(';;');
+	        		$("#cruc").val(ruc);
+	        		$('#crazon').val(e[0]);
+	        		$('#cdireccion').val(e[1]);
+	        	}
+            }
+        });
+    }
+
+    function buscarEmpresa2(ruc){  
+        $.ajax({
+            type: 'GET',
+            url: "../SunatPHP/demo.php",
+            data: "ruc="+ruc,
+            beforeSend(){
+                $("#cruc").val('Comprobando...');
+            },
+            success: function (data, textStatus, jqXHR) {
+                if(data.RazonSocial == null) {
+                    alert('El RUC ingresado no existe... Digite uno válido.');
+                    $("#cruc").val('').focus();
+                    $("#crazon").val('');
+                    $("#cdireccion").val('');
+                } else {
+                    $("#cruc").val(ruc);
+                    $("#crazon").val(data.RazonSocial);
+                    $("#cdireccion").val('-');
+                }
+            }
+        });
     }
 </script>

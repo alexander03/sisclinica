@@ -308,12 +308,22 @@ class TicketController extends Controller
 
             //Guardamos el Ticket
 
+            $arr=explode(",",$request->input('listServicio'));
+
+            for ($x=0; $x < count($arr); $x++) { 
+                if ($request->input('txtIdServicio'.$arr[$x]) == '13') {
+                    //Si es alquiler en dólares
+                    $Ticket->numeroserie2 = 'DOLAR';
+                    break;
+                }
+            }
+
             $Ticket->save();
 
             //Registro de detalles del movimiento
 
             $pagohospital=0;
-            $arr=explode(",",$request->input('listServicio'));
+            
             for($c=0;$c<count($arr);$c++){
                 $Detalle = new Detallemovcaja();
                 $Detalle->movimiento_id=$Ticket->id;
@@ -2153,5 +2163,20 @@ class TicketController extends Controller
         return is_null($error) ? json_encode($dat) : $error;
     }
 
+    public function buscarEmpresa(Request $request) {
+        $ruc = $request->input('ruc');
 
+        $empresa = Person::where('ruc', $ruc)->first();
+
+        if(count($empresa) == 0) {
+            $data = '';
+        } else {
+            $data = $empresa->bussinesname;
+            if($empresa->bussinesname == '') {
+                $data = $empresa->nombres . ' ' . $empresa->apellidopaterno;
+            }
+            $data .= ';;' . $empresa->direccion;
+        }
+        echo $data;
+    }
 }
