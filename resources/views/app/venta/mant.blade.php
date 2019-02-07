@@ -596,10 +596,15 @@ function buscarProducto(valor){
     }
 }
 
+$(document).on('dblclick', '.escogerFila', function() {
+	var idproducto = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="producto_id"]').val();
+	modal('venta/editarKayros/' + idproducto, 'Editar Precio Kayros');
+});
+
 function seleccionarProducto(idproducto,precioventa,preciokayros,stock){
 	//alert(idproducto);
 	var _token =$('input[name=_token]').val();
-	/*$.post('{{ URL::route("venta.consultaproducto")}}', {idproducto: idproducto,_token: _token} , function(data){
+	/*$.post('{ URL::route("venta.consultaproducto")}}', {idproducto: idproducto,_token: _token} , function(data){
 		//$('#divDetail').html(data);
 		//calculatetotal();
 		var datos = data.split('@');
@@ -608,6 +613,9 @@ function seleccionarProducto(idproducto,precioventa,preciokayros,stock){
 		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="precioventa"]').val(datos[2]);
 		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="stock"]').val(datos[3]);		
 	});*/
+	if(parseInt(preciokayros) == 0) {
+		modal('venta/editarKayros/' + idproducto, 'Editar Precio Kayros');
+	}
 	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="producto_id"]').val(idproducto);
 	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="preciokayros"]').val(preciokayros);
 	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="precioventa"]').val(precioventa);

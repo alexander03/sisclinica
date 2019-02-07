@@ -269,7 +269,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('venta2', 'VentaController@index2')->name('venta.index2');
     Route::post('venta/procesar', 'VentaController@procesar')->name('venta.procesar');
 
-
+    Route::get('venta/editarKayros/{idproducto}', 'VentaController@editarKayros')->name('venta.editarKayros');
+    Route::get('venta/cambiarKayros/{kay}/{id}', 'VentaController@cambiarKayros')->name('venta.cambiarKayros');    
+    
     /* MOVIMIENTO ALMACEN */
     Route::post('movimientoalmacen/buscar', 'MovimientoalmacenController@buscar')->name('movimientoalmacen.buscar');
     Route::get('movimientoalmacen/eliminar/{id}/{listarluego}', 'MovimientoalmacenController@eliminar')->name('movimientoalmacen.eliminar');

@@ -5644,4 +5644,18 @@ class VentaController extends Controller
         return is_null($error) ? "OK" : $error;
     }
 
+    public function editarKayros($idproducto) {
+        $producto = Producto::find($idproducto);
+        $product = $producto->nombre;
+        $idproducto = $producto->id;
+        return view($this->folderview.'.editarKayros')->with(compact('product', 'idproducto'));
+    }
+
+    public function cambiarKayros($kay, $id) {
+        $producto = Producto::find($id);
+        $producto->preciokayros = $kay;
+        $producto->save();
+        return "seleccionarProducto('".$producto->id."','".$producto->precioventa."','".$producto->preciokayros."'";
+    }
+
 }
