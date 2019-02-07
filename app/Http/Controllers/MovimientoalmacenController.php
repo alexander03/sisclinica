@@ -17,6 +17,7 @@ use App\Movimiento;
 use App\Detallemovcaja;
 use App\Movimientoalmacen;
 use App\Lote;
+use App\Stock;
 use App\Cuenta;
 use App\Person;
 use App\Librerias\Libreria;
@@ -565,9 +566,21 @@ class MovimientoalmacenController extends Controller
                     $lote->producto_id = $request->input('producto_id'.$i);
                     $lote->almacen_id = $almacen_id;
                     $lote->save();
+
+                    $stock = Stock::where('producto_id', $request->input('producto_id'.$i))->where('almacen_id', $almacen_id)->first();
+                    if (count($stock) == 0) {
+                        $stock = new Stock();
+                    }
+                    $stock->cantidad += $cantidad;
+                    $stock->save();
+
+                    $detalleVenta->lote = $lote->id . ';' . $cantidad . '@';
+
                 }elseif ($request->input('tipo') == '9') {
                     //Algoritmo para ver de qué lote reduzco xd
                     //Solo cuando el producto no tiene lote
+
+                    $lotcant = '';
 
                     if($producto->lote == 'NO') {
                         $lotes = Lote::where('producto_id','=',$request->input('producto_id'.$i))->where('almacen_id', $almacen_id)->where('queda','>','0')->orderBy('fechavencimiento','ASC')->get();
@@ -600,10 +613,13 @@ class MovimientoalmacenController extends Controller
                                     $kardex->lote_id = $value->id;
                                     $kardex->save();    
 
+                                    $lotcant .= $value->id . ';' . $aux . '@';
+
                                 }
                                 break;
                             }else{
                                 $aux = $aux-$value->queda;
+                                $aux2 = $value->queda;
                                 $value->queda = 0;
                                 $value->save();
                                 
@@ -629,9 +645,13 @@ class MovimientoalmacenController extends Controller
                                     $kardex->lote_id = $value->id;
                                     $kardex->save();    
 
+                                    $lotcant .= $value->id . ';' . $aux2 . '@';
+
                                 }
                             }
                         }
+
+
                     } else {
                         $cadenalotes = $request->input('datoLote'.$i);
                         $cadenalotes = explode(';', $cadenalotes);
@@ -653,6 +673,8 @@ class MovimientoalmacenController extends Controller
                             $queda = $lote->queda-$cantidadareducir;
                             $lote->queda = $queda;
                             $lote->save();
+
+                            $lotcant .= $lote->id . ';' . $cantidadareducir . '@';
 
                             $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $request->input('producto_id'.$i))->where('movimiento.almacen_id', '=', $almacen_id)->orderBy('kardex.id', 'DESC')->first();
                             $stockanterior = 0;
@@ -678,6 +700,9 @@ class MovimientoalmacenController extends Controller
                         }
 
                     }
+
+                    $detalleVenta->lote = $lotcant;
+                    $detalleVenta->save();
                 }
 
                 $stockanterior = 0;

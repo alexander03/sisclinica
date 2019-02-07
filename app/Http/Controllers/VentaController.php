@@ -13,6 +13,7 @@ use App\Distribuidora;
 use App\Tipodocumento;
 use App\Detallemovimiento;
 use App\Kardex;
+use App\Stock;
 use App\Movimiento;
 use App\Detallemovcaja;
 use App\Lote;
@@ -1451,7 +1452,7 @@ class VentaController extends Controller
                     $venta->comentario='Pago de : '.$abreviatura.'004-'.$request->input('numerodocumento');
                     $venta->save();
                     $movimiento_id = $venta->id;
-                    $arr=$lista;                
+                    $arr=$lista;    
                     for ($i=1; $i < $lista; $i++) {
                         $cantidad  = $request->input('cantidad'.$i);
                         $precio    = $request->input('precio'.$i);
@@ -1467,6 +1468,9 @@ class VentaController extends Controller
                         if ($producto->afecto == 'NO') {
                             $ind = 1;
                         }
+
+                        //String para saber lotes y cantidades
+                        $lotcant = '';
                         
                         // consulta lotes
                         $lotes = Lote::where('producto_id','=',$request->input('producto_id'.$i))->where('almacen_id','=',$almacen_id)->where('queda','>','0')->orderBy('fechavencimiento','ASC')->get();
@@ -1498,6 +1502,9 @@ class VentaController extends Controller
                                     $kardex->lote_id = $value->id;
                                     $kardex->save();   
                                 }
+
+                                $lotcant .= $value->id . ';' . $aux . '@';
+
                                 break;
                             }else{
                                 $cantvendida = $value->queda;
@@ -1528,8 +1535,21 @@ class VentaController extends Controller
                                     $kardex->save();    
 
                                 }
+                                $lotcant .= $value->id . ';' . $cantvendida . '@';
                             }
-                        }          
+                        }  
+
+                        $detalleVenta->lote = $lotcant;
+                        $detalleVenta->save();
+
+                        //Reducir Stock
+
+                        $stock = Stock::where('producto_id', $request->input('producto_id'.$i))->where('almacen_id', $almacen_id)->first();
+                        if (count($stock) == 0) {
+                            $stock = new Stock();
+                        }
+                        $stock->cantidad -= $cantidad;
+                        $stock->save();
                     }
 
                     # REGISTRO DE CREDITOS
@@ -1691,7 +1711,7 @@ class VentaController extends Controller
                         $movimiento_id = $venta->id;
                         $arr=$lista;
                         for ($i=1; $i < $lista; $i++) {
-                             $producto = Producto::find($request->input('producto_id'.$i));
+                            $producto = Producto::find($request->input('producto_id'.$i));
                             if ($producto->afecto != 'NO') {
                                 $cantidad  = str_replace(',', '',$request->input('cantidad'.$i));
                                 $precio    = str_replace(',', '',$request->input('precio'.$i));
@@ -1702,11 +1722,13 @@ class VentaController extends Controller
                                 $detalleVenta->subtotal = $subtotal;
                                 $detalleVenta->movimiento_id = $movimiento_id;
                                 $detalleVenta->producto_id = $request->input('producto_id'.$i);
-                                $detalleVenta->save();          
+                                $detalleVenta->save();  
+
+                                $lotcant = '';        
                                 
                                 // consulta lotes
                                 $lotes = Lote::where('producto_id','=',$request->input('producto_id'.$i))->where('almacen_id','=',$almacen_id)->where('queda','>','0')->orderBy('fechavencimiento','ASC')->get();
-                                $aux = $request->input('producto_id'.$i);// 3
+                                $aux = $request->input('cantidad'.$i);// 3
                                 foreach ($lotes as $key => $value) { 
                                     if ($value->queda >= $aux) {
                                         $queda = $value->queda-$aux;
@@ -1734,6 +1756,8 @@ class VentaController extends Controller
                                             $kardex->detallemovimiento_id = $detalleVenta->id;
                                             $kardex->lote_id = $value->id;
                                             $kardex->save(); 
+
+                                            $lotcant .= $value->id . ';' . $aux . '@';
                                         }
                                         break;
                                     }else{
@@ -1762,12 +1786,24 @@ class VentaController extends Controller
                                             $kardex->almacen_id = $almacen_id;
                                             $kardex->detallemovimiento_id = $detalleVenta->id;
                                             $kardex->lote_id = $value->id;
-                                            $kardex->save();    
+                                            $kardex->save();  
 
+                                            $lotcant .= $value->id . ';' . $cantvendida . '@';
                                         }
                                     }
                                 }
+                                $detalleVenta->lote = $lotcant;
+                                $detalleVenta->save();
                             }
+
+                            //Reducir Stock
+
+                            $stock = Stock::where('producto_id', $request->input('producto_id'.$i))->where('almacen_id', $almacen_id)->first();
+                            if (count($stock) == 0) {
+                                $stock = new Stock();
+                            }
+                            $stock->cantidad -= $cantidad;
+                            $stock->save();
                         }
 
                         # REGISTRO DE CREDITOS
@@ -1906,6 +1942,7 @@ class VentaController extends Controller
                     $venta2->save();
                     $movimiento_id = $venta2->id;
                     $arr=$lista;
+
                     for ($i=1; $i < $lista; $i++) {
                         $producto = Producto::find($request->input('producto_id'.$i));
                         if ($producto->afecto == 'NO') {
@@ -1922,6 +1959,7 @@ class VentaController extends Controller
 
                             // consulta lotes
                             $lotes = Lote::where('producto_id','=',$request->input('producto_id'.$i))->where('almacen_id','=',$almacen_id)->where('queda','>','0')->orderBy('fechavencimiento','ASC')->get();
+                            $lotcant = '';
                             $aux = $request->input('cantidad'.$i);
                             foreach ($lotes as $key => $value) {
                                 if ($value->queda >= $aux) {
@@ -1949,7 +1987,7 @@ class VentaController extends Controller
                                         $kardex->detallemovimiento_id = $detalleVenta->id;
                                         $kardex->lote_id = $value->id;
                                         $kardex->save();    
-
+                                        $lotcant .= $value->id . ';' . $aux . '@';
                                     }
                                     break;
                                 }else{
@@ -1978,12 +2016,25 @@ class VentaController extends Controller
                                         $kardex->almacen_id = $almacen_id;
                                         $kardex->detallemovimiento_id = $detalleVenta->id;
                                         $kardex->lote_id = $value->id;
-                                        $kardex->save();    
+                                        $kardex->save();
 
+                                        $lotcant .= $value->id . ';' . $cantvendida . '@';
                                     }
-                                }
+                                }   
                             }
+
+                            $detalleVenta->lote = $lotcant;
+                            $detalleVenta->save();
                         }
+
+                        //Reducir Stock
+
+                        $stock = Stock::where('producto_id', $request->input('producto_id'.$i))->where('almacen_id', $almacen_id)->first();
+                        if (count($stock) == 0) {
+                            $stock = new Stock();
+                        }
+                        $stock->cantidad -= $cantidad;
+                        $stock->save();
                     }
 
                     # REGISTRO DE CREDITOS

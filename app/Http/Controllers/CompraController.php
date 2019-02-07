@@ -15,6 +15,7 @@ use App\Kardex;
 use App\Movimiento;
 use App\Detallemovcaja;
 use App\Lote;
+use App\Stock;
 use App\Caja;
 use App\Cuenta;
 use App\Person;
@@ -562,6 +563,7 @@ class CompraController extends Controller
             $movimiento_id = $compra->id;
             $lista = (int) $request->input('cantproductos');
             for ($i=1; $i <= $lista; $i++) {
+                $lotcant = '';
                 $cantidad  = $request->input('cantidad'.$i);
                 $precio    = $request->input('preciocompra'.$i);
                 $subtotal  = round(($cantidad*$precio), 2);
@@ -593,6 +595,9 @@ class CompraController extends Controller
                 $lote->producto_id = $request->input('producto_id'.$i);
                 $lote->almacen_id = $almacen_id;
                 $lote->save();
+
+                $detalleCompra->lote = $lote->id . ';' . $cantidad . '@';
+                $detalleCompra->save();
 
                 $stockanterior = 0;
                 $stockactual = 0;
@@ -627,6 +632,15 @@ class CompraController extends Controller
                     $kardex->save();    
 
                 }
+
+                //Reducir Stock
+
+                $stock = Stock::where('producto_id', $request->input('producto_id'.$i))->where('almacen_id', $almacen_id)->first();
+                if (count($stock) == 0) {
+                    $stock = new Stock();
+                }
+                $stock->cantidad += $cantidad;
+                $stock->save();
 
             }
 
