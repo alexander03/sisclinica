@@ -1547,6 +1547,8 @@ class VentaController extends Controller
                         $stock = Stock::where('producto_id', $request->input('producto_id'.$i))->where('almacen_id', $almacen_id)->first();
                         if (count($stock) == 0) {
                             $stock = new Stock();
+                            $stock->producto_id = $request->input('producto_id'.$i);
+                            $stock->almacen_id = $almacen_id;
                         }
                         $stock->cantidad -= $cantidad;
                         $stock->save();
@@ -1801,6 +1803,8 @@ class VentaController extends Controller
                             $stock = Stock::where('producto_id', $request->input('producto_id'.$i))->where('almacen_id', $almacen_id)->first();
                             if (count($stock) == 0) {
                                 $stock = new Stock();
+                                $stock->producto_id = $request->input('producto_id'.$i);
+                                $stock->almacen_id = $almacen_id;
                             }
                             $stock->cantidad -= $cantidad;
                             $stock->save();
@@ -2032,6 +2036,8 @@ class VentaController extends Controller
                         $stock = Stock::where('producto_id', $request->input('producto_id'.$i))->where('almacen_id', $almacen_id)->first();
                         if (count($stock) == 0) {
                             $stock = new Stock();
+                            $stock->producto_id = $request->input('producto_id'.$i);
+                            $stock->almacen_id = $almacen_id;
                         }
                         $stock->cantidad -= $cantidad;
                         $stock->save();
