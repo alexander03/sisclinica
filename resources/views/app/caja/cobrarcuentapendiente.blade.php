@@ -554,7 +554,7 @@
     function buscarEmpresa2(ruc){  
         $.ajax({
             type: 'GET',
-            url: "../SunatPHP/demo.php",
+            url: "SunatPHP/demo.php",
             data: "ruc="+ruc,
             beforeSend(){
                 $("#cruc").val('Comprobando...');

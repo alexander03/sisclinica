@@ -7,14 +7,12 @@
         <input type="hidden" id="product_id" value="{{ $idproducto }}">
     </div>
     <div class="form-group">
-        <label for="pvf" class="col-lg-4 col-md-4 col-sm-4 control-label">PVF:</label>
-        <div class="col-lg-8 col-md-8 col-sm-8">
+        <label for="pvf" class="col-lg-2 col-md-2 col-sm-2 control-label">PVF:</label>
+        <div class="col-lg-4 col-md-4 col-sm-4">
             <input onfocus="$('#pps').val('');" onkeyup="ponerKayros();" onkeypress="return filterFloat(event, this);" class="form-control input-xs" id="pvf" placeholder="Ingrese PVF" name="pvf" type="text">
         </div>
-    </div>
-    <div class="form-group">
-        <label for="pps" class="col-lg-4 col-md-4 col-sm-4 control-label">PPS:</label>
-        <div class="col-lg-8 col-md-8 col-sm-8">
+        <label for="pps" class="col-lg-2 col-md-2 col-sm-2 control-label">PPS:</label>
+        <div class="col-lg-4 col-md-4 col-sm-4">
             <input onfocus="$('#pvf').val('');" onkeyup="ponerKayros();" onkeypress="return filterFloat(event, this);" class="form-control input-xs" id="pps" placeholder="Ingrese PPS" name="pps" type="text">
         </div>
     </div>
@@ -75,6 +73,7 @@
                         $('#cantidad').focus();
                         $('#' + idproducto).attr('onclick', e + ", '" + $(IDFORMMANTENIMIENTO + 'Venta :input[id="stock"]').val() + "')");
                         $('#tdPrecioKayros' + idproducto).html(kay);
+                        $(IDFORMMANTENIMIENTO + 'Venta :input[id="preciokayros"]').val(kay);
                         cerrarModal();
                     }                        
                 }

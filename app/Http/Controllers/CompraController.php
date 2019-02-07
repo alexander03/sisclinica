@@ -476,12 +476,12 @@ class CompraController extends Controller
     {
         $listar     = Libreria::getParam($request->input('listar'), 'NO');
         $reglas     = array(
-                'person_id' => 'required|integer|exists:person,id,deleted_at,NULL',
+                //'person_id' => 'required|integer|exists:person,id,deleted_at,NULL',
                 'numerodocumento'                  => 'required',
                 'fecha'                 => 'required'
                 );
         $mensajes = array(
-            'person_id.required'         => 'Debe ingresar un proveedor',
+            //'person_id.required'         => 'Debe ingresar un proveedor',
             'numerodocumento.required'         => 'Debe ingresar un numero de documento',
             'fecha.required'         => 'Debe ingresar fecha'
             );
@@ -535,7 +535,24 @@ class CompraController extends Controller
             $compra->sucursal_id    = $sucursal_id; 
             $compra->tipodocumento_id          = $request->input('tipodocumento_id');
             $compra->tipomovimiento_id          = 3;
-            $compra->persona_id = $request->input('person_id');
+
+            if($request->input('tipodocumento_id') == '6') {
+                $emp = Person::where('ruc', $request->input('ccruc'))->first();
+                if($emp !== NULL) {
+                    $p_id = $emp->id;
+                } else {
+                    $empr = new Person();
+                    $empr->ruc = $request->input('ccruc');
+                    $empr->direccion = $request->input('ccdireccion');
+                    $empr->bussinesname = $request->input('ccrazon');
+                    $empr->save();
+                    $p_id = $empr->id;
+                }
+            } else {
+                $p_id = 0;
+            }
+
+            $compra->persona_id = $p_id;
             $compra->numeroserie2 = $request->input('serie') . '-' . $request->input('numerodocumento');
             $compra->fecha  = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
             $compra->total = $total;
@@ -702,7 +719,7 @@ class CompraController extends Controller
                     $movimiento->sucursal_id = $sucursal_id;
                     $movimiento->tipodocumento_id          = $request->input('tipodocumento_id');
                     $movimiento->tipomovimiento_id          = 2;
-                    $movimiento->persona_id = $request->input('person_id');
+                    $movimiento->persona_id = $p_id;
                     $movimiento->numeroserie2 = $request->input('serie') . '-' . $request->input('numerodocumento');
                     $movimiento->voucher = $request->input('serie') .'-'.$request->input('numerodocumento');
                     $movimiento->fecha  = date("Y-m-d");
@@ -720,7 +737,7 @@ class CompraController extends Controller
 
 
                     $movimientocaja = new Detallemovcaja();
-                    $movimientocaja->persona_id = $request->input('person_id');
+                    $movimientocaja->persona_id = $p_id;
                     $movimientocaja->movimiento_id = $movimiento->id;
                     $movimientocaja->descripcion = 'PAGO A PROVEEDOR';
                     $movimientocaja->save();

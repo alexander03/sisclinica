@@ -548,18 +548,35 @@ class VentaController extends Controller
                 $almacen_id = 2;
             }
         }
-        
-        $resultado        = Producto::where('nombre', 'LIKE', ''.strtoupper($nombre).'%')
-                            ->where('tipo', '!=', 'Z')
-                            ->orWhere(function($query) use($nombre){
-                                $query->WhereIn('id',function($q) use($nombre){
-                                    $q->select('producto_id')
-                                      ->from('productoprincipio')
-                                      ->leftjoin('principioactivo','principioactivo.id','=','Productoprincipio.principioactivo_id')
-                                      ->where('principioactivo.nombre','like','%'.strtoupper($nombre).'%');
-                                });
-                            })
-                            ->orderBy('origen_id','DESC')->orderBy('nombre', 'ASC')->get();
+
+        $par = $request->input('par');
+
+        if($par == 'S') {
+            $resultado        = Producto::where('nombre', 'LIKE', ''.strtoupper($nombre).'%')
+                                ->where('tipo', '!=', 'Z')
+                                ->where('tipo', '=', 'F')
+                                ->orWhere(function($query) use($nombre){
+                                    $query->WhereIn('id',function($q) use($nombre){
+                                        $q->select('producto_id')
+                                          ->from('productoprincipio')
+                                          ->leftjoin('principioactivo','principioactivo.id','=','Productoprincipio.principioactivo_id')
+                                          ->where('principioactivo.nombre','like','%'.strtoupper($nombre).'%');
+                                    });
+                                })
+                                ->orderBy('origen_id','DESC')->orderBy('nombre', 'ASC')->get();
+        } else {
+            $resultado        = Producto::where('nombre', 'LIKE', ''.strtoupper($nombre).'%')
+                                ->where('tipo', '!=', 'Z')
+                                ->orWhere(function($query) use($nombre){
+                                    $query->WhereIn('id',function($q) use($nombre){
+                                        $q->select('producto_id')
+                                          ->from('productoprincipio')
+                                          ->leftjoin('principioactivo','principioactivo.id','=','Productoprincipio.principioactivo_id')
+                                          ->where('principioactivo.nombre','like','%'.strtoupper($nombre).'%');
+                                    });
+                                })
+                                ->orderBy('origen_id','DESC')->orderBy('nombre', 'ASC')->get();
+        }
 
         if(count($resultado)>0){
             $c=0;

@@ -10,17 +10,17 @@
 				{!! Form::select('tipodocumento_id', $cboDocumento, null, array('style' => 'background-color: #D4F0FF;' ,'class' => 'form-control input-xs', 'id' => 'tipodocumento_id', 'onchange' => 'generarNumero(this.value);')) !!}
 			</div>
 		</div>
-		<div class="form-group" style="height: 12px;">
+		<div class="form-group" style="height: 12px; display: none;">
 			{!! Form::label('credito', 'Credito:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
 				{!! Form::select('credito', $cboCredito, null, array('style' => 'background-color: #D4F0FF;' ,'class' => 'form-control input-xs', 'id' => 'credito', 'onchange' => 'cambiar();')) !!}
 			</div>
 		</div>
-		<div class="form-group" style="height: 12px;">
+		<div class="form-group" style="height: 12px; display: none;">
 		
 		{!! Form::label('numerodias', 'Nro Dias:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-2 col-md-2 col-sm-2">
-				{!! Form::text('numerodias', null, array('style' => 'background-color: #FFEEC5;','class' => 'form-control input-xs', 'id' => 'numerodias')) !!}
+				{!! Form::text('numerodias', 0, array('style' => 'background-color: #FFEEC5;','class' => 'form-control input-xs', 'id' => 'numerodias')) !!}
 				
 			</div>
 
@@ -42,14 +42,28 @@
 			</div>
 
 		</div>
-		<div class="form-group" style="height: 12px;">
-			{!! Form::label('ruc2', 'RUC:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
-			<div class="col-lg-6 col-md-6 col-sm-6">
-				{!! Form::text('ruc2', null, array('style' => 'background-color: #FFEEC5;','class' => 'form-control input-xs', 'id' => 'ruc2')) !!}
-				
-			</div>
+
+		<div id="opcEmpresa">
+			<div class="form-group" style="height: 12px;">
+				{!! Form::label('ccruc', 'RUC:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
+				<div class="col-lg-8 col-md-8 col-sm-8">
+	    			{!! Form::text('ccruc','', array('class' => 'form-control input-xs datocaja', 'id' => 'ccruc', 'maxlength' => '11')) !!}
+	    		</div> 
+		    </div>
+		    <div class="form-group" style="height: 12px;">
+	    		{!! Form::label('ccrazon', 'Razón:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
+				<div class="col-lg-8 col-md-8 col-sm-8">
+	    			{!! Form::text('ccrazon','', array('class' => 'form-control input-xs datocaja', 'id' => 'ccrazon', 'readonly' => 'readonly')) !!}
+	    		</div> 
+		    </div>
+		    <div class="form-group" style="height: 12px;">
+	    		{!! Form::label('ccdireccion', 'Direcc:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
+				<div class="col-lg-8 col-md-8 col-sm-8">
+	    			{!! Form::text('ccdireccion','-', array('class' => 'form-control input-xs datocaja', 'id' => 'ccdireccion')) !!}
+	    		</div> 	
+		    </div>
 		</div>
-		<div class="form-group" style="height: 12px;">
+		<div class="form-group" style="height: 12px;display: none;">
 			{!! Form::label('nombrepersona', 'Proveedor:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			{!! Form::hidden('person_id', null, array('id' => 'person_id')) !!}
 			<div class="col-lg-6 col-md-6 col-sm-6">
@@ -69,7 +83,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="form-group" id="divDescuentokayros" style="height: 12px; display: none;">
+		<div class="form-group" id="divDescuentokayros" style="height: 12px;">
 			{!! Form::label('fecha2', 'Fecha Venc.:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-3 col-md-3 col-sm-3">
 				<div class='input-group input-group-xs' id='divfecha2'>
@@ -98,7 +112,7 @@
 			{!! Form::label('total', 'Total:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			{!! Form::hidden('doctor_id', null, array('id' => 'doctor_id')) !!}
 			<div class="col-lg-3 col-md-3 col-sm-3">
-				{!! Form::text('total', null, array('style' => 'background-color: #FFEEC5;','class' => 'form-control input-xs', 'id' => 'total' )) !!}
+				{!! Form::text('total', number_format(0, 2, '.', ''), array('style' => 'background-color: #FFEEC5;','class' => 'form-control input-xs', 'id' => 'total' )) !!}
 			</div>
 			{!! Form::label('igv', 'Igv:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
 			<div class="col-lg-3 col-md-3 col-sm-3">
@@ -221,6 +235,35 @@ tr.resaltar {
 var valorbusqueda="";
 var indice = -1;
 var anterior = -1;
+
+$(document).on('change', '#tipodocumento_id', function(e) {
+	e.preventDefault();
+	e.stopImmediatePropagation();
+	if($(this).val() == '6') {
+		$('#opcEmpresa').css('display', 'block');
+	} else {
+		$('#opcEmpresa').css('display', 'none');
+	}
+});
+
+$(document).on('change', '#afecto', function(e) {
+	e.preventDefault();
+	e.stopImmediatePropagation();
+	if($(this).val() == 'N') {
+		$('#igv').val('0.00');
+	} else {
+		$('#igv').val('');
+	}
+});
+
+$(document).on('keyup', '#ccruc', function(e) {
+	e.preventDefault();
+	e.stopImmediatePropagation();
+	if ($(this).val().length == 11) {
+		buscarEmpresa();
+	}
+});
+
 $(document).ready(function() {
 	$('#detallesCompra').html('');
 	$('#cantproductos').val('0');
@@ -529,7 +572,7 @@ function buscarProducto(valor){
         $.ajax({
             type: "POST",
             url: "venta/buscandoproducto",
-            data: "nombre="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="nombreproducto"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
+            data: "nombre="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="nombreproducto"]').val()+ "&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
             success: function(a) {
                 datos=JSON.parse(a);
                 //$("#divProductos").html("<table class='table table-bordered table-condensed table-hover' border='1' id='tablaProducto'><thead><tr><th class='text-center'>P. Activo</th><th class='text-center'>Nombre</th><th class='text-center'>Presentacion</th><th class='text-center'>Stock</th><th class='text-center'>P.Kayros</th><th class='text-center'>P.Venta</th></tr></thead></table>");
@@ -740,8 +783,9 @@ function calculatetotal () {
 		i++;
 	});
 	$('#cantproductos').val(i-1);
-	$('#totalcompra2').html(total);
-	$('#totalcompra').val(total);
+	$('#totalcompra2').html(total.toFixed(2));
+	$('#totalcompra').val(total.toFixed(2));
+	$('#total').val(total.toFixed(2));
 }
 
 function comprobarproducto () {
@@ -1026,6 +1070,12 @@ function agregarconvenio(id){
 	}
 
 function guardarCompra (entidad, idboton) {
+	if ($('#tipodocumento').val() == 'Factura') {
+		if($('#ccruc').val().length != 11 || $('#ccrazon').val() == '' || $('#ccdireccion').val() == '') {
+			alert('No olvide digitar un RUC válido.');
+			return false;
+		}
+	}
 	if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="fecha2"]').val()==""){
 		bootbox.alert("Debe ingresar una fecha de vencimiento");
 		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="fecha2"]').focus();
@@ -1123,5 +1173,50 @@ $(document).on('click', '.escogerFila', function(){
 	$('.escogerFila').css('background-color', 'white');
 	$(this).css('background-color', 'yellow');
 });
+
+function buscarEmpresa() {
+	ruc = $("#ccruc").val();     
+    $.ajax({
+        type: 'GET',
+        url: "ticket/buscarEmpresa",
+        data: "ruc="+ruc,
+        beforeSend(){
+            $("#ccruc").val('Comprobando...');
+        },
+        success: function (a) {
+            if(a == '')  {
+        		buscarEmpresa2(ruc);
+        	} else {
+        		var e = a.split(';;');
+        		$("#ccruc").val(ruc);
+        		$('#ccrazon').val(e[0]);
+        		$('#ccdireccion').val(e[1]);
+        	}
+        }
+    });
+}
+
+function buscarEmpresa2(ruc){  
+    $.ajax({
+        type: 'GET',
+        url: "SunatPHP/demo.php",
+        data: "ruc="+ruc,
+        beforeSend(){
+            $("#ccruc").val('Comprobando...');
+        },
+        success: function (data, textStatus, jqXHR) {
+            if(data.RazonSocial == null) {
+                alert('El RUC ingresado no existe... Digite uno válido.');
+        		$("#ccruc").val('').focus();
+                $("#ccrazon").val('');
+                $("#ccdireccion").val('');
+            } else {
+                $("#ccruc").val(ruc);
+                $("#ccrazon").val(data.RazonSocial);
+                $("#ccdireccion").val('-');
+            }
+        }
+    });
+}
 
 </script>

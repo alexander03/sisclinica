@@ -32,7 +32,7 @@
 			</div>
 
 		</div>
-		<div class="form-group" style="height: 12px;">
+		<div class="form-group" id="opcEmpresa" style="height: 12px; display: none;">
 			{!! Form::label('nombreempresa', 'Empresa:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			{!! Form::hidden('empresa_id', null, array('id' => 'empresa_id')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
@@ -109,7 +109,7 @@
             {!! Form::text('personal', null, array('class' => 'form-control input-xs', 'id' => 'personal', 'placeholder' => 'Ingrese Personal')) !!}
             </div>
 		</div>
-		<div class="form-group" style="height: 12px;">
+		<div class="form-group" style="height: 12px;display: none;">
 		<div class="col-lg-3 col-md-3 col-sm-3">
 				
 				
@@ -277,6 +277,17 @@ tr.resaltar {
 var valorbusqueda="";
 var indice = -1;
 var anterior = -1;
+
+$(document).on('change', '#documento', function(e) {
+	e.preventDefault();
+	e.stopImmediatePropagation();
+	if($(this).val() == '4') {
+		$('#opcEmpresa').css('display', 'block');
+	} else {
+		$('#opcEmpresa').css('display', 'none');
+	}
+});
+
 $(document).ready(function() {
 	$('#detallesVenta').html('');
 	$('#cantproductos').val('0');
@@ -564,7 +575,7 @@ function buscarProducto(valor){
         $.ajax({
             type: "POST",
             url: "venta/buscandoproducto",
-            data: "nombre="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="nombreproducto"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
+            data: "nombre="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="nombreproducto"]').val()+"&par=S&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
             success: function(a) {
                 datos=JSON.parse(a);
                 //$("#divProductos").html("<table class='table table-bordered table-condensed table-hover' border='1' id='tablaProducto'><thead><tr><th class='text-center'>P. Activo</th><th class='text-center'>Nombre</th><th class='text-center'>Presentacion</th><th class='text-center'>Stock</th><th class='text-center'>P.Kayros</th><th class='text-center'>P.Venta</th></tr></thead></table>");
@@ -596,9 +607,13 @@ function buscarProducto(valor){
     }
 }
 
-$(document).on('dblclick', '.escogerFila', function() {
-	var idproducto = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="producto_id"]').val();
-	modal('venta/editarKayros/' + idproducto, 'Editar Precio Kayros');
+$(document).on('dblclick', '.escogerFila', function(e) {
+	e.preventDefault();
+	e.stopImmediatePropagation();
+	if($('#tipoventa').val() == 'C') {
+		var idproducto = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="producto_id"]').val();
+		modal('venta/editarKayros/' + idproducto, 'Editar Precio Kayros');
+	}	
 });
 
 function seleccionarProducto(idproducto,precioventa,preciokayros,stock){
@@ -613,7 +628,7 @@ function seleccionarProducto(idproducto,precioventa,preciokayros,stock){
 		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="precioventa"]').val(datos[2]);
 		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="stock"]').val(datos[3]);		
 	});*/
-	if(parseInt(preciokayros) == 0) {
+	if(parseInt(preciokayros) == 0 && $('#tipoventa').val() == 'C') {
 		modal('venta/editarKayros/' + idproducto, 'Editar Precio Kayros');
 	}
 	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="producto_id"]').val(idproducto);
@@ -678,9 +693,11 @@ function cambiotipoventa() {
 		//$('#divDescuentokayros').show();
 		//$('#divCopago').show();
 		modal('{{URL::route('venta.busquedacliente')}}', '');
+		$('#divConvenio').css('display', 'block');
 
 	}else if (tipoventa == 'N') {
-		$('#divConvenio').hide();
+		$('#divConvenio').css('display', 'none');
+		$('#conveniofarmacia_id').val('');
 		//$('#divDescuentokayros').hide();
 		//$('#divCopago').hide();
 	}

@@ -114,19 +114,19 @@
         		</div>	        
 	    </div>
 	    <div class="form-group" id="opcEmpresa" style="display: none;">
-				{!! Form::label('ccruc', 'Ruc:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
-				<div class="col-lg-3 col-md-3 col-sm-3">
-	    			{!! Form::text('ccruc','', array('class' => 'form-control input-xs datocaja', 'id' => 'ccruc', 'maxlength' => '11')) !!}
-	    		</div> 
-	    		{!! Form::label('ccrazon', 'Razón:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
-				<div class="col-lg-3 col-md-3 col-sm-3">
-	    			{!! Form::text('ccrazon','', array('class' => 'form-control input-xs datocaja', 'id' => 'ccrazon', 'readonly' => 'readonly')) !!}
-	    		</div> 
-	    		{!! Form::label('ccdireccion', 'Direcc:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
-				<div class="col-lg-3 col-md-3 col-sm-3">
-	    			{!! Form::text('ccdireccion','-', array('class' => 'form-control input-xs datocaja', 'id' => 'ccdireccion')) !!}
-	    		</div> 	
-		    </div>
+			{!! Form::label('ccruc', 'Ruc:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
+			<div class="col-lg-3 col-md-3 col-sm-3">
+    			{!! Form::text('ccruc','', array('class' => 'form-control input-xs datocaja', 'id' => 'ccruc', 'maxlength' => '11')) !!}
+    		</div> 
+    		{!! Form::label('ccrazon', 'Razón:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
+			<div class="col-lg-3 col-md-3 col-sm-3">
+    			{!! Form::text('ccrazon','', array('class' => 'form-control input-xs datocaja', 'id' => 'ccrazon', 'readonly' => 'readonly')) !!}
+    		</div> 
+    		{!! Form::label('ccdireccion', 'Direcc:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
+			<div class="col-lg-3 col-md-3 col-sm-3">
+    			{!! Form::text('ccdireccion','-', array('class' => 'form-control input-xs datocaja', 'id' => 'ccdireccion')) !!}
+    		</div> 	
+	    </div>
 	    <div class="form-group">
 			<div class="col-lg-12 col-md-12 col-sm-12">
 				{!! Form::label('formapago', 'Forma Pago:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label datocaja caja input-sm')) !!}
@@ -397,7 +397,7 @@
 	function enviar() {
 		if ($('#tipodocumento').val() == 'Factura') {
 			if($('#ccruc').val().length != 11 || $('#ccrazon').val() == '' || $('#ccdireccion').val() == '') {
-				alert('No olvide digitar un RUC válido.' + $('#ccrazon').val().length);
+				alert('No olvide digitar un RUC válido.');
 				return false;
 			}
 		}
@@ -502,10 +502,10 @@
         });
     }
 
-    function buscarEmpresa2(ruc){  
+    function buscarEmpresa2(ruc){
         $.ajax({
             type: 'GET',
-            url: "../SunatPHP/demo.php",
+            url: "SunatPHP/demo.php",
             data: "ruc="+ruc,
             beforeSend(){
                 $("#ccruc").val('Comprobando...');
