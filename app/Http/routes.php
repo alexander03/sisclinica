@@ -1040,6 +1040,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('historiaclinica/editarCita', 'HistoriaClinicaController@editarCita');
     Route::post('historiaclinica/guardarEditado', 'HistoriaClinicaController@guardarEditado');
     Route::post('historiaclinica/infoPaciente', 'HistoriaClinicaController@infoPaciente');
+    Route::post('historiaclinica/cantidadCitasFecha', 'HistoriaClinicaController@cantidadCitasFecha');
+    Route::get('historiaclinica/cie10autocompletar/{searching}', 'HistoriaClinicaController@cie10autocompletar')->name('historiaclinica.cie10autocompletar');
+
 
       /* MIGRAR EXCEL*/
     Route::get('importHistoria', 'ExcelController@importHistoria');

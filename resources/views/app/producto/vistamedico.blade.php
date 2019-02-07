@@ -274,8 +274,9 @@ $user = Auth::user();
 														</div>
 														<div class="form-group">
 															{!! Form::label('cie102', 'Cie10:', array('class' => 'col-sm-2 control-label')) !!}
-															<div class="col-sm-5" style="margin-top:7px;">
+															<div class="col-sm-10" style="margin-top:7px;">
 																{!! Form::text('cie102', '', array('class' => 'form-control input-xs', 'id' => 'cie102', 'style' => 'font-size: 16px;')) !!}
+																{!! Form::hidden('cie102_id', '', array('id' => 'cie102_id')) !!}
 															</div>
 														</div>
 														<div class="form-group">
@@ -290,12 +291,16 @@ $user = Auth::user();
 																<input style="margin-top: 11px; margin-left: -15px;" type="checkbox" id="fondo" value="1"><br>
 															</div>
 															<div class="col-sm-6" style="padding-left: 0px;">
+																{!! Form::label('citas', 'Cant de Citas:', array('class' => 'col-sm-8 control-label', 'style' => 'text-align:left;' )) !!}
+																<div class="col-sm-4" style="margin-top:7px;">
+																	{!! Form::text('citas', '', array('class' => 'form-control input-xs', 'id' => 'citas', 'readOnly', 'style' => 'font-size: 16px;')) !!}
+																</div>
 															</div>
 														</div>
 														<div class="form-group"  style="padding-left: 0px;">
 															{!! Form::label('citaproxima', 'Próxima cita:', array('class' => 'col-sm-4 control-label', 'style' => 'text-align:left;' )) !!}
 															<div class="col-sm-5" style="margin-top:7px;">
-																{!! Form::date('citaproxima', '', array('class' => 'form-control input-xs', 'id' => 'citaproxima' , 'style' => 'margin-left: -25px;' )) !!}
+																{!! Form::date('citaproxima', '', array('class' => 'form-control input-xs', 'id' => 'citaproxima' , 'style' => 'margin-left: -25px;' , 'onchange' => 'cantidadCitasFecha();' )) !!}
 															</div>
 															{!! Form::button('<i class="glyphicon glyphicon-check"></i> Guardar', array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => 'registrarHistoriaClinica();')) !!}
 														</div>	
@@ -420,9 +425,12 @@ $user = Auth::user();
 										</div>
 									</div>		
 									<div class="form-group col-sm-5">
-										{!! Form::label('citaproximaeditar', 'Próxima cita:', array('class' => 'col-sm-6 control-label', 'style' => 'text-align:left;' )) !!}
+										{!! Form::label('citaproximaeditar', 'Cita prox.:', array('class' => 'col-sm-4 control-label', 'style' => 'text-align:left;' )) !!}
 										<div class="col-sm-6" style="margin-top:7px;">
-											{!! Form::date('citaproximaeditar', '', array('class' => 'form-control input-xs', 'id' => 'citaproximaeditar' , 'style' => 'margin-left: -25px;' )) !!}
+											{!! Form::date('citaproximaeditar', '', array('class' => 'form-control input-xs', 'id' => 'citaproximaeditar' , 'style' => 'margin-left: -25px;' , 'onchange' => 'cantidadCitasFechaEditar();' )) !!}
+										</div>
+										<div class="col-sm-2" style="margin-top:7px;">
+											{!! Form::text('citaseditar', '', array('class' => 'form-control input-xs', 'id' => 'citaseditar', 'readOnly', 'style' => 'font-size: 16px; margin-left: -35px;')) !!}
 										</div>
 									</div>	
 								</div>
@@ -553,6 +561,35 @@ $user = Auth::user();
 		$("#fondo").prop('disabled', true);
 		$('#fondo').prop('checked', false);
 	});
+	
+		
+	var cie10s = new Bloodhound({
+			datumTokenizer: function (d) {
+				return Bloodhound.tokenizers.whitespace(d.value);
+			},
+			limit: 10,
+			queryTokenizer: Bloodhound.tokenizers.whitespace,
+			remote: {
+				url: 'historiaclinica/cie10autocompletar/%QUERY',
+				filter: function (cie10s) {
+					return $.map(cie10s, function (cie10) {
+						return {
+							value: cie10.value,
+							id: cie10.id,
+						};
+					});
+				}
+			}
+		});
+		cie10s.initialize();
+		$("#cie102").typeahead(null,{
+			displayKey: 'value',
+			source: cie10s.ttAdapter()
+		}).on('typeahead:selected', function (object, datum) {
+			$("#cie102").val(datum.value);
+			$("#cie102_id").val(datum.id);
+		});   
+
 	function buscar2(){
 		$.ajax({
 	        type: "POST",
@@ -793,6 +830,7 @@ $user = Auth::user();
 					$('#citaproxima').val('');
 					$('#doctor').val('');
 					$('#doctor_id').val('');
+					$('#citas').val('');
 					$('#exploracion_fisica').val('');
 					$("#divpresente").css('display','');
 					$("#cie102").prop('disabled', true);
@@ -853,6 +891,7 @@ $user = Auth::user();
 				}else{
 					$('#fondoeditar').prop('checked', false);
 				}
+				cantidadCitasFechaEditar();
 	        }
 	    });
 	}	
@@ -885,6 +924,8 @@ $user = Auth::user();
 		}).done(function(info){
 			if(info == 'OK') {
 				alert('TRATAMIENTO REGISTRADO CORRECTAMENTE...');
+				$('#citaseditar').val("");
+				tablaAtendidos();
 			}
 		});
 
@@ -925,6 +966,7 @@ $user = Auth::user();
 			$('#diagnostico').val('');
 			$('#examenes').val('');
 			$('#motivo').val('');
+			$('#citas').val('');
 			$('#exploracion_fisica').val('');
 			$("#cie102").prop('disabled', true);
 			$("#antecedentes").prop('disabled', true);
@@ -954,7 +996,39 @@ $user = Auth::user();
 		}
 	}
 
-	
+	function cantidadCitasFecha(){
+		
+		var fecha = $('#citaproxima').val();
+
+		$.ajax({
+			"method": "POST",
+			"url": "{{ url('/historiaclinica/cantidadCitasFecha') }}",
+			"data": {
+				"fecha" : fecha, 
+				"_token": "{{ csrf_token() }}",
+				}
+		}).done(function(info){
+			$('#citas').val(info);
+		});
+
+	}
+
+	function cantidadCitasFechaEditar(){
+		
+		var fecha = $('#citaproximaeditar').val();
+
+		$.ajax({
+			"method": "POST",
+			"url": "{{ url('/historiaclinica/cantidadCitasFecha') }}",
+			"data": {
+				"fecha" : fecha, 
+				"_token": "{{ csrf_token() }}",
+				}
+		}).done(function(info){
+			$('#citaseditar').val(info);
+		});
+
+	}
 
 	$(document).on('click', '#btnInfoPaciente', function(event) {
 		var historia = $('#historia').val();
@@ -968,6 +1042,8 @@ $user = Auth::user();
 		}).done(function(info){
 			$('#infoPaciente').html(info);
 		});
+
+
 	});
 
 

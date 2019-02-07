@@ -94,6 +94,23 @@ class HistoriaClinicaController extends Controller
         return json_encode($jsondata);
     }
 
+
+    public function cie10autocompletar($searching)
+    {
+        $resultado        = Cie::where(DB::raw('CONCAT(codigo," ",descripcion)'), 'LIKE', '%'.strtoupper($searching).'%')->whereNull('deleted_at')->orderBy('descripcion', 'ASC');
+        $list      = $resultado->get();
+        $data = array();
+        foreach ($list as $key => $value) {
+            $name = $value->codigo." - ".$value->descripcion;
+            $data[] = array(
+                            'label' => trim($name),
+                            'id'    => $value->id,
+                            'value' => trim($name),
+                        );
+        }
+        return json_encode($data);
+    }
+
     public function registrarHistoriaClinica(Request $request)
     {
 
@@ -128,12 +145,12 @@ class HistoriaClinicaController extends Controller
 
 
         $error = DB::transaction(function() use($request){
-
+/*
             $cie10 = Cie::where('codigo', $request->input('cie102'))->get();
             if(count($cie10) == 0) {
                 return 'El Código CIE no existe';
             }
-
+*/
             $historiaclinica = HistoriaClinica::where('ticket_id', $request->input('ticket_id') )->first();
 
             if($historiaclinica == null){
@@ -160,7 +177,7 @@ class HistoriaClinicaController extends Controller
 
             $now = new \DateTime();
 
-            $historiaclinica->cie_id         = $cie10[0]->id;
+            $historiaclinica->cie_id         = $request->input('cie102_id');
 
             $historiaclinica->fecha_atencion = $now;
             $historiaclinica->save();
@@ -230,8 +247,6 @@ class HistoriaClinicaController extends Controller
         $doctor              = Person::find($cita->doctor_id);
         $user                = User::find($cita->user_id);
 
-        if($cie10 == null){
-
         $texto = "<table class='table table-responsive table-hover'>
             <thead>
                 <tr>
@@ -244,138 +259,61 @@ class HistoriaClinicaController extends Controller
                     </td>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td width='15%'>
-                        <strong><font style='color:blue'>Paciente</font></strong>
-                    </td>
-                    <td width='85%'>"
-                        . $historia->persona->apellidopaterno . ' ' . $historia->persona->apellidomaterno . ' ' . $historia->persona->nombres .
-                    "</td>
-                </tr>
-                <tr>
-                    <td width='15%'>
-                        <strong><font style='color:blue'>Doctor</font></strong>
-                    </td>
-                    <td width='85%'>"
-                        . $doctor->apellidopaterno . ' ' . $doctor->apellidomaterno . ' ' . $doctor->nombres .
-                    "</td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong><font style='color:blue'>Historia</font></strong><br>
-                    </td>
-                    <td>"
-                        . $historia->numero .
-                    "</td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong><font style='color:blue'>Próxima cita</font></strong><br>
-                    </td>
-                    <td>"
-                        . date('d-m-Y',strtotime( $cita->citaproxima )) .
-                    "</td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong><font style='color:blue'>Motivo</font></strong><br>
-                    </td>
-                    <td>"
-                        . $cita->motivo .
-                    "</td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong><font style='color:blue'>Diagnóstico</font></strong><br>
-                    </td>
-                    <td>"
-                        . $cita->diagnostico .
-                    "</td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong><font style='color:blue'>Tratamiento</font></strong><br>
-                    </td>
-                    <td>"
-                        . $cita->tratamiento .
-                    "</td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong><font style='color:blue'>Exámenes</font></strong><br>
-                    </td>
-                    <td>"
-                        . $cita->examenes .
-                    "</td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong><font style='color:blue'>Exploración física</font></strong><br>
-                    </td>
-                    <td>"
-                        . $cita->exploracion_fisica .
-                    "</td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong><font style='color:blue'>Responsable</font></strong><br>
-                    </td>
-                    <td>"
-                        . $user->person->apellidopaterno . ' ' . $user->person->apellidomaterno . ' ' . $user->person->nombres .
-                    "</td>
-                </tr>
-            </tbody>
-        </table>";
+            <tbody>";
 
-        }else{
+                if($historia != null){
+                    $texto .= "<tr>
+                        <td width='15%'>
+                            <strong><font style='color:blue'>Paciente</font></strong>
+                        </td>
+                        <td width='85%'>"
+                            . $historia->persona->apellidopaterno . ' ' . $historia->persona->apellidomaterno . ' ' . $historia->persona->nombres .
+                        "</td>
+                    </tr>";
+                }
 
-        $texto = "<table class='table table-responsive table-hover'>
-            <thead>
-                <tr>
-                    <td colspan='2'>
-                        <center style='color:red'>
-                            <h3>
-                                Tratamiento N°". $cita->numero ." / ". date('d-m-Y',strtotime($cita->fecha_atencion)) ."
-                            </h3>
-                        </center>
-                    </td>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td width='15%'>
-                        <strong><font style='color:blue'>Paciente</font></strong>
-                    </td>
-                    <td width='85%'>"
-                        . $historia->persona->apellidopaterno . ' ' . $historia->persona->apellidomaterno . ' ' . $historia->persona->nombres .
-                    "</td>
-                </tr>
-                <tr>
-                    <td width='15%'>
-                        <strong><font style='color:blue'>Doctor</font></strong>
-                    </td>
-                    <td width='85%'>"
-                        . $doctor->apellidopaterno . ' ' . $doctor->apellidomaterno . ' ' . $doctor->nombres .
-                    "</td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong><font style='color:blue'>Historia</font></strong><br>
-                    </td>
-                    <td>"
-                        . $historia->numero .
-                    "</td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong><font style='color:blue'>Próxima cita</font></strong><br>
-                    </td>
-                    <td>"
-                        . date('d-m-Y',strtotime( $cita->citaproxima )) .
-                    "</td>
-                </tr>
-                <tr>
+                if($doctor != null){
+
+                    $texto .= "<tr>
+                        <td width='15%'>
+                            <strong><font style='color:blue'>Doctor</font></strong>
+                        </td>
+                        <td width='85%'>"
+                            . $doctor->apellidopaterno . ' ' . $doctor->apellidomaterno . ' ' . $doctor->nombres .
+                        "</td>
+                    </tr>";
+
+                }
+
+                if($historia != null){
+                    $texto .= "<tr>
+                        <td>
+                            <strong><font style='color:blue'>Historia</font></strong><br>
+                        </td>
+                        <td>"
+                            . $historia->numero .
+                        "</td>
+                    </tr>";
+                }
+
+                $citaproxima = Cita::find($cita->citaproxima);
+
+                if($citaproxima != null){
+
+                    $texto .= "<tr>
+                        <td>
+                            <strong><font style='color:blue'>Próxima cita</font></strong><br>
+                        </td>
+                        <td>"
+                            . date('d-m-Y',strtotime( $citaproxima->fecha )) .
+                        "</td>
+                    </tr>";
+
+                }
+
+                if($cie10 != null){
+
+                $texto .= "<tr>
                     <td>
                         <strong><font style='color:blue'>Cie 10</font></strong><br>
                     </td>
@@ -384,59 +322,97 @@ class HistoriaClinicaController extends Controller
                     " - "
                     .$cie10->descripcion.
                     "</td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong><font style='color:blue'>Motivo</font></strong><br>
-                    </td>
-                    <td>"
-                        . $cita->motivo .
-                    "</td>
-                </tr>
-                <tr>
+                </tr>";
+
+                }
+
+                if($cita->motivo != null){
+                
+                    $texto .= "<tr>
+                        <td>
+                            <strong><font style='color:blue'>Motivo</font></strong><br>
+                        </td>
+                        <td>"
+                            . $cita->motivo .
+                        "</td>
+                    </tr>";
+
+                }
+
+                if($cita->diagnostico != null){
+
+                    $texto .= "<tr>
+                        <td>
+                            <strong><font style='color:blue'>Diagnóstico</font></strong><br>
+                        </td>
+                        <td>"
+                            . $cita->diagnostico .
+                        "</td>
+                    </tr>";
+
+                }
+
+                if($cita->diagnostico != null){
+
+                $texto .= "<tr>
                     <td>
                         <strong><font style='color:blue'>Diagnóstico</font></strong><br>
                     </td>
                     <td>"
                         . $cita->diagnostico .
                     "</td>
-                </tr>
-                <tr>
+                </tr>";
+
+                }
+
+                if($cita->tratamiento != null){
+                
+                $texto .= "<tr>
                     <td>
                         <strong><font style='color:blue'>Tratamiento</font></strong><br>
                     </td>
                     <td>"
                         . $cita->tratamiento .
                     "</td>
-                </tr>
-                <tr>
+                </tr>";
+
+                }
+
+                if($cita->examenes != null){
+                $texto .= "<tr>
                     <td>
                         <strong><font style='color:blue'>Exámenes</font></strong><br>
                     </td>
                     <td>"
                         . $cita->examenes .
                     "</td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong><font style='color:blue'>Exploración física</font></strong><br>
-                    </td>
-                    <td>"
-                        . $cita->exploracion_fisica .
-                    "</td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong><font style='color:blue'>Responsable</font></strong><br>
-                    </td>
-                    <td>"
-                        . $user->person->apellidopaterno . ' ' . $user->person->apellidomaterno . ' ' . $user->person->nombres .
-                    "</td>
-                </tr>
-            </tbody>
-        </table>";
+                </tr>";
+                }
 
-        }
+                if($cita->exploracion_fisica != null){
+                    $texto .= "<tr>
+                        <td>
+                            <strong><font style='color:blue'>Exploración física</font></strong><br>
+                        </td>
+                        <td>"
+                            . $cita->exploracion_fisica .
+                        "</td>
+                    </tr>";
+                }
+
+                if($user != null){
+                    $texto .= "<tr>
+                        <td>
+                            <strong><font style='color:blue'>Responsable</font></strong><br>
+                        </td>
+                        <td>"
+                            . $user->person->apellidopaterno . ' ' . $user->person->apellidomaterno . ' ' . $user->person->nombres .
+                        "</td>
+                    </tr>";
+                }
+
+            $texto .= "</tbody>
+        </table>";
 
         return $texto;
     }
@@ -694,6 +670,14 @@ class HistoriaClinicaController extends Controller
 
         return $texto;
 
+    }
+
+    public function cantidadCitasFecha(Request $request){
+        $fecha = $request->input('fecha');
+
+        $cantidad = Cita::where('fecha', '=', ''.$fecha.'')->count('id');
+
+        return $cantidad;
     }
 
 }
