@@ -137,7 +137,7 @@ class CajaController extends Controller
                                     ->whereNotIn('movimiento.conceptopago_id',[15, 17, 19, 21, 32])
                                     ->orWhere('movimiento.situacion','<>','R');
                             });
-        $resultado        = $resultado->select('movimiento.*','m2.situacion as situacion2',DB::raw('CONCAT(paciente.apellidopaterno," ",paciente.apellidomaterno," ",paciente.nombres) as paciente'),DB::raw('responsable.nombres as responsable'))->orderBy('movimiento.id', 'desc');
+        $resultado        = $resultado->select('movimiento.*','m2.situacion as situacion2',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'),DB::raw('responsable.nombres as responsable'))->orderBy('movimiento.id', 'desc');
         $lista            = $resultado->get();
         $listapendiente = array();
 
@@ -150,7 +150,7 @@ class CajaController extends Controller
                             ->where('movimiento.estadopago', '=', 'PP')
                             ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.id', '>=', $movimiento_mayor);
-            $resultado2        = $resultado2->select('movimiento.*','m2.situacion as situacion2',DB::raw('CONCAT(paciente.apellidopaterno," ",paciente.apellidomaterno," ",paciente.nombres) as paciente'),DB::raw('responsable.nombres as responsable'))->orderBy('movimiento.id', 'desc');
+            $resultado2        = $resultado2->select('movimiento.*','m2.situacion as situacion2',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'),DB::raw('responsable.nombres as responsable'))->orderBy('movimiento.id', 'desc');
             $listapendiente            = $resultado2->get();
         }
         
