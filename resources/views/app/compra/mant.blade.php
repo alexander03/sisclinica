@@ -13,7 +13,7 @@
 		<div class="form-group" style="height: 12px; display: none;">
 			{!! Form::label('credito', 'Credito:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-8 col-md-8 col-sm-8">
-				{!! Form::select('credito', $cboCredito, null, array('style' => 'background-color: #D4F0FF;' ,'class' => 'form-control input-xs', 'id' => 'credito', 'onchange' => 'cambiar();')) !!}
+				{!! Form::select('credito', $cboCredito, 'N', array('style' => 'background-color: #D4F0FF;' ,'class' => 'form-control input-xs', 'id' => 'credito', 'onchange' => 'cambiar();')) !!}
 			</div>
 		</div>
 		<div class="form-group" style="height: 12px; display: none;">

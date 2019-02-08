@@ -30,7 +30,7 @@ echo $compra->cajafamarcia;
 			{!! Form::label('nombrepersona', 'Proveedor:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			{!! Form::hidden('person_id', null, array('id' => 'person_id')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::text('nombrepersona', $compra->person->bussinesname, array('class' => 'form-control input-xs', 'id' => 'nombrepersona', 'placeholder' => 'Seleccione persona', 'readonly' => 'readonly')) !!}
+				{!! Form::text('nombrepersona', $compra->person === NULL ? '-' : $compra->person->bussinesname, array('class' => 'form-control input-xs', 'id' => 'nombrepersona', 'placeholder' => 'Seleccione persona', 'readonly' => 'readonly')) !!}
 				
 			</div>
 		</div>
@@ -83,7 +83,7 @@ echo $compra->cajafamarcia;
 		<div class="form-group">
 			{!! Form::label('fecha2', 'Fecha Venc:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class='col-lg-7 col-md-7 col-sm-7'>
-				{!! Form::text('fecha2', $compra->fecha2 == '' ? '-' : $compra->fecha2, array('class' => 'form-control input-xs', 'id' => 'fecha2', 'placeholder' => 'Ingrese fecha', 'readonly' => 'readonly')) !!}
+				{!! Form::text('fecha2', $compra->fechaingreso == '' ? '-' : date('d/m/Y', strtotime($compra->fechaingreso)), array('class' => 'form-control input-xs', 'id' => 'fecha2', 'placeholder' => 'Ingrese fecha', 'readonly' => 'readonly')) !!}
 			</div>
 		</div>		
 		<div class="form-group">
