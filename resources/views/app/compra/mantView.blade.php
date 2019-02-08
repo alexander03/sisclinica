@@ -14,27 +14,27 @@ echo $compra->cajafamarcia;
 		<div class="form-group">
 			{!! Form::label('documento', 'Documento:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::select('documento', $cboDocumento, $compra->tipodocumento_id, array('class' => 'form-control input-xs', 'id' => 'documento')) !!}
+				{!! Form::select('documento', $cboDocumento, $compra->tipodocumento_id, array('class' => 'form-control input-xs', 'id' => 'documento', 'disabled' => 'disabled')) !!}
 			</div>
 		</div>
 		<div class="form-group">
 			{!! Form::label('numerodocumento', 'Nro Doc:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-3 col-md-3 col-sm-3">
-				{!! Form::text('serie', null, array('class' => 'form-control input-xs', 'id' => 'serie', 'placeholder' => 'serie')) !!}
+				{!! Form::text('serie', explode('-', $compra->numeroserie2)[0], array('class' => 'form-control input-xs', 'id' => 'serie', 'placeholder' => 'serie', 'readonly' => 'readonly')) !!}
 			</div>
 			<div class="col-lg-4 col-md-4 col-sm-4">
-				{!! Form::text('numerodocumento', $compra->numero, array('class' => 'form-control input-xs', 'id' => 'numerodocumento', 'placeholder' => 'Ingrese numerodocumento')) !!}
+				{!! Form::text('numerodocumento', explode('-', $compra->numeroserie2)[1], array('class' => 'form-control input-xs', 'id' => 'numerodocumento', 'placeholder' => 'Ingrese numerodocumento', 'readonly' => 'readonly')) !!}
 			</div>
 		</div>
 		<div class="form-group">
 			{!! Form::label('nombrepersona', 'Proveedor:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			{!! Form::hidden('person_id', null, array('id' => 'person_id')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::text('nombrepersona', $compra->person->bussinesname, array('class' => 'form-control input-xs', 'id' => 'nombrepersona', 'placeholder' => 'Seleccione persona')) !!}
+				{!! Form::text('nombrepersona', $compra->person->bussinesname, array('class' => 'form-control input-xs', 'id' => 'nombrepersona', 'placeholder' => 'Seleccione persona', 'readonly' => 'readonly')) !!}
 				
 			</div>
 		</div>
-		<div id="divnumerodias" class="form-group">
+		<div id="divnumerodias" class="form-group" style="display: none;">
 			{!! Form::label('numerodias', 'Nro Dias:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
 				{!! Form::text('numerodias', null, array('class' => 'form-control input-xs', 'id' => 'numerodias', 'placeholder' => 'Ingrese numero dias')) !!}
@@ -60,15 +60,13 @@ echo $compra->cajafamarcia;
 			</div>
 		</div>
 
-		<div class="form-group" id = "divFicha">
+		<div class="form-group" id = "divFicha" style="display: none;">
 			{!! Form::label('numeroficha', 'Ficha Atencion:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
 				{!! Form::text('numeroficha', null, array('class' => 'form-control input-xs', 'id' => 'numeroficha', 'placeholder' => 'Ingrese numeroficha')) !!}
 			</div>
 		</div>
-	</div>
-	<div class="col-lg-6 col-md-6 col-sm-6">
-		<div class="form-group">
+		<div class="form-group" style="display: none;">
 			{!! Form::label('credito', 'credito:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
 				{!! Form::select('credito', $cboCredito, null, array('class' => 'form-control input-xs', 'id' => 'credito', 'onchange' => 'cambiar();')) !!}
@@ -76,21 +74,28 @@ echo $compra->cajafamarcia;
 		</div>
 		<div class="form-group">
 			{!! Form::label('fecha', 'Fecha:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
-			<div class="col-lg-7 col-md-7 col-sm-7">
-				<div class='input-group input-group-xs' id='divfecha'>
-					{!! Form::text('fecha', $fecha, array('class' => 'form-control input-xs', 'id' => 'fecha', 'placeholder' => 'Ingrese fecha')) !!}
-					<span class="input-group-btn">
-						<button class="btn btn-default calendar">
-							<i class="glyphicon glyphicon-calendar"></i>
-						</button>
-					</span>
-				</div>
+			<div class='col-lg-7 col-md-7 col-sm-7'>
+				{!! Form::text('fecha', $fecha, array('class' => 'form-control input-xs', 'id' => 'fecha', 'placeholder' => 'Ingrese fecha', 'readonly' => 'readonly')) !!}
 			</div>
-		</div>
+		</div>		
+	</div>
+	<div class="col-lg-6 col-md-6 col-sm-6">
+		<div class="form-group">
+			{!! Form::label('fecha2', 'Fecha Venc:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+			<div class='col-lg-7 col-md-7 col-sm-7'>
+				{!! Form::text('fecha2', $compra->fecha2 == '' ? '-' : $compra->fecha2, array('class' => 'form-control input-xs', 'id' => 'fecha2', 'placeholder' => 'Ingrese fecha', 'readonly' => 'readonly')) !!}
+			</div>
+		</div>		
 		<div class="form-group">
 			{!! Form::label('total', 'Total:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
 				{!! Form::text('total', null, array('class' => 'form-control input-xs', 'id' => 'total', 'placeholder' => 'Ingrese total', 'readonly' => '')) !!}
+			</div>
+		</div>
+		<div class="form-group">
+			{!! Form::label('igv', 'IGV:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+			<div class="col-lg-7 col-md-7 col-sm-7">
+				{!! Form::text('igv', $compra->igv, array('class' => 'form-control input-xs', 'id' => 'igv', 'placeholder' => 'Ingrese igv', 'readonly' => '')) !!}
 			</div>
 		</div>
 		<div style="display: none" class="form-group" id="divinicial">
@@ -105,7 +110,7 @@ echo $compra->cajafamarcia;
 				{!! Form::text('saldo', '0', array('class' => 'form-control input-xs', 'id' => 'saldo', 'placeholder' => 'Ingrese saldo', 'readonly' => '')) !!}
 			</div>
 		</div>
-		<div class="form-group">
+		<div class="form-group" style="display: none;">
 			{!! Form::label('cajafamarcia', 'Caja famarcia:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
 				{!! Form::select('cajafamarcia', $cboCajafarmacia, $compra->cajaprueba, array('class' => 'form-control input-xs', 'id' => 'cajafamarcia', 'onchange' => 'cambiar2();')) !!}
@@ -115,7 +120,7 @@ echo $compra->cajafamarcia;
 			{!! Form::label('nombredoctor', 'Doctor:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			{!! Form::hidden('doctor_id', null, array('id' => 'doctor_id')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::text('nombredoctor', $doctor, array('class' => 'form-control input-xs', 'id' => 'nombredoctor', 'placeholder' => 'Seleccione persona')) !!}
+				{!! Form::text('nombredoctor', $doctor == '' ? '-' : $doctor, array('class' => 'form-control input-xs', 'id' => 'nombredoctor', 'placeholder' => 'Seleccione persona', 'readonly' => 'readonly')) !!}
 				
 			</div>
 		</div>
@@ -128,7 +133,7 @@ echo $compra->cajafamarcia;
 		            <thead>
 		                <tr>
 		                    <th bgcolor="#E0ECF8" class='text-center'>Producto</th>
-		                    <th bgcolor="#E0ECF8" class='text-center'>Cantidad</th>
+		                    <th bgcolor="#E0ECF8" class='text-center'>Cantidad (Unidades)</th>
 		                    <th bgcolor="#E0ECF8" class="text-center">Precio</th>
 		                    <th bgcolor="#E0ECF8" class="text-center">Subtotal</th>                          
 		                </tr>
@@ -164,6 +169,7 @@ $(document).ready(function() {
 	init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'M', '{!! $entidad !!}');
 	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="inicial"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
 		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="total"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
+		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="igv"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
 		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="saldo"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
 		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="numerocuotas"]').inputmask('Regex', { regex: "[0-9]+" });
 		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="diasentrecuotas"]').inputmask('Regex', { regex: "[0-9]+" });
@@ -246,7 +252,7 @@ $(document).ready(function() {
 function cambiar() {
 	var credito = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="credito"]').val();
 	if (credito == 'S') {
-		$('#divnumerodias').show();
+		//$('#divnumerodias').show();
 		/*$('#divcuota').show();
 		$('#divnumerocuota').show();
 		$('#divdias').show();
@@ -264,7 +270,7 @@ function cambiar() {
 function cambiar2() {
 	var cajafamarcia = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="cajafamarcia"]').val();
 	if (cajafamarcia == 'S') {
-		$('#divFicha').show();
+		//$('#divFicha').show();
 		$('#divDoctor').show();
 	}else{
 		$('#divFicha').hide();
