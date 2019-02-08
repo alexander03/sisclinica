@@ -272,7 +272,7 @@
 		            	<tr>
 		            		<th colspan="5" style="text-align: right;">TOTAL</th>
 		            		<td class="text-center">
-		            			<center id="totalventa2">0</center><input type="hidden" id="totalventa" readonly="" name="totalventa" value="0">
+		            			<center id="totalventa2">0.00</center><input type="hidden" id="totalventa" readonly="" name="totalventa" value="0.00">
 		            		</td>
 		            	</tr>
 		            </tbody>
@@ -800,8 +800,8 @@ function calculatetotal () {
 		i++;
 	});
 	$('#cantproductos').val(i-1);
-	$('#totalventa2').html(total);
-	$('#totalventa').val(total);
+	$('#totalventa2').html(parseFloat(total).toFixed(2));
+	$('#totalventa').val(parseFloat(total).toFixed(2));
 }
 
 function comprobarproducto () {

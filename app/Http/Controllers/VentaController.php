@@ -780,13 +780,13 @@ class VentaController extends Controller
                     <span style="display: block; font-size:.9em">'.$mensajecantidad.'</span>                    
                 </td>';
         $cadena .= '<td class="text-center">
-                    <span style="display: block; font-size:.9em">'.$precio.'</span>                    
+                    <span style="display: block; font-size:.9em">'.number_format($precio, 2, '.', '').'</span>                    
                 </td>';
         $cadena .= '<td class="text-center">
-                    <span style="display: block; font-size:.9em">'.$dscto.'</span>                    
+                    <span style="display: block; font-size:.9em">'.number_format($dscto, 2, '.', '').'</span>                    
                 </td>';
         $cadena .= '<td class="text-center">
-                    <span style="display: block; font-size:.9em">'.$subtotal.'</span>                    
+                    <span style="display: block; font-size:.9em">'.number_format($subtotal, 2, '.', '').'</span>                    
                 </td>';
         $cadena .= '<td class="text-center">
                     <span style="display: block; font-size:.9em">
