@@ -1060,6 +1060,7 @@ function gestionlotes(valor, borrar = 0){
 		}			
 	} else {
 		//ENTRADA
+		$('.cantidad').css('display', 'block');
 		$('.fechavencimiento').css('display', 'block');
 		$('.lote').css('display', 'block');
 		$('.botonlotes').css('display', 'none');
