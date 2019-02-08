@@ -1,4 +1,4 @@
-<div id="divMensajeError{!! $entidad !!}"></div>
+s<div id="divMensajeError{!! $entidad !!}"></div>
 {!! Form::model($compra, $formData) !!}	
 	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
 	{!! Form::hidden('detalle', 'false', array( 'id' => 'detalle')) !!}
@@ -124,7 +124,7 @@
 		<div class="form-group" style="height: 12px;">
 			{!! Form::label('nombreproducto', 'Producto:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-5 col-md-5 col-sm-5">
-				{!! Form::text('nombreproducto', null, array('class' => 'form-control input-xs', 'id' => 'nombreproducto', 'placeholder' => 'Ingrese nombre','onkeypress' => '')) !!}
+				{!! Form::text('nombreproducto', null, array('class' => 'form-control input-xs', 'id' => 'nombreproducto', 'placeholder' => 'Ingrese nombre','onkeyup' => 'buscarProducto($(this).val());')) !!}
 			</div>
 			<div class="col-lg-0 col-md-0 col-sm-0">
                 {!! Form::button('<i class="glyphicon glyphicon-plus"></i>', array('class' => 'btn btn-info btn-xs', 'onclick' => 'modal (\''.URL::route('producto.create', array('listar'=>'SI','modo'=>'popup')).'\', \'Nuevo Producto\', this);', 'title' => 'Nuevo Producto')) !!}
@@ -137,7 +137,23 @@
 		</div>
 
 		<div class="form-group" id="divProductos" style="overflow:auto; height:180px; padding-right:10px; border:1px outset">
-			
+			<table class='table-condensed table-hover' border='1'>
+				<thead>
+					<tr>
+						<th class='text-center' style='width:230px;'><span style='display: block; font-size:.7em'>P. Activo</span></th>
+						<th class='text-center' style='width:300px;'><span style='display: block; font-size:.7em'>Nombre</span></th>
+						<th class='text-center' style='width:70px;'><span style='display: block; font-size:.7em'>Presentacion</span></th>
+						<th class='text-center' style='width:20px;'><span style='display: block; font-size:.7em'>Fracción</span></th>
+						<th class='text-center' style='width:20px;'><span style='display: block; font-size:.7em'>Stock</span></th>
+						<th class='text-center' style='width:20px;'><span style='display: block; font-size:.7em'>P.Kayros</span></th>
+						<th class='text-center' style='width:20px;'><span style='display: block; font-size:.7em'>P.Venta</span></th>
+						<th class='text-center' style='width:20px;'><span style='display: block; font-size:.7em'>Lote</span></th>
+					</tr>
+				</thead>
+				<tbody id='tablaProducto'>
+					<tr><td align='center' colspan='8'>Digite más de 3 caracteres.</td></tr>
+				</tbody>
+			</table>
 		</div>
 
 		<div class="form-group">
@@ -194,7 +210,7 @@
 	</div>
 	<div class="row">
 		<div class="col-lg-12 col-md-12 col-sm-12">
-			<div id="divDetail" class="table-responsive" style="overflow:auto; height:220px; padding-right:10px; border:1px outset">
+			<div id="divDetail" class="table-responsive" style="overflow:auto; height:100%; padding-right:10px; border:1px outset">
 		        <table style="width: 100%;" class="table-condensed table-striped" border="1">
 		            <thead>
 		                <tr>
@@ -566,9 +582,8 @@ $(document).ready(function() {
 
 }); 
 
-var valorinicial="";
 function buscarProducto(valor){
-    if(valorinicial!=valor){valorinicial=valor;
+    if(valor.length >= 3){
         $.ajax({
             type: "POST",
             url: "venta/buscandoproducto",
@@ -576,23 +591,28 @@ function buscarProducto(valor){
             success: function(a) {
                 datos=JSON.parse(a);
                 //$("#divProductos").html("<table class='table table-bordered table-condensed table-hover' border='1' id='tablaProducto'><thead><tr><th class='text-center'>P. Activo</th><th class='text-center'>Nombre</th><th class='text-center'>Presentacion</th><th class='text-center'>Stock</th><th class='text-center'>P.Kayros</th><th class='text-center'>P.Venta</th></tr></thead></table>");
-                $("#divProductos").html("<table class='table-condensed table-hover' border='1' id='tablaProducto'><thead><tr><th class='text-center' style='width:220px;'><span style='display: block; font-size:.9em'>P. Activo</span></th><th class='text-center' style='width:220px;'><span style='display: block; font-size:.9em'>Nombre</span></th><th class='text-center' style='width:70px;'><span style='display: block; font-size:.9em'>Presentacion</span></th><th class='text-center' style='width:20px;'><span style='display: block; font-size:.9em'>Fracción</span></th><th class='text-center' style='width:20px;'><span style='display: block; font-size:.9em'>Stock</span></th><th class='text-center' style='width:20px;'><span style='display: block; font-size:.9em'>P.Kayros</span></th><th class='text-center' style='width:20px;'><span style='display: block; font-size:.9em'>P.Venta</span></th></tr></thead></table>").css("overflow-x",'hidden');
+                $("#divProductos").css("overflow-x",'hidden');
                 var pag=parseInt($("#pag").val());
                 var d=0;
-                for(c=0; c < datos.length; c++){
-                	//Algoritmo para stock
-                	var stock = datos[c].stock;
-                	if(datos[c].fraccion != 1) {
-                		var pres1 = 1;
-                		pres1 = Math.trunc(parseFloat(datos[c].stock)/parseFloat(datos[c].fraccion));
-                		entero = parseFloat(pres1);
-                		pres2 = parseFloat(datos[c].stock) - entero*parseFloat(datos[c].fraccion);
-                		stock = pres1.toString() + 'F' + pres2.toString();
-                	}
+                var a = '';
+                if(datos.length > 0) {
+	                for(c=0; c < datos.length; c++){
+	                	//Algoritmo para stock
+	                	var stock = datos[c].stock;
+	                	if(datos[c].fraccion != 1) {
+	                		var pres1 = 1;
+	                		pres1 = Math.trunc(parseFloat(datos[c].stock)/parseFloat(datos[c].fraccion));
+	                		entero = parseFloat(pres1);
+	                		pres2 = parseFloat(datos[c].stock) - entero*parseFloat(datos[c].fraccion);
+	                		stock = pres1.toString() + 'F' + pres2.toString();
+	                	}
 
-                    var a="<tr style='cursor:pointer' class='escogerFila' id='"+datos[c].idproducto+"' onclick=\"seleccionarProducto('"+datos[c].idproducto+"')\"><td align='center'><span style='display: block; font-size:.7em'>"+datos[c].principio+"</span></td><td><span style='display: block; font-size:.7em'>"+datos[c].nombre+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].presentacion+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].fraccion+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+stock+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].preciokayros+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].precioventa+"</span></td></tr>";
-                    $("#tablaProducto").append(a);           
-                }
+	                    a +="<tr style='cursor:pointer' class='escogerFila' id='"+datos[c].idproducto+"' onclick=\"seleccionarProducto('"+datos[c].idproducto+"')\"><td align='center'><span style='display: block; font-size:.7em'>"+datos[c].principio+"</span></td><td><span style='display: block; font-size:.7em'>"+datos[c].nombre+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].presentacion+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].fraccion+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+stock+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].preciokayros+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].precioventa+"</span></td><td align='right'><span style='display: block; font-size:.7em'>"+datos[c].lote+"</span></td></tr>";
+	                }	                
+	            } else {
+	            	a +="<tr><td align='center' colspan='8'>Productos no encontrados.</td></tr>";
+	            }
+	            $("#tablaProducto").html(a);
                 $('#tablaProducto').DataTable({
                     "paging":         false,
                     "ordering"        :false
@@ -601,6 +621,8 @@ function buscarProducto(valor){
                 $("#tablaProducto_info").css("display","none");
     	    }
         });
+    } else {
+    	$("#tablaProducto").html("<tr><td align='center' colspan='8'>Digite más de 3 caracteres.</td></tr>");
     }
 }
 
