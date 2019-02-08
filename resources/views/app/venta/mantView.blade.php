@@ -3,40 +3,58 @@
 	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
 	<div class="col-lg-6 col-md-6 col-sm-6">
 		<div class="form-group">
+			{!! Form::label('fecha', 'Fecha:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+			<div class="col-lg-7 col-md-7 col-sm-7">
+				{!! Form::text('fecha', date('d/m/Y'), array('class' => 'form-control input-xs', 'id' => 'fecha', 'placeholder' => 'Ingrese fecha', 'readonly' => 'readonly')) !!}
+			</div>
+		</div>
+		<div class="form-group">
 			{!! Form::label('documento', 'Documento:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::select('documento', $cboDocumento, null, array('class' => 'form-control input-xs', 'id' => 'documento')) !!}
+				{!! Form::select('documento', $cboDocumento, $venta->tipodocumento_id, array('class' => 'form-control input-xs', 'id' => 'documento', 'disabled' => 'disabled')) !!}
 			</div>
 		</div>
 		<div class="form-group">
 			{!! Form::label('numerodocumento', 'Nro Doc:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::text('numerodocumento', $venta->numero, array('class' => 'form-control input-xs', 'id' => 'numerodocumento', 'placeholder' => 'Ingrese numerodocumento')) !!}
+				{!! Form::text('numerodocumento', $venta->serie . '-' .$venta->numero, array('class' => 'form-control input-xs', 'id' => 'numerodocumento', 'placeholder' => 'Ingrese numerodocumento', 'readonly' => 'readonly')) !!}
 			</div>
 		</div>
-
+		<div class="form-group">
+			{!! Form::label('cliente', 'Cliente:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+			<div class="col-lg-7 col-md-7 col-sm-7">
+				{!! Form::text('cliente', $venta->person == null ? $venta->nombrepaciente : $venta->person->nombres . ' ' . $venta->person->apellidopaterno . ' ' . $venta->person->apellidomaterno, array('class' => 'form-control input-xs', 'id' => 'cliente', 'placeholder' => 'Ingrese cliente', 'readonly' => 'readonly')) !!}
+			</div>
+		</div>
 
 	</div>
 	<div class="col-lg-6 col-md-6 col-sm-6">
 		<div class="form-group">
+			{!! Form::label('tipoventa', 'Tipo de Venta:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+			<div class="col-lg-7 col-md-7 col-sm-7">
+				{!! Form::text('tipoventa', $venta->tipoventa == 'C' ? 'CONVENIO' : 'NORMAL', array('class' => 'form-control input-xs', 'id' => 'tipoventa', 'readonly', 'readonly')) !!}
+			</div>
+		</div>
+		<div class="form-group">
+			{!! Form::label('convenio', 'Convenio:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+			<div class="col-lg-7 col-md-7 col-sm-7">
+				{!! Form::text('convenio', $venta->tipoventa == 'C' ? $venta->convenio->nombre : '-', array('class' => 'form-control input-xs', 'id' => 'convenio', 'readonly', 'readonly')) !!}
+			</div>
+		</div>
+		@if($venta->planilla !== NULL)
+			<div class="form-group">
+				{!! Form::label('planilla', 'Dscto Planilla:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+				<div class="col-lg-7 col-md-7 col-sm-7">
+					{!! Form::text('planilla', $venta->planilla->nombres . ' ' . $venta->planilla->apellidopaterno, array('class' => 'form-control input-xs', 'id' => 'planilla', 'readonly', 'readonly')) !!}
+				</div>
+			</div>
+		@endif
+		{{--<div class="form-group">
 			{!! Form::label('credito', 'Convenio:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
 				{!! Form::select('credito', $cboCredito, null, array('class' => 'form-control input-xs', 'id' => 'credito', 'onchange' => 'cambiar();')) !!}
 			</div>
-		</div>
-		<div class="form-group">
-			{!! Form::label('fecha', 'Fecha:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
-			<div class="col-lg-7 col-md-7 col-sm-7">
-				<div class='input-group input-group-xs' id='divfecha'>
-					{!! Form::text('fecha', date('d/m/Y'), array('class' => 'form-control input-xs', 'id' => 'fecha', 'placeholder' => 'Ingrese fecha')) !!}
-					<span class="input-group-btn">
-						<button class="btn btn-default calendar">
-							<i class="glyphicon glyphicon-calendar"></i>
-						</button>
-					</span>
-				</div>
-			</div>
-		</div>
+		</div> --}}	
 		<div class="form-group">
 			{!! Form::label('total', 'Total:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">

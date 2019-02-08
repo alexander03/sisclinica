@@ -230,7 +230,7 @@ class VentaController extends Controller
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Fecha', 'numero' => '1');
         //$cabecera[]       = array('valor' => 'Proveedor', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Boleta', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Comprobante Pago', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Paciente', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Estado', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Total', 'numero' => '1');
@@ -399,7 +399,7 @@ class VentaController extends Controller
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Fecha', 'numero' => '1');
         //$cabecera[]       = array('valor' => 'Proveedor', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Boleta', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Comprobante Pago', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Paciente', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Estado', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Total', 'numero' => '1');

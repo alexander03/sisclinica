@@ -26,9 +26,19 @@ class Venta extends Model
         return $this->belongsTo('App\Person', 'persona_id');
     }
 
+    public function planilla()
+    {
+        return $this->belongsTo('App\Person', 'personal_id');
+    }
+
     public function doctor()
     {
         return $this->belongsTo('App\Person', 'doctor_id');
+    }
+
+    public function convenio()
+    {
+        return $this->belongsTo('App\Convenio', 'conveniofarmacia_id');
     }
 
     public function empresa()
