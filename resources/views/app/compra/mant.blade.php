@@ -1,4 +1,4 @@
-s<div id="divMensajeError{!! $entidad !!}"></div>
+<div id="divMensajeError{!! $entidad !!}"></div>
 {!! Form::model($compra, $formData) !!}	
 	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
 	{!! Form::hidden('detalle', 'false', array( 'id' => 'detalle')) !!}
