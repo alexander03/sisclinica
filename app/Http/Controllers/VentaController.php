@@ -3605,6 +3605,13 @@ class VentaController extends Controller
     public function anular(Request $request, $id)
     {
         $error = DB::transaction(function() use($request, $id){
+
+            $sucursal_id = Session::get('sucursal_id');
+            $almacen_id = 1;
+            if($sucursal_id ==  2) {
+                $almacen_id = 3;
+            }
+
             $movimiento = Movimiento::find($id);
 
             $detalles = Detallemovimiento::where('movimiento_id','=',$movimiento->id)->get();
@@ -3615,7 +3622,7 @@ class VentaController extends Controller
                     $lote = Lote::find($value2->lote_id);
                     $lote->queda = $lote->queda + $value2->cantidad;
                     $lote->save();
-                    $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $value->producto_id)->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
+                    $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $value->producto_id)->where('movimiento.almacen_id', '=',$almacen_id)->orderBy('kardex.id', 'DESC')->first();
 
                     $stockanterior = 0;
                     $stockactual = 0;
@@ -3633,13 +3640,19 @@ class VentaController extends Controller
                         $kardex->stockactual = $stockactual;
                         $kardex->cantidad = $value2->cantidad;
                         $kardex->precioventa = $value2->precio;
-                        //$kardex->almacen_id = 1;
+                        $kardex->almacen_id = $almacen_id;
                         $kardex->detallemovimiento_id = $value->id;
                         $kardex->lote_id = $lote->id;
                         $kardex->save();    
 
                     }
                 }
+
+                //Repongo Stock
+                $cant = $value->cantidad;
+                $stocks = Stock::where('producto_id', $value->producto_id)->where('almacen_id', $almacen_id)->first();
+                $stocks->cantidad += $cant;
+                $stocks->save();
             }
 
             $movimiento->situacion='U';
