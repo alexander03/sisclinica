@@ -104,7 +104,7 @@
 		</div>	
 		<div class="form-group descuentopersonal" style="display: none;height: 12px;">
             {!! Form::label('personal', 'Personal:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-            <div class="col-lg-10 col-md-10 col-sm-10">
+            <div class="col-lg-9 col-md-9 col-sm-9">
             {!! Form::hidden('personal_id', null, array('id' => 'personal_id')) !!}
             {!! Form::text('personal', null, array('class' => 'form-control input-xs', 'id' => 'personal', 'placeholder' => 'Ingrese Personal')) !!}
             </div>
