@@ -27,7 +27,7 @@
 								{!! Form::date('fechafinal', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fechafinal')) !!}
 							</div>
 
-							<div class="form-group" id="cajas"></div>
+							<div class="form-group" @if(Auth::user()->usertype_id != 1) style="display: none;" @endif id="cajas"></div>
 
 							{!! Form::button('<i class="glyphicon glyphicon-file"></i> Consolidado PDF', array('class' => 'btn btn-danger btn-xs', 'onclick' => 'imprimirDetalleF(\'\')')) !!}
 

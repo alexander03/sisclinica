@@ -807,7 +807,7 @@ class CajaController extends Controller
             $nomcierre = 'BM Clínica de Ojos';
         }  
         if($caja->nombre == 'FARMACIA') {
-            $nomcierre = ' Farmacia - ' . $nomcierre;
+            $nomcierre = 'Farmacia - ' . $nomcierre;
         } 
 
         $nomcierre = substr($nomcierre, 0, 20);
@@ -1656,7 +1656,7 @@ class CajaController extends Controller
             $nomcierre = 'BM Clínica de Ojos';
         }  
         if($caja->nombre == 'FARMACIA') {
-            $nomcierre = ' Farmacia - ' . $nomcierre;
+            $nomcierre = 'Farmacia - ' . $nomcierre;
         } 
 
         $nomcierre = substr($nomcierre, 0, 20);
@@ -2513,7 +2513,7 @@ class CajaController extends Controller
             $nomcierre = 'BM Clínica de Ojos';
         }  
         if($caja->nombre == 'FARMACIA') {
-            $nomcierre = ' Farmacia - ' . $nomcierre;
+            $nomcierre = 'Farmacia - ' . $nomcierre;
         } 
         $nomcierre = substr($nomcierre, 0, 20);  
 
@@ -3389,7 +3389,7 @@ class CajaController extends Controller
             $nomcierre = 'BM Clínica de Ojos';
         }  
         if($caja->nombre == 'FARMACIA') {
-            $nomcierre = ' Farmacia - ' . $nomcierre;
+            $nomcierre = 'Farmacia - ' . $nomcierre;
         }     
         $pdf = new TCPDF();
         //$pdf::SetIma�
@@ -3934,14 +3934,14 @@ class CajaController extends Controller
             $nomcierre = 'BM Clínica de Ojos';
         }  
         if($caja->nombre == 'FARMACIA') {
-            $nomcierre = ' Farmacia - ' . $nomcierre;
+            $nomcierre = 'Farmacia - ' . $nomcierre;
         }     
         $pdf = new TCPDF();
         //$pdf::SetIma�
-        $pdf::SetTitle('Detalle Cierre Consolidado de'.$nomcierre);
+        $pdf::SetTitle('Detalle Cierre Consolidado de '.$nomcierre);
         $pdf::AddPage('L');
         $pdf::SetFont('helvetica','B',12);
-        $pdf::Cell(0,10,"Detalle Cierre Consolidado de".$nomcierre . ' del ' . date("d/m/Y", strtotime($fi)) . ' al ' . date("d/m/Y", strtotime($ff)),0,0,'C');
+        $pdf::Cell(0,10,"Detalle Cierre Consolidado de ".$nomcierre . ' del ' . date("d/m/Y", strtotime($fi)) . ' al ' . date("d/m/Y", strtotime($ff)),0,0,'C');
         $pdf::Ln();
         $pdf::SetFont('helvetica','B',7);
         $pdf::Cell(15,7,utf8_decode("FECHA"),1,0,'C');
@@ -4472,11 +4472,11 @@ class CajaController extends Controller
             $nomcierre = 'BM Clínica de Ojos';
         }  
         if($caja->nombre == 'FARMACIA') {
-            $nomcierre = ' Farmacia - ' . $nomcierre;
-        }     
+            $nomcierre = 'Farmacia - ' . $nomcierre;
+        }
         $pdf = new TCPDF();
         //$pdf::SetIma�
-        $pdf::SetTitle('Detalle Cierre por cajas' . $nomcierre);
+        $pdf::SetTitle('Detalle Cierre por cajas ' . $nomcierre);
 
         $cont = 1;
         foreach ($aperturas as $apertura) {
@@ -4489,7 +4489,7 @@ class CajaController extends Controller
 
             $pdf::AddPage('L');
             $pdf::SetFont('helvetica','B',12);
-            $pdf::Cell(0,10,"Detalle de Cierre por cajas" . $nomcierre . ' / Apertura N. ' . $apertura->numero,0,0,'C');
+            $pdf::Cell(0,10,"Detalle de Cierre por cajas " . $nomcierre . ' / Apertura N. ' . $apertura->numero,0,0,'C');
             $pdf::Ln();
             $pdf::SetFont('helvetica','B',7);
             $pdf::Cell(15,7,utf8_decode("FECHA"),1,0,'C');
