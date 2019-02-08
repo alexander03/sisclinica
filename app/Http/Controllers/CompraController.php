@@ -452,7 +452,21 @@ class CompraController extends Controller
         $compra = null;
         //$cboDocumento        = Tipodocumento::lists('nombre', 'id')->all();
         $cboDocumento = array();
-        $listdocument = Tipodocumento::where('tipomovimiento_id','=','3')->get();
+        $sucursal_id = Session::get('sucursal_id');
+        $user = Auth::user();
+        if($sucursal_id == 2) {
+            if($user->usertype_id == 11) {
+                $listdocument = Tipodocumento::where('tipomovimiento_id','=','3')->where('id', '!=', '11')->get();
+            } else {
+                $listdocument = Tipodocumento::where('tipomovimiento_id','=','3')->get();
+            }            
+        } else {
+            if($user->usertype_id == 11) {
+                $listdocument = Tipodocumento::where('tipomovimiento_id','=','3')->where('id', '!=', '11')->get();
+            } else {
+                $listdocument = Tipodocumento::where('tipomovimiento_id','=','3')->get();
+            }
+        }
         foreach ($listdocument as $key => $value) {
             $cboDocumento = $cboDocumento + array( $value->id => $value->nombre);
         }
@@ -719,7 +733,8 @@ class CompraController extends Controller
                 }*/
             }else{
 
-                if ($request->input('cajafamarcia')  == 'S') {
+                //if ($request->input('cajafamarcia')  == 'S') {
+                if ($request->input('cajafamarcia')  == 'S' && $request->input('tipodocumento_id') != '11') {
                     $total = str_replace(',', '', $request->input('totalcompra'));
                     $movimiento                 = new Movimiento();
                     $movimiento->sucursal_id = $sucursal_id;
