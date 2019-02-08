@@ -150,7 +150,7 @@
 		            	<tr>
 		            		<th colspan="5" style="text-align: right;">TOTAL</th>
 		            		<td class="text-center">
-		            			<center id="totalmovimiento2">0</center><input type="hidden" id="totalmovimiento" readonly="" name="totalmovimiento" value="0">
+		            			<center id="totalmovimiento2">0.00</center><input type="hidden" id="totalmovimiento" readonly="" name="totalmovimiento" value="0.00">
 		            		</td>
 		            	</tr>
 		            </tbody>
@@ -656,8 +656,8 @@ function calculatetotal () {
 		i++;
 	});
 	$('#cantproductos').val(i-1);
-	$('#totalmovimiento2').html(total);
-	$('#totalmovimiento').val(total);
+	$('#totalmovimiento2').html(parseFloat(total).toFixed(2));
+	$('#totalmovimiento').val(parseFloat(total).toFixed(2));
 }
 
 function comprobarproducto () {
@@ -1037,8 +1037,8 @@ $(document).on('click', '.escogerFila', function(){
 
 function gestionlotes(valor, borrar = 0){	
 	if(borrar === 1) {			
-		$('#totalmovimiento2').html('0');
-		$('#totalmovimiento').val('0');
+		$('#totalmovimiento2').html(parseFloat(0).toFixed(2));
+		$('#totalmovimiento').val(parseFloat(0).toFixed(2));
 		$('#detallesMovimiento').html('');
 	}
 	$('.botonlotes').css('display', 'none');
