@@ -28,7 +28,11 @@
 			?>
 			<td>{{ $contador }}</td>
 			<td>{{ date("d/m/Y",strtotime($value->fecha)) }}</td>
-			<td>{{ $value->person->bussinesname }}</td>
+			@if($value->persona_id != null)
+				<td>{{ $value->person->bussinesname }}</td>
+			@else 
+				<td>-</td>
+			@endif			
 			<td>{{ $value->numeroserie2 }}</td>
 			<td>{{ $value->tipodoc }}</td>
 			<td>{{ $value->responsable->nombres }}</td>

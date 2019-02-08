@@ -119,31 +119,30 @@ class CompraController extends Controller
         $fechainicio             = Libreria::getParam($request->input('fechainicio'));
         $fechafin             = Libreria::getParam($request->input('fechafin'));
         $tipodoc             = Libreria::getParam($request->input('tipodocumento'));
-        $resultado        = Compra::join('person','movimiento.persona_id','=','person.id')
+        $resultado        = Compra::leftjoin('person','movimiento.persona_id','=','person.id')
                                 ->leftJoin('tipodocumento','movimiento.tipodocumento_id','=','tipodocumento.id')
                                 ->where('movimiento.sucursal_id','=',$sucursal_id)
                                 ->where('movimiento.tipomovimiento_id', '=', '3')
                                 ->where(function($query) use ($nombre){
-                    if (!is_null($nombre) && $nombre !== '') {                        
-                        $query->where('person.bussinesname', 'LIKE', '%'.strtoupper($nombre).'%');
-                    }                    
-
-        })->where(function($query) use ($fechainicio,$fechafin){   
-                                if (!is_null($fechainicio) && $fechainicio !== '') {
-                                    $begindate   = Date::createFromFormat('d/m/Y', $fechainicio)->format('Y-m-d');
-                                    $query->where('movimiento.fecha', '>=', $begindate);
-                                }
-                                if (!is_null($fechafin) && $fechafin !== '') {
-                                    $enddate   = Date::createFromFormat('d/m/Y', $fechafin)->format('Y-m-d');
-                                    $query->where('movimiento.fecha', '<=', $enddate);
-                                }
-                            });
+                                    if (!is_null($nombre) && $nombre !== '') {                        
+                                        $query->where('person.bussinesname', 'LIKE', '%'.strtoupper($nombre).'%');
+                                    }     
+                                })->where(function($query) use ($fechainicio,$fechafin){   
+                                    if (!is_null($fechainicio) && $fechainicio !== '') {
+                                        $begindate   = Date::createFromFormat('d/m/Y', $fechainicio)->format('Y-m-d');
+                                        $query->where('movimiento.fecha', '>=', $begindate);
+                                    }
+                                    if (!is_null($fechafin) && $fechafin !== '') {
+                                        $enddate   = Date::createFromFormat('d/m/Y', $fechafin)->format('Y-m-d');
+                                        $query->where('movimiento.fecha', '<=', $enddate);
+                                    }
+                                });
         if($tipodoc>0){
             $resultado->where("movimiento.tipodocumento_id",$tipodoc);
         }
-        if($almacen_id == 4) {
+        if($almacen_id == '4') {
             $resultado->where('movimiento.almacen_id', '=', 4)->orWhere('movimiento.almacen_id', '=', 3);
-        } else if($almacen_id == 2) {
+        } else if($almacen_id == '2') {
             $resultado->where('movimiento.almacen_id', '=', 2)->orWhere('movimiento.almacen_id', '=', 1);
         } else {
             $resultado->where('movimiento.almacen_id', '=', $almacen_id);
@@ -533,8 +532,8 @@ class CompraController extends Controller
             $igv = str_replace(',', '', $request->input('igv'));
             $compra                 = new Compra();
             $compra->sucursal_id    = $sucursal_id; 
-            $compra->tipodocumento_id          = $request->input('tipodocumento_id');
-            $compra->tipomovimiento_id          = 3;
+            $compra->tipodocumento_id = $request->input('tipodocumento_id');
+            $compra->tipomovimiento_id = 3;
 
             if($request->input('tipodocumento_id') == '6') {
                 $emp = Person::where('ruc', $request->input('ccruc'))->first();
@@ -549,7 +548,7 @@ class CompraController extends Controller
                     $p_id = $empr->id;
                 }
             } else {
-                $p_id = 0;
+                $p_id = null;
             }
 
             $compra->persona_id = $p_id;
