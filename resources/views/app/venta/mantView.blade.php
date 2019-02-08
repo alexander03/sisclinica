@@ -70,7 +70,7 @@
 		            <thead>
 		                <tr>
 		                    <th bgcolor="#E0ECF8" class='text-center'>Producto</th>
-		                    <th bgcolor="#E0ECF8" class='text-center'>Cantidad</th>
+		                    <th bgcolor="#E0ECF8" class='text-center'>Cantidad (Unidades)</th>
 		                    <th bgcolor="#E0ECF8" class="text-center">Precio</th>
 		                    <th bgcolor="#E0ECF8" class="text-center">Subtotal</th>                           
 		                </tr>

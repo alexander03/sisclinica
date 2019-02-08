@@ -8,45 +8,43 @@ $url = URL::route("movimientoalmacen.buscarproducto");
 		<div class="form-group">
 			{!! Form::label('documento', 'Documento:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::select('documento', $cboDocumento, null, array('class' => 'form-control input-xs', 'id' => 'documento')) !!}
+				{!! Form::text('documento', $movimientoalmacen->tipodocumento->nombre, array('class' => 'form-control input-xs', 'id' => 'documento', 'readonly' => 'readonly')) !!}
 			</div>
 		</div>
 		<div class="form-group">
 			{!! Form::label('numerodocumento', 'Nro Doc:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::text('numerodocumento', $movimientoalmacen->numero, array('class' => 'form-control input-xs', 'id' => 'numerodocumento', 'placeholder' => 'Ingrese numerodocumento')) !!}
+				{!! Form::text('numerodocumento', $movimientoalmacen->numero, array('class' => 'form-control input-xs', 'id' => 'numerodocumento', 'placeholder' => 'Ingrese numerodocumento', 'readonly' => 'readonly')) !!}
 			</div>
 		</div>
 		<div class="form-group">
 			{!! Form::label('comentario', 'Comentario:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::textarea('comentario', null, array('style' => 'resize: none;', 'rows' => '3','class' => 'form-control input-xs', 'id' => 'comentario', 'placeholder' => 'Ingrese comentario')) !!}
+				{!! Form::textarea('comentario', $movimientoalmacen->comentario == '' ? '-' : $movimientoalmacen->comentario, array('style' => 'resize: none;', 'rows' => '3','class' => 'form-control input-xs', 'id' => 'comentario', 'placeholder' => 'Ingrese comentario', 'readonly' => 'readonly')) !!}
 			</div>
 		</div>
 
 
 	</div>
 	<div class="col-lg-6 col-md-6 col-sm-6">
-		<div class="form-group">
+		{{--<div class="form-group">
 			{!! Form::label('tipo', 'Tipo:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
 				{!! Form::select('tipo', $cboTipo, null, array('class' => 'form-control input-xs', 'id' => 'tipo', 'onchange' => 'cambiar();')) !!}
 			</div>
-		</div>
+		</div>--}}		
 		<div class="form-group">
 			{!! Form::label('fecha', 'Fecha:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				<div class='input-group input-group-xs' id='divfecha'>
-					{!! Form::text('fecha', date('d/m/Y'), array('class' => 'form-control input-xs', 'id' => 'fecha', 'placeholder' => 'Ingrese fecha')) !!}
-					<span class="input-group-btn">
-						<button class="btn btn-default calendar">
-							<i class="glyphicon glyphicon-calendar"></i>
-						</button>
-					</span>
-				</div>
+				{!! Form::text('fecha', date('d/m/Y'), array('class' => 'form-control input-xs', 'id' => 'fecha', 'placeholder' => 'Ingrese fecha', 'readonly' => 'readonly')) !!}
 			</div>
 		</div>
-		
+		<div class="form-group">
+			{!! Form::label('total', 'Total:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+			<div class="col-lg-7 col-md-7 col-sm-7">
+				{!! Form::text('total', $movimientoalmacen->totalpagado, array('class' => 'form-control input-xs', 'id' => 'total', 'onchange' => 'cambiar();', 'readonly' => 'readonly')) !!}
+			</div>
+		</div>
 		
 	</div>
 	<div class="row">
@@ -56,7 +54,7 @@ $url = URL::route("movimientoalmacen.buscarproducto");
 		            <thead>
 		                <tr>
 		                    <th bgcolor="#E0ECF8" class='text-center'>Producto</th>
-		                    <th bgcolor="#E0ECF8" class='text-center'>Cantidad</th>
+		                    <th bgcolor="#E0ECF8" class='text-center'>Cantidad (Unidades)</th>
 		                    <th bgcolor="#E0ECF8" class="text-center">Precio</th>
 		                    <th bgcolor="#E0ECF8" class="text-center">Subtotal</th>                          
 		                </tr>
