@@ -13,7 +13,7 @@
 		<div class="form-group" style="height: 12px;">
 			{!! Form::label('tipo', 'Tipo:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::select('tipo', $cboTipo, null, array('style' => 'background-color: #D4F0FF;' ,'class' => 'form-control input-xs', 'id' => 'tipo', 'onclick' => 'generarNumero(this.value);', 'onchange' => 'gestionlotes(this.value, "S");')) !!}
+				{!! Form::select('tipo', $cboTipo, null, array('style' => 'background-color: #D4F0FF;' ,'class' => 'form-control input-xs', 'id' => 'tipo', 'onclick' => 'generarNumero(this.value);', 'onchange' => 'gestionlotes(this.value, 1);')) !!}
 			</div>
 		</div>
 		<div class="form-group" id="divDescuentokayros" style="height: 12px;">
@@ -528,8 +528,8 @@ function seleccionarProducto(idproducto){
 			$('#lote').attr('readonly', true);
 		}
 		gestionlotes($('#tipo').val());
-	});
-	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="cantidad"]').focus();
+		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="cantidad"]').focus();
+	});	
 }
 
 function ventanaproductos() {
@@ -1035,17 +1035,17 @@ $(document).on('click', '.escogerFila', function(){
 	$(this).css('background-color', 'yellow');
 });
 
-function gestionlotes(valor, borrar = 'N'){
-	$('#detallesMovimiento').html('');
+function gestionlotes(valor, borrar = 0){	
+	if(borrar === 1) {			
+		$('#totalmovimiento2').html('0');
+		$('#totalmovimiento').val('0');
+		$('#detallesMovimiento').html('');
+	}
 	$('.botonlotes').css('display', 'none');
 	if(valor === '9') {
 		//SALIDA
 		$('.fechavencimiento').css('display', 'none');
-		$('#fechavencimiento').val('');
-		if(borrar === 'S') {			
-			$('#totalmovimiento2').html('0');
-			$('#totalmovimiento').val('0');
-		}
+		$('#fechavencimiento').val('');		
 		$('#lote').val('');
 		$('.lote').css('display', 'none');		
 		$('#cantidad').val('');		
