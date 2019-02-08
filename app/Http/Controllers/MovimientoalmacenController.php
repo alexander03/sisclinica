@@ -698,9 +698,7 @@ class MovimientoalmacenController extends Controller
                                 $kardex->lote_id = $lote->id;
                                 $kardex->save();  
                             }
-                            $e++;
                         }
-
                     }
 
                     $stock = Stock::where('producto_id', $request->input('producto_id'.$i))->where('almacen_id', $almacen_id)->first();

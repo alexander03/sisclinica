@@ -19,6 +19,7 @@ use App\Stock;
 use App\Caja;
 use App\Cuenta;
 use App\Person;
+use App\Rolpersona;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -559,6 +560,8 @@ class CompraController extends Controller
             if($request->input('tipodocumento_id') == '6') {
                 $emp = Person::where('ruc', $request->input('ccruc'))->first();
                 if($emp !== NULL) {
+                    $emp->direccion = $request->input('ccdireccion');
+                    $emp->save();
                     $p_id = $emp->id;
                 } else {
                     $empr = new Person();
@@ -566,6 +569,10 @@ class CompraController extends Controller
                     $empr->direccion = $request->input('ccdireccion');
                     $empr->bussinesname = $request->input('ccrazon');
                     $empr->save();
+                    $rolemp = new Rolpersona();
+                    $rolemp->rol_id = 2;
+                    $rolemp->person_id = $empr->id;
+                    $rolemp->save(); 
                     $p_id = $empr->id;
                 }
             } else {
