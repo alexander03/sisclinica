@@ -6,13 +6,13 @@
 	<div class="col-lg-4 col-md-4 col-sm-4">
 		<div class="form-group" style="height: 12px;">
 			{!! Form::label('tipodocumento_id', 'Documento:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
-			<div class="col-lg-7 col-md-7 col-sm-7">
+			<div class="col-lg-8 col-md-8 col-sm-8">
 				{!! Form::select('tipodocumento_id', $cboDocumento, null, array('style' => 'background-color: #D4F0FF;' ,'class' => 'form-control input-xs', 'id' => 'tipodocumento_id', 'onchange' => 'generarNumero(this.value);')) !!}
 			</div>
 		</div>
 		<div class="form-group" style="height: 12px; display: none;">
 			{!! Form::label('credito', 'Credito:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
-			<div class="col-lg-7 col-md-7 col-sm-7">
+			<div class="col-lg-8 col-md-8 col-sm-8">
 				{!! Form::select('credito', $cboCredito, null, array('style' => 'background-color: #D4F0FF;' ,'class' => 'form-control input-xs', 'id' => 'credito', 'onchange' => 'cambiar();')) !!}
 			</div>
 		</div>
@@ -27,7 +27,7 @@
 		</div>
 		<div class="form-group" style="height: 12px;">
 			{!! Form::label('afecto', 'Afecto:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
-			<div class="col-lg-7 col-md-7 col-sm-7">
+			<div class="col-lg-8 col-md-8 col-sm-8">
 				{!! Form::select('afecto', $cboAfecto, null, array('class' => 'form-control input-xs', 'id' => 'afecto')) !!}
 			</div>
 		</div>
@@ -37,7 +37,7 @@
 			<div class="col-lg-3 col-md-3 col-sm-3">
 				{!! Form::text('serie', null, array('class' => 'form-control input-xs', 'id' => 'serie', 'placeholder' => 'serie')) !!}
 			</div>
-			<div class="col-lg-4 col-md-4 col-sm-4">
+			<div class="col-lg-5 col-md-5 col-sm-5">
 				{!! Form::text('numerodocumento', null, array('class' => 'form-control input-xs', 'id' => 'numerodocumento', 'placeholder' => 'numerodocumento')) !!}
 			</div>
 
@@ -94,7 +94,7 @@
 		</div>
 		<div class="form-group" style="display: none;">
 			{!! Form::label('cajafarmacialabel', 'Caja farmacia:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
-			<div class="col-lg-7 col-md-7 col-sm-7">
+			<div class="col-lg-8 col-md-8 col-sm-8">
 				{!! Form::select('cajafamarcia', $cboCajafarmacia, null, array('style' => 'background-color: #D4F0FF;' ,'class' => 'form-control input-xs', 'id' => 'cajafarmacia', 'onchange' => 'cambiar2();')) !!}
 			</div>
 		</div>
@@ -103,7 +103,7 @@
 		
 		{!! Form::label('nombredoctor', 'Medico:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			{!! Form::hidden('doctor_id', null, array('id' => 'doctor_id')) !!}
-			<div class="col-lg-7 col-md-7 col-sm-7">
+			<div class="col-lg-8 col-md-8 col-sm-8">
 				{!! Form::text('nombredoctor', null, array('style' => 'background-color: #FFEEC5;','class' => 'form-control input-xs', 'id' => 'nombredoctor', 'placeholder' => 'Seleccione persona' , 'readonly' =>'')) !!}
 				
 			</div>

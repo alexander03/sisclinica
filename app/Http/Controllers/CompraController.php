@@ -940,7 +940,27 @@ class CompraController extends Controller
         $entidad             = 'Compra';
         $cboDocumento        = Tipodocumento::lists('nombre', 'id')->all();
         $cboCredito        = array("N" => 'NO', 'S' => 'SI');
-        $cboCajafarmacia        = array("N" => 'NO', 'S' => 'SI');     
+        $sucursal_id = Session::get('sucursal_id');
+        $user = Auth::user();
+        if($sucursal_id == 2) {
+            if($user->usertype_id == 11) {
+                $almacen_id = 3;
+            } else {
+                $almacen_id = 4;
+            }            
+        } else {
+            if($user->usertype_id == 11) {
+                $almacen_id = 1;
+            } else {
+                $almacen_id = 2;
+            }
+        }
+        if($almacen_id == 1 || $almacen_id == 3) {
+            $cboCajafarmacia = array('S' => 'SI');
+        } else {
+            $cboCajafarmacia = array("N" => 'NO');
+        }
+        
         $formData            = array('compra.update', $id);
         $formData            = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton               = 'Modificar';
