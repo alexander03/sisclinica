@@ -120,12 +120,16 @@ class CompraController extends Controller
         $fechafin             = Libreria::getParam($request->input('fechafin'));
         $tipodoc             = Libreria::getParam($request->input('tipodocumento'));
         $resultado        = Compra::leftjoin('person','movimiento.persona_id','=','person.id')
-                                ->leftJoin('tipodocumento','movimiento.tipodocumento_id','=','tipodocumento.id')
+                                ->leftjoin('tipodocumento','movimiento.tipodocumento_id','=','tipodocumento.id')
                                 ->where('movimiento.sucursal_id','=',$sucursal_id)
                                 ->where('movimiento.tipomovimiento_id', '=', '3')
                                 ->where(function($query) use ($nombre){
                                     if (!is_null($nombre) && $nombre !== '') {                        
                                         $query->where('person.bussinesname', 'LIKE', '%'.strtoupper($nombre).'%');
+                                    }     
+                                })->where(function($query) use ($tipodoc){
+                                    if (!is_null($tipodoc) && $tipodoc !== '0') {                        
+                                        $query->where('tipodocumento.id', '=', $tipodoc);
                                     }     
                                 })->where(function($query) use ($fechainicio,$fechafin){   
                                     if (!is_null($fechainicio) && $fechainicio !== '') {
@@ -137,13 +141,16 @@ class CompraController extends Controller
                                         $query->where('movimiento.fecha', '<=', $enddate);
                                     }
                                 });
-        if($tipodoc>0){
-            $resultado->where("movimiento.tipodocumento_id",$tipodoc);
-        }
         if($almacen_id == '4') {
-            $resultado->where('movimiento.almacen_id', '=', 4)->orWhere('movimiento.almacen_id', '=', 3);
+            $resultado->where(function($query){
+                $query->where('movimiento.almacen_id', '=', 4);
+                $query->orWhere('movimiento.almacen_id', '=', 3);
+            });
         } else if($almacen_id == '2') {
-            $resultado->where('movimiento.almacen_id', '=', 2)->orWhere('movimiento.almacen_id', '=', 1);
+            $resultado->where(function($query){
+                $query->where('movimiento.almacen_id', '=', 2);
+                $query->orWhere('movimiento.almacen_id', '=', 1);
+            });
         } else {
             $resultado->where('movimiento.almacen_id', '=', $almacen_id);
         }
