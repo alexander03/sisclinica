@@ -823,7 +823,7 @@ class CajaController extends Controller
                 ->where('movimiento.sucursal_id', '=', $sucursal_id)
                 ->where('movimiento.id', '>=', $movimiento_mayor)
                 ->where('movimiento.caja_id', '=', $caja_id);
-        $resultadoventas = $resultadoventas->select('movimiento.plan_id','movimiento.doctor_id','movimiento.serie','movimiento.tipodocumento_id','movimiento.id','movimiento.comentario','movimiento.movimiento_id','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+        $resultadoventas = $resultadoventas->select('movimiento.plan_id','movimiento.doctor_id','movimiento.serie','movimiento.tipodocumento_id','movimiento.id','movimiento.comentario','movimiento.movimiento_id','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
         
         $listaventas           = $resultadoventas->get();
 
@@ -840,7 +840,7 @@ class CajaController extends Controller
                 ->where('movimiento.sucursal_id', '=', $sucursal_id)
                 ->where('movimiento.id', '>=', $movimiento_mayor)
                 ->where('movimiento.caja_id', '=', $caja_id);
-        $resultadocuotas = $resultadocuotas->select('movimiento.numeroserie2','movimiento.movimiento_id','movimiento.situacion','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+        $resultadocuotas = $resultadocuotas->select('movimiento.numeroserie2','movimiento.movimiento_id','movimiento.situacion','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
         
         $listacuotas = $resultadocuotas->get();
 
@@ -853,7 +853,7 @@ class CajaController extends Controller
                 ->where('movimiento.caja_id', '=', $caja_id)
                 ->where('movimiento.id', '>=', $movimiento_mayor)
                 ->where('movimiento.ventafarmacia', '=', 'S');
-        $listaventasfarmacia = $listaventasfarmacia->select('movimiento.situacion','movimiento.doctor_id','movimiento.serie','movimiento.id','movimiento.nombrepaciente','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+        $listaventasfarmacia = $listaventasfarmacia->select('movimiento.situacion','movimiento.doctor_id','movimiento.serie','movimiento.id','movimiento.nombrepaciente','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
         
         $listaventasfarmacia = $listaventasfarmacia->get();
 
@@ -868,7 +868,7 @@ class CajaController extends Controller
                 ->where('movimiento.id', '>=', $movimiento_mayor)
                 ->where('movimiento.situacion2', '=', 'Q')
                 ->where('conceptopago.tipo', '=', 'I');
-        $listaingresosvarios = $listaingresosvarios->select('movimiento.situacion','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'conceptopago.nombre', 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+        $listaingresosvarios = $listaingresosvarios->select('movimiento.situacion','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'conceptopago.nombre', 'movimiento.total')->orderBy('movimiento.numero', 'asc');
         
         $listaingresosvarios = $listaingresosvarios->get();
 
@@ -890,7 +890,7 @@ class CajaController extends Controller
             ->where('conceptopago.tipo', '=', 'E')
             ->where('movimiento.situacion2', '=', 'Q');
 
-        $resultadoegresos        = $resultadoegresos->select('movimiento.*','m2.situacion as situacion2','responsable.nombres as responsable2',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'conceptopago.nombre')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
+        $resultadoegresos        = $resultadoegresos->select('movimiento.*','m2.situacion as situacion2','responsable.nombres as responsable2',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'conceptopago.nombre')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
 
         $listaegresos = $resultadoegresos->get();
 
@@ -1208,56 +1208,58 @@ class CajaController extends Controller
                     $subtotalmaster = 0;
                     foreach ($listaventasfarmacia as $row) { 
                         $mov = Movimiento::where('movimiento_id', $row['id'])->limit(1)->first();
-                        $fila[] = utf8_decode($row['fecha']);
-                        if($row['paciente'] == '') {
-                            $fila[] = $row['nombrepaciente'];
-                        } else {
-                            $fila[] = $row['paciente'];
-                        }   
-                        $fila[] = $mov->tipodocumento->abreviatura;             
-                        $fila[] = utf8_decode($row['serie'] . '-' . $row['numero']);             
-                        if($mov->empresa_id != '') {
-                            $fila[] = $mov->empresa->bussinesname; 
-                        } else {
-                            $fila[] = '-';
-                        }  
-                        $fila[] = $mov->conceptopago->nombre.': '.$row['comentario'];
-                        $fila[] = '';                           
-                        $fila[] = '';  
-                        $sheet->mergeCells('F'.$a.':G'.$a);
-                        if($row['situacion'] == 'N') {
-                            $valuetp = number_format($row['totalpagado'],2,'.','');
-                            $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
-                            $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
-                            if($valuetp == 0){$valuetp='';}
-                            if($valuetpv == 0){$valuetpv='';}
-                            if($valuetpm == 0){$valuetpm='';}                                                     
-                            $fila[] = $valuetp;                           
-                            $fila[] = $valuetpv;                           
-                            $fila[] = $valuetpm;
-                        } else {
-                            $fila[] = 'ANULADO';                           
+                        if($mov !== NULL) {
+                            $fila[] = utf8_decode($row['fecha']);
+                            if($row['paciente'] == '') {
+                                $fila[] = $row['nombrepaciente'];
+                            } else {
+                                $fila[] = $row['paciente'];
+                            }   
+                            $fila[] = $mov->tipodocumento->abreviatura;             
+                            $fila[] = utf8_decode($row['serie'] . '-' . $row['numero']);             
+                            if($mov->empresa_id != '') {
+                                $fila[] = $mov->empresa->bussinesname; 
+                            } else {
+                                $fila[] = '-';
+                            }  
+                            $fila[] = $mov->conceptopago->nombre.': '.$row['comentario'];
                             $fila[] = '';                           
-                            $fila[] = '';
-                            $sheet->mergeCells('I'.$a.':K'.$a);
-                        } 
-                            
-                        if($row['doctor_id'] != '') {
-                            $fila[] = $row->doctor->apellidopaterno;
-                        } else {
-                            $fila[] = '-';
-                        }  
-                        if($row['situacion'] == 'N') { 
-                            $totalvisa        += number_format($row['totalpagadovisa'],2,'.','');
-                            $totalmaster      += number_format($row['totalpagadomaster'],2,'.','');
-                            $totalefectivo    += number_format($row['totalpagado'],2,'.','');
-                            $subtotalefectivo += number_format($row['totalpagadovisa'],2,'.','');
-                            $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
-                            $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
+                            $fila[] = '';  
+                            $sheet->mergeCells('F'.$a.':G'.$a);
+                            if($row['situacion'] == 'N') {
+                                $valuetp = number_format($row['totalpagado'],2,'.','');
+                                $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
+                                $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
+                                if($valuetp == 0){$valuetp='';}
+                                if($valuetpv == 0){$valuetpv='';}
+                                if($valuetpm == 0){$valuetpm='';}                                                     
+                                $fila[] = $valuetp;                           
+                                $fila[] = $valuetpv;                           
+                                $fila[] = $valuetpm;
+                            } else {
+                                $fila[] = 'ANULADO';                           
+                                $fila[] = '';                           
+                                $fila[] = '';
+                                $sheet->mergeCells('I'.$a.':K'.$a);
+                            } 
+                                
+                            if($row['doctor_id'] != '') {
+                                $fila[] = $row->doctor->apellidopaterno;
+                            } else {
+                                $fila[] = '-';
+                            }  
+                            if($row['situacion'] == 'N') { 
+                                $totalvisa        += number_format($row['totalpagadovisa'],2,'.','');
+                                $totalmaster      += number_format($row['totalpagadomaster'],2,'.','');
+                                $totalefectivo    += number_format($row['totalpagado'],2,'.','');
+                                $subtotalefectivo += number_format($row['totalpagadovisa'],2,'.','');
+                                $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
+                                $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
+                            }
+                            $sheet->row($a, $fila);
+                            $a++;
+                            $fila = array();
                         }
-                        $sheet->row($a, $fila);
-                        $a++;
-                        $fila = array();
                     } 
                     $fila[] = 'SUBTOTAL';                           
                     $fila[] = '';                           
@@ -1439,7 +1441,7 @@ class CajaController extends Controller
                 
                 //Recorrido para egresos por compras farmacia
 
-                if($caja->nombre == 'FARMACIA') {  
+                if($caja->nombre == 'FARMACIA') {
                     if(count($listaegresoscompra)>0){
                         $sheet->row($a, array('EGRESOS POR COMPRA'));
                         $sheet->mergeCells('A'.$a.':L'.$a);
@@ -1670,7 +1672,7 @@ class CajaController extends Controller
                 ->where('movimiento.sucursal_id', '=', $sucursal_id)
                 ->whereBetween('movimiento.fecha', [$fi, $ff])
                 ->where('movimiento.caja_id', '=', $caja_id);
-        $resultadoventas = $resultadoventas->select('movimiento.plan_id','movimiento.doctor_id','movimiento.serie','movimiento.tipodocumento_id','movimiento.id','movimiento.comentario','movimiento.movimiento_id','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+        $resultadoventas = $resultadoventas->select('movimiento.plan_id','movimiento.doctor_id','movimiento.serie','movimiento.tipodocumento_id','movimiento.id','movimiento.comentario','movimiento.movimiento_id','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
         
         $listaventas           = $resultadoventas->get();
 
@@ -1687,7 +1689,7 @@ class CajaController extends Controller
                 ->where('movimiento.sucursal_id', '=', $sucursal_id)
                 ->whereBetween('movimiento.fecha', [$fi, $ff])
                 ->where('movimiento.caja_id', '=', $caja_id);
-        $resultadocuotas = $resultadocuotas->select('movimiento.numeroserie2','movimiento.movimiento_id','movimiento.situacion','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+        $resultadocuotas = $resultadocuotas->select('movimiento.numeroserie2','movimiento.movimiento_id','movimiento.situacion','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
         
         $listacuotas = $resultadocuotas->get();
 
@@ -1700,7 +1702,7 @@ class CajaController extends Controller
                 ->where('movimiento.caja_id', '=', $caja_id)
                 ->whereBetween('movimiento.fecha', [$fi, $ff])
                 ->where('movimiento.ventafarmacia', '=', 'S');
-        $listaventasfarmacia = $listaventasfarmacia->select('movimiento.situacion','movimiento.doctor_id','movimiento.serie','movimiento.id','movimiento.nombrepaciente','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+        $listaventasfarmacia = $listaventasfarmacia->select('movimiento.situacion','movimiento.doctor_id','movimiento.serie','movimiento.id','movimiento.nombrepaciente','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
         
         $listaventasfarmacia = $listaventasfarmacia->get();
 
@@ -1715,7 +1717,7 @@ class CajaController extends Controller
                 ->whereBetween('movimiento.fecha', [$fi, $ff])
                 ->where('movimiento.situacion2', '=', 'Q')
                 ->where('conceptopago.tipo', '=', 'I');
-        $listaingresosvarios = $listaingresosvarios->select('movimiento.situacion','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'conceptopago.nombre', 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+        $listaingresosvarios = $listaingresosvarios->select('movimiento.situacion','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'conceptopago.nombre', 'movimiento.total')->orderBy('movimiento.numero', 'asc');
         
         $listaingresosvarios = $listaingresosvarios->get();
 
@@ -1737,7 +1739,7 @@ class CajaController extends Controller
             ->where('conceptopago.tipo', '=', 'E')
             ->where('movimiento.situacion2', '=', 'Q');
 
-        $resultadoegresos        = $resultadoegresos->select('movimiento.*','m2.situacion as situacion2','responsable.nombres as responsable2',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'conceptopago.nombre')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
+        $resultadoegresos        = $resultadoegresos->select('movimiento.*','m2.situacion as situacion2','responsable.nombres as responsable2',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'conceptopago.nombre')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
 
         $listaegresos = $resultadoegresos->get();
 
@@ -2055,56 +2057,58 @@ class CajaController extends Controller
                     $subtotalmaster = 0;
                     foreach ($listaventasfarmacia as $row) { 
                         $mov = Movimiento::where('movimiento_id', $row['id'])->limit(1)->first();
-                        $fila[] = utf8_decode($row['fecha']);
-                        if($row['paciente'] == '') {
-                            $fila[] = $row['nombrepaciente'];
-                        } else {
-                            $fila[] = $row['paciente'];
-                        }   
-                        $fila[] = $mov->tipodocumento->abreviatura;             
-                        $fila[] = utf8_decode($row['serie'] . '-' . $row['numero']);             
-                        if($mov->empresa_id != '') {
-                            $fila[] = $mov->empresa->bussinesname; 
-                        } else {
-                            $fila[] = '-';
-                        }  
-                        $fila[] = $mov->conceptopago->nombre.': '.$row['comentario'];
-                        $fila[] = ''; 
-                        $sheet->mergeCells('F'.$a.':G'.$a);             
-                        $fila[] = '';  
-                        if($row['situacion'] == 'N') {
-                            $valuetp = number_format($row['totalpagado'],2,'.','');
-                            $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
-                            $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
-                            if($valuetp == 0){$valuetp='';}
-                            if($valuetpv == 0){$valuetpv='';}
-                            if($valuetpm == 0){$valuetpm='';}                                                     
-                            $fila[] = $valuetp;                           
-                            $fila[] = $valuetpv;                           
-                            $fila[] = $valuetpm;
-                        } else {
-                            $fila[] = 'ANULADO';                           
-                            $fila[] = '';                           
-                            $fila[] = '';
-                            $sheet->mergeCells('I'.$a.':K'.$a);
-                        } 
-                            
-                        if($row['doctor_id'] != '') {
-                            $fila[] = $row->doctor->apellidopaterno;
-                        } else {
-                            $fila[] = '-';
-                        }  
-                        if($row['situacion'] == 'N') { 
-                            $totalvisa        += number_format($row['totalpagadovisa'],2,'.','');
-                            $totalmaster      += number_format($row['totalpagadomaster'],2,'.','');
-                            $totalefectivo    += number_format($row['totalpagado'],2,'.','');
-                            $subtotalefectivo += number_format($row['totalpagadovisa'],2,'.','');
-                            $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
-                            $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
+                        if($mov !== NULL) {
+                            $fila[] = utf8_decode($row['fecha']);
+                            if($row['paciente'] == '') {
+                                $fila[] = $row['nombrepaciente'];
+                            } else {
+                                $fila[] = $row['paciente'];
+                            }   
+                            $fila[] = $mov->tipodocumento->abreviatura;             
+                            $fila[] = utf8_decode($row['serie'] . '-' . $row['numero']);             
+                            if($mov->empresa_id != '') {
+                                $fila[] = $mov->empresa->bussinesname; 
+                            } else {
+                                $fila[] = '-';
+                            }  
+                            $fila[] = $mov->conceptopago->nombre.': '.$row['comentario'];
+                            $fila[] = ''; 
+                            $sheet->mergeCells('F'.$a.':G'.$a);             
+                            $fila[] = '';  
+                            if($row['situacion'] == 'N') {
+                                $valuetp = number_format($row['totalpagado'],2,'.','');
+                                $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
+                                $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
+                                if($valuetp == 0){$valuetp='';}
+                                if($valuetpv == 0){$valuetpv='';}
+                                if($valuetpm == 0){$valuetpm='';}                                                     
+                                $fila[] = $valuetp;                           
+                                $fila[] = $valuetpv;                           
+                                $fila[] = $valuetpm;
+                            } else {
+                                $fila[] = 'ANULADO';                           
+                                $fila[] = '';                           
+                                $fila[] = '';
+                                $sheet->mergeCells('I'.$a.':K'.$a);
+                            } 
+                                
+                            if($row['doctor_id'] != '') {
+                                $fila[] = $row->doctor->apellidopaterno;
+                            } else {
+                                $fila[] = '-';
+                            }  
+                            if($row['situacion'] == 'N') { 
+                                $totalvisa        += number_format($row['totalpagadovisa'],2,'.','');
+                                $totalmaster      += number_format($row['totalpagadomaster'],2,'.','');
+                                $totalefectivo    += number_format($row['totalpagado'],2,'.','');
+                                $subtotalefectivo += number_format($row['totalpagadovisa'],2,'.','');
+                                $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
+                                $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
+                            }
+                            $sheet->row($a, $fila);
+                            $a++;
+                            $fila = array();
                         }
-                        $sheet->row($a, $fila);
-                        $a++;
-                        $fila = array();
                     } 
                     $fila[] = 'SUBTOTAL';                           
                     $fila[] = '';                           
@@ -2521,633 +2525,194 @@ class CajaController extends Controller
             $sucursal_id = Session::get('sucursal_id');
             $caja_id = $request->input('caja_id');
             $cont = 1;
-            foreach ($aperturas as $apertura) {
+            if(count($aperturas) > 0) {
+                foreach ($aperturas as $apertura) {
 
-                //Cierre de la presente caja
-                $cierre = Movimiento::select('id')
-                        ->where('conceptopago_id', 2)
-                        ->where('caja_id', $caja_id)
-                        ->where('sucursal_id', $sucursal_id)
-                        ->where('id' , '>', $apertura->id)
-                        ->limit(1)->first();
+                    //Cierre de la presente caja
+                    $cierre = Movimiento::select('id')
+                            ->where('conceptopago_id', 2)
+                            ->where('caja_id', $caja_id)
+                            ->where('sucursal_id', $sucursal_id)
+                            ->where('id' , '>', $apertura->id)
+                            ->limit(1)->first();
 
-                //Pagos de tickets   
-                
-                $resultadoventas = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
-                        ->leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
-                        //->where('movimiento.situacion','=','N')
-                        ->where('movimiento.ventafarmacia','=','N')
-                        ->where('movimiento.sucursal_id', '=', $sucursal_id)
-                        ->whereBetween('movimiento.id', [$apertura->id,(int)$cierre['id']])
-                        ->where('movimiento.caja_id', '=', $caja_id);
-                $resultadoventas = $resultadoventas->select('movimiento.plan_id','movimiento.doctor_id','movimiento.serie','movimiento.tipodocumento_id','movimiento.id','movimiento.comentario','movimiento.movimiento_id','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
-                
-                $listaventas           = $resultadoventas->get();
+                    //Pagos de tickets   
+                    
+                    $resultadoventas = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
+                            ->leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+                            //->where('movimiento.situacion','=','N')
+                            ->where('movimiento.ventafarmacia','=','N')
+                            ->where('movimiento.sucursal_id', '=', $sucursal_id)
+                            ->whereBetween('movimiento.id', [$apertura->id,(int)$cierre['id']])
+                            ->where('movimiento.caja_id', '=', $caja_id);
+                    $resultadoventas = $resultadoventas->select('movimiento.plan_id','movimiento.doctor_id','movimiento.serie','movimiento.tipodocumento_id','movimiento.id','movimiento.comentario','movimiento.movimiento_id','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+                    
+                    $listaventas           = $resultadoventas->get();
 
-                //Solo para cuotas
+                    //Solo para cuotas
 
-                $resultadocuotas = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
-                        ->leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
-                        ->where('movimiento.tipomovimiento_id', '=', 2)
-                        ->where('movimiento.tipodocumento_id', '=', 2)
-                        ->where('movimiento.situacion2','=','Z')
-                        //->where('movimiento.situacion','=','N')
-                        ->where('movimiento.sucursal_id', '=', $sucursal_id)
-                        ->whereBetween('movimiento.id', [$apertura->id,(int)$cierre['id']])
-                        ->where('movimiento.caja_id', '=', $caja_id);
-                $resultadocuotas = $resultadocuotas->select('movimiento.numeroserie2','movimiento.movimiento_id','movimiento.situacion','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
-                
-                $listacuotas = $resultadocuotas->get();
+                    $resultadocuotas = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
+                            ->leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+                            ->where('movimiento.tipomovimiento_id', '=', 2)
+                            ->where('movimiento.tipodocumento_id', '=', 2)
+                            ->where('movimiento.situacion2','=','Z')
+                            //->where('movimiento.situacion','=','N')
+                            ->where('movimiento.sucursal_id', '=', $sucursal_id)
+                            ->whereBetween('movimiento.id', [$apertura->id,(int)$cierre['id']])
+                            ->where('movimiento.caja_id', '=', $caja_id);
+                    $resultadocuotas = $resultadocuotas->select('movimiento.numeroserie2','movimiento.movimiento_id','movimiento.situacion','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+                    
+                    $listacuotas = $resultadocuotas->get();
 
-                //Solo para ventas de farmacia
+                    //Solo para ventas de farmacia
 
-                $listaventasfarmacia = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
-                        ->leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
-                        ->leftjoin('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
-                        ->where('movimiento.sucursal_id', '=', $sucursal_id)
-                        ->where('movimiento.caja_id', '=', $caja_id)
-                        ->whereBetween('movimiento.id', [$apertura->id,(int)$cierre['id']])
-                        ->where('movimiento.ventafarmacia', '=', 'S');
-                $listaventasfarmacia = $listaventasfarmacia->select('movimiento.situacion','movimiento.doctor_id','movimiento.serie','movimiento.id','movimiento.nombrepaciente','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
-                
-                $listaventasfarmacia = $listaventasfarmacia->get();
+                    $listaventasfarmacia = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
+                            ->leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+                            ->leftjoin('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
+                            ->where('movimiento.sucursal_id', '=', $sucursal_id)
+                            ->where('movimiento.caja_id', '=', $caja_id)
+                            ->whereBetween('movimiento.id', [$apertura->id,(int)$cierre['id']])
+                            ->where('movimiento.ventafarmacia', '=', 'S');
+                    $listaventasfarmacia = $listaventasfarmacia->select('movimiento.situacion','movimiento.doctor_id','movimiento.serie','movimiento.id','movimiento.nombrepaciente','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+                    
+                    $listaventasfarmacia = $listaventasfarmacia->get();
 
-                //Solo para ingresos varios
+                    //Solo para ingresos varios
 
-                $listaingresosvarios = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
-                        ->leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+                    $listaingresosvarios = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
+                            ->leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+                            ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
+                            ->where('movimiento.tipomovimiento_id', '=', 2)
+                            ->where('movimiento.sucursal_id', '=', $sucursal_id)
+                            ->where('movimiento.caja_id', '=', $caja_id)
+                            ->whereBetween('movimiento.id', [$apertura->id,(int)$cierre['id']])
+                            ->where('movimiento.situacion2', '=', 'Q')
+                            ->where('conceptopago.tipo', '=', 'I');
+                    $listaingresosvarios = $listaingresosvarios->select('movimiento.situacion','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'conceptopago.nombre', 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+                    
+                    $listaingresosvarios = $listaingresosvarios->get();
+
+                    //Solo para egresos
+
+                    $resultadoegresos        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+                        ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
                         ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
-                        ->where('movimiento.tipomovimiento_id', '=', 2)
-                        ->where('movimiento.sucursal_id', '=', $sucursal_id)
+                        ->leftjoin('movimiento as m2','m2.movimiento_id','=','movimiento.id')
                         ->where('movimiento.caja_id', '=', $caja_id)
+                        ->where('movimiento.sucursal_id','=',$sucursal_id)
                         ->whereBetween('movimiento.id', [$apertura->id,(int)$cierre['id']])
-                        ->where('movimiento.situacion2', '=', 'Q')
-                        ->where('conceptopago.tipo', '=', 'I');
-                $listaingresosvarios = $listaingresosvarios->select('movimiento.situacion','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'conceptopago.nombre', 'movimiento.total')->orderBy('movimiento.numero', 'asc');
-                
-                $listaingresosvarios = $listaingresosvarios->get();
+                        ->whereNull('movimiento.cajaapertura_id')
+                        ->where(function($query){
+                            $query
+                                ->whereNotIn('movimiento.conceptopago_id',[31])
+                                ->orWhere('m2.situacion','<>','R');
+                        })
+                        ->where('conceptopago.tipo', '=', 'E')
+                        ->where('movimiento.situacion2', '=', 'Q');
 
-                //Solo para egresos
+                    $resultadoegresos        = $resultadoegresos->select('movimiento.*','m2.situacion as situacion2','responsable.nombres as responsable2',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'conceptopago.nombre')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
 
-                $resultadoegresos        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
-                    ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
-                    ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
-                    ->leftjoin('movimiento as m2','m2.movimiento_id','=','movimiento.id')
-                    ->where('movimiento.caja_id', '=', $caja_id)
-                    ->where('movimiento.sucursal_id','=',$sucursal_id)
-                    ->whereBetween('movimiento.id', [$apertura->id,(int)$cierre['id']])
-                    ->whereNull('movimiento.cajaapertura_id')
-                    ->where(function($query){
-                        $query
-                            ->whereNotIn('movimiento.conceptopago_id',[31])
-                            ->orWhere('m2.situacion','<>','R');
-                    })
-                    ->where('conceptopago.tipo', '=', 'E')
-                    ->where('movimiento.situacion2', '=', 'Q');
+                    $listaegresos = $resultadoegresos->get();
 
-                $resultadoegresos        = $resultadoegresos->select('movimiento.*','m2.situacion as situacion2','responsable.nombres as responsable2',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'conceptopago.nombre')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
+                    //Solo para egresos por compra farmacia
 
-                $listaegresos = $resultadoegresos->get();
+                    $resultadoegresoscompra        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+                        ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
+                        ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
+                        ->join('tipodocumento','tipodocumento.id','=','movimiento.tipodocumento_id')
+                        ->leftjoin('movimiento as m2','m2.movimiento_id','=','movimiento.id')
+                        ->where('movimiento.caja_id', '=', $caja_id)
+                        ->whereNull('m2.caja_id')
+                        ->where('movimiento.sucursal_id','=',$sucursal_id)
+                        ->where('movimiento.tipomovimiento_id','=',2)
+                        ->where('paciente.dni','=',null)
+                        ->whereBetween('movimiento.id', [$apertura->id,(int)$cierre['id']])
+                        ->whereNull('movimiento.cajaapertura_id')
+                        ->where('conceptopago.tipo', '=', 'E');
 
-                //Solo para egresos por compra farmacia
+                    $resultadoegresoscompra        = $resultadoegresoscompra->select('movimiento.*','tipodocumento.abreviatura as formapago2','responsable.nombres as responsable2',DB::raw('concat(paciente.ruc,\' - \',paciente.bussinesname) as paciente'), 'conceptopago.nombre')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
 
-                $resultadoegresoscompra        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
-                    ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
-                    ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
-                    ->join('tipodocumento','tipodocumento.id','=','movimiento.tipodocumento_id')
-                    ->leftjoin('movimiento as m2','m2.movimiento_id','=','movimiento.id')
-                    ->where('movimiento.caja_id', '=', $caja_id)
-                    ->whereNull('m2.caja_id')
-                    ->where('movimiento.sucursal_id','=',$sucursal_id)
-                    ->where('movimiento.tipomovimiento_id','=',2)
-                    ->where('paciente.dni','=',null)
-                    ->whereBetween('movimiento.id', [$apertura->id,(int)$cierre['id']])
-                    ->whereNull('movimiento.cajaapertura_id')
-                    ->where('conceptopago.tipo', '=', 'E');
+                    $listaegresoscompra = $resultadoegresoscompra->get();
+         
+                    $excel->sheet($nomcierre . ' Ap. ' . $apertura->numero, function($sheet) use($listaventas, $listacuotas, $listaventasfarmacia, $listaingresosvarios, $listaegresos, $listaegresoscompra, $caja, $nomcierre, $responsable, $request) {
 
-                $resultadoegresoscompra        = $resultadoegresoscompra->select('movimiento.*','tipodocumento.abreviatura as formapago2','responsable.nombres as responsable2',DB::raw('concat(paciente.ruc,\' - \',paciente.bussinesname) as paciente'), 'conceptopago.nombre')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
-
-                $listaegresoscompra = $resultadoegresoscompra->get();
-     
-                $excel->sheet($nomcierre . ' Ap. ' . $apertura->numero, function($sheet) use($listaventas, $listacuotas, $listaventasfarmacia, $listaingresosvarios, $listaegresos, $listaegresoscompra, $caja, $nomcierre, $responsable, $request) {
-
-                    $sheet->setWidth(array(
-                        'A' => 15,'B' => 40, 'C' => 5, 'D' => 10, 'E' => 35, 'F' => 50, 'G' => 10, 'H' => 10, 'I' => 10, 'J' => 10, 'K' => 10, 'L' => 15
-                    ));
-
-                    /*$sheet->cells('A:L', function ($cells) {
-                        $cells->setAlignment('center');
-                        $cells->setValignment('center');
-                    });*/
-
-                    $sheet->setStyle(array(
-                        'font' => array(
-                            'name'      =>  'Calibri',
-                            'size'      =>  8
-                        )
-                    ));
-
-                    $totalvisa     = 0;
-                    $totalmaster   = 0;
-                    $totalefectivo = 0;
-                    $totalegresos  = 0;
-                    $subtotalegresos = 0;
-                    $subtotaldolares = 0;
-
-                    //Cabecera
-
-                    $cabecera1 = array();
-                    $cabecera1[] = "FECHA";
-                    $cabecera1[] = "PERSONA";
-                    $cabecera1[] = "NRO";
-                    $cabecera1[] = "";
-                    $cabecera1[] = "EMPRESA";
-                    $cabecera1[] = "CONCEPTO";
-                    $cabecera1[] = "PRECIO";
-                    $cabecera1[] = "EGRESO";
-                    $cabecera1[] = "INGRESO";
-                    $cabecera1[] = "";
-                    $cabecera1[] = "";
-                    $cabecera1[] = "DOCTOR";
-
-                    $sheet->row(1,$cabecera1);
-                    $sheet->mergeCells('C1:D1');
-                    $sheet->mergeCells('I1:K1');
-                    $sheet->mergeCells('A2:H2');
-
-                    $sheet->cells('A1:L3', function ($cells) {
-                        $cells->setFont(array(
-                            'family'     => 'Calibri',
-                            'size'       => '11',
-                            'bold'       =>  true
+                        $sheet->setWidth(array(
+                            'A' => 15,'B' => 40, 'C' => 5, 'D' => 10, 'E' => 35, 'F' => 50, 'G' => 10, 'H' => 10, 'I' => 10, 'J' => 10, 'K' => 10, 'L' => 15
                         ));
-                        $cells->setAlignment('center');
-                    });
 
-                    $cabecera2 = array();
-                    $cabecera2[] = "";
-                    $cabecera2[] = "";
-                    $cabecera2[] = "";
-                    $cabecera2[] = "";
-                    $cabecera2[] = "";
-                    $cabecera2[] = "";
-                    $cabecera2[] = "";
-                    $cabecera2[] = "";
-                    $cabecera2[] = "EFECTIVO";
-                    $cabecera2[] = "VISA";
-                    $cabecera2[] = "MASTER";
-                    $cabecera2[] = "";
+                        /*$sheet->cells('A:L', function ($cells) {
+                            $cells->setAlignment('center');
+                            $cells->setValignment('center');
+                        });*/
 
-                    $sheet->row(2,$cabecera2);
+                        $sheet->setStyle(array(
+                            'font' => array(
+                                'name'      =>  'Calibri',
+                                'size'      =>  8
+                            )
+                        ));
 
-                    //Recorrido para tickets
-
-                    $fila = array();
-
-                    $a = 3;
-
-                    if(count($listaventas)>0){
-                        $sheet->row($a, array('INGRESOS POR VENTAS'));
-                        $sheet->mergeCells('A'.$a.':L'.$a);
-                        $sheet->cells('A'.$a.':L'.$a, function ($cells) {
-                            $cells->setFont(array(
-                                'family'     => 'Calibri',
-                                'size'       => '11',
-                                'bold'       =>  true
-                            ));
-                        });
-                        $a++;
-                        $subtotalefectivo = 0;
-                        $subtotalvisa = 0;
-                        $subtotalmaster = 0;
-                        foreach ($listaventas as $row) {                
-                            $row2 = Movimiento::where('movimiento_id', $row['id'])->limit(1)->first();
-                            $row3 = Movimiento::find($row['movimiento_id']);
-                            if($row2['situacion'] != '') {
-                                $detalles = Detallemovcaja::where('movimiento_id', $row3['id'])->get();  
-                                $i = 0;              
-                                foreach ($detalles as $detalle) {
-                                    $fila[] = utf8_decode($row['fecha']);
-                                    $fila[] = $row['paciente'];
-                                    $fila[] = $row->tipodocumento->abreviatura;
-                                    $fila[] = utf8_decode($row['serie'] .'-'. $row['numero']); 
-                                    if($row3['plan_id'] != '') {
-                                        $fila[] = substr($row3->plan->nombre, 0, 30);
-                                    } else {
-                                        $fila[] = '-';
-                                    }
-                                    $nomdetalle = ''; 
-                                    if($detalle->servicio_id == 13) {
-                                        $nomdetalle .= '($) ';
-                                    }  
-                                    $nomdetalle .= $detalle->servicio->nombre;                            
-                                    $fila[] = substr($nomdetalle,0,42);
-                                    $fila[] = number_format($detalle->precio,2,'.','');                    
-                                    if($row2['situacion'] == 'N') {
-                                        $fila[] = '';
-                                        $valuetp = number_format($row2['totalpagado'],2,'.','');
-                                        $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
-                                        $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
-                                        if($valuetp == 0){$valuetp='';}
-                                        if($valuetpv == 0){$valuetpv='';}
-                                        if($valuetpm == 0){$valuetpm='';}
-                                        $fila[] = $valuetp;                    
-                                        $fila[] = $valuetpv;
-                                        $fila[] = $valuetpm;
-                                    } else {                                
-                                        $fila[] = '';
-                                        $fila[] = 'ANULADO';
-                                        $fila[] = '';
-                                        $fila[] = '';
-                                        $sheet->mergeCells('I'.$a.':K'.($a+count($detalles)-1));
-                                    }
-                                    $fila[] = utf8_decode($detalle->persona->apellidopaterno);                           
-                                    $sheet->row($a, $fila);
-                                    $sheet->mergeCells('A'.$a.':A'.($a+count($detalles)-1));
-                                    $sheet->mergeCells('B'.$a.':B'.($a+count($detalles)-1));
-                                    $sheet->mergeCells('C'.$a.':C'.($a+count($detalles)-1));
-                                    $sheet->mergeCells('D'.$a.':D'.($a+count($detalles)-1));
-                                    $sheet->mergeCells('E'.$a.':E'.($a+count($detalles)-1));
-                                    $sheet->mergeCells('I'.$a.':I'.($a+count($detalles)-1));
-                                    $sheet->mergeCells('J'.$a.':J'.($a+count($detalles)-1));
-                                    $sheet->mergeCells('K'.$a.':K'.($a+count($detalles)-1));
-                                    $a++;
-                                    $i++;    
-                                    $fila = array();                      
-                                }  
-                                if($row2['situacion'] == 'N') {
-                                    if($row3->numeroserie2 != 'DOLAR') {                  
-                                        $totalvisa += number_format($row2['totalpagadovisa'],2,'.','');
-                                        $totalmaster += number_format($row2['totalpagadomaster'],2,'.','');
-                                        $totalefectivo += number_format($row2['totalpagado'],2,'.','');
-                                        $subtotalefectivo += number_format($row2['totalpagadovisa'],2,'.','');
-                                        $subtotalvisa     += number_format($row2['totalpagadomaster'],2,'.','');
-                                        $subtotalmaster   += number_format($row2['totalpagado'],2,'.','');
-                                    } else {
-                                        $subtotaldolares += number_format($row2['total'],2,'.','');
-                                    }
-                                }
-                            }
-                        } 
-                        $fila[] = 'SUBTOTAL';                           
-                        $fila[] = '';                           
-                        $fila[] = '';                           
-                        $fila[] = '';                           
-                        $fila[] = '';                           
-                        $fila[] = '';                           
-                        $fila[] = '';                           
-                        $fila[] = 0.00;                           
-                        $fila[] = number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.','');  
-                        $fila[] = ''; 
-                        $fila[] = '';                          
-                        $sheet->row($a, $fila);
-                        $sheet->mergeCells('A'.$a.':G'.$a); 
-                        $sheet->mergeCells('I'.$a.':K'.$a); 
-                        $sheet->cells('A'.$a.':L'.$a, function ($cells) {
-                            $cells->setFont(array(
-                                'family'     => 'Calibri',
-                                'size'       => '11',
-                                'bold'       =>  true
-                            ));
-                        }); 
-                        $sheet->cell('I'.$a, function($cell){
-                            $cell->setAlignment('right');
-                        });
-                        $fila = array(); 
-                        $a++;       
-                    }
-
-                    //Recorrido para cuotas
-
-                    if(count($listacuotas)>0){
-                        $sheet->row($a, array('INGRESOS POR CUOTAS'));
-                        $sheet->mergeCells('A'.$a.':L'.$a);
-                        $sheet->cells('A'.$a.':L'.$a, function ($cells) {
-                            $cells->setFont(array(
-                                'family'     => 'Calibri',
-                                'size'       => '11',
-                                'bold'       =>  true
-                            ));
-                        });
-                        $a++;
-                        $subtotalefectivo = 0;
-                        $subtotalvisa = 0;
-                        $subtotalmaster = 0;
-                        foreach ($listacuotas as $row) { 
-                            $cuota = Movimiento::find($row['numeroserie2']);
-                            $fila[] = utf8_decode($row['fecha']);                           
-                            $fila[] = $row['paciente'];                           
-                            $fila[] = 'C';                           
-                            $fila[] = utf8_decode($cuota->numero);                           
-                            $fila[] = "PAGO DE CUOTA DE TICKET N° " . $row['numeroticket'];                           
-                            $fila[] = '';
-
-                            if($row['situacion'] == 'N') {
-                                $valuetp = number_format($row['totalpagado'],2,'.','');
-                                $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
-                                $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
-                                if($valuetp == 0){$valuetp='';}
-                                if($valuetpv == 0){$valuetpv='';}
-                                if($valuetpm == 0){$valuetpm='';}
-                                $fila[] = '';                           
-                                $fila[] = $valuetp;                           
-                                $fila[] = $valuetpv;                           
-                                $fila[] = $valuetpm;                           
-                                $totalvisa += number_format($row['totalpagadovisa'],2,'.','');
-                                $totalmaster += number_format($row['totalpagadomaster'],2,'.','');
-                                $totalefectivo += number_format($row['totalpagado'],2,'.','');
-                                $subtotalefectivo += number_format($row['totalpagadovisa'],2,'.','');
-                                $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
-                                $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
-                            } else {
-                                $fila[] = "ANULADO";
-                                $fila[] = "";
-                                $fila[] = "";
-                                $fila[] = "";
-                            } 
-                            $fila[] = ""; 
-                            $fila[] = "-";  
-                            $sheet->mergeCells('E'.$a.':F'.$a); 
-                            $sheet->row($a, $fila);
-                            $fila = array(); 
-                            $a++;           
-                        } 
-                        $fila[] = 'SUBTOTAL';                           
-                        $fila[] = '';                           
-                        $fila[] = '';                           
-                        $fila[] = '';                           
-                        $fila[] = '';                           
-                        $fila[] = '';                           
-                        $fila[] = '';                           
-                        $fila[] = 0.00;                           
-                        $fila[] = number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.','');  
-                        $fila[] = ''; 
-                        $fila[] = '';                          
-                        $sheet->row($a, $fila);
-                        $sheet->mergeCells('A'.$a.':G'.$a); 
-                        $sheet->mergeCells('I'.$a.':K'.$a); 
-                        $sheet->cells('A'.$a.':L'.$a, function ($cells) {
-                            $cells->setFont(array(
-                                'family'     => 'Calibri',
-                                'size'       => '11',
-                                'bold'       =>  true
-                            ));
-                        }); 
-                        $sheet->cell('I'.$a, function($cell){
-                            $cell->setAlignment('right');
-                        });
-                        $fila = array();   
-                        $a++;                                    
-                    } 
-
-                    //Recorrido para ventas de farmacia
-
-                    if(count($listaventasfarmacia)>0){
-                        $sheet->row($a, array('INGRESOS POR VENTAS'));
-                        $sheet->mergeCells('A'.$a.':L'.$a);
-                        $sheet->cells('A'.$a.':L'.$a, function ($cells) {
-                            $cells->setFont(array(
-                                'family'     => 'Calibri',
-                                'size'       => '11',
-                                'bold'       =>  true
-                            ));
-                        });
-                        $a++;
-                        $subtotalefectivo = 0;
-                        $subtotalvisa = 0;
-                        $subtotalmaster = 0;
-                        foreach ($listaventasfarmacia as $row) { 
-                            $mov = Movimiento::where('movimiento_id', $row['id'])->limit(1)->first();
-                            $fila[] = utf8_decode($row['fecha']);
-                            if($row['paciente'] == '') {
-                                $fila[] = $row['nombrepaciente'];
-                            } else {
-                                $fila[] = $row['paciente'];
-                            }   
-                            $fila[] = $mov->tipodocumento->abreviatura;             
-                            $fila[] = utf8_decode($row['serie'] . '-' . $row['numero']);             
-                            if($mov->empresa_id != '') {
-                                $fila[] = $mov->empresa->bussinesname; 
-                            } else {
-                                $fila[] = '-';
-                            }  
-                            $fila[] = $mov->conceptopago->nombre.': '.$row['comentario'];
-                            $fila[] = ''; 
-                            $sheet->mergeCells('F'.$a.':G'.$a);             
-                            $fila[] = '';  
-                            if($row['situacion'] == 'N') {
-                                $valuetp = number_format($row['totalpagado'],2,'.','');
-                                $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
-                                $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
-                                if($valuetp == 0){$valuetp='';}
-                                if($valuetpv == 0){$valuetpv='';}
-                                if($valuetpm == 0){$valuetpm='';}                                                     
-                                $fila[] = $valuetp;                           
-                                $fila[] = $valuetpv;                           
-                                $fila[] = $valuetpm;
-                            } else {
-                                $fila[] = 'ANULADO';                           
-                                $fila[] = '';                           
-                                $fila[] = '';
-                                $sheet->mergeCells('I'.$a.':K'.$a);
-                            } 
-                                
-                            if($row['doctor_id'] != '') {
-                                $fila[] = $row->doctor->apellidopaterno;
-                            } else {
-                                $fila[] = '-';
-                            }  
-                            if($row['situacion'] == 'N') { 
-                                $totalvisa        += number_format($row['totalpagadovisa'],2,'.','');
-                                $totalmaster      += number_format($row['totalpagadomaster'],2,'.','');
-                                $totalefectivo    += number_format($row['totalpagado'],2,'.','');
-                                $subtotalefectivo += number_format($row['totalpagadovisa'],2,'.','');
-                                $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
-                                $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
-                            }
-                            $sheet->row($a, $fila);
-                            $a++;
-                            $fila = array();
-                        } 
-                        $fila[] = 'SUBTOTAL';                           
-                        $fila[] = '';                           
-                        $fila[] = '';                           
-                        $fila[] = '';                           
-                        $fila[] = '';                           
-                        $fila[] = '';                           
-                        $fila[] = '';                           
-                        $fila[] = 0.00;                           
-                        $fila[] = number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.','');  
-                        $fila[] = ''; 
-                        $fila[] = '';                          
-                        $sheet->row($a, $fila);
-                        $sheet->mergeCells('A'.$a.':G'.$a); 
-                        $sheet->mergeCells('I'.$a.':K'.$a); 
-                        $sheet->cells('A'.$a.':L'.$a, function ($cells) {
-                            $cells->setFont(array(
-                                'family'     => 'Calibri',
-                                'size'       => '11',
-                                'bold'       =>  true
-                            ));
-                        }); 
-                        $sheet->cell('I'.$a, function($cell){
-                            $cell->setAlignment('right');
-                        });
-                        $fila = array(); 
-                        $a++;        
-                    } 
-
-                    //Recorrido para ingresos varios
-
-                    if(count($listaingresosvarios)>0){
-                        $sheet->row($a, array('INGRESOS VARIOS'));
-                        $sheet->mergeCells('A'.$a.':L'.$a);
-                        $sheet->cells('A'.$a.':L'.$a, function ($cells) {
-                            $cells->setFont(array(
-                                'family'     => 'Calibri',
-                                'size'       => '11',
-                                'bold'       =>  true
-                            ));
-                        });
-                        $a++;
-                        $subtotalefectivo = 0;
-                        $subtotalvisa = 0;
-                        $subtotalmaster = 0;
-                        foreach ($listaingresosvarios as $row) { 
-                            $fila[] = utf8_decode($row['fecha']);                   
-                            $fila[] = $row['paciente'];                   
-                            $fila[] = $row['formapago'];                   
-                            $fila[] = $row['voucher'];                   
-                            $fila[] = $row['nombre'].': '.$row['comentario'];                   
-                            $fila[] = '';  
-                            $sheet->mergeCells('E'.$a.':G'.$a); 
-                            $fila[] = '';                           
-                            $fila[] = '';                 
-                            if($row['situacion'] == 'N') {
-                                $valuetp = number_format($row['totalpagado'],2,'.','');
-                                $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
-                                $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
-                                if($valuetp == 0){$valuetp='';}
-                                if($valuetpv == 0){$valuetpv='';}
-                                if($valuetpm == 0){$valuetpm='';}                                                      
-                                $fila[] = $valuetp;                           
-                                $fila[] = $valuetpv;                           
-                                $fila[] = $valuetpm;                    
-                                $totalvisa += number_format($row['totalpagadovisa'],2,'.','');
-                                $totalmaster += number_format($row['totalpagadomaster'],2,'.','');
-                                $totalefectivo += number_format($row['totalpagado'],2,'.','');
-                                $subtotalefectivo += number_format($row['totalpagadovisa'],2,'.','');
-                                $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
-                                $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
-                            } else {
-                                $fila[] = 'ANULADO';                           
-                                $fila[] = '';                           
-                                $fila[] = '';
-                                $sheet->mergeCells('I'.$a.':K'.$a);
-                            }
-                            $fila[] = '-';
-                            $sheet->row($a, $fila);
-                            $a++;
-                            $fila = array();
-                        }   
-                        $fila[] = 'SUBTOTAL';                           
-                        $fila[] = '';                           
-                        $fila[] = '';                           
-                        $fila[] = '';                           
-                        $fila[] = '';                           
-                        $fila[] = '';                           
-                        $fila[] = '';                           
-                        $fila[] = 0.00;                           
-                        $fila[] = number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.','');  
-                        $fila[] = ''; 
-                        $fila[] = '';                          
-                        $sheet->row($a, $fila);
-                        $sheet->mergeCells('A'.$a.':G'.$a); 
-                        $sheet->mergeCells('I'.$a.':K'.$a);
-                        $sheet->cells('A'.$a.':L'.$a, function ($cells) {
-                            $cells->setFont(array(
-                                'family'     => 'Calibri',
-                                'size'       => '11',
-                                'bold'       =>  true
-                            ));
-                        }); 
-                        $sheet->cell('I'.$a, function($cell){
-                            $cell->setAlignment('right');
-                        });
-                        $fila = array();
-                        $a++;                  
-                    } 
-
-                    //Recorrido para egresos
-
-                    if(count($listaegresos)>0){
-                        $sheet->row($a, array('EGRESOS'));
-                        $sheet->mergeCells('A'.$a.':L'.$a);
-                        $sheet->cells('A'.$a.':L'.$a, function ($cells) {
-                            $cells->setFont(array(
-                                'family'     => 'Calibri',
-                                'size'       => '11',
-                                'bold'       =>  true
-                            ));
-                        });
-                        $a++;
+                        $totalvisa     = 0;
+                        $totalmaster   = 0;
+                        $totalefectivo = 0;
+                        $totalegresos  = 0;
                         $subtotalegresos = 0;
-                        foreach ($listaegresos as $row) { 
-                            $fila[] = utf8_decode($row['fecha']);                   
-                            $fila[] = $row['paciente'];                   
-                            $fila[] = $row['formapago'];  
-                            $fila[] = $row['voucher'];  
-                            $fila[] = $row['nombre'].': '.$row['comentario']; 
-                            $fila[] = ''; 
-                            $fila[] = ''; 
-                            $sheet->mergeCells('E'.$a.':G'.$a);
-                            if($row['situacion'] == 'N') {
-                                $fila[] = number_format($row['total'],2,'.','');
-                                $fila[] = '';                           
-                                $subtotalegresos += number_format($row['total'],2,'.','');
-                            } else {
-                                $fila[] = '';
-                                $fila[] = 'ANULADO';                   
-                            }                            
-                            $fila[] = '';
-                            $fila[] = '';
-                            $fila[] = '-';
-                            $sheet->mergeCells('I'.$a.':K'.$a);
-                            $sheet->row($a, $fila);
-                            $a++;
-                            $fila = array();              
-                        }
-                        $fila[] = 'SUBTOTAL';                           
-                        $fila[] = '';                           
-                        $fila[] = '';                           
-                        $fila[] = '';                           
-                        $fila[] = '';                           
-                        $fila[] = '';                           
-                        $fila[] = '';
-                        $fila[] = number_format($subtotalegresos,2,'.','');  
-                        $fila[] = 0.00;
-                        $fila[] = ''; 
-                        $fila[] = '';                          
-                        $sheet->row($a, $fila);
-                        $sheet->mergeCells('A'.$a.':G'.$a); 
-                        $sheet->mergeCells('I'.$a.':K'.$a);
-                        $sheet->cells('A'.$a.':L'.$a, function ($cells) {
+                        $subtotaldolares = 0;
+
+                        //Cabecera
+
+                        $cabecera1 = array();
+                        $cabecera1[] = "FECHA";
+                        $cabecera1[] = "PERSONA";
+                        $cabecera1[] = "NRO";
+                        $cabecera1[] = "";
+                        $cabecera1[] = "EMPRESA";
+                        $cabecera1[] = "CONCEPTO";
+                        $cabecera1[] = "PRECIO";
+                        $cabecera1[] = "EGRESO";
+                        $cabecera1[] = "INGRESO";
+                        $cabecera1[] = "";
+                        $cabecera1[] = "";
+                        $cabecera1[] = "DOCTOR";
+
+                        $sheet->row(1,$cabecera1);
+                        $sheet->mergeCells('C1:D1');
+                        $sheet->mergeCells('I1:K1');
+                        $sheet->mergeCells('A2:H2');
+
+                        $sheet->cells('A1:L3', function ($cells) {
                             $cells->setFont(array(
                                 'family'     => 'Calibri',
                                 'size'       => '11',
                                 'bold'       =>  true
                             ));
-                        }); 
-                        $sheet->cell('I'.$a, function($cell){
-                            $cell->setAlignment('right');
+                            $cells->setAlignment('center');
                         });
-                        $fila = array();
-                        $a++;                
-                    }
 
-                    if($caja->nombre == 'FARMACIA') {
-                        if(count($listaegresoscompra)>0){
-                            $sheet->row($a, array('EGRESOS POR COMPRA'));
+                        $cabecera2 = array();
+                        $cabecera2[] = "";
+                        $cabecera2[] = "";
+                        $cabecera2[] = "";
+                        $cabecera2[] = "";
+                        $cabecera2[] = "";
+                        $cabecera2[] = "";
+                        $cabecera2[] = "";
+                        $cabecera2[] = "";
+                        $cabecera2[] = "EFECTIVO";
+                        $cabecera2[] = "VISA";
+                        $cabecera2[] = "MASTER";
+                        $cabecera2[] = "";
+
+                        $sheet->row(2,$cabecera2);
+
+                        //Recorrido para tickets
+
+                        $fila = array();
+
+                        $a = 3;
+
+                        if(count($listaventas)>0){
+                            $sheet->row($a, array('INGRESOS POR VENTAS'));
                             $sheet->mergeCells('A'.$a.':L'.$a);
                             $sheet->cells('A'.$a.':L'.$a, function ($cells) {
                                 $cells->setFont(array(
@@ -3157,35 +2722,78 @@ class CajaController extends Controller
                                 ));
                             });
                             $a++;
-                            $subtotalegresoscompra = 0;
-                            foreach ($listaegresoscompra as $row) {
-                                if($row['situacion2'] == null){
-                                    $fila[] = utf8_decode($row['fecha']);                   
-                                    $fila[] = $row['paciente'];                   
-                                    $fila[] = $row['formapago2'];  
-                                    $fila[] = $row['voucher'];  
-                                    $fila[] = $row['nombre'].': '.$row['comentario']; 
-                                    $fila[] = ''; 
-                                    $fila[] = '';
-                                    $sheet->mergeCells('E'.$a.':G'.$a);
-                                    if($row['situacion'] == 'N') {
-                                        $fila[] = number_format($row['total'],2,'.','');
-                                        $fila[] = '';
-                                        $subtotalegresoscompra += number_format($row['total'],2,'.','');
-                                        $subtotalegresos += number_format($row['total'],2,'.','');
-                                    } else {
-                                        $fila[] = '';
-                                        $fila[] = 'ANULADO';
-                                    } 
-                                    $fila[] = '';                           
-                                    $fila[] = ''; 
-                                    $fila[] = '-';
-                                    $sheet->mergeCells('I'.$a.':K'.$a);
-                                    $sheet->row($a, $fila);
-                                    $a++;
-                                    $fila = array();
-                                }       
-                            }  
+                            $subtotalefectivo = 0;
+                            $subtotalvisa = 0;
+                            $subtotalmaster = 0;
+                            foreach ($listaventas as $row) {                
+                                $row2 = Movimiento::where('movimiento_id', $row['id'])->limit(1)->first();
+                                $row3 = Movimiento::find($row['movimiento_id']);
+                                if($row2['situacion'] != '') {
+                                    $detalles = Detallemovcaja::where('movimiento_id', $row3['id'])->get();  
+                                    $i = 0;              
+                                    foreach ($detalles as $detalle) {
+                                        $fila[] = utf8_decode($row['fecha']);
+                                        $fila[] = $row['paciente'];
+                                        $fila[] = $row->tipodocumento->abreviatura;
+                                        $fila[] = utf8_decode($row['serie'] .'-'. $row['numero']); 
+                                        if($row3['plan_id'] != '') {
+                                            $fila[] = substr($row3->plan->nombre, 0, 30);
+                                        } else {
+                                            $fila[] = '-';
+                                        }
+                                        $nomdetalle = ''; 
+                                        if($detalle->servicio_id == 13) {
+                                            $nomdetalle .= '($) ';
+                                        }  
+                                        $nomdetalle .= $detalle->servicio->nombre;                            
+                                        $fila[] = substr($nomdetalle,0,42);
+                                        $fila[] = number_format($detalle->precio,2,'.','');                    
+                                        if($row2['situacion'] == 'N') {
+                                            $fila[] = '';
+                                            $valuetp = number_format($row2['totalpagado'],2,'.','');
+                                            $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
+                                            $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
+                                            if($valuetp == 0){$valuetp='';}
+                                            if($valuetpv == 0){$valuetpv='';}
+                                            if($valuetpm == 0){$valuetpm='';}
+                                            $fila[] = $valuetp;                    
+                                            $fila[] = $valuetpv;
+                                            $fila[] = $valuetpm;
+                                        } else {                                
+                                            $fila[] = '';
+                                            $fila[] = 'ANULADO';
+                                            $fila[] = '';
+                                            $fila[] = '';
+                                            $sheet->mergeCells('I'.$a.':K'.($a+count($detalles)-1));
+                                        }
+                                        $fila[] = utf8_decode($detalle->persona->apellidopaterno);                           
+                                        $sheet->row($a, $fila);
+                                        $sheet->mergeCells('A'.$a.':A'.($a+count($detalles)-1));
+                                        $sheet->mergeCells('B'.$a.':B'.($a+count($detalles)-1));
+                                        $sheet->mergeCells('C'.$a.':C'.($a+count($detalles)-1));
+                                        $sheet->mergeCells('D'.$a.':D'.($a+count($detalles)-1));
+                                        $sheet->mergeCells('E'.$a.':E'.($a+count($detalles)-1));
+                                        $sheet->mergeCells('I'.$a.':I'.($a+count($detalles)-1));
+                                        $sheet->mergeCells('J'.$a.':J'.($a+count($detalles)-1));
+                                        $sheet->mergeCells('K'.$a.':K'.($a+count($detalles)-1));
+                                        $a++;
+                                        $i++;    
+                                        $fila = array();                      
+                                    }  
+                                    if($row2['situacion'] == 'N') {
+                                        if($row3->numeroserie2 != 'DOLAR') {                  
+                                            $totalvisa += number_format($row2['totalpagadovisa'],2,'.','');
+                                            $totalmaster += number_format($row2['totalpagadomaster'],2,'.','');
+                                            $totalefectivo += number_format($row2['totalpagado'],2,'.','');
+                                            $subtotalefectivo += number_format($row2['totalpagadovisa'],2,'.','');
+                                            $subtotalvisa     += number_format($row2['totalpagadomaster'],2,'.','');
+                                            $subtotalmaster   += number_format($row2['totalpagado'],2,'.','');
+                                        } else {
+                                            $subtotaldolares += number_format($row2['total'],2,'.','');
+                                        }
+                                    }
+                                }
+                            } 
                             $fila[] = 'SUBTOTAL';                           
                             $fila[] = '';                           
                             $fila[] = '';                           
@@ -3193,8 +2801,338 @@ class CajaController extends Controller
                             $fila[] = '';                           
                             $fila[] = '';                           
                             $fila[] = '';                           
-                            $fila[] = number_format($subtotalegresoscompra,2,'.','');  
                             $fila[] = 0.00;                           
+                            $fila[] = number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.','');  
+                            $fila[] = ''; 
+                            $fila[] = '';                          
+                            $sheet->row($a, $fila);
+                            $sheet->mergeCells('A'.$a.':G'.$a); 
+                            $sheet->mergeCells('I'.$a.':K'.$a); 
+                            $sheet->cells('A'.$a.':L'.$a, function ($cells) {
+                                $cells->setFont(array(
+                                    'family'     => 'Calibri',
+                                    'size'       => '11',
+                                    'bold'       =>  true
+                                ));
+                            }); 
+                            $sheet->cell('I'.$a, function($cell){
+                                $cell->setAlignment('right');
+                            });
+                            $fila = array(); 
+                            $a++;       
+                        }
+
+                        //Recorrido para cuotas
+
+                        if(count($listacuotas)>0){
+                            $sheet->row($a, array('INGRESOS POR CUOTAS'));
+                            $sheet->mergeCells('A'.$a.':L'.$a);
+                            $sheet->cells('A'.$a.':L'.$a, function ($cells) {
+                                $cells->setFont(array(
+                                    'family'     => 'Calibri',
+                                    'size'       => '11',
+                                    'bold'       =>  true
+                                ));
+                            });
+                            $a++;
+                            $subtotalefectivo = 0;
+                            $subtotalvisa = 0;
+                            $subtotalmaster = 0;
+                            foreach ($listacuotas as $row) { 
+                                $cuota = Movimiento::find($row['numeroserie2']);
+                                $fila[] = utf8_decode($row['fecha']);                           
+                                $fila[] = $row['paciente'];                           
+                                $fila[] = 'C';                           
+                                $fila[] = utf8_decode($cuota->numero);                           
+                                $fila[] = "PAGO DE CUOTA DE TICKET N° " . $row['numeroticket'];                           
+                                $fila[] = '';
+
+                                if($row['situacion'] == 'N') {
+                                    $valuetp = number_format($row['totalpagado'],2,'.','');
+                                    $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
+                                    $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
+                                    if($valuetp == 0){$valuetp='';}
+                                    if($valuetpv == 0){$valuetpv='';}
+                                    if($valuetpm == 0){$valuetpm='';}
+                                    $fila[] = '';                           
+                                    $fila[] = $valuetp;                           
+                                    $fila[] = $valuetpv;                           
+                                    $fila[] = $valuetpm;                           
+                                    $totalvisa += number_format($row['totalpagadovisa'],2,'.','');
+                                    $totalmaster += number_format($row['totalpagadomaster'],2,'.','');
+                                    $totalefectivo += number_format($row['totalpagado'],2,'.','');
+                                    $subtotalefectivo += number_format($row['totalpagadovisa'],2,'.','');
+                                    $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
+                                    $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
+                                } else {
+                                    $fila[] = "ANULADO";
+                                    $fila[] = "";
+                                    $fila[] = "";
+                                    $fila[] = "";
+                                } 
+                                $fila[] = ""; 
+                                $fila[] = "-";  
+                                $sheet->mergeCells('E'.$a.':F'.$a); 
+                                $sheet->row($a, $fila);
+                                $fila = array(); 
+                                $a++;           
+                            } 
+                            $fila[] = 'SUBTOTAL';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = 0.00;                           
+                            $fila[] = number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.','');  
+                            $fila[] = ''; 
+                            $fila[] = '';                          
+                            $sheet->row($a, $fila);
+                            $sheet->mergeCells('A'.$a.':G'.$a); 
+                            $sheet->mergeCells('I'.$a.':K'.$a); 
+                            $sheet->cells('A'.$a.':L'.$a, function ($cells) {
+                                $cells->setFont(array(
+                                    'family'     => 'Calibri',
+                                    'size'       => '11',
+                                    'bold'       =>  true
+                                ));
+                            }); 
+                            $sheet->cell('I'.$a, function($cell){
+                                $cell->setAlignment('right');
+                            });
+                            $fila = array();   
+                            $a++;                                    
+                        } 
+
+                        //Recorrido para ventas de farmacia
+
+                        if(count($listaventasfarmacia)>0){
+                            $sheet->row($a, array('INGRESOS POR VENTAS'));
+                            $sheet->mergeCells('A'.$a.':L'.$a);
+                            $sheet->cells('A'.$a.':L'.$a, function ($cells) {
+                                $cells->setFont(array(
+                                    'family'     => 'Calibri',
+                                    'size'       => '11',
+                                    'bold'       =>  true
+                                ));
+                            });
+                            $a++;
+                            $subtotalefectivo = 0;
+                            $subtotalvisa = 0;
+                            $subtotalmaster = 0;
+                            foreach ($listaventasfarmacia as $row) { 
+                                $mov = Movimiento::where('movimiento_id', $row['id'])->limit(1)->first();
+                                if($mov !== NULL) {
+                                    $fila[] = utf8_decode($row['fecha']);
+                                    if($row['paciente'] == '') {
+                                        $fila[] = $row['nombrepaciente'];
+                                    } else {
+                                        $fila[] = $row['paciente'];
+                                    }   
+                                    $fila[] = $mov->tipodocumento->abreviatura;             
+                                    $fila[] = utf8_decode($row['serie'] . '-' . $row['numero']);             
+                                    if($mov->empresa_id != '') {
+                                        $fila[] = $mov->empresa->bussinesname; 
+                                    } else {
+                                        $fila[] = '-';
+                                    }  
+                                    $fila[] = $mov->conceptopago->nombre.': '.$row['comentario'];
+                                    $fila[] = ''; 
+                                    $sheet->mergeCells('F'.$a.':G'.$a);             
+                                    $fila[] = '';  
+                                    if($row['situacion'] == 'N') {
+                                        $valuetp = number_format($row['totalpagado'],2,'.','');
+                                        $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
+                                        $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
+                                        if($valuetp == 0){$valuetp='';}
+                                        if($valuetpv == 0){$valuetpv='';}
+                                        if($valuetpm == 0){$valuetpm='';}                                                     
+                                        $fila[] = $valuetp;                           
+                                        $fila[] = $valuetpv;                           
+                                        $fila[] = $valuetpm;
+                                    } else {
+                                        $fila[] = 'ANULADO';                           
+                                        $fila[] = '';                           
+                                        $fila[] = '';
+                                        $sheet->mergeCells('I'.$a.':K'.$a);
+                                    } 
+                                        
+                                    if($row['doctor_id'] != '') {
+                                        $fila[] = $row->doctor->apellidopaterno;
+                                    } else {
+                                        $fila[] = '-';
+                                    }  
+                                    if($row['situacion'] == 'N') { 
+                                        $totalvisa        += number_format($row['totalpagadovisa'],2,'.','');
+                                        $totalmaster      += number_format($row['totalpagadomaster'],2,'.','');
+                                        $totalefectivo    += number_format($row['totalpagado'],2,'.','');
+                                        $subtotalefectivo += number_format($row['totalpagadovisa'],2,'.','');
+                                        $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
+                                        $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
+                                    }
+                                    $sheet->row($a, $fila);
+                                    $a++;
+                                    $fila = array();
+                                }
+                            } 
+                            $fila[] = 'SUBTOTAL';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = 0.00;                           
+                            $fila[] = number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.','');  
+                            $fila[] = ''; 
+                            $fila[] = '';                          
+                            $sheet->row($a, $fila);
+                            $sheet->mergeCells('A'.$a.':G'.$a); 
+                            $sheet->mergeCells('I'.$a.':K'.$a); 
+                            $sheet->cells('A'.$a.':L'.$a, function ($cells) {
+                                $cells->setFont(array(
+                                    'family'     => 'Calibri',
+                                    'size'       => '11',
+                                    'bold'       =>  true
+                                ));
+                            }); 
+                            $sheet->cell('I'.$a, function($cell){
+                                $cell->setAlignment('right');
+                            });
+                            $fila = array(); 
+                            $a++;        
+                        } 
+
+                        //Recorrido para ingresos varios
+
+                        if(count($listaingresosvarios)>0){
+                            $sheet->row($a, array('INGRESOS VARIOS'));
+                            $sheet->mergeCells('A'.$a.':L'.$a);
+                            $sheet->cells('A'.$a.':L'.$a, function ($cells) {
+                                $cells->setFont(array(
+                                    'family'     => 'Calibri',
+                                    'size'       => '11',
+                                    'bold'       =>  true
+                                ));
+                            });
+                            $a++;
+                            $subtotalefectivo = 0;
+                            $subtotalvisa = 0;
+                            $subtotalmaster = 0;
+                            foreach ($listaingresosvarios as $row) { 
+                                $fila[] = utf8_decode($row['fecha']);                   
+                                $fila[] = $row['paciente'];                   
+                                $fila[] = $row['formapago'];                   
+                                $fila[] = $row['voucher'];                   
+                                $fila[] = $row['nombre'].': '.$row['comentario'];                   
+                                $fila[] = '';  
+                                $sheet->mergeCells('E'.$a.':G'.$a); 
+                                $fila[] = '';                           
+                                $fila[] = '';                 
+                                if($row['situacion'] == 'N') {
+                                    $valuetp = number_format($row['totalpagado'],2,'.','');
+                                    $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
+                                    $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
+                                    if($valuetp == 0){$valuetp='';}
+                                    if($valuetpv == 0){$valuetpv='';}
+                                    if($valuetpm == 0){$valuetpm='';}                                                      
+                                    $fila[] = $valuetp;                           
+                                    $fila[] = $valuetpv;                           
+                                    $fila[] = $valuetpm;                    
+                                    $totalvisa += number_format($row['totalpagadovisa'],2,'.','');
+                                    $totalmaster += number_format($row['totalpagadomaster'],2,'.','');
+                                    $totalefectivo += number_format($row['totalpagado'],2,'.','');
+                                    $subtotalefectivo += number_format($row['totalpagadovisa'],2,'.','');
+                                    $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
+                                    $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
+                                } else {
+                                    $fila[] = 'ANULADO';                           
+                                    $fila[] = '';                           
+                                    $fila[] = '';
+                                    $sheet->mergeCells('I'.$a.':K'.$a);
+                                }
+                                $fila[] = '-';
+                                $sheet->row($a, $fila);
+                                $a++;
+                                $fila = array();
+                            }   
+                            $fila[] = 'SUBTOTAL';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = 0.00;                           
+                            $fila[] = number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.','');  
+                            $fila[] = ''; 
+                            $fila[] = '';                          
+                            $sheet->row($a, $fila);
+                            $sheet->mergeCells('A'.$a.':G'.$a); 
+                            $sheet->mergeCells('I'.$a.':K'.$a);
+                            $sheet->cells('A'.$a.':L'.$a, function ($cells) {
+                                $cells->setFont(array(
+                                    'family'     => 'Calibri',
+                                    'size'       => '11',
+                                    'bold'       =>  true
+                                ));
+                            }); 
+                            $sheet->cell('I'.$a, function($cell){
+                                $cell->setAlignment('right');
+                            });
+                            $fila = array();
+                            $a++;                  
+                        } 
+
+                        //Recorrido para egresos
+
+                        if(count($listaegresos)>0){
+                            $sheet->row($a, array('EGRESOS'));
+                            $sheet->mergeCells('A'.$a.':L'.$a);
+                            $sheet->cells('A'.$a.':L'.$a, function ($cells) {
+                                $cells->setFont(array(
+                                    'family'     => 'Calibri',
+                                    'size'       => '11',
+                                    'bold'       =>  true
+                                ));
+                            });
+                            $a++;
+                            $subtotalegresos = 0;
+                            foreach ($listaegresos as $row) { 
+                                $fila[] = utf8_decode($row['fecha']);                   
+                                $fila[] = $row['paciente'];                   
+                                $fila[] = $row['formapago'];  
+                                $fila[] = $row['voucher'];  
+                                $fila[] = $row['nombre'].': '.$row['comentario']; 
+                                $fila[] = ''; 
+                                $fila[] = ''; 
+                                $sheet->mergeCells('E'.$a.':G'.$a);
+                                if($row['situacion'] == 'N') {
+                                    $fila[] = number_format($row['total'],2,'.','');
+                                    $fila[] = '';                           
+                                    $subtotalegresos += number_format($row['total'],2,'.','');
+                                } else {
+                                    $fila[] = '';
+                                    $fila[] = 'ANULADO';                   
+                                }                            
+                                $fila[] = '';
+                                $fila[] = '';
+                                $fila[] = '-';
+                                $sheet->mergeCells('I'.$a.':K'.$a);
+                                $sheet->row($a, $fila);
+                                $a++;
+                                $fila = array();              
+                            }
+                            $fila[] = 'SUBTOTAL';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = '';
+                            $fila[] = number_format($subtotalegresos,2,'.','');  
+                            $fila[] = 0.00;
                             $fila[] = ''; 
                             $fila[] = '';                          
                             $sheet->row($a, $fila);
@@ -3213,133 +3151,210 @@ class CajaController extends Controller
                             $fila = array();
                             $a++;                
                         }
+
+                        if($caja->nombre == 'FARMACIA') {
+                            if(count($listaegresoscompra)>0){
+                                $sheet->row($a, array('EGRESOS POR COMPRA'));
+                                $sheet->mergeCells('A'.$a.':L'.$a);
+                                $sheet->cells('A'.$a.':L'.$a, function ($cells) {
+                                    $cells->setFont(array(
+                                        'family'     => 'Calibri',
+                                        'size'       => '11',
+                                        'bold'       =>  true
+                                    ));
+                                });
+                                $a++;
+                                $subtotalegresoscompra = 0;
+                                foreach ($listaegresoscompra as $row) {
+                                    if($row['situacion2'] == null){
+                                        $fila[] = utf8_decode($row['fecha']);                   
+                                        $fila[] = $row['paciente'];                   
+                                        $fila[] = $row['formapago2'];  
+                                        $fila[] = $row['voucher'];  
+                                        $fila[] = $row['nombre'].': '.$row['comentario']; 
+                                        $fila[] = ''; 
+                                        $fila[] = '';
+                                        $sheet->mergeCells('E'.$a.':G'.$a);
+                                        if($row['situacion'] == 'N') {
+                                            $fila[] = number_format($row['total'],2,'.','');
+                                            $fila[] = '';
+                                            $subtotalegresoscompra += number_format($row['total'],2,'.','');
+                                            $subtotalegresos += number_format($row['total'],2,'.','');
+                                        } else {
+                                            $fila[] = '';
+                                            $fila[] = 'ANULADO';
+                                        } 
+                                        $fila[] = '';                           
+                                        $fila[] = ''; 
+                                        $fila[] = '-';
+                                        $sheet->mergeCells('I'.$a.':K'.$a);
+                                        $sheet->row($a, $fila);
+                                        $a++;
+                                        $fila = array();
+                                    }       
+                                }  
+                                $fila[] = 'SUBTOTAL';                           
+                                $fila[] = '';                           
+                                $fila[] = '';                           
+                                $fila[] = '';                           
+                                $fila[] = '';                           
+                                $fila[] = '';                           
+                                $fila[] = '';                           
+                                $fila[] = number_format($subtotalegresoscompra,2,'.','');  
+                                $fila[] = 0.00;                           
+                                $fila[] = ''; 
+                                $fila[] = '';                          
+                                $sheet->row($a, $fila);
+                                $sheet->mergeCells('A'.$a.':G'.$a); 
+                                $sheet->mergeCells('I'.$a.':K'.$a);
+                                $sheet->cells('A'.$a.':L'.$a, function ($cells) {
+                                    $cells->setFont(array(
+                                        'family'     => 'Calibri',
+                                        'size'       => '11',
+                                        'bold'       =>  true
+                                    ));
+                                }); 
+                                $sheet->cell('I'.$a, function($cell){
+                                    $cell->setAlignment('right');
+                                });
+                                $fila = array();
+                                $a++;                
+                            }
+                        }
+
+                        $sheet->setBorder('A1:L'.($a-1), 'thin');
+                        $a++;
+
+                        $fila[] = 'RESPONSABLE';                           
+                        $fila[] = $responsable; 
+                        $sheet->mergeCells('B'.$a.':L'.$a);
+                        $sheet->cells('A'.$a.':L'.$a, function ($cells) {
+                            $cells->setFont(array(
+                                'family'     => 'Calibri',
+                                'size'       => '11',
+                                'bold'       =>  true
+                            ));
+                        });
+                        $sheet->row($a, $fila);
+                        $fila = array();
+                        $a++;
+                        $a++; 
+
+                        $fila[] = '';                           
+                        $fila[] = '';                           
+                        $fila[] = '';                           
+                        $fila[] = '';                           
+                        $fila[] = 'RESUMEN DE CAJA';
+                        $sheet->mergeCells('E'.$a.':F'.$a);
+                        $sheet->cells('E'.$a.':F'.$a, function ($cells) {
+                            $cells->setFont(array(
+                                'family'     => 'Calibri',
+                                'size'       => '11',
+                                'bold'       =>  true
+                            ));
+                            $cells->setAlignment('center');
+                        });
+                        $sheet->row($a, $fila);
+                        $fila = array();
+                        $a++;
+
+                        $fila[] = '';                           
+                        $fila[] = '';                           
+                        $fila[] = '';                           
+                        $fila[] = '';
+                        $fila[] = 'INGRESOS';
+                        $fila[] = number_format($totalefectivo + $totalmaster + $totalvisa,2,'.','');
+                        $sheet->row($a, $fila);
+                        $fila = array();
+                        $a++;
+
+                        $fila[] = '';                           
+                        $fila[] = '';                           
+                        $fila[] = '';                           
+                        $fila[] = '';
+                        $fila[] = 'Efectivo';
+                        $fila[] = number_format($totalefectivo,2,'.','');
+                        $sheet->row($a, $fila);
+                        $fila = array();
+                        $a++;
+
+                        $fila[] = '';                           
+                        $fila[] = '';                           
+                        $fila[] = '';                           
+                        $fila[] = '';
+                        $fila[] = 'Master';
+                        $fila[] = number_format($totalmaster,2,'.','');
+                        $sheet->row($a, $fila);
+                        $fila = array();
+                        $a++;
+
+                        $fila[] = '';                           
+                        $fila[] = '';                           
+                        $fila[] = '';                           
+                        $fila[] = '';
+                        $fila[] = 'Visa';
+                        $fila[] = number_format($totalvisa,2,'.','');
+                        $sheet->row($a, $fila);
+                        $fila = array();
+                        $a++;
+
+                        $fila[] = '';                           
+                        $fila[] = '';                           
+                        $fila[] = '';                           
+                        $fila[] = '';
+                        $fila[] = 'EGRESOS';
+                        $fila[] = number_format($subtotalegresos,2,'.','');
+                        $sheet->row($a, $fila);
+                        $fila = array();
+                        $a++;
+
+                        $fila[] = '';                           
+                        $fila[] = '';                           
+                        $fila[] = '';                           
+                        $fila[] = '';
+                        $fila[] = 'SALDO (S/.)';
+                        $fila[] = number_format($totalefectivo + $totalmaster + $totalvisa - $subtotalegresos,2,'.','');
+                        $sheet->row($a, $fila);
+                        $fila = array();
+                        $a++;
+
+                        $fila[] = '';                           
+                        $fila[] = '';                           
+                        $fila[] = '';                           
+                        $fila[] = '';
+                        $fila[] = 'SALDO ($)';
+                        $fila[] = number_format($subtotaldolares,2,'.','');
+                        $sheet->row($a, $fila);
+
+                        $sheet->cells('E'.($a-7).':E'.$a, function ($cells) {
+                            $cells->setFont(array(
+                                'family'     => 'Calibri',
+                                'size'       => '11',
+                                'bold'       =>  true
+                            ));
+                        });
+
+                        $sheet->setBorder('E'.($a-7).':F'.$a, 'thin');
+
+                        $sheet->cells('F'.($a-7).':F'.$a, function ($cells) {
+                            $cells->setFont(array(
+                                'size'       => '11',
+                            ));
+                        });
+                    });
+                    if($cont == $numcajas) {
+                        break;
                     }
-
-                    $sheet->setBorder('A1:L'.($a-1), 'thin');
-                    $a++;
-
-                    $fila[] = 'RESPONSABLE';                           
-                    $fila[] = $responsable; 
-                    $sheet->mergeCells('B'.$a.':L'.$a);
-                    $sheet->cells('A'.$a.':L'.$a, function ($cells) {
-                        $cells->setFont(array(
-                            'family'     => 'Calibri',
-                            'size'       => '11',
-                            'bold'       =>  true
-                        ));
-                    });
-                    $sheet->row($a, $fila);
-                    $fila = array();
-                    $a++;
-                    $a++; 
-
-                    $fila[] = '';                           
-                    $fila[] = '';                           
-                    $fila[] = '';                           
-                    $fila[] = '';                           
-                    $fila[] = 'RESUMEN DE CAJA';
-                    $sheet->mergeCells('E'.$a.':F'.$a);
-                    $sheet->cells('E'.$a.':F'.$a, function ($cells) {
-                        $cells->setFont(array(
-                            'family'     => 'Calibri',
-                            'size'       => '11',
-                            'bold'       =>  true
-                        ));
-                        $cells->setAlignment('center');
-                    });
-                    $sheet->row($a, $fila);
-                    $fila = array();
-                    $a++;
-
-                    $fila[] = '';                           
-                    $fila[] = '';                           
-                    $fila[] = '';                           
-                    $fila[] = '';
-                    $fila[] = 'INGRESOS';
-                    $fila[] = number_format($totalefectivo + $totalmaster + $totalvisa,2,'.','');
-                    $sheet->row($a, $fila);
-                    $fila = array();
-                    $a++;
-
-                    $fila[] = '';                           
-                    $fila[] = '';                           
-                    $fila[] = '';                           
-                    $fila[] = '';
-                    $fila[] = 'Efectivo';
-                    $fila[] = number_format($totalefectivo,2,'.','');
-                    $sheet->row($a, $fila);
-                    $fila = array();
-                    $a++;
-
-                    $fila[] = '';                           
-                    $fila[] = '';                           
-                    $fila[] = '';                           
-                    $fila[] = '';
-                    $fila[] = 'Master';
-                    $fila[] = number_format($totalmaster,2,'.','');
-                    $sheet->row($a, $fila);
-                    $fila = array();
-                    $a++;
-
-                    $fila[] = '';                           
-                    $fila[] = '';                           
-                    $fila[] = '';                           
-                    $fila[] = '';
-                    $fila[] = 'Visa';
-                    $fila[] = number_format($totalvisa,2,'.','');
-                    $sheet->row($a, $fila);
-                    $fila = array();
-                    $a++;
-
-                    $fila[] = '';                           
-                    $fila[] = '';                           
-                    $fila[] = '';                           
-                    $fila[] = '';
-                    $fila[] = 'EGRESOS';
-                    $fila[] = number_format($subtotalegresos,2,'.','');
-                    $sheet->row($a, $fila);
-                    $fila = array();
-                    $a++;
-
-                    $fila[] = '';                           
-                    $fila[] = '';                           
-                    $fila[] = '';                           
-                    $fila[] = '';
-                    $fila[] = 'SALDO (S/.)';
-                    $fila[] = number_format($totalefectivo + $totalmaster + $totalvisa - $subtotalegresos,2,'.','');
-                    $sheet->row($a, $fila);
-                    $fila = array();
-                    $a++;
-
-                    $fila[] = '';                           
-                    $fila[] = '';                           
-                    $fila[] = '';                           
-                    $fila[] = '';
-                    $fila[] = 'SALDO ($)';
-                    $fila[] = number_format($subtotaldolares,2,'.','');
-                    $sheet->row($a, $fila);
-
-                    $sheet->cells('E'.($a-7).':E'.$a, function ($cells) {
-                        $cells->setFont(array(
-                            'family'     => 'Calibri',
-                            'size'       => '11',
-                            'bold'       =>  true
-                        ));
-                    });
-
-                    $sheet->setBorder('E'.($a-7).':F'.$a, 'thin');
-
-                    $sheet->cells('F'.($a-7).':F'.$a, function ($cells) {
-                        $cells->setFont(array(
-                            'size'       => '11',
-                        ));
-                    });
-                });
-                if($cont == $numcajas) {
-                    break;
+                    $cont++;
                 }
-                $cont++;
+            } else {
+                Excel::create('Filename', function($excel) {
+                    $excel->sheet('No se ha cerrado ninguna caja.', function(\PHPExcel_Worksheet $sheet) {
+
+                    });
+                })->store('xlsx', storage_path('excel/exports'));
             }
+                
         })->export('xls');
     }
 
@@ -3363,6 +3378,7 @@ class CajaController extends Controller
         $totalefectivo = 0;
         $totalegresos  = 0;
         $subtotalegresos = 0;
+        $subtotalegresoscompra = 0;
         $subtotaldolares = 0;
 
         //sucursal_id
@@ -3433,7 +3449,7 @@ class CajaController extends Controller
                 ->where('movimiento.sucursal_id', '=', $sucursal_id)
                 ->where('movimiento.id', '>=', $movimiento_mayor)
                 ->where('movimiento.caja_id', '=', $caja_id);
-        $resultadoventas = $resultadoventas->select('movimiento.doctor_id','movimiento.serie','movimiento.tipodocumento_id','movimiento.id','movimiento.comentario','movimiento.movimiento_id','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+        $resultadoventas = $resultadoventas->select('movimiento.doctor_id','movimiento.serie','movimiento.tipodocumento_id','movimiento.id','movimiento.comentario','movimiento.movimiento_id','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
         
         $listaventas           = $resultadoventas->get();
 
@@ -3536,7 +3552,7 @@ class CajaController extends Controller
                 ->where('movimiento.sucursal_id', '=', $sucursal_id)
                 ->where('movimiento.id', '>=', $movimiento_mayor)
                 ->where('movimiento.caja_id', '=', $caja_id);
-        $resultadoventas = $resultadoventas->select('movimiento.numeroserie2','movimiento.movimiento_id','movimiento.situacion','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+        $resultadoventas = $resultadoventas->select('movimiento.numeroserie2','movimiento.movimiento_id','movimiento.situacion','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
         
         $listaventas           = $resultadoventas->get();
 
@@ -3595,7 +3611,7 @@ class CajaController extends Controller
                 ->where('movimiento.caja_id', '=', $caja_id)
                 ->where('movimiento.id', '>=', $movimiento_mayor)
                 ->where('movimiento.ventafarmacia', '=', 'S');
-        $listaventasfarmacia = $listaventasfarmacia->select('movimiento.situacion','movimiento.doctor_id','movimiento.serie','movimiento.id','movimiento.nombrepaciente','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+        $listaventasfarmacia = $listaventasfarmacia->select('movimiento.situacion','movimiento.doctor_id','movimiento.serie','movimiento.id','movimiento.nombrepaciente','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
         
         $listaventasfarmacia = $listaventasfarmacia->get();
 
@@ -3608,48 +3624,52 @@ class CajaController extends Controller
             $subtotalmaster = 0;
             foreach ($listaventasfarmacia as $row) { 
                 $mov = Movimiento::where('movimiento_id', $row['id'])->limit(1)->first();
-                $pdf::SetFont('helvetica','',6);                   
-                $pdf::Cell(15,7,utf8_decode($row['fecha']),1,0,'C');
-                if($row['paciente'] == '') {
-                    $pdf::Cell(56,7,$row['nombrepaciente'],1,0,'L');
-                } else {
-                    $pdf::Cell(56,7,$row['paciente'],1,0,'L');
-                }                
-                $pdf::Cell(8,7,$mov->tipodocumento->abreviatura,1,0,'C');
-                $pdf::Cell(12,7,utf8_decode($row['serie'] . '-' . $row['numero']),1,0,'C');
-                if($mov->empresa_id != '') {
-                    $pdf::Cell(40,7,$mov->empresa->bussinesname,1,0,'L');                    
-                } else {
-                    $pdf::Cell(40,7,'-',1,0,'C');
-                }    
-                $pdf::Cell(88,7,$mov->conceptopago->nombre.': '.$row['comentario'],1,0,'L'); 
-                if($row['situacion'] == 'N') {
-                    $valuetp = number_format($row['totalpagado'],2,'.','');
-                    $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
-                    $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
-                    if($valuetp == 0){$valuetp='';}
-                    if($valuetpv == 0){$valuetpv='';}
-                    if($valuetpm == 0){$valuetpm='';}
-                    $pdf::Cell(14,7,$valuetp,1,0,'R');                    
-                    $pdf::Cell(14,7,$valuetpv,1,0,'R');
-                    $pdf::Cell(14,7,$valuetpm,1,0,'R');
-                } else {
-                    $pdf::Cell(42,7,'ANULADO',1,0,'C');
-                }                       
-                if($row['doctor_id'] != '') {
-                    $pdf::Cell(20,7,$row->doctor->apellidopaterno,1,0,'C');
-                } else {
-                    $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
-                }                
-                $pdf::Ln();
-                if($row['situacion'] == 'N') {
-                    $totalvisa        += number_format($row['totalpagadovisa'],2,'.','');
-                    $totalmaster      += number_format($row['totalpagadomaster'],2,'.','');
-                    $totalefectivo    += number_format($row['totalpagado'],2,'.','');
-                    $subtotalefectivo += number_format($row['totalpagadovisa'],2,'.','');
-                    $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
-                    $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
-                }
+
+                //Quitamos las guias internas sin copago
+                if($mov !== NULL) {
+                    $pdf::SetFont('helvetica','',6);                   
+                    $pdf::Cell(15,7,utf8_decode($row['fecha']),1,0,'C');
+                    if($row['paciente'] == '') {
+                        $pdf::Cell(56,7,$row['nombrepaciente'],1,0,'L');
+                    } else {
+                        $pdf::Cell(56,7,$row['paciente'],1,0,'L');
+                    }                
+                    $pdf::Cell(8,7,$mov === NULL ? '-' : $mov->tipodocumento->abreviatura,1,0,'C');
+                    $pdf::Cell(12,7,utf8_decode($row['serie'] . '-' . $row['numero']),1,0,'C');
+                    if($mov !== NULL && $mov->empresa_id != '') {
+                        $pdf::Cell(40,7,$mov->empresa->bussinesname,1,0,'L');                    
+                    } else {
+                        $pdf::Cell(40,7,'-',1,0,'C');
+                    }    
+                    $pdf::Cell(88,7,$mov === NULL ? '-' : $mov->conceptopago->nombre.': '.$row['comentario'],1,0,'L'); 
+                    if($row['situacion'] == 'N') {
+                        $valuetp = number_format($row['totalpagado'],2,'.','');
+                        $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
+                        $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
+                        if($valuetp == 0){$valuetp='';}
+                        if($valuetpv == 0){$valuetpv='';}
+                        if($valuetpm == 0){$valuetpm='';}
+                        $pdf::Cell(14,7,$valuetp,1,0,'R');                    
+                        $pdf::Cell(14,7,$valuetpv,1,0,'R');
+                        $pdf::Cell(14,7,$valuetpm,1,0,'R');
+                    } else {
+                        $pdf::Cell(42,7,'ANULADO',1,0,'C');
+                    }                       
+                    if($row['doctor_id'] != '') {
+                        $pdf::Cell(20,7,$row->doctor->apellidopaterno,1,0,'C');
+                    } else {
+                        $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
+                    }                
+                    $pdf::Ln();
+                    if($row['situacion'] == 'N') {
+                        $totalvisa        += number_format($row['totalpagadovisa'],2,'.','');
+                        $totalmaster      += number_format($row['totalpagadomaster'],2,'.','');
+                        $totalefectivo    += number_format($row['totalpagado'],2,'.','');
+                        $subtotalefectivo += number_format($row['totalpagadovisa'],2,'.','');
+                        $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
+                        $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
+                    }
+                }                    
             } 
             $pdf::SetFont('helvetica','B',8.5);
             $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
@@ -3669,7 +3689,7 @@ class CajaController extends Controller
                 ->where('movimiento.id', '>=', $movimiento_mayor)
                 ->where('movimiento.situacion2', '=', 'Q')
                 ->where('conceptopago.tipo', '=', 'I');
-        $listaingresosvarios = $listaingresosvarios->select('movimiento.situacion','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'conceptopago.nombre', 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+        $listaingresosvarios = $listaingresosvarios->select('movimiento.situacion','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'conceptopago.nombre', 'movimiento.total')->orderBy('movimiento.numero', 'asc');
         
         $listaingresosvarios = $listaingresosvarios->get();
 
@@ -3738,7 +3758,7 @@ class CajaController extends Controller
             ->where('conceptopago.tipo', '=', 'E')
             ->where('movimiento.situacion2', '=', 'Q');
 
-        $resultadoegresos        = $resultadoegresos->select('movimiento.*','m2.situacion as situacion2','responsable.nombres as responsable2',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'),'paciente.ruc as ruc' ,DB::raw('concat(paciente.ruc,\' \',paciente.bussinesname) as razonsocial'), 'conceptopago.nombre')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
+        $resultadoegresos        = $resultadoegresos->select('movimiento.*','m2.situacion as situacion2','responsable.nombres as responsable2',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'),'paciente.ruc as ruc' ,DB::raw('concat(paciente.ruc,\' \',paciente.bussinesname) as razonsocial'), 'conceptopago.nombre')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
 
         $listaegresos = $resultadoegresos->get();
 
@@ -3974,7 +3994,7 @@ class CajaController extends Controller
                 ->where('movimiento.sucursal_id', '=', $sucursal_id)
                 ->whereBetween('movimiento.fecha', [$fi, $ff])
                 ->where('movimiento.caja_id', '=', $caja_id);
-        $resultadoventas = $resultadoventas->select('movimiento.plan_id','movimiento.doctor_id','movimiento.serie','movimiento.tipodocumento_id','movimiento.id','movimiento.comentario','movimiento.movimiento_id','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+        $resultadoventas = $resultadoventas->select('movimiento.plan_id','movimiento.doctor_id','movimiento.serie','movimiento.tipodocumento_id','movimiento.id','movimiento.comentario','movimiento.movimiento_id','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
         
         $listaventas           = $resultadoventas->get();
 
@@ -4077,7 +4097,7 @@ class CajaController extends Controller
                 ->where('movimiento.sucursal_id', '=', $sucursal_id)
                 ->whereBetween('movimiento.fecha', [$fi, $ff])
                 ->where('movimiento.caja_id', '=', $caja_id);
-        $resultadoventas = $resultadoventas->select('movimiento.numeroserie2','movimiento.movimiento_id','movimiento.situacion','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+        $resultadoventas = $resultadoventas->select('movimiento.numeroserie2','movimiento.movimiento_id','movimiento.situacion','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
         
         $listaventas           = $resultadoventas->get();
 
@@ -4136,7 +4156,7 @@ class CajaController extends Controller
                 ->where('movimiento.caja_id', '=', $caja_id)
                 ->whereBetween('movimiento.fecha', [$fi, $ff])
                 ->where('movimiento.ventafarmacia', '=', 'S');
-        $listaventasfarmacia = $listaventasfarmacia->select('movimiento.situacion','movimiento.doctor_id','movimiento.serie','movimiento.id','movimiento.nombrepaciente','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+        $listaventasfarmacia = $listaventasfarmacia->select('movimiento.situacion','movimiento.doctor_id','movimiento.serie','movimiento.id','movimiento.nombrepaciente','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
         
         $listaventasfarmacia = $listaventasfarmacia->get();
 
@@ -4149,48 +4169,50 @@ class CajaController extends Controller
             $subtotalmaster = 0;
             foreach ($listaventasfarmacia as $row) { 
                 $mov = Movimiento::where('movimiento_id', $row['id'])->limit(1)->first();
-                $pdf::SetFont('helvetica','',6);                   
-                $pdf::Cell(15,7,utf8_decode($row['fecha']),1,0,'C');
-                if($row['paciente'] == '') {
-                    $pdf::Cell(56,7,$row['nombrepaciente'],1,0,'L');
-                } else {
-                    $pdf::Cell(56,7,$row['paciente'],1,0,'L');
-                }                
-                $pdf::Cell(8,7,$mov->tipodocumento->abreviatura,1,0,'C');
-                $pdf::Cell(12,7,utf8_decode($row['serie'] . '-' . $row['numero']),1,0,'C');
-                if($mov->empresa_id != '') {
-                    $pdf::Cell(40,7,$mov->empresa->bussinesname,1,0,'L');                    
-                } else {
-                    $pdf::Cell(40,7,'-',1,0,'C');
-                } 
-                $pdf::Cell(88,7,$mov->conceptopago->nombre.': '.$row['comentario'],1,0,'L'); 
-                if($row['situacion'] == 'N') {
-                    $valuetp = number_format($row['totalpagado'],2,'.','');
-                    $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
-                    $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
-                    if($valuetp == 0){$valuetp='';}
-                    if($valuetpv == 0){$valuetpv='';}
-                    if($valuetpm == 0){$valuetpm='';}
-                    $pdf::Cell(14,7,$valuetp,1,0,'R');                    
-                    $pdf::Cell(14,7,$valuetpv,1,0,'R');
-                    $pdf::Cell(14,7,$valuetpm,1,0,'R');
-                } else {
-                    $pdf::Cell(42,7,'ANULADO',1,0,'C');
-                } 
-                if($row['doctor_id'] != '') {
-                    $pdf::Cell(20,7,$row->doctor->apellidopaterno,1,0,'C');
-                } else {
-                    $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
-                }                
-                $pdf::Ln();
-                if($row['situacion'] == 'N') {
-                    $totalvisa        += number_format($row['totalpagadovisa'],2,'.','');
-                    $totalmaster      += number_format($row['totalpagadomaster'],2,'.','');
-                    $totalefectivo    += number_format($row['totalpagado'],2,'.','');
-                    $subtotalefectivo += number_format($row['totalpagadovisa'],2,'.','');
-                    $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
-                    $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
-                }
+                if($mov !== NULL) {
+                    $pdf::SetFont('helvetica','',6);                   
+                    $pdf::Cell(15,7,utf8_decode($row['fecha']),1,0,'C');
+                    if($row['paciente'] == '') {
+                        $pdf::Cell(56,7,$row['nombrepaciente'],1,0,'L');
+                    } else {
+                        $pdf::Cell(56,7,$row['paciente'],1,0,'L');
+                    }                
+                    $pdf::Cell(8,7,$mov->tipodocumento->abreviatura,1,0,'C');
+                    $pdf::Cell(12,7,utf8_decode($row['serie'] . '-' . $row['numero']),1,0,'C');
+                    if($mov->empresa_id != '') {
+                        $pdf::Cell(40,7,$mov->empresa->bussinesname,1,0,'L');                    
+                    } else {
+                        $pdf::Cell(40,7,'-',1,0,'C');
+                    } 
+                    $pdf::Cell(88,7,$mov->conceptopago->nombre.': '.$row['comentario'],1,0,'L'); 
+                    if($row['situacion'] == 'N') {
+                        $valuetp = number_format($row['totalpagado'],2,'.','');
+                        $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
+                        $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
+                        if($valuetp == 0){$valuetp='';}
+                        if($valuetpv == 0){$valuetpv='';}
+                        if($valuetpm == 0){$valuetpm='';}
+                        $pdf::Cell(14,7,$valuetp,1,0,'R');                    
+                        $pdf::Cell(14,7,$valuetpv,1,0,'R');
+                        $pdf::Cell(14,7,$valuetpm,1,0,'R');
+                    } else {
+                        $pdf::Cell(42,7,'ANULADO',1,0,'C');
+                    } 
+                    if($row['doctor_id'] != '') {
+                        $pdf::Cell(20,7,$row->doctor->apellidopaterno,1,0,'C');
+                    } else {
+                        $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
+                    }                
+                    $pdf::Ln();
+                    if($row['situacion'] == 'N') {
+                        $totalvisa        += number_format($row['totalpagadovisa'],2,'.','');
+                        $totalmaster      += number_format($row['totalpagadomaster'],2,'.','');
+                        $totalefectivo    += number_format($row['totalpagado'],2,'.','');
+                        $subtotalefectivo += number_format($row['totalpagadovisa'],2,'.','');
+                        $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
+                        $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
+                    }
+                }                    
             } 
             $pdf::SetFont('helvetica','B',8.5);
             $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
@@ -4210,7 +4232,7 @@ class CajaController extends Controller
                 ->whereBetween('movimiento.fecha', [$fi, $ff])
                 ->where('movimiento.situacion2', '=', 'Q')
                 ->where('conceptopago.tipo', '=', 'I');
-        $listaingresosvarios = $listaingresosvarios->select('movimiento.situacion','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'conceptopago.nombre', 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+        $listaingresosvarios = $listaingresosvarios->select('movimiento.situacion','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'conceptopago.nombre', 'movimiento.total')->orderBy('movimiento.numero', 'asc');
         
         $listaingresosvarios = $listaingresosvarios->get();
 
@@ -4279,7 +4301,7 @@ class CajaController extends Controller
             ->where('conceptopago.tipo', '=', 'E')
             ->where('movimiento.situacion2', '=', 'Q');
 
-        $resultadoegresos        = $resultadoegresos->select('movimiento.*','m2.situacion as situacion2','responsable.nombres as responsable2',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'conceptopago.nombre')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
+        $resultadoegresos        = $resultadoegresos->select('movimiento.*','m2.situacion as situacion2','responsable.nombres as responsable2',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'conceptopago.nombre')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
 
         $listaegresos = $resultadoegresos->get();
 
@@ -4515,7 +4537,7 @@ class CajaController extends Controller
                     ->where('movimiento.sucursal_id', '=', $sucursal_id)
                     ->whereBetween('movimiento.id', [$apertura->id,(int)$cierre['id']])
                     ->where('movimiento.caja_id', '=', $caja_id);
-            $resultadoventas = $resultadoventas->select('movimiento.plan_id','movimiento.doctor_id','movimiento.serie','movimiento.tipodocumento_id','movimiento.id','movimiento.comentario','movimiento.movimiento_id','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+            $resultadoventas = $resultadoventas->select('movimiento.plan_id','movimiento.doctor_id','movimiento.serie','movimiento.tipodocumento_id','movimiento.id','movimiento.comentario','movimiento.movimiento_id','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
             
             $listaventas           = $resultadoventas->get();
 
@@ -4618,7 +4640,7 @@ class CajaController extends Controller
                     ->where('movimiento.sucursal_id', '=', $sucursal_id)
                     ->whereBetween('movimiento.id', [$apertura->id,(int)$cierre['id']])
                     ->where('movimiento.caja_id', '=', $caja_id);
-            $resultadoventas = $resultadoventas->select('movimiento.numeroserie2','movimiento.movimiento_id','movimiento.situacion','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+            $resultadoventas = $resultadoventas->select('movimiento.numeroserie2','movimiento.movimiento_id','movimiento.situacion','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
             
             $listaventas           = $resultadoventas->get();
 
@@ -4677,7 +4699,7 @@ class CajaController extends Controller
                     ->where('movimiento.caja_id', '=', $caja_id)
                     ->whereBetween('movimiento.id', [$apertura->id,(int)$cierre['id']])
                     ->where('movimiento.ventafarmacia', '=', 'S');
-            $listaventasfarmacia = $listaventasfarmacia->select('movimiento.situacion','movimiento.doctor_id','movimiento.serie','movimiento.id','movimiento.nombrepaciente','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+            $listaventasfarmacia = $listaventasfarmacia->select('movimiento.situacion','movimiento.doctor_id','movimiento.serie','movimiento.id','movimiento.nombrepaciente','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
             
             $listaventasfarmacia = $listaventasfarmacia->get();
 
@@ -4690,47 +4712,49 @@ class CajaController extends Controller
                 $subtotalmaster = 0;
                 foreach ($listaventasfarmacia as $row) { 
                     $mov = Movimiento::where('movimiento_id', $row['id'])->limit(1)->first();
-                    $pdf::SetFont('helvetica','',6);                   
-                    $pdf::Cell(15,7,utf8_decode($row['fecha']),1,0,'C');
-                    if($row['paciente'] == '') {
-                        $pdf::Cell(56,7,$row['nombrepaciente'],1,0,'L');
-                    } else {
-                        $pdf::Cell(56,7,$row['paciente'],1,0,'L');
-                    }                
-                    $pdf::Cell(8,7,$mov->tipodocumento->abreviatura,1,0,'C');
-                    $pdf::Cell(12,7,utf8_decode($row['serie'] . '-' . $row['numero']),1,0,'C');
-                    if($mov->empresa_id != '') {
-                        $pdf::Cell(40,7,$mov->empresa->bussinesname,1,0,'L');                    
-                    } else {
-                        $pdf::Cell(40,7,'-',1,0,'C');
-                    } 
-                    $pdf::Cell(88,7,$mov->conceptopago->nombre.': '.$row['comentario'],1,0,'L'); 
-                    if($row['situacion'] == 'N') {
-                        $valuetp = number_format($row['totalpagado'],2,'.','');
-                        $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
-                        $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
-                        if($valuetp == 0){$valuetp='';}
-                        if($valuetpv == 0){$valuetpv='';}
-                        if($valuetpm == 0){$valuetpm='';}
-                        $pdf::Cell(14,7,$valuetp,1,0,'R');                    
-                        $pdf::Cell(14,7,$valuetpv,1,0,'R');
-                        $pdf::Cell(14,7,$valuetpm,1,0,'R');
-                    } else {
-                        $pdf::Cell(42,7,'ANULADO',1,0,'C');
-                    } 
-                    if($row['doctor_id'] != '') {
-                        $pdf::Cell(20,7,$row->doctor->apellidopaterno,1,0,'C');
-                    } else {
-                        $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
-                    }                
-                    $pdf::Ln();
-                    if($row['situacion'] == 'N') {
-                        $totalvisa        += number_format($row['totalpagadovisa'],2,'.','');
-                        $totalmaster      += number_format($row['totalpagadomaster'],2,'.','');
-                        $totalefectivo    += number_format($row['totalpagado'],2,'.','');
-                        $subtotalefectivo += number_format($row['totalpagadovisa'],2,'.','');
-                        $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
-                        $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
+                    if ($mov !== NULL) {
+                        $pdf::SetFont('helvetica','',6);                   
+                        $pdf::Cell(15,7,utf8_decode($row['fecha']),1,0,'C');
+                        if($row['paciente'] == '') {
+                            $pdf::Cell(56,7,$row['nombrepaciente'],1,0,'L');
+                        } else {
+                            $pdf::Cell(56,7,$row['paciente'],1,0,'L');
+                        }                
+                        $pdf::Cell(8,7,$mov->tipodocumento->abreviatura,1,0,'C');
+                        $pdf::Cell(12,7,utf8_decode($row['serie'] . '-' . $row['numero']),1,0,'C');
+                        if($mov->empresa_id != '') {
+                            $pdf::Cell(40,7,$mov->empresa->bussinesname,1,0,'L');                    
+                        } else {
+                            $pdf::Cell(40,7,'-',1,0,'C');
+                        } 
+                        $pdf::Cell(88,7,$mov->conceptopago->nombre.': '.$row['comentario'],1,0,'L'); 
+                        if($row['situacion'] == 'N') {
+                            $valuetp = number_format($row['totalpagado'],2,'.','');
+                            $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
+                            $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
+                            if($valuetp == 0){$valuetp='';}
+                            if($valuetpv == 0){$valuetpv='';}
+                            if($valuetpm == 0){$valuetpm='';}
+                            $pdf::Cell(14,7,$valuetp,1,0,'R');                    
+                            $pdf::Cell(14,7,$valuetpv,1,0,'R');
+                            $pdf::Cell(14,7,$valuetpm,1,0,'R');
+                        } else {
+                            $pdf::Cell(42,7,'ANULADO',1,0,'C');
+                        } 
+                        if($row['doctor_id'] != '') {
+                            $pdf::Cell(20,7,$row->doctor->apellidopaterno,1,0,'C');
+                        } else {
+                            $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
+                        }                
+                        $pdf::Ln();
+                        if($row['situacion'] == 'N') {
+                            $totalvisa        += number_format($row['totalpagadovisa'],2,'.','');
+                            $totalmaster      += number_format($row['totalpagadomaster'],2,'.','');
+                            $totalefectivo    += number_format($row['totalpagado'],2,'.','');
+                            $subtotalefectivo += number_format($row['totalpagadovisa'],2,'.','');
+                            $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
+                            $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
+                        }
                     }
                 } 
                 $pdf::SetFont('helvetica','B',8.5);
@@ -4751,7 +4775,7 @@ class CajaController extends Controller
                     ->whereBetween('movimiento.id', [$apertura->id,(int)$cierre['id']])
                     ->where('movimiento.situacion2', '=', 'Q')
                     ->where('conceptopago.tipo', '=', 'I');
-            $listaingresosvarios = $listaingresosvarios->select('movimiento.situacion','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'conceptopago.nombre', 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+            $listaingresosvarios = $listaingresosvarios->select('movimiento.situacion','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'conceptopago.nombre', 'movimiento.total')->orderBy('movimiento.numero', 'asc');
             
             $listaingresosvarios = $listaingresosvarios->get();
 
@@ -4820,7 +4844,7 @@ class CajaController extends Controller
                 ->where('conceptopago.tipo', '=', 'E')
                 ->where('movimiento.situacion2', '=', 'Q');
 
-            $resultadoegresos        = $resultadoegresos->select('movimiento.*','m2.situacion as situacion2','responsable.nombres as responsable2',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'conceptopago.nombre')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
+            $resultadoegresos        = $resultadoegresos->select('movimiento.*','m2.situacion as situacion2','responsable.nombres as responsable2',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'conceptopago.nombre')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
 
             $listaegresos = $resultadoegresos->get();
 
@@ -11005,7 +11029,7 @@ class CajaController extends Controller
                 ->where('movimiento.caja_id', '=', $caja_id)
                 ->whereBetween('movimiento.fecha', [$fi, $ff])
                 ->where('movimiento.ventafarmacia', '=', 'S');
-        $listaventasfarmacia = $listaventasfarmacia->select('movimiento.situacion','movimiento.doctor_id','movimiento.serie','movimiento.id','movimiento.nombrepaciente','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.nombres) as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+        $listaventasfarmacia = $listaventasfarmacia->select('movimiento.situacion','movimiento.doctor_id','movimiento.serie','movimiento.id','movimiento.nombrepaciente','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'movimiento.total')->orderBy('movimiento.numero', 'asc');
         
         $listaventasfarmacia = $listaventasfarmacia->get();
 

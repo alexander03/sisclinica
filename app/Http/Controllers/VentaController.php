@@ -1231,7 +1231,7 @@ class VentaController extends Controller
         $listar   = Libreria::getParam($request->input('listar'), 'NO');
         $entidad  = 'Venta';
         $sucursal_id = Session::get('sucursal_id');
-        $caja = Caja::where('sucursal_id', $sucursal_id)->where('nombre', 'FARMACIA')->limit(1)->first();
+        $caja = Caja::where('sucursal_id', $sucursal_id)->where('nombre', 'FARMACIA')->first();
         $caja_id = $caja->id;
         $venta = null;
         //$cboDocumento        = Tipodocumento::lists('nombre', 'id')->all();
@@ -1243,15 +1243,15 @@ class VentaController extends Controller
                 $cboDocumento = $cboDocumento + array( $value->id => $value->nombre);
             }  
         }
-        $cboCredito        = array("N" => 'NO', 'S' => 'SI');
-        $cboCajafarmacia        = array("N" => 'NO', 'S' => 'SI');
-        $cboTipoventa        = array("N" => 'Normal', 'C' => 'Convenio');
-        $cboFormapago        = array("C" => 'Contado', 'P' => 'Pendiente', 'T' => 'Tarjeta');
-        $cboTipoTarjeta    = array("VISA" => "VISA", "MASTER" => "MASTER");
-        $cboTipoTarjeta2    = array("CREDITO" => "CREDITO", "DEBITO" => "DEBITO");
-        $formData = array('venta.store');
-        $formData = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        $boton    = 'Registrar'; 
+        $cboCredito      = array("N" => 'NO', 'S' => 'SI');
+        $cboCajafarmacia = array("N" => 'NO', 'S' => 'SI');
+        $cboTipoventa    = array("N" => 'Normal', 'C' => 'Convenio');
+        $cboFormapago    = array("C" => 'Contado', 'P' => 'Pendiente', 'T' => 'Tarjeta');
+        $cboTipoTarjeta  = array("VISA" => "VISA", "MASTER" => "MASTER");
+        $cboTipoTarjeta2 = array("CREDITO" => "CREDITO", "DEBITO" => "DEBITO");
+        $formData        = array('venta.store');
+        $formData        = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $boton           = 'Registrar'; 
         //$numero              = Movimiento::NumeroSigue(4,5,4,'N');//movimiento caja y documento ingreso
         //$request->session()->forget('carritoventa');
         //$lista = array();
@@ -1418,7 +1418,7 @@ class VentaController extends Controller
                     if ($request->input('documento') == '5' || $request->input('documento') == '14' ) {
                         $codigo="03";
                         $abreviatura="B";                    
-                    }else{
+                    } else if ($request->input('documento') == '4'){
                         $codigo="01";
                         $abreviatura="F";
                         $venta->empresa_id = $request->input('empresa_id');
@@ -1622,7 +1622,7 @@ class VentaController extends Controller
                             $abreviatura="G"; 
                             if ($request->input('documento') == '5') {
                                 $abreviatura="B";                    
-                            }else{
+                            }else if ($request->input('documento') == '4'){
                                 $abreviatura="F";
                             }
                             $movimiento->comentario='Pago de : '.$abreviatura.'004-'.$request->input('numerodocumento');
@@ -1671,17 +1671,17 @@ class VentaController extends Controller
                         $abreviatura="G";
                         if ($request->input('documento') == '5' || $request->input('documento') == '14' ) {
                             $codigo="03";
-                            $abreviatura="B";
-                            if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                                $venta->persona_id = $request->input('person_id');
-                            }else{
-                                $venta->nombrepaciente = $request->input('nombrepersona');
-                            }
-                            
-                        }else{
+                            $abreviatura="B";                            
+                        }else if($request->input('documento') == '4'){
                             $codigo="01";
                             $abreviatura="F";
                             $venta->empresa_id = $request->input('empresa_id');
+                        }
+
+                        if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
+                            $venta->persona_id = $request->input('person_id');
+                        }else{
+                            $venta->nombrepaciente = $request->input('nombrepersona');
                         }
                         $venta->tipomovimiento_id = 4;
                         $venta->almacen_id        = $almacen_id;
@@ -1906,21 +1906,16 @@ class VentaController extends Controller
                     if ($request->input('documento') == '5' || $request->input('documento') == '14' ) {
                         $codigo="03";
                         $abreviatura="B";
-                        if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                            $venta2->persona_id = $request->input('person_id');
-                        }else{
-                            $venta2->nombrepaciente = $request->input('nombrepersona');
-                        }
-                        
-                    }else{
+                    }else if($request->input('documento') == '4'){
                         $codigo="01";
                         $abreviatura="F";
                         $venta2->empresa_id = $request->input('empresa_id');
-                        if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                            $venta2->persona_id = $request->input('person_id');
-                        }else{
-                            $venta2->nombrepaciente = $request->input('nombrepersona');
-                        }
+                    }
+
+                    if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
+                        $venta2->persona_id = $request->input('person_id');
+                    }else{
+                        $venta2->nombrepaciente = $request->input('nombrepersona');
                     }
                     $venta2->tipomovimiento_id = 4;
                     $venta2->almacen_id        = $almacen_id;
@@ -2108,7 +2103,7 @@ class VentaController extends Controller
                                 $abreviatura="G"; 
                                 if ($request->input('documento') == '5') {
                                     $abreviatura="B";                    
-                                }else{
+                                }else if($request->input('documento') == '4'){
                                     $abreviatura="F";
                                 }
                                 $movimiento->comentario='Pago de : '.$abreviatura.'004-'.$request->input('numerodocumento');
@@ -2789,10 +2784,8 @@ class VentaController extends Controller
                 }
                 if ($request->input('documento') == '5' || $request->input('documento') == '14' ) {
                     $codigo="03";
-                    $abreviatura="B";
-                    
-                    
-                }else{
+                    $abreviatura="B";                    
+                }else if($request->input('documento') == '4'){
                     $codigo="01";
                     $abreviatura="F";
                     $venta->empresa_id = $request->input('empresa_id');
