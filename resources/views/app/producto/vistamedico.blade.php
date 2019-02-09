@@ -237,6 +237,7 @@ $user = Auth::user();
 														<?php
 														$hoy = date("Y-m-d");
 														?>
+														<input type="hidden" id="cita_id" name="cita_id">
 														<div class="form-group">
 															{!! Form::label('fecha', 'Fecha:', array('class' => 'col-sm-2 control-label')) !!}
 															<div class="col-sm-5" style="margin-top:7px;">
@@ -328,9 +329,22 @@ $user = Auth::user();
 															<textarea class="form-control input-xs" id="tratamiento" cols="10" rows="2" style="font-size: 16px;"></textarea>
 														</div>
 														<div class="form-group">
-															{!! Form::label('examenes', 'Exámenes:') !!}
-															<textarea class="form-control input-xs" id="examenes" cols="10" rows="2" style="font-size: 16px;"></textarea>
-														</div>												
+															{!! Form::label('examenes', 'Exámenes:', array('class' => 'col-sm-3 control-label', 'style' => 'margin-left: -15px;')) !!}
+															<div class="col-sm-9" style="margin-top:7px;">
+																{!! Form::text('examenes', '', array('class' => 'form-control input-xs', 'id' => 'examenes', 'style' => 'font-size: 16px;')) !!}
+															</div>
+															<strong align="center" class="col-lg-12 col-md-12 col-sm-12 m-t-40" style="margin-top: 10px;">LISTA DE EXÁMENES</strong>
+															<table class="table table-striped table-bordered col-lg-12 col-md-12 col-sm-12 " style="font-size: 70%; padding: 0px 0px !important;">
+																<thead id="cabecera">
+																	<tr>
+																		<th width='80%' style="font-size: 13px !important;">Descripción</th>
+																		<th width='20%' style="font-size: 13px !important;">Eliminar</th>
+																	</tr>
+																</thead>
+																<tbody id="detalle"></tbody>
+															</table>
+														</div>
+														
 													</div>
 													<div class="col-sm-4">
 														<!-- Lista de historias clinicas anteriores -->
@@ -430,7 +444,7 @@ $user = Auth::user();
 											{!! Form::date('citaproximaeditar', '', array('class' => 'form-control input-xs', 'id' => 'citaproximaeditar' , 'style' => 'margin-left: -25px;' , 'onchange' => 'cantidadCitasFechaEditar();' )) !!}
 										</div>
 										<div class="col-sm-2" style="margin-top:7px;">
-											{!! Form::text('citaseditar', '', array('class' => 'form-control input-xs', 'id' => 'citaseditar', 'readOnly', 'style' => 'font-size: 16px; margin-left: -35px;')) !!}
+											{!! Form::text('citaseditar', '', array('class' => 'form-control input-xs', 'id' => 'citaseditar', 'readOnly', 'style' => 'font-size: 16px; margin-left: -35px;width: 50px;')) !!}
 										</div>
 									</div>	
 								</div>
@@ -567,7 +581,7 @@ $user = Auth::user();
 			datumTokenizer: function (d) {
 				return Bloodhound.tokenizers.whitespace(d.value);
 			},
-			limit: 10,
+			limit: 5,
 			queryTokenizer: Bloodhound.tokenizers.whitespace,
 			remote: {
 				url: 'historiaclinica/cie10autocompletar/%QUERY',
@@ -589,6 +603,49 @@ $user = Auth::user();
 			$("#cie102").val(datum.value);
 			$("#cie102_id").val(datum.id);
 		});   
+
+
+	var examenes = new Bloodhound({
+			datumTokenizer: function (d) {
+				return Bloodhound.tokenizers.whitespace(d.value);
+			},
+			limit: 5,
+			queryTokenizer: Bloodhound.tokenizers.whitespace,
+			remote: {
+				url: 'historiaclinica/examenesAutocompletar/%QUERY',
+				filter: function (examenes) {
+					return $.map(examenes, function (examen) {
+						return {
+							value: examen.value,
+							id: examen.id,
+						};
+					});
+				}
+			}
+		});
+		examenes.initialize();
+		$("#examenes").typeahead(null,{
+			displayKey: 'value',
+			source: examenes.ttAdapter()
+		}).on('typeahead:selected', function (object, datum) {
+			var examen_id = datum.id;
+			var existe = false;
+
+			$("#detalle tr").each(function(){
+				if(examen_id == this.id){
+					existe = true;
+				}
+			});
+
+			if(!existe){
+				fila =  '<tr align="center" id="'+ datum.id +'" ><td style="vertical-align: middle; text-align: left;">'+ datum.value +'</td><td style="vertical-align: middle;"><a onclick="eliminarDetalle(this)" class="btn btn-xs btn-danger btnEliminar" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</a></td></tr>';
+				$("#detalle").append(fila);
+			}
+		});  
+
+	function eliminarDetalle(comp){
+		(($(comp).parent()).parent()).remove();
+	}
 
 	function buscar2(){
 		$.ajax({
@@ -725,13 +782,14 @@ $user = Auth::user();
 				$('#doctor').val(a.doctor);
   				$('#historia').val(a.numhistoria);
   				$('#paciente').val(a.paciente);
-  				$('#numero').val(a.numero);
+				$('#numero').val(a.numero);
+				$('#cita_id').val(a.cita_id);
 				$('#citaproxima').val(a.citaproxima);
 				if(a.fondo == "SI"){
 					$('#fondo').prop('checked', false);
 					$('#fondo_si').val(a.fondo);
 					$("#cie102").prop('readOnly', true);
-					$("#citaproxima").prop('readOnly', true);
+					//$("#citaproxima").prop('readOnly', true);
 					$("#motivo").prop('readOnly', true);
 				}else{
 					$('#fondo').prop('checked', false);
@@ -740,6 +798,8 @@ $user = Auth::user();
 					$("#motivo").prop('readOnly', false);
 				}
 				$('#cie102').val(a.cie10);
+				$('#cie102_id').val(a.cie10id);
+				$('#citas').val(a.cantcitas);
   				$('#cie102').focus();
 				$('#motivo').val(a.motivo);
 				//ANTECEDENTES
@@ -748,7 +808,13 @@ $user = Auth::user();
 				$('#tratamiento').val(a.tratamiento);
 				$('#diagnostico').val(a.diagnostico);
 				$('#exploracion_fisica').val(a.exploracion_fisica);
-				$('#examenes').val(a.examenes);
+				//$('#examenes').val(a.examenes);
+				console.log(a.examenes);
+				var arr = a.examenes;
+				$.each(arr, function (index, value) {
+					var fila =  '<tr align="center" id="'+ value.servicio_id +'" ><td style="vertical-align: middle; text-align: left;">'+ value.nombre +'</td><td style="vertical-align: middle;"><a onclick="eliminarDetalle(this)" class="btn btn-xs btn-danger btnEliminar" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</a></td></tr>';
+					$("#detalle").append(fila);
+				});
 	        }
 	    });
     });
@@ -775,11 +841,11 @@ $user = Auth::user();
     		$('#mensajeHistoriaClinica').html('Debes ingresar un tratamiento.');
     		return 0;
     	}
-		if($('#examenes').val() == '') {
+		/*if($('#examenes').val() == '') {
     		$('#examenes').focus();
     		$('#mensajeHistoriaClinica').html('Debes ingresar exámenes.');
     		return 0;
-    	}
+    	}*/
     	if($('#motivo').val() == '') {
     		$('#motivo').focus();
     		$('#mensajeHistoriaClinica').html('Debes ingresar un motivo.');
@@ -794,7 +860,7 @@ $user = Auth::user();
     	//ANTECEDENTES
 		var antecedentes = $('#antecedentes').val().replace(/\r?\n/g, "<br>");
     	var diagnostico = $('#diagnostico').val().replace(/\r?\n/g, "<br>");
-		var examenes = $('#examenes').val().replace(/\r?\n/g, "<br>");
+		//var examenes = $('#examenes').val().replace(/\r?\n/g, "<br>");
     	var motivo = $('#motivo').val().replace(/\r?\n/g, "<br>");
     	var exploracion_fisica = $('#exploracion_fisica').val().replace(/\r?\n/g, "<br>");
 		var fondo = "NO";
@@ -803,10 +869,27 @@ $user = Auth::user();
 		}
 		var ticket_id = $(this).data('ticket_id');
 		var doctor_id = $('#doctor_id').val();
+		
+		//detalle
+		var data = [];
+		$("#detalle tr").each(function(){
+			var element = $(this); // <-- en la variable element tienes tu elemento
+			var id = element.attr('id');
+			data.push(
+				{ "id": id }
+			);
+		});
+		var detalle = {"data": data};
+		var json = JSON.stringify(detalle);
+
+		var cita_id = $('#cita_id').val();
+
+		//fin detalle
+
 		$.ajax({
 	        type: "POST",
 	        url: "historiaclinica/registrarHistoriaClinica",
-	        data: $('#formHistoriaClinica').serialize() + "&_token=<?php echo csrf_token(); ?>&tratamiento=" + tratamiento + "&antecedentes=" + antecedentes + "&diagnostico=" + diagnostico + "&examenes=" + examenes + "&motivo=" + motivo + "&exploracion_fisica=" + exploracion_fisica + "&fondo=" + fondo + "&doctor_id=" + doctor_id,
+	        data: $('#formHistoriaClinica').serialize() + "&_token=<?php echo csrf_token(); ?>&tratamiento=" + tratamiento + "&antecedentes=" + antecedentes + "&diagnostico=" + diagnostico + /* "&examenes=" + examenes + */ "&motivo=" + motivo + "&exploracion_fisica=" + exploracion_fisica + "&fondo=" + fondo + "&doctor_id=" + doctor_id +"&examenes=" + json + "&cita_id=" + cita_id,
 	        success: function(a) {
 	        	if(a == 'El Código CIE no existe') {
 	        		$('#mensajeHistoriaClinica').html(a);
@@ -833,6 +916,7 @@ $user = Auth::user();
 					$('#citas').val('');
 					$('#exploracion_fisica').val('');
 					$("#divpresente").css('display','');
+					$('#detalle').html('');
 					$("#cie102").prop('disabled', true);
 					$("#antecedentes").prop('disabled', true);
 					$("#diagnostico").prop('disabled', true);
@@ -885,7 +969,7 @@ $user = Auth::user();
 				$('#tratamientoeditar').val(a.tratamiento);
 				$('#diagnosticoeditar').val(a.diagnostico);
 				$('#exploracion_fisicaeditar').val(a.exploracion_fisica);
-				$('#exameneseditar').val(a.examenes);
+				//$('#exameneseditar').val(a.examenes);
 				if(a.fondo == "SI"){
 					$('#fondoeditar').prop('checked', true);
 				}else{
@@ -902,7 +986,7 @@ $user = Auth::user();
 		var tratamiento = $('#tratamientoeditar').val().replace(/\r?\n/g, "<br>");
     	var antecedentes = $('#antecedenteseditar').val().replace(/\r?\n/g, "<br>");
     	var diagnostico = $('#diagnosticoeditar').val().replace(/\r?\n/g, "<br>");
-		var examenes = $('#exameneseditar').val().replace(/\r?\n/g, "<br>");
+		//var examenes = $('#exameneseditar').val().replace(/\r?\n/g, "<br>");
     	var motivo = $('#motivoeditar').val().replace(/\r?\n/g, "<br>");
     	var exploracion_fisica = $('#exploracion_fisicaeditar').val().replace(/\r?\n/g, "<br>");
 		var citaproxima = $('#citaproximaeditar').val();
@@ -915,7 +999,7 @@ $user = Auth::user();
 				"tratamiento" : tratamiento,
 				"antecedentes" : antecedentes,
 				"diagnostico" : diagnostico,
-				"examenes" : examenes,
+				//"examenes" : examenes,
 				"citaproxima" : citaproxima,
 				"motivo" : motivo,
 				"exploracion_fisica" : exploracion_fisica,
@@ -967,6 +1051,7 @@ $user = Auth::user();
 			$('#examenes').val('');
 			$('#motivo').val('');
 			$('#citas').val('');
+			$('#detalle').html('');
 			$('#exploracion_fisica').val('');
 			$("#cie102").prop('disabled', true);
 			$("#antecedentes").prop('disabled', true);

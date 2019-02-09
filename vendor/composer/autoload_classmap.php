@@ -29,6 +29,7 @@ return array(
     'CreateTableDistrito' => $baseDir . '/database/migrations/2014_09_26_183300_create_table_distrito.php',
     'CreateTableEspecialidad' => $baseDir . '/database/migrations/2014_09_27_101834_create_table_especialidad.php',
     'CreateTableExamen' => $baseDir . '/database/migrations/2017_11_30_132454_create_table_examen.php',
+    'CreateTableExameneshistoriaclinica' => $baseDir . '/database/migrations/2019_02_08_151448_create_table_exameneshistoriaclinica.php',
     'CreateTableGuardia' => $baseDir . '/database/migrations/2017_02_09_203057_create_table_guardia.php',
     'CreateTableHabitacion' => $baseDir . '/database/migrations/2017_06_25_122026_create_table_habitacion.php',
     'CreateTableHistoria' => $baseDir . '/database/migrations/2017_02_12_171509_create_table_historia.php',

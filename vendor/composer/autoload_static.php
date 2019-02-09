@@ -362,6 +362,7 @@ class ComposerStaticInit9538a1ea16f4d27e5f9e368489f02672
         'CreateTableDistrito' => __DIR__ . '/../..' . '/database/migrations/2014_09_26_183300_create_table_distrito.php',
         'CreateTableEspecialidad' => __DIR__ . '/../..' . '/database/migrations/2014_09_27_101834_create_table_especialidad.php',
         'CreateTableExamen' => __DIR__ . '/../..' . '/database/migrations/2017_11_30_132454_create_table_examen.php',
+        'CreateTableExameneshistoriaclinica' => __DIR__ . '/../..' . '/database/migrations/2019_02_08_151448_create_table_exameneshistoriaclinica.php',
         'CreateTableGuardia' => __DIR__ . '/../..' . '/database/migrations/2017_02_09_203057_create_table_guardia.php',
         'CreateTableHabitacion' => __DIR__ . '/../..' . '/database/migrations/2017_06_25_122026_create_table_habitacion.php',
         'CreateTableHistoria' => __DIR__ . '/../..' . '/database/migrations/2017_02_12_171509_create_table_historia.php',

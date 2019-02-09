@@ -11,6 +11,8 @@ use App\Historia;
 use App\Cie;
 use App\User;
 use App\Cita;
+use App\Servicio;
+use App\Examenhistoriaclinica;
 use App\Person;
 use App\Detallemovcaja;
 use App\Movimiento;
@@ -59,7 +61,17 @@ class HistoriaClinicaController extends Controller
         }
         if($historiaclinica != null){
             $cie10 = Cie::find($historiaclinica->cie_id);
+
+            $examenes = Examenhistoriaclinica::leftjoin('servicio as servicio', 'servicio.id', '=', 'examenhistoriaclinica.servicio_id')
+                                        ->where('examenhistoriaclinica.historiaclinica_id', $historiaclinica->id )
+                                            ->get();
+
+            $cita = Cita::find($historiaclinica->citaproxima);
+
+            $cantidad = Cita::where('fecha', '=', ''.$cita->fecha.'')->count('id');
+
             $jsondata = array(
+                'cita_id' => $historiaclinica->id,
                 'historia_id' => $historia->id,
                 'antecedentes' => $historia->antecedentes,
                 'ticket_id' => $ticket_id,
@@ -70,13 +82,15 @@ class HistoriaClinicaController extends Controller
                 'numhistoria' => $historia->numero,
                 'numero' => $historiaclinica->numero,
                 'motivo' => $historiaclinica->motivo,
-                'cie10' => $cie10->codigo,
+                'cie10' => $cie10->codigo . " - " . $cie10->descripcion,
+                'cie10id' => $cie10->id,
                 'sintomas' => $historiaclinica->sintomas,
-                'citaproxima' => $historiaclinica->citaproxima,
+                'citaproxima' => date('Y-m-d',strtotime($cita->fecha)) ,
+                'cantcitas' => $cantidad,
                 'tratamiento' => $historiaclinica->tratamiento,
                 'diagnostico' => $historiaclinica->diagnostico,
                 'exploracion_fisica' => $historiaclinica->exploracion_fisica,
-                'examenes' => $historiaclinica->examenes,
+                'examenes' => $examenes,
             );
         }else{
             $jsondata = array(
@@ -111,38 +125,67 @@ class HistoriaClinicaController extends Controller
         return json_encode($data);
     }
 
+    public function examenesAutocompletar($searching)
+    {
+        $resultado        = Servicio::where('nombre', 'LIKE', '%'.strtoupper($searching).'%')->where('tiposervicio_id','=', 21)->whereNull('deleted_at')->orderBy('nombre', 'ASC');
+        $list      = $resultado->get();
+        $data = array();
+        foreach ($list as $key => $value) {
+            $name = $value->nombre;
+            $data[] = array(
+                            'label' => trim($name),
+                            'id'    => $value->id,
+                            'value' => trim($name),
+                        );
+        }
+        return json_encode($data);
+    }
+
     public function registrarHistoriaClinica(Request $request)
     {
 
         $error = DB::transaction(function() use($request){
             if($request->input('citaproxima') != null){
-                
-                $Cita       = new Cita();
 
-                $user = Auth::user();
-                
-                //sucursal_id
-                $sucursal_id = Session::get('sucursal_id');
+                if($request->input('cita_id') == null){
+                    
+                    $Cita       = new Cita();
 
-                $Cita->sucursal_id = $sucursal_id;
-                $Cita->fecha = $request->input('citaproxima');
+                    $user = Auth::user();
+                    
+                    //sucursal_id
+                    $sucursal_id = Session::get('sucursal_id');
 
-                $historia = Historia::find($request->input('historia_id'));
+                    $Cita->sucursal_id = $sucursal_id;
+                    $Cita->fecha = $request->input('citaproxima');
 
-                $Cita->paciente_id = $historia->persona->id;
+                    $historia = Historia::find($request->input('historia_id'));
 
-                $Cita->historia_id = $request->input('historia_id');
-                
-                $Cita->doctor_id = $request->input('doctor_id');
-                
-                $Cita->situacion='P';//Pendiente
-    
-                $Cita->usuario_id = $user->person_id;
-                $Cita->save();
+                    $Cita->paciente_id = $historia->persona->id;
+
+                    $Cita->historia_id = $request->input('historia_id');
+                    
+                    $Cita->doctor_id = $request->input('doctor_id');
+                    
+                    $Cita->situacion='P';//Pendiente
+        
+                    $Cita->usuario_id = $user->person_id;
+                    $Cita->save();
+
+                }else{
+
+                    $historiaclinica   = HistoriaClinica::find($request->input('cita_id'));
+                    
+                    $error = DB::transaction(function() use($request, $historiaclinica){
+                        $cita  = Cita::find($historiaclinica->citaproxima);
+                        $cita->fecha  = $request->input('citaproxima');
+                        $cita->save();
+                    });
+
+                }
 
             }
         });
-
 
         $error = DB::transaction(function() use($request){
 /*
@@ -161,11 +204,13 @@ class HistoriaClinicaController extends Controller
             $historiaclinica->tratamiento    = strtoupper($request->input('tratamiento'));
             $historiaclinica->sintomas       = strtoupper($request->input('sintomas'));
             $historiaclinica->diagnostico    = strtoupper($request->input('diagnostico'));
-            $historiaclinica->examenes             = strtoupper($request->input('examenes'));
+            //$historiaclinica->examenes             = strtoupper($request->input('examenes'));
             $historiaclinica->motivo               = strtoupper($request->input('motivo'));
             
             if($request->input('citaproxima') != null){
-                $cita_id = Cita::max('id');
+                $historia = Historia::find($request->input('historia_id'));
+
+                $cita_id = Cita::where('historia_id',$historia->id)->where('paciente_id', $historia->persona->id)->max('id');
                 $historiaclinica->citaproxima     = $cita_id;
             }
 
@@ -192,11 +237,41 @@ class HistoriaClinicaController extends Controller
 
             $Ticket->save();
 
-            $historia  = Historia::find($request->input('historia_id'));
+            $historia = Historia::find($request->input('historia_id'));
             $historia->antecedentes = strtoupper($request->input('antecedentes'));
             $historia->save();
 
         });
+
+        $historiaclinica = HistoriaClinica::where('ticket_id', $request->input('ticket_id') )->first();
+
+        $examenesborrar = Examenhistoriaclinica::where('historiaclinica_id', $historiaclinica->id )->get();
+
+        foreach ($examenesborrar as $value) {
+
+            $error = DB::transaction(function() use($request, $value){
+
+                $value->delete();
+
+            });
+            
+        }
+
+        $examenes = json_decode($request->input('examenes'));
+
+        foreach ($examenes->{"data"} as $examen) {
+            $error = DB::transaction(function() use($request, $historiaclinica, $examen){
+
+                $examenhistoriaclinica = new Examenhistoriaclinica();
+                $examenhistoriaclinica->situacion = 'N';
+                $examenhistoriaclinica->historiaclinica_id = $historiaclinica->id;
+                $examenhistoriaclinica->servicio_id = $examen->{"id"};
+                $examenhistoriaclinica->save();
+
+            });
+        }
+
+
         return is_null($error) ? "OK" : $error;
     }
 
@@ -270,6 +345,13 @@ class HistoriaClinicaController extends Controller
                             . $historia->persona->apellidopaterno . ' ' . $historia->persona->apellidomaterno . ' ' . $historia->persona->nombres .
                         "</td>
                     </tr>";
+                }else{
+                    $texto .= "<tr>
+                        <td width='15%'>
+                            <strong><font style='color:blue'>Paciente</font></strong>
+                        </td>
+                        <td width='85%'> - </td>
+                    </tr>";
                 }
 
                 if($doctor != null){
@@ -283,6 +365,13 @@ class HistoriaClinicaController extends Controller
                         "</td>
                     </tr>";
 
+                }else{
+                    $texto .= "<tr>
+                        <td width='15%'>
+                            <strong><font style='color:blue'>Doctor</font></strong>
+                        </td>
+                        <td width='85%'> - </td>
+                    </tr>";
                 }
 
                 if($historia != null){
@@ -293,6 +382,13 @@ class HistoriaClinicaController extends Controller
                         <td>"
                             . $historia->numero .
                         "</td>
+                    </tr>";
+                }else{
+                    $texto .= "<tr>
+                        <td width='15%'>
+                            <strong><font style='color:blue'>Historia</font></strong>
+                        </td>
+                        <td width='85%'> - </td>
                     </tr>";
                 }
 
@@ -309,6 +405,13 @@ class HistoriaClinicaController extends Controller
                         "</td>
                     </tr>";
 
+                }else{
+                    $texto .= "<tr>
+                        <td width='15%'>
+                            <strong><font style='color:blue'>Próxima cita</font></strong>
+                        </td>
+                        <td width='85%'> - </td>
+                    </tr>";
                 }
 
                 if($cie10 != null){
@@ -324,6 +427,13 @@ class HistoriaClinicaController extends Controller
                     "</td>
                 </tr>";
 
+                }else{
+                    $texto .= "<tr>
+                        <td width='15%'>
+                            <strong><font style='color:blue'>Cie 10</font></strong>
+                        </td>
+                        <td width='85%'> - </td>
+                    </tr>";
                 }
 
                 if($cita->motivo != null){
@@ -337,6 +447,13 @@ class HistoriaClinicaController extends Controller
                         "</td>
                     </tr>";
 
+                }else{
+                    $texto .= "<tr>
+                        <td width='15%'>
+                            <strong><font style='color:blue'>Motivo</font></strong>
+                        </td>
+                        <td width='85%'> - </td>
+                    </tr>";
                 }
 
                 if($cita->diagnostico != null){
@@ -350,19 +467,13 @@ class HistoriaClinicaController extends Controller
                         "</td>
                     </tr>";
 
-                }
-
-                if($cita->diagnostico != null){
-
-                $texto .= "<tr>
-                    <td>
-                        <strong><font style='color:blue'>Diagnóstico</font></strong><br>
-                    </td>
-                    <td>"
-                        . $cita->diagnostico .
-                    "</td>
-                </tr>";
-
+                }else{
+                    $texto .= "<tr>
+                        <td width='15%'>
+                            <strong><font style='color:blue'>Diagnóstico</font></strong>
+                        </td>
+                        <td width='85%'> - </td>
+                    </tr>";
                 }
 
                 if($cita->tratamiento != null){
@@ -376,6 +487,13 @@ class HistoriaClinicaController extends Controller
                     "</td>
                 </tr>";
 
+                }else{
+                    $texto .= "<tr>
+                        <td width='15%'>
+                            <strong><font style='color:blue'>Tratamiento</font></strong>
+                        </td>
+                        <td width='85%'> - </td>
+                    </tr>";
                 }
 
                 if($cita->examenes != null){
@@ -387,6 +505,13 @@ class HistoriaClinicaController extends Controller
                         . $cita->examenes .
                     "</td>
                 </tr>";
+                }else{
+                    $texto .= "<tr>
+                        <td width='15%'>
+                            <strong><font style='color:blue'>Exámenes</font></strong>
+                        </td>
+                        <td width='85%'> - </td>
+                    </tr>";
                 }
 
                 if($cita->exploracion_fisica != null){
@@ -398,6 +523,13 @@ class HistoriaClinicaController extends Controller
                             . $cita->exploracion_fisica .
                         "</td>
                     </tr>";
+                }else{
+                    $texto .= "<tr>
+                        <td width='15%'>
+                            <strong><font style='color:blue'>Exploración física</font></strong>
+                        </td>
+                        <td width='85%'> - </td>
+                    </tr>";
                 }
 
                 if($user != null){
@@ -408,6 +540,13 @@ class HistoriaClinicaController extends Controller
                         <td>"
                             . $user->person->apellidopaterno . ' ' . $user->person->apellidomaterno . ' ' . $user->person->nombres .
                         "</td>
+                    </tr>";
+                }else{
+                    $texto .= "<tr>
+                        <td width='15%'>
+                            <strong><font style='color:blue'>Responsable</font></strong>
+                        </td>
+                        <td width='85%'> - </td>
                     </tr>";
                 }
 
@@ -592,7 +731,7 @@ class HistoriaClinicaController extends Controller
             $historiaclinica->tratamiento    = strtoupper($request->input('tratamiento'));
             $historiaclinica->sintomas       = strtoupper($request->input('sintomas'));
             $historiaclinica->diagnostico    = strtoupper($request->input('diagnostico'));
-            $historiaclinica->examenes             = strtoupper($request->input('examenes'));
+            //$historiaclinica->examenes             = strtoupper($request->input('examenes'));
             $historiaclinica->motivo               = strtoupper($request->input('motivo'));
             $historiaclinica->exploracion_fisica   = strtoupper($request->input('exploracion_fisica'));          
             $user = Auth::user();
@@ -681,3 +820,4 @@ class HistoriaClinicaController extends Controller
     }
 
 }
+
