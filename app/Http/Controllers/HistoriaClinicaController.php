@@ -68,8 +68,6 @@ class HistoriaClinicaController extends Controller
 
             $cita = Cita::find($historiaclinica->citaproxima);
 
-            $cantidad = Cita::where('fecha', '=', ''.$cita->fecha.'')->count('id');
-
             $jsondata = array(
                 'cita_id' => $historiaclinica->id,
                 'historia_id' => $historia->id,
@@ -85,13 +83,40 @@ class HistoriaClinicaController extends Controller
                 'cie10' => $cie10->codigo . " - " . $cie10->descripcion,
                 'cie10id' => $cie10->id,
                 'sintomas' => $historiaclinica->sintomas,
-                'citaproxima' => date('Y-m-d',strtotime($cita->fecha)) ,
-                'cantcitas' => $cantidad,
                 'tratamiento' => $historiaclinica->tratamiento,
                 'diagnostico' => $historiaclinica->diagnostico,
                 'exploracion_fisica' => $historiaclinica->exploracion_fisica,
                 'examenes' => $examenes,
             );
+
+            if($cita != null){
+
+                $cantidad = Cita::where('fecha', '=', ''.$cita->fecha.'')->count('id');
+
+                $jsondata = array(
+                    'cita_id' => $historiaclinica->id,
+                    'historia_id' => $historia->id,
+                    'antecedentes' => $historia->antecedentes,
+                    'ticket_id' => $ticket_id,
+                    'fondo' => $fondo,
+                    'doctor_id' => $doctor->id,
+                    'doctor' => $doctor->apellidopaterno . ' ' . $doctor->apellidomaterno . ' ' . $doctor->nombres,
+                    'paciente' => $historia->persona->apellidopaterno . ' ' . $historia->persona->apellidomaterno . ' ' . $historia->persona->nombres,
+                    'numhistoria' => $historia->numero,
+                    'numero' => $historiaclinica->numero,
+                    'motivo' => $historiaclinica->motivo,
+                    'cie10' => $cie10->codigo . " - " . $cie10->descripcion,
+                    'cie10id' => $cie10->id,
+                    'sintomas' => $historiaclinica->sintomas,
+                    'citaproxima' => date('Y-m-d',strtotime($cita->fecha)) ,
+                    'cantcitas' => $cantidad,
+                    'tratamiento' => $historiaclinica->tratamiento,
+                    'diagnostico' => $historiaclinica->diagnostico,
+                    'exploracion_fisica' => $historiaclinica->exploracion_fisica,
+                    'examenes' => $examenes,
+                );
+    
+            }
         }else{
             $jsondata = array(
                 'historia_id' => $historia->id,
