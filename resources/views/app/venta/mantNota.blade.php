@@ -7,16 +7,16 @@
 		<div class="form-group">
 			{!! Form::label('tipodocumento_id', 'Documento:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::select('tipodocumento_id', $cboDocumento, null, array('class' => 'form-control input-xs', 'id' => 'tipodocumento_id', 'readonly' => 'true')) !!}
+				{!! Form::text('tipodocumento_id', $venta->tipodocumento->nombre, array('class' => 'form-control input-xs', 'id' => 'tipodocumento_id', 'readonly' => 'true')) !!}
 			</div>
 		</div>
 		<div class="form-group">
 			{!! Form::label('numerodocumento', 'Nro Doc:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-2 col-md-2 col-sm-2">
-        			{!! Form::text('serie', '002', array('class' => 'form-control input-xs', 'id' => 'serie')) !!}
+        			{!! Form::text('serie', '002', array('class' => 'form-control input-xs', 'id' => 'serie', 'readonly' => 'readonly')) !!}
         	</div>
 			<div class="col-lg-5 col-md-5 col-sm-5">
-				{!! Form::text('numerodocumento', $numero, array('class' => 'form-control input-xs', 'id' => 'numerodocumento', 'placeholder' => 'Ingrese numerodocumento')) !!}
+				{!! Form::text('numerodocumento', $numero, array('class' => 'form-control input-xs', 'id' => 'numerodocumento', 'placeholder' => 'Ingrese numerodocumento', 'readonly' => 'readonly')) !!}
 			</div>
 		</div>
 
@@ -33,14 +33,14 @@
 		<div class="form-group">
 			{!! Form::label('fecha', 'Fecha:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				<div class='input-group input-group-xs' id='divfecha'>
-					{!! Form::text('fecha', date('d/m/Y'), array('class' => 'form-control input-xs', 'id' => 'fecha', 'placeholder' => 'Ingrese fecha')) !!}
-					<span class="input-group-btn">
+				{{--<div class='input-group input-group-xs' id='divfecha'>--}}
+					{!! Form::text('fecha', date('d/m/Y'), array('class' => 'form-control input-xs', 'id' => 'fecha', 'placeholder' => 'Ingrese fecha', 'readonly' => 'true')) !!}
+					{{--<span class="input-group-btn">
 						<button class="btn btn-default calendar">
 							<i class="glyphicon glyphicon-calendar"></i>
 						</button>
-					</span>
-				</div>
+					</span>--}}
+				{{--</div>--}}
 			</div>
 		</div>
 		<div class="form-group">
@@ -63,27 +63,7 @@
 	<div class="row">
 		<div class="col-lg-12 col-md-12 col-sm-12">
 			<div id="divDetail" class="table-responsive" style="overflow:auto; height:180px; padding-right:10px; border:1px outset">
-		        <table style="width: 100%;" class="table-condensed table-striped">
-		            <thead>
-		                <tr>
-		                    <th bgcolor="#E0ECF8" class='text-center'>Producto</th>
-		                    <th bgcolor="#E0ECF8" class='text-center'>Cantidad</th>
-		                    <th bgcolor="#E0ECF8" class="text-center">Precio</th>
-		                    <th bgcolor="#E0ECF8" class="text-center">Subtotal</th>                           
-		                </tr>
-		            </thead>
-		            <tbody>
-		            @foreach($detalles as $key => $value)
-					<tr>
-						<td class="text-center">{!! $value->producto->nombre !!}</td>
-						<td class="text-center">{!! $value->cantidad !!}</td>
-						<td class="text-center">{!! $value->precio !!}</td>
-						<td class="text-center">{!! $value->subtotal !!}</td>
-					</tr>
-					@endforeach
-		            </tbody>
-		           
-		        </table>
+		        
 		    </div>
 		</div>
 	 </div>

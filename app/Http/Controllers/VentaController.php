@@ -3197,14 +3197,14 @@ class VentaController extends Controller
                 }
                 
                 $total    += $subtotal;
-                $cadena   .= '<tr><td class="text-center" style="width:750px;"><span style="display: block; font-size:.7em">'.$lista[$i]['productonombre'].'</span></td>';
-                $cadena   .= '<td class="text-center" style="width:100px;"><span style="display: block; font-size:.7em">'.$lista[$i]['cantidad'].'</span></td>';
-                $cadena   .= '<td class="text-center" style="width:100px;"><span style="display: block; font-size:.7em">'.$lista[$i]['precio'].'</span></td>';
-                $cadena   .= '<td class="text-center" style="width:90px;"><span style="display: block; font-size:.7em">'.$dscto.'</span></td>';
-                $cadena   .= '<td class="text-center" style="width:90px;"><span style="display: block; font-size:.7em">'.$subtotal.'</span></td>';
+                $cadena   .= '<tr><td class="text-center" style="width:650px;"><span style="display: block; font-size:.7em">'.$lista[$i]['productonombre'].'</span></td>';
+                $cadena   .= '<td class="text-center" style="width:110px;"><span style="display: block; font-size:.7em">'.$lista[$i]['cantidad'].'</span></td>';
+                $cadena   .= '<td class="text-center" style="width:110px;"><span style="display: block; font-size:.7em">'.number_format($lista[$i]['precio'],2,'.','').'</span></td>';
+                $cadena   .= '<td class="text-center" style="width:100px;"><span style="display: block; font-size:.7em">'.number_format($dscto,2,'.','').'</span></td>';
+                $cadena   .= '<td class="text-center" style="width:100px;"><span style="display: block; font-size:.7em">'.number_format($subtotal,2,'.','').'</span></td>';
                 $cadena   .= '<td class="text-center"><span style="display: block; font-size:.7em"><a class="btn btn-xs btn-danger" onclick="quitar(\''.$i.'\');">Quitar</a></span></td></tr>';
             }
-            $cadena  .= '<tr><th colspan="3" style="text-align: right;">TOTAL</th><td class="text-center">'.$total.'<input type ="hidden" id="totalventa" readonly=""  name="totalventa" value="'.$total.'"></td></tr></tr>';
+            $cadena  .= '<tr><th colspan="4" style="text-align: right;">TOTAL</th><td class="text-center">'.number_format($total,2,'.','').'<input type ="hidden" id="totalventa" readonly=""  name="totalventa" value="'.number_format($total,2,'.','').'"></td></tr></tr>';
             $cadena .= '</table>';
             return $cadena;
     }
@@ -3217,6 +3217,14 @@ class VentaController extends Controller
         $sucursal_id = Session::get('sucursal_id');
 
         $error = DB::transaction(function() use($request, $sucursal_id,&$dat){
+
+            $almacen_id = 1;
+            $caja_id = 3;
+            if($sucursal_id ==  2) {
+                $almacen_id = 3;
+                $caja_id = 3;
+            }
+
             $user = Auth::user();
             $ind = 0;
             $montoafecto = 0;
@@ -3249,7 +3257,7 @@ class VentaController extends Controller
                 $Venta = Movimiento::find($request->input('movimiento_id'));
                 $total = str_replace(',', '', $request->input('totalventa'));
                 $Movimiento = new Movimiento();
-                $movimiento->sucursal_id = $sucursal_id;
+                $Movimiento->sucursal_id = $sucursal_id;
                 $Movimiento->fecha = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
                 $Movimiento->serie = $request->input('serie');
                 //$numero              = Movimiento::NumeroSigue(6,13,2,'N');
@@ -3279,7 +3287,7 @@ class VentaController extends Controller
                 $Movimiento->tipodocumento_id = 13;
                 $comentario = explode("@",$request->input('comentario'));
                 $Movimiento->comentario = $comentario[1];
-                $Movimiento->almacen_id=1;
+                $Movimiento->almacen_id=$almacen_id;
                 $Movimiento->manual='N';
                 $Movimiento->save();
 
@@ -3299,7 +3307,6 @@ class VentaController extends Controller
                     $producto = Producto::find($lista[$i]['producto_id']);
                     if ($producto->afecto == 'NO') {
                         $ind = 1;
-                        
                     }else{
                         
                     }
@@ -3325,7 +3332,7 @@ class VentaController extends Controller
                             $lote->queda = $lote->queda + $value->cantidad;
                             $lote->save();
                         }
-                        $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $lista[$i]['producto_id'])->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
+                        $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $lista[$i]['producto_id'])->where('movimiento.almacen_id', '=',$almacen_id)->orderBy('kardex.id', 'DESC')->first();
 
                         $stockanterior = 0;
                         $stockactual = 0;
@@ -3343,21 +3350,33 @@ class VentaController extends Controller
                             $kardex->stockactual = $stockactual;
                             $kardex->cantidad = $cantidad;
                             $kardex->precioventa = $precio;
-                            //$kardex->almacen_id = 1;
+                            $kardex->almacen_id = $almacen_id;
                             $kardex->detallemovimiento_id = $detalleVenta->id;
                             $kardex->lote_id = $lote->id;
-                            $kardex->save();    
-
+                            $kardex->save();
                         }
+
+
                     }
+
+                    //Repongo Stock
+                    $cant = $value->cantidad;
+                    $stocks = Stock::where('producto_id', $lista[$i]['producto_id'])->where('almacen_id', $almacen_id)->first();
+                    $stocks->cantidad += $cant;
+                    $stocks->save();
                     
                 } 
 
 
-                //VENTA
-                $Movimientoref = Movimiento::find($request->input('movimiento_id'));
+                //MOV CAJA
+                $Movimientoref = Movimiento::where('movimiento_id', $request->input('movimiento_id'))->first();
                 $Movimientoref->situacion='A';
                 $Movimientoref->save();
+
+                //VENTA
+                $Movimientoref2 = Movimiento::find($request->input('movimiento_id'));
+                $Movimientoref2->situacion='A';
+                $Movimientoref2->save();
 
                 //CAJA
                 if($request->input('pagar')=='S'){
@@ -3372,10 +3391,11 @@ class VentaController extends Controller
                     $movimiento->igv=0;
                     $movimiento->total=$request->input('total',0); 
                     $movimiento->tipomovimiento_id=2;
-                    $movimiento->tipodocumento_id=2;
+                    //$movimiento->tipodocumento_id=2;
+                    $movimiento->tipodocumento_id=3;//EGRESO
                     $movimiento->conceptopago_id=13;//DEVOLUCION
                     $movimiento->comentario='Anulacion de: '.$Venta->serie.'-'.$Venta->numero;
-                    $movimiento->caja_id=4;
+                    $movimiento->caja_id=$caja_id;
                     $movimiento->totalpagado=$request->input('total',0);
                     $movimiento->situacion='N';
                     $movimiento->movimiento_id=$movimiento_id;
