@@ -351,8 +351,8 @@ class MovimientoalmacenController extends Controller
                         <input type ="hidden" class="subtotal" value="'.$subtotal.'">
                         <input type ="hidden" class="producto_id"  value="'.$producto_id.'">
                         <input type ="hidden" class="codigobarra" value="'.$producto->codigobarra.'">
-                        <input type ="hidden" class="precioventa" value="'.$precioventa.'">
-                        <input type ="hidden" class="preciokayros" value="'.$preciokayros.'">';
+                        <input type ="hidden" class="precioventa" value="'.number_format($precioventa,2,'.','').'">
+                        <input type ="hidden" class="preciokayros" value="'.number_format($preciokayros,2,'.','').'">';
             if($elemento != 'N') {
                 $cadena .= '<input type ="hidden" class="datoLote" value="'.$elemento.'">';                
             }
@@ -372,10 +372,10 @@ class MovimientoalmacenController extends Controller
                         <span style="display: block; font-size:.9em">'.$mensajecantidad.'</span>                    
                     </td>';
             $cadena .= '<td class="text-center">
-                        <span style="display: block; font-size:.9em">'.$precio.'</span>                    
+                        <span style="display: block; font-size:.9em">'.number_format($precio,2,'.', '').'</span>                    
                     </td>';
             $cadena .= '<td class="text-center">
-                        <span style="display: block; font-size:.9em">'.$subtotal.'</span>                    
+                        <span style="display: block; font-size:.9em">'.number_format($subtotal,2,'.', '').'</span>                    
                     </td>';
             $cadena .= '<td class="text-center">
                         <span style="display: block; font-size:.9em">
@@ -698,9 +698,7 @@ class MovimientoalmacenController extends Controller
                                 $kardex->lote_id = $lote->id;
                                 $kardex->save();  
                             }
-                            $e++;
                         }
-
                     }
 
                     $stock = Stock::where('producto_id', $request->input('producto_id'.$i))->where('almacen_id', $almacen_id)->first();

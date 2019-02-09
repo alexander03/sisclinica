@@ -10,6 +10,9 @@ use App\Historia;
 use App\Convenio;
 use App\Caja;
 use App\Person;
+use App\Kardex;
+use App\Lote;
+use App\Stock;
 use App\Venta;
 use App\Movimiento;
 use App\Servicio;
@@ -137,7 +140,7 @@ class CajaController extends Controller
                                     ->whereNotIn('movimiento.conceptopago_id',[15, 17, 19, 21, 32])
                                     ->orWhere('movimiento.situacion','<>','R');
                             });
-        $resultado        = $resultado->select('movimiento.*','m2.situacion as situacion2',DB::raw('CONCAT(paciente.apellidopaterno," ",paciente.apellidomaterno," ",paciente.nombres) as paciente'),DB::raw('responsable.nombres as responsable'))->orderBy('movimiento.id', 'desc');
+        $resultado        = $resultado->select('movimiento.*','m2.situacion as situacion2',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'),DB::raw('responsable.nombres as responsable'))->orderBy('movimiento.id', 'desc');
         $lista            = $resultado->get();
         $listapendiente = array();
 
@@ -150,7 +153,7 @@ class CajaController extends Controller
                             ->where('movimiento.estadopago', '=', 'PP')
                             ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.id', '>=', $movimiento_mayor);
-            $resultado2        = $resultado2->select('movimiento.*','m2.situacion as situacion2',DB::raw('CONCAT(paciente.apellidopaterno," ",paciente.apellidomaterno," ",paciente.nombres) as paciente'),DB::raw('responsable.nombres as responsable'))->orderBy('movimiento.id', 'desc');
+            $resultado2        = $resultado2->select('movimiento.*','m2.situacion as situacion2',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'),DB::raw('responsable.nombres as responsable'))->orderBy('movimiento.id', 'desc');
             $listapendiente            = $resultado2->get();
         }
         
@@ -539,19 +542,7 @@ class CajaController extends Controller
         }
         $modelo   = Caja::find($id);
         $obj = Movimiento::find($id);
-        //SOLO PARA CUOTAS
-        if($obj->situacion2 == 'Z') {
-            $cuota = Movimiento::find($obj->numeroserie2);
-            $cuota->situacion = 'A';
-            $cuota->save();
-            //AUMENTO RESUMEN DE CUOTAS DE LA ANULADA
-            $rescuotas = Movimiento::find($cuota->movimiento_id);
-            $rescuotas->total -= $obj->totalpagado - $obj->totalpagadovisa - $obj->totalpagadomaster;
-            $rescuotas->totalpagado -= $obj->totalpagado;
-            $rescuotas->totalpagadovisa -= $obj->totalpagadovisa;
-            $rescuotas->totalpagadomaster -= $obj->totalpagadomaster;
-            $rescuotas->save(); 
-        }
+
         $entidad  = 'Caja';
         $ticket  = 'Ticket';
         $formData = array('route' => array('caja.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
@@ -10493,7 +10484,90 @@ class CajaController extends Controller
         $Ticket = Movimiento::find($Tras->movimiento_id);
         $Ticket->situacion = 'P';
         $Ticket->save();
-        echo $Ticket->id;
+
+        $obj1 = Movimiento::find($id);
+
+        //SOLO PARA CUOTAS
+        if($obj1->situacion2 == 'Z') {
+            $cuota = Movimiento::find($obj1->numeroserie2);
+            $cuota->situacion = 'A';
+            $cuota->save();
+            //AUMENTO RESUMEN DE CUOTAS DE LA ANULADA
+            $rescuotas = Movimiento::find($cuota->movimiento_id);
+            $rescuotas->total -= $obj1->totalpagado - $obj1->totalpagadovisa - $obj1->totalpagadomaster;
+            $rescuotas->totalpagado -= $obj1->totalpagado;
+            $rescuotas->totalpagadovisa -= $obj1->totalpagadovisa;
+            $rescuotas->totalpagadomaster -= $obj1->totalpagadomaster;
+            $rescuotas->save(); 
+        }
+
+        $obj = Movimiento::find($obj1->movimiento_id);
+
+        ////////////////////////////
+
+        if($obj !== NULL && $obj->ventafarmacia == 'S') {
+
+            //Anular Venta en Caja de Farmacia
+
+            $sucursal_id = Session::get('sucursal_id');
+            $almacen_id = 1;
+            if($sucursal_id ==  2) {
+                $almacen_id = 3;
+            }
+
+            $detalles = Detallemovimiento::where('movimiento_id','=',$obj->id)->get();
+            foreach ($detalles as $key => $value) {
+                $consultakardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('movimiento.id', '=',$obj->id)->where('producto_id', '=', $value->producto_id)->select('kardex.*')->get();
+
+                foreach ($consultakardex as $key2 => $value2) {
+                    $lote = Lote::find($value2->lote_id);
+                    $lote->queda = $lote->queda + $value2->cantidad;
+                    $lote->save();
+                    $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $value->producto_id)->where('movimiento.almacen_id', '=',$almacen_id)->orderBy('kardex.id', 'DESC')->first();
+
+                    $stockanterior = 0;
+                    $stockactual = 0;
+                    // ingresamos nuevo kardex
+                    if ($ultimokardex === NULL) {
+                        
+                        
+                    }else{
+                        $stockanterior = $ultimokardex->stockactual;
+                        $stockactual = $ultimokardex->stockactual+$value2->cantidad;
+                        $kardex = new Kardex();
+                        $kardex->tipo = 'I';
+                        $kardex->fecha = date('Y-m-d');
+                        $kardex->stockanterior = $stockanterior;
+                        $kardex->stockactual = $stockactual;
+                        $kardex->cantidad = $value2->cantidad;
+                        $kardex->precioventa = $value2->precio;
+                        $kardex->almacen_id = $almacen_id;
+                        $kardex->detallemovimiento_id = $value->id;
+                        $kardex->lote_id = $lote->id;
+                        $kardex->save();    
+
+                    }
+                }
+
+                //Repongo Stock
+                $cant = $value->cantidad;
+                $stocks = Stock::where('producto_id', $value->producto_id)->where('almacen_id', $almacen_id)->first();
+                $stocks->cantidad += $cant;
+                $stocks->save();
+            }
+
+            $obj->situacion='U';
+            $obj->save();
+            
+            $movimientopago = Movimiento::find($obj->movimiento_id);
+            if ($movimientopago !== NULL) {
+                $movimientopago->situacion = 'A';
+                $movimientopago->save();
+            }
+        }
+
+        ////////////////////////////
+        echo $Ticket->id . $obj->ventafarmacia;
     }
 
     public function pdfReciboCuota(Request $request){

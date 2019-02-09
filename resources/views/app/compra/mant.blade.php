@@ -229,7 +229,7 @@
 		            	<tr>
 		            		<th colspan="5" style="text-align: right;">TOTAL</th>
 		            		<td class="text-center">
-		            			<center id="totalcompra2">0</center><input type="hidden" id="totalcompra" readonly="" name="totalcompra" value="0">
+		            			<center id="totalcompra2">0.00</center><input type="hidden" id="totalcompra" readonly="" name="totalcompra" value="0.00">
 		            		</td>
 		            	</tr>
 		            </tbody>		           

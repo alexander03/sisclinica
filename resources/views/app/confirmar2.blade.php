@@ -25,6 +25,9 @@
 		function anularmovimiento() {
 			$.ajax({
 				url: '{{ url('caja/anularmovimiento', $id) }}',
+				success: function() {
+					buscar('Caja');
+				}
 			})
 		}				
 	@endif
