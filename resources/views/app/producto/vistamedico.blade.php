@@ -471,17 +471,29 @@ $user = Auth::user();
 										{!! Form::label('exploracion_fisicaeditar', 'Exploración Física:') !!}
 										<textarea class="form-control input-xs" id="exploracion_fisicaeditar" cols="10" rows="3" style="font-size: 16px;"></textarea>
 									</div>
-									<div class="form-group" style="margin: 5px;">
-										{!! Form::label('exameneseditar', 'Exámenes:') !!}
-										<textarea class="form-control input-xs" id="exameneseditar" cols="10" rows="3" style="font-size: 16px;"></textarea>
-									</div>												
+									<div class="form-group">
+										{!! Form::label('exameneseditar', 'Exámenes:', array('class' => 'col-sm-3 control-label', 'style' => 'margin-left: -15px;')) !!}
+										<div class="col-sm-9" style="margin-top:7px;">
+											{!! Form::text('exameneseditar', '', array('class' => 'form-control input-xs', 'id' => 'exameneseditar', 'style' => 'font-size: 16px;')) !!}
+										</div>
+										<strong align="center" class="col-lg-12 col-md-12 col-sm-12 m-t-40" style="margin-top: 10px;">LISTA DE EXÁMENES</strong>
+										<table class="table table-striped table-bordered col-lg-12 col-md-12 col-sm-12 " style="font-size: 70%; padding: 0px 0px !important;">
+											<thead id="cabecera">
+												<tr>
+													<th width='80%' style="font-size: 13px !important;">Descripción</th>
+													<th width='20%' style="font-size: 13px !important;">Eliminar</th>
+												</tr>
+											</thead>
+											<tbody id="detalleeditar"></tbody>
+										</table>
+									</div>										
 								</div>
 							</div>
 
 						</div>
 				        <div class="modal-footer">
-							<button type="button" id="btnGuardarEditar" class="btn btn-success" data-dismiss="modal"><i class="glyphicon glyphicon-check"></i> Guardar</button>
-				            <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="glyphicon glyphicon-remove"></i> Cerrar</button>
+							<button type="button" id="btnGuardarEditar" class="btn btn-success"><i class="glyphicon glyphicon-check"></i> Guardar</button>
+				            <button type="button" id="btnCerrarModalEditar" class="btn btn-danger"><i class="glyphicon glyphicon-remove"></i> Cerrar</button>
 				        </div>
 				    </div>
 				</div>
@@ -642,6 +654,45 @@ $user = Auth::user();
 				$("#detalle").append(fila);
 			}
 		});  
+
+	
+	var exameneseditar = new Bloodhound({
+			datumTokenizer: function (d) {
+				return Bloodhound.tokenizers.whitespace(d.value);
+			},
+			limit: 5,
+			queryTokenizer: Bloodhound.tokenizers.whitespace,
+			remote: {
+				url: 'historiaclinica/examenesAutocompletar/%QUERY',
+				filter: function (exameneseditar) {
+					return $.map(exameneseditar, function (exameneditar) {
+						return {
+							value: exameneditar.value,
+							id: exameneditar.id,
+						};
+					});
+				}
+			}
+		});
+		exameneseditar.initialize();
+		$("#exameneseditar").typeahead(null,{
+			displayKey: 'value',
+			source: exameneseditar.ttAdapter()
+		}).on('typeahead:selected', function (object, datum) {
+			var examen_id = datum.id;
+			var existe = false;
+
+			$("#detalleeditar tr").each(function(){
+				if(examen_id == this.id){
+					existe = true;
+				}
+			});
+
+			if(!existe){
+				fila =  '<tr align="center" id="'+ datum.id +'" ><td style="vertical-align: middle; text-align: left;">'+ datum.value +'</td><td style="vertical-align: middle;"><a onclick="eliminarDetalle(this)" class="btn btn-xs btn-danger btnEliminar" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</a></td></tr>';
+				$("#detalleeditar").append(fila);
+			}
+		}); 
 
 	function eliminarDetalle(comp){
 		(($(comp).parent()).parent()).remove();
@@ -970,6 +1021,12 @@ $user = Auth::user();
 				$('#diagnosticoeditar').val(a.diagnostico);
 				$('#exploracion_fisicaeditar').val(a.exploracion_fisica);
 				//$('#exameneseditar').val(a.examenes);
+				console.log(a.examenes);
+				var arr = a.examenes;
+				$.each(arr, function (index, value) {
+					var fila =  '<tr align="center" id="'+ value.servicio_id +'" ><td style="vertical-align: middle; text-align: left;">'+ value.nombre +'</td><td style="vertical-align: middle;"><a onclick="eliminarDetalle(this)" class="btn btn-xs btn-danger btnEliminar" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</a></td></tr>';
+					$("#detalleeditar").append(fila);
+				});
 				if(a.fondo == "SI"){
 					$('#fondoeditar').prop('checked', true);
 				}else{
@@ -979,6 +1036,13 @@ $user = Auth::user();
 	        }
 	    });
 	}	
+	
+	$(document).on('click', '#btnCerrarModalEditar', function(event) {
+		$('#exameneseditar').val('');
+		$('#detalleeditar').html('');
+		$('#exampleModal2').modal('hide');
+	});
+
 
 	$(document).on('click', '#btnGuardarEditar', function(event) {	
 
@@ -991,6 +1055,24 @@ $user = Auth::user();
     	var exploracion_fisica = $('#exploracion_fisicaeditar').val().replace(/\r?\n/g, "<br>");
 		var citaproxima = $('#citaproximaeditar').val();
 
+		
+		//detalle
+		var data = [];
+		$("#detalleeditar tr").each(function(){
+			var element = $(this); // <-- en la variable element tienes tu elemento
+			var id = element.attr('id');
+			data.push(
+				{ "id": id }
+			);
+		});
+		var detalle = {"data": data};
+		var json = JSON.stringify(detalle);
+
+		//var cita_id = $('#cita_id').val();
+
+		//fin detalle
+
+
 		$.ajax({
 			"method": "POST",
 			"url": "{{ url('/historiaclinica/guardarEditado') }}",
@@ -999,7 +1081,7 @@ $user = Auth::user();
 				"tratamiento" : tratamiento,
 				"antecedentes" : antecedentes,
 				"diagnostico" : diagnostico,
-				//"examenes" : examenes,
+				"examenes" : json,
 				"citaproxima" : citaproxima,
 				"motivo" : motivo,
 				"exploracion_fisica" : exploracion_fisica,
@@ -1008,7 +1090,9 @@ $user = Auth::user();
 		}).done(function(info){
 			if(info == 'OK') {
 				alert('TRATAMIENTO REGISTRADO CORRECTAMENTE...');
+				$('#exampleModal2').modal('hide');
 				$('#citaseditar').val("");
+				$('#detalleeditar').html('');
 				tablaAtendidos();
 			}
 		});

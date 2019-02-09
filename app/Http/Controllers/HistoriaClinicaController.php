@@ -59,6 +59,7 @@ class HistoriaClinicaController extends Controller
         if($Ticket->tiempo_fondo != null){
             $fondo = "SI";
         }
+
         if($historiaclinica != null){
             $cie10 = Cie::find($historiaclinica->cie_id);
 
@@ -521,15 +522,25 @@ class HistoriaClinicaController extends Controller
                     </tr>";
                 }
 
-                if($cita->examenes != null){
-                $texto .= "<tr>
-                    <td>
-                        <strong><font style='color:blue'>Exámenes</font></strong><br>
-                    </td>
-                    <td>"
-                        . $cita->examenes .
-                    "</td>
-                </tr>";
+                $examenes = Examenhistoriaclinica::where('historiaclinica_id', $cita->id)->whereNull('deleted_at')->get();
+
+                if(count($examenes) != 0){
+
+                    $cont = 1;
+                    $examenes2 = "";
+                    foreach ($examenes as $value) {
+                        $examenes2 .= $cont . ' - ' . $value->servicio->nombre .'<br>';
+                        $cont++;
+                    }
+
+                    $texto .= "<tr>
+                        <td>
+                            <strong><font style='color:blue'>Exámenes</font></strong><br>
+                        </td>
+                        <td>"
+                            . $examenes2 .
+                        "</td>
+                    </tr>";
                 }else{
                     $texto .= "<tr>
                         <td width='15%'>
@@ -651,9 +662,14 @@ class HistoriaClinicaController extends Controller
             $citaproxima = $cita->fecha;
         }
 
+        $examenes = Examenhistoriaclinica::leftjoin('servicio as servicio', 'servicio.id', '=', 'examenhistoriaclinica.servicio_id')
+                                        ->where('examenhistoriaclinica.historiaclinica_id', $historiaclinica->id )
+                                            ->get();
+
         $cie10 = Cie::find($historiaclinica->cie_id);
 
         if($citaproxima != null){
+
 
             $jsondata = array(
                 'atencion_id' => $request->input('cita_id'),
@@ -671,7 +687,7 @@ class HistoriaClinicaController extends Controller
                 'tratamiento' => $historiaclinica->tratamiento,
                 'diagnostico' => $historiaclinica->diagnostico,
                 'exploracion_fisica' => $historiaclinica->exploracion_fisica,
-                'examenes' => $historiaclinica->examenes,
+                'examenes' => $examenes,
             );
 
         }else{
@@ -691,7 +707,7 @@ class HistoriaClinicaController extends Controller
                 'tratamiento' => $historiaclinica->tratamiento,
                 'diagnostico' => $historiaclinica->diagnostico,
                 'exploracion_fisica' => $historiaclinica->exploracion_fisica,
-                'examenes' => $historiaclinica->examenes,
+                'examenes' => $examenes,
             );
 
         }
@@ -773,6 +789,36 @@ class HistoriaClinicaController extends Controller
             $historia->antecedentes = strtoupper($request->input('antecedentes'));
             $historia->save();
         });
+
+
+        $historiaclinica = HistoriaClinica::find( $request->input('cita_id') );
+
+        $examenesborrar = Examenhistoriaclinica::where('historiaclinica_id', $historiaclinica->id )->get();
+
+        foreach ($examenesborrar as $value) {
+
+            $error = DB::transaction(function() use($request, $value){
+
+                $value->delete();
+
+            });
+            
+        }
+
+        $examenes = json_decode($request->input('examenes'));
+
+        foreach ($examenes->{"data"} as $examen) {
+            $error = DB::transaction(function() use($request, $historiaclinica, $examen){
+
+                $examenhistoriaclinica = new Examenhistoriaclinica();
+                $examenhistoriaclinica->situacion = 'N';
+                $examenhistoriaclinica->historiaclinica_id = $historiaclinica->id;
+                $examenhistoriaclinica->servicio_id = $examen->{"id"};
+                $examenhistoriaclinica->save();
+
+            });
+        }
+
 
         return is_null($error) ? "OK" : $error;
 
