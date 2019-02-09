@@ -3060,6 +3060,11 @@ class VentaController extends Controller
         $sucursal_id = Session::get('sucursal_id');
 
         $error = DB::transaction(function() use($id, $sucursal_id, $request){
+            $sucursal_id = Session::get('sucursal_id');
+            $caja_id = 3;
+            if($sucursal_id ==  2) {
+                $caja_id = 4;
+            }
             $venta = Venta::find($id);
             $total = $venta->total;
             $movimiento = new Movimiento();
@@ -3089,7 +3094,7 @@ class VentaController extends Controller
             $user = Auth::user();
             $movimiento->responsable_id = $user->person_id;
             $movimiento->conceptopago_id = 23;
-            $movimiento->caja_id = 4;
+            $movimiento->caja_id = $caja_id;
             $movimiento->movimiento_id = $venta->id;
             if($request->input('formapago')=="Tarjeta"){
                 $movimiento->tipotarjeta=$request->input('tipotarjeta');

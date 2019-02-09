@@ -19,8 +19,8 @@
 	$(document).ready(function() {
 		init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'M', '{!! $entidad !!}');
 		configurarAnchoModal('350');
-	}); 
-
+	});
+	
 	@if(isset($ticket))
 		function anularmovimiento() {
 			$.ajax({

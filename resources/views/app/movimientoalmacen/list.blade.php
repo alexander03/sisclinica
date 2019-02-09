@@ -16,7 +16,7 @@
 		$contador = $inicio + 1;
 		?>
 		@foreach ($lista as $key => $value)
-		<tr>
+		<tr @if($value->situacion=='A') style="background-color:#FFD0C5;" @endif>
 			<td>{{ $contador }}</td>
 			<td>{{ $value->id }}</td>
 			<td>{{ date("d/m/Y",strtotime($value->fecha)) }}</td>
@@ -24,13 +24,18 @@
 			<td>{{ $value->numero }}</td>
 			<td>{{ $value->total }}</td>
 			<!--<td>{!! Form::button('<div class="glyphicon glyphicon-pencil"></div> Editar', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning')) !!}</td> -->
-			<td>{!! Form::button('<div class="glyphicon glyphicon-eye-open"></div> Ver', array('onclick' => 'modal (\''.URL::route($ruta["show"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_ver.'\', this);', 'class' => 'btn btn-xs btn-info')) !!}</td>
-			<td>{!! Form::button('<div class="glyphicon glyphicon-print"></div> Imprimir', array('onclick' => 'window.open(\'movimientoalmacen/pdfComprobante/'.$value->id.'\',\'_blank\')', 'class' => 'btn btn-xs btn-info')) !!}</td>
-			@if($value->tipodocumento_id==8)
+			<td>{!! Form::button('<div class="glyphicon glyphicon-eye-open"></div> Ver', array('onclick' => 'modal (\''.URL::route($ruta["show"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_ver.'\', this);', 'class' => 'btn btn-xs btn-info')) !!}</td>			
+			{{--@if($value->tipodocumento_id==8)--}}
+			@if($value->situacion!='A')
+				<td>{!! Form::button('<div class="glyphicon glyphicon-print"></div> Imprimir', array('onclick' => 'window.open(\'movimientoalmacen/pdfComprobante/'.$value->id.'\',\'_blank\')', 'class' => 'btn btn-xs btn-info')) !!}</td>
 				<td>{!! Form::button('<div class="glyphicon glyphicon-remove"></div> Eliminar', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);', 'class' => 'btn btn-xs btn-danger')) !!}</td>
-			@else
+			@else 
+				<td> - </td>
 				<td> - </td>
 			@endif
+			{{--@else
+				<td> - </td>
+			@endif--}}
 		</tr>
 		<?php
 		$contador = $contador + 1;

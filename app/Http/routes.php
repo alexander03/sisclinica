@@ -288,6 +288,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('movimientoalmacen/consultarlotes/{producto_id}', 'MovimientoalmacenController@consultarlotes')->name('movimientoalmacen.consultarlotes');
     Route::get('movimientoalmacen/addcarritolote/{cantidad}/{stocklote}/{producto_id}/{fraccion}', 'MovimientoalmacenController@addcarritolote')->name('movimientoalmacen.addcarritolote');
 
+    //ANULAR MOVIMIENTO ALMACÉN
+
+    Route::get('movimientoalmacen/anularmovimiento/{id}', 'MovimientoalmacenController@anularmovimiento')->name('movimientoalmacen.anularmovimiento');
+
     /* REQUERIMIENTO */
     Route::post('requerimiento/buscar', 'RequerimientoController@buscar')->name('requerimiento.buscar');
     Route::get('requerimiento/eliminar/{id}/{listarluego}', 'RequerimientoController@eliminar')->name('requerimiento.eliminar');

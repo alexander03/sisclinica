@@ -1051,6 +1051,23 @@ class CompraController extends Controller
         $error = DB::transaction(function() use($id){
             $movimiento = Movimiento::find($id);
 
+            $sucursal_id = Session::get('sucursal_id');
+
+            $user=Auth::user();
+            if($sucursal_id == 1) {
+                if($user->usertype_id == 11) {
+                    $almacen_id = 1;
+                } else {
+                    $almacen_id = 2;
+                }
+            } else {
+                if($user->usertype_id == 11) {
+                    $almacen_id = 3;
+                } else {
+                    $almacen_id = 4;
+                }
+            }
+
             $detalles = Detallemovimiento::where('movimiento_id','=',$movimiento->id)->get();
             foreach ($detalles as $key => $value) {
                 $consultakardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('movimiento.id', '=',$movimiento->id)->where('producto_id', '=', $value->producto_id)->select('kardex.*')->get();
@@ -1059,7 +1076,7 @@ class CompraController extends Controller
                     $lote = Lote::find($value2->lote_id);
                     $lote->queda = $lote->queda - $value2->cantidad;
                     $lote->save();
-                    $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $value->producto_id)->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
+                    $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $value->producto_id)->where('movimiento.almacen_id', '=',$almacen_id)->orderBy('kardex.id', 'DESC')->first();
 
                     $stockanterior = 0;
                     $stockactual = 0;
@@ -1077,16 +1094,20 @@ class CompraController extends Controller
                         $kardex->stockactual = $stockactual;
                         $kardex->cantidad = $value2->cantidad;
                         $kardex->precioventa = $value2->precio;
-                        //$kardex->almacen_id = 1;
+                        $kardex->almacen_id = $almacen_id;
                         $kardex->detallemovimiento_id = $value->id;
                         $kardex->lote_id = $lote->id;
-                        $kardex->save();    
-
+                        $kardex->save();  
                     }
                 }
             }
 
-            $movimiento->delete();
+            $movimiento->situacion = 'A';
+            $movimiento->save();
+
+            $movimientoref = Movimiento::where('movimiento_id', $movimiento->id)->first();
+            $movimientoref->situacion = 'A';
+            $movimientoref->save();
             
         });
         return is_null($error) ? "OK" : $error;
