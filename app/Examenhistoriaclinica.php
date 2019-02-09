@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Examenhistoriaclinica extends Model
 {
-	 use SoftDeletes;
+	//use SoftDeletes;
     protected $table = 'examenhistoriaclinica';
-    protected $dates = ['deleted_at'];
+    //protected $dates = ['deleted_at'];
 
     public function historiaclinica()
     {
