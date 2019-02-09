@@ -14,7 +14,7 @@
 		init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'M', '{!! $entidad !!}');
 		configurarAnchoModal('350');
 	}); 
-	@if(isset($movalmaven))
+	{{--@if(isset($movalmaven))
 		function anularmovimiento() {
 			$.ajax({
 				url: '{{ url('movimientoalmacen/anularmovimiento', $id) }}',
@@ -23,5 +23,5 @@
 				}
 			})
 		}				
-	@endif
+	@endif--}}
 </script>
