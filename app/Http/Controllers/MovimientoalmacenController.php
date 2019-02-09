@@ -33,7 +33,6 @@ ini_set('max_execution_time', '60000'); //Raise to 512 MB
 
 class MovimientoalmacenController extends Controller
 {
-
     protected $folderview      = 'app.movimientoalmacen';
     protected $tituloAdmin     = 'Movimientos Almacen';
     protected $tituloRegistrar = 'Registrar movimiento almacen';
@@ -707,7 +706,7 @@ class MovimientoalmacenController extends Controller
                         $stock->producto_id = $request->input('producto_id'.$i);
                         $stock->almacen_id = $almacen_id;
                     }
-                    $stock->cantidad += $cantidad;
+                    $stock->cantidad -= $cantidad;
                     $stock->save();
 
                     $detalleVenta->lote = $lotcant;
@@ -842,51 +841,86 @@ class MovimientoalmacenController extends Controller
         $entidad  = 'Movimientoalmacen';
         $formData = array('route' => array('movimientoalmacen.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton    = 'Eliminar';
+        $movalmaven = 'S';
         return view('app.confirmar')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar'));
     }
 
     public function destroy($id)
     {
         $error = DB::transaction(function() use($id){
+
+            $sucursal_id = Session::get('sucursal_id');
+            $almacen_id = 1;
+            if($sucursal_id ==  2) {
+                $almacen_id = 3;
+            }
+
             $movimiento = Movimiento::find($id);
-            if($movimiento->tipodocumento_id == 8){
-                $detalles = Detallemovimiento::where('movimiento_id','=',$movimiento->id)->get();
-                foreach ($detalles as $key => $value) {
-                    $consultakardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('movimiento.id', '=',$movimiento->id)->where('producto_id', '=', $value->producto_id)->select('kardex.*')->get();
 
-                    foreach ($consultakardex as $key2 => $value2) {
-                        $lote = Lote::find($value2->lote_id);
-                        $lote->queda = $lote->queda - $value2->cantidad;
-                        $lote->save();
-                        $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $value->producto_id)->where('movimiento.almacen_id', '=', $almacen_id)->orderBy('kardex.id', 'DESC')->first();
+            $tipodoc = $movimiento->tipodocumento_id;
+            
+            $detalles = Detallemovimiento::where('movimiento_id','=',$movimiento->id)->get();
+            foreach ($detalles as $key => $value) {
+                $consultakardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('movimiento.id', '=',$movimiento->id)->where('producto_id', '=', $value->producto_id)->select('kardex.*')->get();
 
-                        $stockanterior = 0;
-                        $stockactual = 0;
-                        // ingresamos nuevo kardex
-                        if ($ultimokardex === NULL) {
-                            
-                            
-                        }else{
-                            $stockanterior = $ultimokardex->stockactual;
+                foreach ($consultakardex as $key2 => $value2) {
+                    $lote = Lote::find($value2->lote_id);
+                    if($tipodoc == 8) {
+                        $lote->queda -= $value2->cantidad;
+                    } else if($tipodoc == 9) {
+                        $lote->queda += $value2->cantidad;
+                    }
+                    
+                    $lote->save();
+                    $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $value->producto_id)->where('movimiento.almacen_id', '=', $almacen_id)->orderBy('kardex.id', 'DESC')->first();
+
+                    $stockanterior = 0;
+                    $stockactual = 0;
+                    // ingresamos nuevo kardex
+                    if ($ultimokardex === NULL) {
+                        
+                        
+                    }else{
+                        $stockanterior = $ultimokardex->stockactual;
+
+                        if($tipodoc == 8) {
                             $stockactual = $ultimokardex->stockactual-$value2->cantidad;
-                            $kardex = new Kardex();
+                        } else if($tipodoc == 9) {
+                            $stockactual = $ultimokardex->stockactual+$value2->cantidad;
+                        }                        
+                        $kardex = new Kardex();
+                        if($tipodoc == 8) {
                             $kardex->tipo = 'S';
-                            $kardex->fecha = date('Y-m-d');
-                            $kardex->stockanterior = $stockanterior;
-                            $kardex->stockactual = $stockactual;
-                            $kardex->cantidad = $value2->cantidad;
-                            $kardex->precioventa = $value2->precio;
-                            $kardex->almacen_id = $almacen_id;
-                            $kardex->detallemovimiento_id = $value->id;
-                            $kardex->lote_id = $lote->id;
-                            $kardex->save();    
+                        } else if($tipodoc == 9) {
+                            $kardex->tipo = 'I';
+                        }                        
+                        $kardex->fecha = date('Y-m-d');
+                        $kardex->stockanterior = $stockanterior;
+                        $kardex->stockactual = $stockactual;
+                        $kardex->cantidad = $value2->cantidad;
+                        $kardex->precioventa = $value2->precio;
+                        $kardex->almacen_id = $almacen_id;
+                        $kardex->detallemovimiento_id = $value->id;
+                        $kardex->lote_id = $lote->id;
+                        $kardex->save();    
 
-                        }
                     }
                 }
-                $movimiento->delete();
+
+                //Repongo Stock
+                $cant = $value->cantidad;
+                $stocks = Stock::where('producto_id', $value->producto_id)->where('almacen_id', $almacen_id)->first();
+                if($tipodoc == 8) {
+                    $stocks->cantidad -= $cant;
+                } else if($tipodoc == 9) {
+                    $stocks->cantidad += $cant;
+                }
+                
+                $stocks->save();
             }
             
+            $movimiento->situacion = 'A';
+            $movimiento->save();
         });
         return is_null($error) ? "OK" : $error;
     }
@@ -1194,4 +1228,95 @@ class MovimientoalmacenController extends Controller
 
         return $cantidad;
     }
+
+    /*public function anularmovimiento($id) {
+
+        $obj = Movimientoalmacen::find($id);
+
+        //Anular Venta en Caja de Farmacia
+
+        $sucursal_id = Session::get('sucursal_id');
+        $almacen_id = 1;
+        if($sucursal_id ==  2) {
+            $almacen_id = 3;
+        }
+
+        $tipodoc = null;
+
+        $movimientopago = Movimiento::find($obj->movimiento_id);
+        if ($movimientopago !== NULL) {
+            $movimientopago->situacion = 'A';
+            $movimientopago->save();
+
+            $tipodoc = $movimientopago->tipodocumento_id;
+        } else {
+            return 0;
+        }
+
+        $detalles = Detallemovimiento::where('movimiento_id','=',$obj->id)->get();
+        foreach ($detalles as $key => $value) {
+            $consultakardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('movimiento.id', '=',$obj->id)->where('producto_id', '=', $value->producto_id)->select('kardex.*')->get();
+
+            foreach ($consultakardex as $key2 => $value2) {
+                $lote = Lote::find($value2->lote_id);
+                if($tipodoc == '8') {
+                    $lote->queda -= $value2->cantidad;
+                } else if($tipodoc == '9') {
+                    $lote->queda += $value2->cantidad;
+                }
+                
+                $lote->save();
+                $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $value->producto_id)->where('movimiento.almacen_id', '=',$almacen_id)->orderBy('kardex.id', 'DESC')->first();
+
+                $stockanterior = 0;
+                $stockactual = 0;
+                // ingresamos nuevo kardex
+                if ($ultimokardex === NULL) {
+                    
+                    
+                }else{
+                    $stockanterior = $ultimokardex->stockactual;
+                    if($tipodoc == '8') {
+                        $stockactual = $ultimokardex->stockactual-$value2->cantidad;
+                    } else if($tipodoc == '9') {
+                        $stockactual = $ultimokardex->stockactual+$value2->cantidad;
+                    }
+                    
+                    $kardex = new Kardex();
+                    $kardex->tipo = 'I';
+                    $kardex->fecha = date('Y-m-d');
+                    $kardex->stockanterior = $stockanterior;
+                    $kardex->stockactual = $stockactual;
+                    $kardex->cantidad = $value2->cantidad;
+                    $kardex->precioventa = $value2->precio;
+                    $kardex->almacen_id = $almacen_id;
+                    $kardex->detallemovimiento_id = $value->id;
+                    $kardex->lote_id = $lote->id;
+                    $kardex->save();    
+
+                }
+            }
+
+            //Repongo Stock
+            $cant = $value->cantidad;
+            $stocks = Stock::where('producto_id', $value->producto_id)->where('almacen_id', $almacen_id)->first();
+            if($tipodoc == '8') {
+                $stocks->cantidad -= $cant;
+            } else if($tipodoc == '9') {
+                $stocks->cantidad += $cant;
+            }
+            
+            $stocks->save();
+        }
+
+        $obj->situacion='U';
+        $obj->save();
+        
+        $movimientopago = Movimiento::find($obj->movimiento_id);
+        if ($movimientopago !== NULL) {
+            $movimientopago->situacion = 'A';
+            $movimientopago->save();
+        }
+        ////////////////////////////
+    }*/
 }
