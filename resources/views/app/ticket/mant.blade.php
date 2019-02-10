@@ -304,6 +304,7 @@ if(!is_null($ticket)){
      </div>
      <div class="box">
         <div class="box-header">
+            {!! Form::hidden('examenesdetalle', '', array('id' => 'examenesdetalle')) !!}
             <h2 class="box-title col-lg-5 col-md-5 col-sm-5">Detalle <button type="button" class="btn btn-xs btn-info" title="Agregar Detalle" onclick="seleccionarServicioOtro();" ><i class="fa fa-plus"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-xs btn-danger" title="Agregar Hoja Costo" onclick="agregarHojaCosto($('#historia_id').val());">Hoja de Costo<i class="fa fa-file"></i></button></h2>
             <div class="text-right col-lg-7 col-md-7 col-sm-7" style="display: none;">
                 <div class="col-lg-1 col-md-1 col-sm-1">
@@ -414,6 +415,7 @@ $(document).ready(function() {
                         tipopaciente:movie.tipopaciente,
                         dni:movie.dni,
                         fallecido:movie.fallecido,
+                        examenes:movie.examenes,
 					};
 				});
 			}
@@ -439,6 +441,24 @@ $(document).ready(function() {
             }    
             
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="person_id"]').val(datum.person_id);
+
+            //mostrar examenes pendientes
+               
+            $.ajax({
+                "method": "POST",
+                "url": "{{ url('/ticket/examenesPendientes') }}",
+                "data": {
+                    "historia_id" : datum.id, 
+                    "_token": "{{ csrf_token() }}",
+                    }
+            }).done(function(info){
+                console.log(info);
+                if(info == "SI"){
+                    modal("{{ url('/ticket/examenesPendientesMostrar') }}/"+datum.id,"Exámenes Pendientes");
+                }
+            });
+
+            //
         }
 	});
     

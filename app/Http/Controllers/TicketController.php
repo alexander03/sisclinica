@@ -16,6 +16,7 @@ use App\Caja;
 use App\Tiposervicio;
 use App\Servicio;
 use App\Plan;
+use App\Examenhistoriaclinica;
 use App\Detalleplan;
 use App\Librerias\Libreria;
 use App\Librerias\EnLetras;
@@ -2179,4 +2180,56 @@ class TicketController extends Controller
         }
         echo $data;
     }
+
+    public function examenesPendientes(Request $request){
+
+        $historia_id = $request->input('historia_id');
+
+        $examenes = Examenhistoriaclinica::leftjoin('historiaclinica as hc','hc.id','=','examenhistoriaclinica.historiaclinica_id')
+                        ->where('hc.historia_id','=',$historia_id)
+                        ->where('examenhistoriaclinica.situacion','=', 'N')
+                        ->get();
+        
+        if( count($examenes) != 0 ){
+            return "SI";
+        }else{
+            return "NO";
+        }
+
+    }
+
+    public function examenesPendientesMostrar($id){
+        $entidad = 'ticket';
+        $ruta = $this->rutas;
+
+        $examenes = Examenhistoriaclinica::leftjoin('historiaclinica as hc','hc.id','=','examenhistoriaclinica.historiaclinica_id')
+                        ->where('hc.historia_id','=',$id)
+                        ->where('examenhistoriaclinica.situacion','=', 'N')
+                        ->select('examenhistoriaclinica.id as idhc','examenhistoriaclinica.*','hc.*')
+                        ->get();
+
+        return view($this->folderview.'.examenes')->with(compact('entidad', 'ruta','examenes'));
+    }
+
+    public function guardarExamenes(Request $request){
+
+        $examenes = json_decode($request->input('examenes'));
+
+        $error = null;
+
+        foreach ($examenes->{"data"} as $examen) {
+            $error = DB::transaction(function() use($request, $examen){
+                if( $examen->{"situacion"} == "S"){
+                    $examenhistoriaclinica = Examenhistoriaclinica::find($examen->{"id"});
+                    $examenhistoriaclinica->situacion = $examen->{"situacion"};
+                    $examenhistoriaclinica->lugar = $examen->{"lugar"};
+                    $examenhistoriaclinica->save();
+                }
+            });
+        }
+
+        return is_null($error) ? "OK" : $error;
+
+    }
+
 }

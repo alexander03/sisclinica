@@ -411,6 +411,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('ticket/anulacion', 'TicketController@anulacion')->name('ticket.anulacion');
     Route::post('ticket/agregardetalle', 'TicketController@agregardetalle')->name('ticket.agregardetalle');
     Route::post('ticket/agregarhojacosto', 'TicketController@agregarhojacosto')->name('ticket.agregarhojacosto');
+    Route::post('ticket/examenesPendientes', 'TicketController@examenesPendientes')->name('ticket.examenesPendientes');
+    Route::get('ticket/examenesPendientesMostrar/{id}', 'TicketController@examenesPendientesMostrar')->name('ticket.examenesPendientesMostrar');
+    Route::post('ticket/guardarExamenes', 'TicketController@guardarExamenes')->name('ticket.guardarExamenes');
 
     //TICKETS PARA REPROGRAMAR
     Route::get('ticket/ticketreprogramar', 'TicketController@ticketreprogramar')->name('ticket.ticketreprogramar');

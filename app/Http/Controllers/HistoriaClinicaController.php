@@ -189,6 +189,12 @@ class HistoriaClinicaController extends Controller
 
                     $Cita->paciente_id = $historia->persona->id;
 
+
+                    $Cita->paciente = $historia->persona->apellidopaterno . " " . $historia->persona->apellidomaterno . " " . $historia->persona->nombres;
+                    $Cita->historia = $historia->numero;
+                    $Cita->tipopaciente = $historia->tipopaciente;
+
+
                     $Cita->historia_id = $request->input('historia_id');
                     
                     $Cita->doctor_id = $request->input('doctor_id');
@@ -749,6 +755,12 @@ class HistoriaClinicaController extends Controller
                     $historia = Historia::find($historiaclinica->historia_id);
 
                     $Cita->paciente_id = $historia->persona->id;
+
+
+                    $Cita->paciente = $historia->persona->apellidopaterno . " " . $historia->persona->apellidomaterno . " " . $historia->persona->nombres;
+                    $Cita->historia = $historia->numero;
+                    $Cita->tipopaciente = $historia->tipopaciente;
+
 
                     $Cita->historia_id = $historia->id;
                     
