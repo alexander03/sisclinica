@@ -24,6 +24,7 @@
 			<td>{{ ($value->tipopago=='Convenio')?($value->tarifario->codigo." ".$value->tarifario->nombre):$value->nombre }}</td>
             <td>{{ $value->tiposervicio->nombre }}</td>
             <td>{{ $value->precio }}</td>
+			@if($vistamedico != "SI")
             <td>{{ $value->modo }}</td>
             <td align="right">{{ $value->pagodoctor }}</td>
             <td align="right">{{ $value->pagohospital }}</td>
@@ -33,6 +34,7 @@
 			@else
 				<td> - </td>
 				<td> - </td>
+			@endif
 			@endif
 		</tr>
 		<?php

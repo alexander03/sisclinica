@@ -1,5 +1,6 @@
 <?php
 use Illuminate\Support\Facades\Auth;
+use App\Tiposervicio;
 $entidad='Producto';
 date_default_timezone_set('America/Lima');
 $fechahoy = date('j-m-Y');
@@ -60,6 +61,7 @@ $user = Auth::user();
 			</section>
 			<ul class="nav nav-tabs">
 			  <li><a data-toggle="tab" href="#Farmacia">Farmacia</a></li>
+			  <li><a data-toggle="tab" href="#Tarifario">Tarifario</a></li>
 			  <li><a data-toggle="tab" href="#cie">CIE 10</a></li>
 			  <li class="active" id="pestanaPacienteCola"><a data-toggle="tab" href="#cola">Pacientes en cola</a></li>
 			  <li><a data-toggle="tab" href="#atendidos">Atenciones del día</a></li>
@@ -100,6 +102,66 @@ $user = Auth::user();
 					</section>
 					<!-- /.content -->	
 				</div>
+
+				<div id="Tarifario" class="tab-pane fade">
+					<!-- Main content -->
+					<section class="content">
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="box">
+									<div class="box-header">
+										<div class="row">
+											<div class="col-xs-12">
+												<div class="form-inline">
+												<?php
+													$cboTipoPago     = array("Particular" => "Particular", "Convenio" => "Convenio", "ParticularDescuento" => "Particular con Descuento");													
+													$cboTipoServicio = array();
+													$cboTipoServicio = $cboTipoServicio + array(0 => '--Todos--');
+													$tiposervicio = Tiposervicio::where(DB::raw('1'),'=','1')->orderBy('nombre','ASC')->get();
+													foreach ($tiposervicio as $key => $value) {
+														$cboTipoServicio = $cboTipoServicio + array($value->id => $value->nombre);
+													}
+												?>
+												{!! Form::hidden('page', 1, array('id' => 'page')) !!}
+												{!! Form::hidden('accion', 'listar', array('id' => 'accion')) !!}
+												<div class="form-group">
+													{!! Form::label('tipopago', 'Tipo Pago:') !!}
+													{!! Form::select('tipopago', $cboTipoPago, null, array('class' => 'form-control input-xs', 'id' => 'tipopago' , 'onchange' => 'buscarServicio();' )) !!}
+												</div>
+												<div class="form-group">
+													{!! Form::label('nombre_servicio', 'Nombre:') !!}
+													{!! Form::text('nombre_servicio', '', array('class' => 'form-control input-xs', 'id' => 'nombre_servicio')) !!}
+												</div>
+												<div class="form-group">
+													{!! Form::label('tiposervicio', 'Tipo:') !!}
+													{!! Form::select('tiposervicio', $cboTipoServicio, null, array('class' => 'form-control input-xs', 'id' => 'tiposervicio' , 'onchange' => 'buscarServicio();' )) !!}
+												</div>
+												<div class="form-group">
+													{!! Form::label('filas', 'Filas a mostrar:')!!}
+													{!! Form::selectRange('filas', 1, 30, 20, array('class' => 'form-control input-xs', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
+												</div>
+												{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar', 'onclick' => 'buscarServicio();')) !!}
+												{!! Form::close() !!}
+
+												</div>
+											</div>
+										</div>
+									</div>
+									<!-- /.box-header -->
+									<div class="box-body" id="listado3{{ $entidad }}">
+									</div>
+									<!-- /.box-body -->
+								</div>
+								<!-- /.box -->
+							</div>
+							<!-- /.col -->
+						</div>
+						<!-- /.row -->
+					</section>
+					<!-- /.content -->	
+				</div>
+
+
 				<div id="cie" class="tab-pane fade">
 					<!-- Main content -->
 					<section class="content">
@@ -719,6 +781,18 @@ $user = Auth::user();
 	    });
 	}
 
+
+	function buscarServicio(){
+		$.ajax({
+	        type: "POST",
+	        url: "servicio/buscar",
+	        data: "nombre=" + $("#nombre_servicio").val() + "&tipopago=" + $("#tipopago").val() + "&page=" + $("#page").val() + "&filas=" + $("#filas").val() + "&vistamedico=" + "SI" + "&tiposervicio=" + $("#tiposervicio").val() + "&_token=<?php echo csrf_token(); ?>",
+	        success: function(a) {
+	        	$("#listado3{{ $entidad }}").html(a);
+	        }
+	    });
+	}
+
 	function buscar4(){
 		$.ajax({
                 type: "POST",
@@ -742,7 +816,7 @@ $user = Auth::user();
 	        }
 	    });
 	}	
-    setInterval(buscar4, 3000);
+    //setInterval(buscar4, 3000);
 	
 	function tablaAtendidos(){
 		$.ajax({

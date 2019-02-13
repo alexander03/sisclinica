@@ -77,10 +77,14 @@ class ServicioController extends Controller
         $cabecera[]       = array('valor' => 'Nombre', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Tipo Servicio', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Precio', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Modo', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Pago Medico', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Pago Clinica', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '2');
+
+        $vistamedico           = $request->input('vistamedico');
+        if($vistamedico != "SI"){
+            $cabecera[]       = array('valor' => 'Modo', 'numero' => '1');
+            $cabecera[]       = array('valor' => 'Pago Medico', 'numero' => '1');
+            $cabecera[]       = array('valor' => 'Pago Clinica', 'numero' => '1');
+            $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '2');
+        }
         
         $titulo_modificar = $this->tituloModificar;
         $titulo_eliminar  = $this->tituloEliminar;
@@ -95,7 +99,7 @@ class ServicioController extends Controller
             $paginaactual    = $paramPaginacion['nuevapagina'];
             $lista           = $resultado->paginate($filas);
             $request->replace(array('page' => $paginaactual));
-            return view($this->folderview.'.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'user'));
+            return view($this->folderview.'.list')->with(compact('lista', 'paginacion', 'inicio', 'vistamedico', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'user'));
         }
         return view($this->folderview.'.list')->with(compact('lista', 'entidad'));
     }
