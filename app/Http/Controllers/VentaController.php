@@ -3367,6 +3367,11 @@ class VentaController extends Controller
                     //Repongo Stock
                     $cant = $value->cantidad;
                     $stocks = Stock::where('producto_id', $lista[$i]['producto_id'])->where('almacen_id', $almacen_id)->first();
+                    if (count($stocks) == 0) {
+                        $stocks = new Stock();
+                        $stocks->producto_id = $lista[$i]['producto_id'];
+                        $stocks->almacen_id = $almacen_id;
+                    }
                     $stocks->cantidad += $cant;
                     $stocks->save();
                     
@@ -3676,6 +3681,11 @@ class VentaController extends Controller
                 //Repongo Stock
                 $cant = $value->cantidad;
                 $stocks = Stock::where('producto_id', $value->producto_id)->where('almacen_id', $almacen_id)->first();
+                if (count($stocks) == 0) {
+                    $stocks = new Stock();
+                    $stocks->producto_id = $value->producto_id;
+                    $stocks->almacen_id = $almacen_id;
+                }
                 $stocks->cantidad += $cant;
                 $stocks->save();
             }
