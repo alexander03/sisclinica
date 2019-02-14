@@ -339,13 +339,24 @@ $user = Auth::user();
 															{!! Form::label('cie102', 'Cie10:', array('class' => 'col-sm-2 control-label')) !!}
 															<div class="col-sm-10" style="margin-top:7px;">
 																{!! Form::text('cie102', '', array('class' => 'form-control input-xs', 'id' => 'cie102', 'style' => 'font-size: 16px;')) !!}
-																{!! Form::hidden('cie102_id', '', array('id' => 'cie102_id')) !!}
+																{!! Form::hidden('cantcie', 0, array('id' => 'cantcie')) !!}
+															</div>
+															<div style=" margin: 40px 15px 0px 15px;">
+															<table class="table table-striped table-bordered col-lg-12 col-md-12 col-sm-12 " style="font-size: 70%;margin-bottom:-10px;">
+																<thead id="cabeceracie">
+																	<tr>
+																		<th width='80%' style="font-size: 13px !important;">Descripción</th>
+																		<th width='20%' style="font-size: 13px !important;">Eliminar</th>
+																	</tr>
+																</thead>
+																<tbody id="detallecie"></tbody>
+															</table>
 															</div>
 														</div>
 														<div class="form-group">
 															{!! Form::label('antecedentes', 'Antecedentes:', array('class' => 'col-sm-2 control-label')) !!}
 															<div class="col-sm-12">
-																<textarea class="form-control input-xs" id="antecedentes" cols="10" rows="2" style="font-size: 16px;"></textarea>
+																<textarea class="form-control input-xs" id="antecedentes" cols="10" rows="2" style="font-size: 16px; overflow-y:auto;"></textarea>
 															</div>
 														</div>	
 														<div class="form-group">
@@ -376,27 +387,35 @@ $user = Auth::user();
 														</div>
 														<div class="form-group">
 															{!! Form::label('motivo', 'Motivo:') !!}
-															<textarea class="form-control input-xs" id="motivo" cols="10" rows="2" style="font-size: 16px;"></textarea>
+															<textarea class="form-control input-xs" id="motivo" cols="10" rows="2" style="font-size: 16px; overflow-y:auto;"></textarea>
 														</div>
 														<div class="form-group">
 															{!! Form::label('exploracion_fisica', 'Exploración Física:') !!}
-															<textarea class="form-control input-xs" id="exploracion_fisica" cols="10" rows="2" style="font-size: 16px;"></textarea>
+															<textarea class="form-control input-xs" id="exploracion_fisica" cols="10" rows="6" style="font-size: 16px; overflow-y:auto;"></textarea>
 														</div>
 														<div class="form-group">
 															{!! Form::label('diagnostico', 'Diagnostico:') !!}
-															<textarea class="form-control input-xs" id="diagnostico" cols="10" rows="2" style="font-size: 16px;"></textarea>
+															<textarea class="form-control input-xs" id="diagnostico" cols="10" rows="2" style="font-size: 16px; overflow-y:auto;"></textarea>
 														</div>
 														<div class="form-group">
 															{!! Form::label('tratamiento', 'Tratamiento:') !!}
-															<textarea class="form-control input-xs" id="tratamiento" cols="10" rows="2" style="font-size: 16px;"></textarea>
+															<textarea class="form-control input-xs" id="tratamiento" cols="10" rows="2" style="font-size: 16px; overflow-y:auto;"></textarea>
 														</div>
-														<div class="form-group">
+														
+													</div>
+													<div class="col-sm-4">
+														<!-- Lista de historias clinicas anteriores -->
+														<strong>LISTA DE CITAS ANTERIORES:</strong>
+														<div id="tablaCita" style ="overflow-y: auto; height: 250px; margin-top: 10px;">
+														</div>
+														<!-- Fin historias clinicas anteriores -->	
+														
+														<div class="form-group" style="padding:15px;">
 															{!! Form::label('examenes', 'Exámenes:', array('class' => 'col-sm-3 control-label', 'style' => 'margin-left: -15px;')) !!}
 															<div class="col-sm-9" style="margin-top:7px;">
 																{!! Form::text('examenes', '', array('class' => 'form-control input-xs', 'id' => 'examenes', 'style' => 'font-size: 16px;')) !!}
 															</div>
-															<strong align="center" class="col-lg-12 col-md-12 col-sm-12 m-t-40" style="margin-top: 10px;">LISTA DE EXÁMENES</strong>
-															<table class="table table-striped table-bordered col-lg-12 col-md-12 col-sm-12 " style="font-size: 70%; padding: 0px 0px !important;">
+															<table class="table table-striped table-bordered col-lg-12 col-md-12 col-sm-12 " style="font-size: 70%; padding: 0px 0px !important; margin-top: 10px;">
 																<thead id="cabecera">
 																	<tr>
 																		<th width='80%' style="font-size: 13px !important;">Descripción</th>
@@ -406,14 +425,6 @@ $user = Auth::user();
 																<tbody id="detalle"></tbody>
 															</table>
 														</div>
-														
-													</div>
-													<div class="col-sm-4">
-														<!-- Lista de historias clinicas anteriores -->
-														<strong>LISTA DE CITAS ANTERIORES:</strong>
-														<div id="tablaCita">
-														</div>
-														<!-- Fin historias clinicas anteriores -->	
 													</div>
 												</div>
 											</div>
@@ -572,7 +583,7 @@ $user = Auth::user();
 				</div>
 			</div>
 	        <!-- /.content-wrapper -->
-	        <footer class="navbar-default navbar-fixed-bottom" style="padding-left: 20px !important; padding-bottom: 20px; padding-top: 20px; padding-right: 20px;">
+	        <footer class="navbar-default navbar-fixed-bottom" style="display: none; padding-left: 20px !important; padding-bottom: 20px; padding-top: 20px; padding-right: 20px;">
 	            <div class="container-fluid">
 	    			<div class="pull-right hidden-xs">
 	    				<b>Version</b> 2.3.8
@@ -674,8 +685,25 @@ $user = Auth::user();
 			displayKey: 'value',
 			source: cie10s.ttAdapter()
 		}).on('typeahead:selected', function (object, datum) {
-			$("#cie102").val(datum.value);
-			$("#cie102_id").val(datum.id);
+			$("#cie102").val("");
+			var cantcie = $("#cantcie").val();
+
+			var cie_id = datum.id;
+			var existe = false;
+
+			$("#detallecie tr").each(function(){
+				if(cie_id == this.id){
+					existe = true;
+				}
+			});
+
+			if(!existe){
+				fila =  '<tr align="center" id="'+ datum.id +'" ><td style="vertical-align: middle; text-align: left;">'+ datum.value +'</td><td style="vertical-align: middle;"><a onclick="eliminarDetalleCie(this)" class="btn btn-xs btn-danger btnEliminar" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</a></td></tr>';
+				$("#detallecie").append(fila);
+				cantcie++;
+				$("#cantcie").val(cantcie);
+			}
+
 		});   
 
 
@@ -702,6 +730,7 @@ $user = Auth::user();
 			displayKey: 'value',
 			source: examenes.ttAdapter()
 		}).on('typeahead:selected', function (object, datum) {
+			$("#examenes").val("");
 			var examen_id = datum.id;
 			var existe = false;
 
@@ -741,6 +770,7 @@ $user = Auth::user();
 			displayKey: 'value',
 			source: exameneseditar.ttAdapter()
 		}).on('typeahead:selected', function (object, datum) {
+			$("#exameneseditar").val("");
 			var examen_id = datum.id;
 			var existe = false;
 
@@ -758,6 +788,13 @@ $user = Auth::user();
 
 	function eliminarDetalle(comp){
 		(($(comp).parent()).parent()).remove();
+	}
+
+	function eliminarDetalleCie(comp){
+		(($(comp).parent()).parent()).remove();
+		var cantcie = $("#cantcie").val();
+		cantcie--;
+		$("#cantcie").val(cantcie);
 	}
 
 	function buscar2(){
@@ -950,9 +987,9 @@ $user = Auth::user();
     });
 
     function registrarHistoriaClinica(){
-    	if($('#cie102').val() == '') {
+    	if($('#cantcie').val() == 0) {
     		$('#cie102').focus();
-    		$('#mensajeHistoriaClinica').html('Debes ingresar un CIE 10.');
+    		$('#mensajeHistoriaClinica').html('Debes ingresar mínimo un CIE 10.');
     		return 0;
     	}
     	/* ANTECEDENTES
