@@ -456,7 +456,7 @@ $user = Auth::user();
 			</div>
 			<!-- Modal -->
 			<div class="modal fade" id="exampleModal2" tabindex="-1" role="dialog" aria-labelledby="tituloeditar" aria-hidden="true">
-				<div class="modal-dialog modal-lg" role="document">
+				<div class="modal-dialog" role="document" style="width:1100px;">
 				    <div class="modal-content">
 						<div class="modal-header">
 							<h3 class="modal-title" id="tituloeditar">Editar Atención</h3>
@@ -499,12 +499,6 @@ $user = Auth::user();
 									</div>
 								</div>
 								<div class="col-sm-12" style="font-size: 15px;">
-									<div class="form-group col-sm-3">
-										<label for="cie10editar" class="col-sm-4 control-label">Cie10:</label>
-										<div class="col-sm-8" style="margin-top:7px;">
-											<input class="form-control input-xs" id="cie10editar" readonly style="font-size: 16px;" name="cie10editar" type="text">
-										</div>
-									</div>
 									<div class="form-group col-sm-4">
 										<label for="fondoeditar" class="col-sm-9 control-label">Fondo de ojos:</label>
 										<div class="col-sm-3">
@@ -521,35 +515,58 @@ $user = Auth::user();
 										</div>
 									</div>	
 								</div>
-								<div class="col-sm-6" style="font-size: 15px;">
+								<div class="col-sm-4" style="font-size: 15px;">
 									<div class="form-group" style="margin: 5px;">
 										{!! Form::label('motivoeditar', 'Motivo:') !!}
-										<textarea class="form-control input-xs" id="motivoeditar" cols="10" rows="3" style="font-size: 16px;"></textarea>
+										<textarea class="form-control input-xs" id="motivoeditar" cols="10" rows="3" style="font-size: 16px; overflow-y:auto;"></textarea>
 									</div>	
 									<div class="form-group" style="margin: 5px;">
 										{!! Form::label('antecedenteseditar', 'Antecedentes:') !!}
-										<textarea class="form-control input-xs" id="antecedenteseditar" cols="10" rows="3" style="font-size: 16px;"></textarea>
+										<textarea class="form-control input-xs" id="antecedenteseditar" cols="10" rows="3" style="font-size: 16px; overflow-y:auto;"></textarea>
 									</div>
 									<div class="form-group" style="margin: 5px;">
 										{!! Form::label('diagnosticoeditar', 'Diagnostico:') !!}
-										<textarea class="form-control input-xs" id="diagnosticoeditar" cols="10" rows="3" style="font-size: 16px;"></textarea>
+										<textarea class="form-control input-xs" id="diagnosticoeditar" cols="10" rows="3" style="font-size: 16px; overflow-y:auto;"></textarea>
 									</div>
 								</div>
-								<div class="col-sm-6" style="font-size: 15px;">
+								<div class="col-sm-4" style="font-size: 15px;">
 									<div class="form-group" style="margin: 5px;">
 										{!! Form::label('tratamientoeditar', 'Tratamiento:') !!}
-										<textarea class="form-control input-xs" id="tratamientoeditar" cols="10" rows="3" style="font-size: 16px;"></textarea>
+										<textarea class="form-control input-xs" id="tratamientoeditar" cols="10" rows="3" style="font-size: 16px; overflow-y:auto;"></textarea>
 									</div>
 									<div class="form-group" style="margin: 5px;">
 										{!! Form::label('exploracion_fisicaeditar', 'Exploración Física:') !!}
-										<textarea class="form-control input-xs" id="exploracion_fisicaeditar" cols="10" rows="3" style="font-size: 16px;"></textarea>
+										<textarea class="form-control input-xs" id="exploracion_fisicaeditar" cols="10" rows="6" style="font-size: 16px; overflow-y:auto;"></textarea>
+									</div>									
+								</div>
+								<div class="col-sm-4" style="font-size: 15px;">
+
+									
+									<div class="form-group">
+										{!! Form::label('cie102editar', 'Cie10:', array('class' => 'col-sm-2 control-label', 'style' => 'margin-left: -15px;')) !!}
+										<div class="col-sm-10" style="margin-top:7px;">
+											{!! Form::text('cie102editar', '', array('class' => 'form-control input-xs', 'id' => 'cie102editar', 'style' => 'font-size: 16px;')) !!}
+											{!! Form::hidden('cantcieeditar', 0, array('id' => 'cantcieeditar')) !!}
+										</div>
+										<div style=" margin: 40px 15px 0px 0px;">
+										<table class="table table-striped table-bordered col-lg-12 col-md-12 col-sm-12 " style="font-size: 70%; padding: 0px 0px !important;">
+											<thead id="cabeceracieeditar">
+												<tr>
+													<th width='80%' style="font-size: 13px !important;">Descripción</th>
+													<th width='20%' style="font-size: 13px !important;">Eliminar</th>
+												</tr>
+											</thead>
+											<tbody id="detallecieeditar"></tbody>
+										</table>
+										</div>
 									</div>
+
 									<div class="form-group">
 										{!! Form::label('exameneseditar', 'Exámenes:', array('class' => 'col-sm-3 control-label', 'style' => 'margin-left: -15px;')) !!}
 										<div class="col-sm-9" style="margin-top:7px;">
 											{!! Form::text('exameneseditar', '', array('class' => 'form-control input-xs', 'id' => 'exameneseditar', 'style' => 'font-size: 16px;')) !!}
 										</div>
-										<strong align="center" class="col-lg-12 col-md-12 col-sm-12 m-t-40" style="margin-top: 10px;">LISTA DE EXÁMENES</strong>
+										<div style=" margin: 40px 15px 0px 0px;">
 										<table class="table table-striped table-bordered col-lg-12 col-md-12 col-sm-12 " style="font-size: 70%; padding: 0px 0px !important;">
 											<thead id="cabecera">
 												<tr>
@@ -559,7 +576,9 @@ $user = Auth::user();
 											</thead>
 											<tbody id="detalleeditar"></tbody>
 										</table>
-									</div>										
+										</div>	
+									</div>	
+
 								</div>
 							</div>
 
@@ -702,6 +721,51 @@ $user = Auth::user();
 				$("#detallecie").append(fila);
 				cantcie++;
 				$("#cantcie").val(cantcie);
+			}
+
+		});   
+
+
+	var cie10seditar = new Bloodhound({
+			datumTokenizer: function (d) {
+				return Bloodhound.tokenizers.whitespace(d.value);
+			},
+			limit: 5,
+			queryTokenizer: Bloodhound.tokenizers.whitespace,
+			remote: {
+				url: 'historiaclinica/cie10autocompletar/%QUERY',
+				filter: function (cie10seditar) {
+					return $.map(cie10seditar, function (cie10) {
+						return {
+							value: cie10.value,
+							id: cie10.id,
+						};
+					});
+				}
+			}
+		});
+		cie10seditar.initialize();
+		$("#cie102editar").typeahead(null,{
+			displayKey: 'value',
+			source: cie10seditar.ttAdapter()
+		}).on('typeahead:selected', function (object, datum) {
+			$("#cie102editar").val("");
+			var cantcie = $("#cantcieeditar").val();
+
+			var cie_id = datum.id;
+			var existe = false;
+
+			$("#detallecieeditar tr").each(function(){
+				if(cie_id == this.id){
+					existe = true;
+				}
+			});
+
+			if(!existe){
+				fila =  '<tr align="center" id="'+ datum.id +'" ><td style="vertical-align: middle; text-align: left;">'+ datum.value +'</td><td style="vertical-align: middle;"><a onclick="eliminarDetalleCie(this)" class="btn btn-xs btn-danger btnEliminar" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</a></td></tr>';
+				$("#detallecieeditar").append(fila);
+				cantcie++;
+				$("#cantcieeditar").val(cantcie);
 			}
 
 		});   
@@ -955,7 +1019,7 @@ $user = Auth::user();
 				if(a.fondo == "SI"){
 					$('#fondo').prop('checked', false);
 					$('#fondo_si').val(a.fondo);
-					$("#cie102").prop('readOnly', true);
+					//$("#cie102").prop('readOnly', true);
 					//$("#citaproxima").prop('readOnly', true);
 					$("#motivo").prop('readOnly', true);
 				}else{
@@ -982,6 +1046,13 @@ $user = Auth::user();
 					var fila =  '<tr align="center" id="'+ value.servicio_id +'" ><td style="vertical-align: middle; text-align: left;">'+ value.nombre +'</td><td style="vertical-align: middle;"><a onclick="eliminarDetalle(this)" class="btn btn-xs btn-danger btnEliminar" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</a></td></tr>';
 					$("#detalle").append(fila);
 				});
+				console.log(a.cies);
+				var arrcies = a.cies;
+				$.each(arrcies, function (index, value) {
+					var fila =  '<tr align="center" id="'+ value.cie_id +'" ><td style="vertical-align: middle; text-align: left;">'+ value.descripcion +'</td><td style="vertical-align: middle;"><a onclick="eliminarDetalleCie(this)" class="btn btn-xs btn-danger btnEliminar" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</a></td></tr>';
+					$("#detallecie").append(fila);
+				});
+				$('#cantcie').val(a.cantcies);
 	        }
 	    });
     });
@@ -998,6 +1069,16 @@ $user = Auth::user();
     		$('#mensajeHistoriaClinica').html('Debes ingresar antecedentes.');
     		return 0;
     	}*/
+    	if($('#motivo').val() == '') {
+    		$('#motivo').focus();
+    		$('#mensajeHistoriaClinica').html('Debes ingresar un motivo.');
+    		return 0;
+    	}
+    	if($('#exploracion_fisica').val() == '') {
+    		$('#exploracion_fisica').focus();
+    		$('#mensajeHistoriaClinica').html('Debes ingresar exploración física.');
+    		return 0;
+    	}
     	if($('#diagnostico').val() == '') {
     		$('#diagnostico').focus();
     		$('#mensajeHistoriaClinica').html('Debes ingresar un diagnostico.');
@@ -1013,16 +1094,6 @@ $user = Auth::user();
     		$('#mensajeHistoriaClinica').html('Debes ingresar exámenes.');
     		return 0;
     	}*/
-    	if($('#motivo').val() == '') {
-    		$('#motivo').focus();
-    		$('#mensajeHistoriaClinica').html('Debes ingresar un motivo.');
-    		return 0;
-    	}
-    	if($('#exploracion_fisica').val() == '') {
-    		$('#exploracion_fisica').focus();
-    		$('#mensajeHistoriaClinica').html('Debes ingresar exploración física.');
-    		return 0;
-    	}
     	var tratamiento = $('#tratamiento').val().replace(/\r?\n/g, "<br>");
     	//ANTECEDENTES
 		var antecedentes = $('#antecedentes').val().replace(/\r?\n/g, "<br>");
@@ -1053,15 +1124,26 @@ $user = Auth::user();
 
 		//fin detalle
 
+
+		//detalle
+		var datacie = [];
+		$("#detallecie tr").each(function(){
+			var element = $(this); // <-- en la variable element tienes tu elemento
+			var id = element.attr('id');
+			datacie.push(
+				{ "id": id }
+			);
+		});
+		var detallecie = {"data": datacie};
+		var jsoncie = JSON.stringify(detallecie);
+
+		//fin detalle
+
 		$.ajax({
 	        type: "POST",
 	        url: "historiaclinica/registrarHistoriaClinica",
-	        data: $('#formHistoriaClinica').serialize() + "&_token=<?php echo csrf_token(); ?>&tratamiento=" + tratamiento + "&antecedentes=" + antecedentes + "&diagnostico=" + diagnostico + /* "&examenes=" + examenes + */ "&motivo=" + motivo + "&exploracion_fisica=" + exploracion_fisica + "&fondo=" + fondo + "&doctor_id=" + doctor_id +"&examenes=" + json + "&cita_id=" + cita_id,
+	        data: $('#formHistoriaClinica').serialize() + "&_token=<?php echo csrf_token(); ?>&tratamiento=" + tratamiento + "&antecedentes=" + antecedentes + "&diagnostico=" + diagnostico + /* "&examenes=" + examenes + */ "&motivo=" + motivo + "&exploracion_fisica=" + exploracion_fisica + "&fondo=" + fondo + "&doctor_id=" + doctor_id +"&examenes=" + json + "&cies=" + jsoncie + "&cita_id=" + cita_id,
 	        success: function(a) {
-	        	if(a == 'El Código CIE no existe') {
-	        		$('#mensajeHistoriaClinica').html(a);
-	        		$('#cie102').focus();
-	        	}
 	        	if(a == 'OK') {
 	        		alert('TRATAMIENTO REGISTRADO CORRECTAMENTE...');
 	        		$("li").removeClass('in active');
@@ -1084,6 +1166,7 @@ $user = Auth::user();
 					$('#exploracion_fisica').val('');
 					$("#divpresente").css('display','');
 					$('#detalle').html('');
+					$('#detallecie').html('');
 					$("#cie102").prop('disabled', true);
 					$("#antecedentes").prop('disabled', true);
 					$("#diagnostico").prop('disabled', true);
@@ -1127,7 +1210,7 @@ $user = Auth::user();
 				$('#historiaeditar').val(a.numhistoria);
 				$('#pacienteeditar').val(a.paciente);
 				$('#numeroeditar').val(a.numero);
-				$('#cie10editar').val(a.cie10);
+				//$('#cie10editar').val(a.cie10);
 				$('#motivoeditar').val(a.motivo);
 				console.log(a.citaproxima);
 				$('#citaproximaeditar').val(a.citaproxima);
@@ -1143,6 +1226,13 @@ $user = Auth::user();
 					var fila =  '<tr align="center" id="'+ value.servicio_id +'" ><td style="vertical-align: middle; text-align: left;">'+ value.nombre +'</td><td style="vertical-align: middle;"><a onclick="eliminarDetalle(this)" class="btn btn-xs btn-danger btnEliminar" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</a></td></tr>';
 					$("#detalleeditar").append(fila);
 				});
+				console.log(a.cies);
+				var arrcies = a.cies;
+				$.each(arrcies, function (index, value) {
+					var fila =  '<tr align="center" id="'+ value.cie_id +'" ><td style="vertical-align: middle; text-align: left;">'+ value.descripcion +'</td><td style="vertical-align: middle;"><a onclick="eliminarDetalleCie(this)" class="btn btn-xs btn-danger btnEliminar" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</a></td></tr>';
+					$("#detallecieeditar").append(fila);
+				});
+				$('#cantcie').val(a.cantcies);
 				if(a.fondo == "SI"){
 					$('#fondoeditar').prop('checked', true);
 				}else{
@@ -1155,7 +1245,9 @@ $user = Auth::user();
 	
 	$(document).on('click', '#btnCerrarModalEditar', function(event) {
 		$('#exameneseditar').val('');
+		$('#cie102editar').val('');
 		$('#detalleeditar').html('');
+		$('#detallecieeditar').html('');
 		$('#exampleModal2').modal('hide');
 	});
 
@@ -1188,6 +1280,21 @@ $user = Auth::user();
 
 		//fin detalle
 
+		
+		//detalle
+		var datacie = [];
+		$("#detallecieeditar tr").each(function(){
+			var element = $(this); // <-- en la variable element tienes tu elemento
+			var id = element.attr('id');
+			datacie.push(
+				{ "id": id }
+			);
+		});
+		var detallecie = {"data": datacie};
+		var jsoncie = JSON.stringify(detallecie);
+
+		//fin detalle
+
 
 		$.ajax({
 			"method": "POST",
@@ -1198,6 +1305,7 @@ $user = Auth::user();
 				"antecedentes" : antecedentes,
 				"diagnostico" : diagnostico,
 				"examenes" : json,
+				"cies" : jsoncie,
 				"citaproxima" : citaproxima,
 				"motivo" : motivo,
 				"exploracion_fisica" : exploracion_fisica,
@@ -1209,6 +1317,7 @@ $user = Auth::user();
 				$('#exampleModal2').modal('hide');
 				$('#citaseditar').val("");
 				$('#detalleeditar').html('');
+				$('#detallecieeditar').html('');
 				tablaAtendidos();
 			}
 		});
@@ -1252,6 +1361,7 @@ $user = Auth::user();
 			$('#motivo').val('');
 			$('#citas').val('');
 			$('#detalle').html('');
+			$('#detallecie').html('');
 			$('#exploracion_fisica').val('');
 			$("#cie102").prop('disabled', true);
 			$("#antecedentes").prop('disabled', true);

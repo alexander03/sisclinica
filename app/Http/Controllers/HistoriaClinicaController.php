@@ -12,6 +12,7 @@ use App\Cie;
 use App\User;
 use App\Cita;
 use App\Servicio;
+use App\Detallehistoriacie;
 use App\Examenhistoriaclinica;
 use App\Person;
 use App\Detallemovcaja;
@@ -61,11 +62,14 @@ class HistoriaClinicaController extends Controller
         }
 
         if($historiaclinica != null){
-            $cie10 = Cie::find($historiaclinica->cie_id);
+            //$cie10 = Cie::find($historiaclinica->cie_id);
 
             $examenes = Examenhistoriaclinica::leftjoin('servicio as servicio', 'servicio.id', '=', 'examenhistoriaclinica.servicio_id')
                                         ->where('examenhistoriaclinica.historiaclinica_id', $historiaclinica->id )
                                             ->get();
+
+            $cies = Detallehistoriacie::leftjoin('cie', 'cie.id', '=', 'detallehistoriacie.cie_id')
+                                        ->where('detallehistoriacie.historiaclinica_id',  $historiaclinica->id )->get();
 
             $cita = Cita::find($historiaclinica->citaproxima);
 
@@ -81,13 +85,15 @@ class HistoriaClinicaController extends Controller
                 'numhistoria' => $historia->numero,
                 'numero' => $historiaclinica->numero,
                 'motivo' => $historiaclinica->motivo,
-                'cie10' => $cie10->codigo . " - " . $cie10->descripcion,
-                'cie10id' => $cie10->id,
+                //'cie10' => $cie10->codigo . " - " . $cie10->descripcion,
+                //'cie10id' => $cie10->id,
                 'sintomas' => $historiaclinica->sintomas,
                 'tratamiento' => $historiaclinica->tratamiento,
                 'diagnostico' => $historiaclinica->diagnostico,
                 'exploracion_fisica' => $historiaclinica->exploracion_fisica,
                 'examenes' => $examenes,
+                'cies' => $cies,
+                'cantcies' => count($cies),
             );
 
             if($cita != null){
@@ -106,8 +112,8 @@ class HistoriaClinicaController extends Controller
                     'numhistoria' => $historia->numero,
                     'numero' => $historiaclinica->numero,
                     'motivo' => $historiaclinica->motivo,
-                    'cie10' => $cie10->codigo . " - " . $cie10->descripcion,
-                    'cie10id' => $cie10->id,
+                    //'cie10' => $cie10->codigo . " - " . $cie10->descripcion,
+                    //'cie10id' => $cie10->id,
                     'sintomas' => $historiaclinica->sintomas,
                     'citaproxima' => date('Y-m-d',strtotime($cita->fecha)) ,
                     'cantcitas' => $cantidad,
@@ -115,6 +121,8 @@ class HistoriaClinicaController extends Controller
                     'diagnostico' => $historiaclinica->diagnostico,
                     'exploracion_fisica' => $historiaclinica->exploracion_fisica,
                     'examenes' => $examenes,
+                    'cies' => $cies,
+                    'cantcies' => count($cies),
                 );
     
             }
@@ -209,9 +217,42 @@ class HistoriaClinicaController extends Controller
                     $historiaclinica   = HistoriaClinica::find($request->input('cita_id'));
                     
                     $error = DB::transaction(function() use($request, $historiaclinica){
-                        $cita  = Cita::find($historiaclinica->citaproxima);
-                        $cita->fecha  = $request->input('citaproxima');
-                        $cita->save();
+                        if($historiaclinica->citaproxima == null){
+
+                            $Cita       = new Cita();
+
+                            $user = Auth::user();
+                            
+                            //sucursal_id
+                            $sucursal_id = Session::get('sucursal_id');
+        
+                            $Cita->sucursal_id = $sucursal_id;
+                            $Cita->fecha = $request->input('citaproxima');
+        
+                            $historia = Historia::find($request->input('historia_id'));
+        
+                            $Cita->paciente_id = $historia->persona->id;
+        
+        
+                            $Cita->paciente = $historia->persona->apellidopaterno . " " . $historia->persona->apellidomaterno . " " . $historia->persona->nombres;
+                            $Cita->historia = $historia->numero;
+                            $Cita->tipopaciente = $historia->tipopaciente;
+        
+        
+                            $Cita->historia_id = $request->input('historia_id');
+                            
+                            $Cita->doctor_id = $request->input('doctor_id');
+                            
+                            $Cita->situacion='P';//Pendiente
+                
+                            $Cita->usuario_id = $user->person_id;
+                            $Cita->save();
+
+                        }else{
+                            $cita  = Cita::find($historiaclinica->citaproxima);
+                            $cita->fecha  = $request->input('citaproxima');
+                            $cita->save();
+                        }
                     });
 
                 }
@@ -254,7 +295,7 @@ class HistoriaClinicaController extends Controller
 
             $now = new \DateTime();
 
-            $historiaclinica->cie_id         = $request->input('cie102_id');
+            //$historiaclinica->cie_id         = $request->input('cie102_id');
 
             $historiaclinica->fecha_atencion = $now;
             $historiaclinica->save();
@@ -276,6 +317,31 @@ class HistoriaClinicaController extends Controller
         });
 
         $historiaclinica = HistoriaClinica::where('ticket_id', $request->input('ticket_id') )->first();
+
+        $ciesborrar = Detallehistoriacie::where('historiaclinica_id', $historiaclinica->id )->get();
+
+        foreach ($ciesborrar as $value) {
+
+            $error = DB::transaction(function() use($request, $value){
+
+                $value->delete();
+
+            });
+            
+        }
+
+        $cies = json_decode($request->input('cies'));
+
+        foreach ($cies->{"data"} as $cie) {
+            $error = DB::transaction(function() use($request, $historiaclinica, $cie){
+
+                $detallehistoriacie = new Detallehistoriacie();
+                $detallehistoriacie->historiaclinica_id = $historiaclinica->id;
+                $detallehistoriacie->cie_id = $cie->{"id"};
+                $detallehistoriacie->save();
+
+            });
+        }
 
         $examenesborrar = Examenhistoriaclinica::where('historiaclinica_id', $historiaclinica->id )->get();
 
@@ -302,7 +368,6 @@ class HistoriaClinicaController extends Controller
 
             });
         }
-
 
         return is_null($error) ? "OK" : $error;
     }
@@ -350,7 +415,7 @@ class HistoriaClinicaController extends Controller
         $cita_id             = $request->input('cita_id');
         $cita                = HistoriaClinica::find($cita_id);
         $historia            = Historia::find($cita->historia_id);
-        $cie10               = Cie::find($cita->cie_id);
+        //$cie10               = Cie::find($cita->cie_id);
         $doctor              = Person::find($cita->doctor_id);
         $user                = User::find($cita->user_id);
 
@@ -446,23 +511,29 @@ class HistoriaClinicaController extends Controller
                     </tr>";
                 }
 
-                if($cie10 != null){
+                $cies = Detallehistoriacie::where('historiaclinica_id', $cita->id)->whereNull('deleted_at')->get();
 
-                $texto .= "<tr>
-                    <td>
-                        <strong><font style='color:blue'>Cie 10</font></strong><br>
-                    </td>
-                    <td>"
-                    .$cie10->codigo.
-                    " - "
-                    .$cie10->descripcion.
-                    "</td>
-                </tr>";
+                if(count($cies) != 0){
 
+                    $cont = 1;
+                    $cies2 = "";
+                    foreach ($cies as $value) {
+                        $cies2 .= $cont . ' - ' . $value->cie->descripcion .'<br>';
+                        $cont++;
+                    }
+
+                    $texto .= "<tr>
+                        <td>
+                            <strong><font style='color:blue'>Exámenes</font></strong><br>
+                        </td>
+                        <td>"
+                            . $cies2 .
+                        "</td>
+                    </tr>";
                 }else{
                     $texto .= "<tr>
                         <td width='15%'>
-                            <strong><font style='color:blue'>Cie 10</font></strong>
+                            <strong><font style='color:blue'>Exámenes</font></strong>
                         </td>
                         <td width='85%'> - </td>
                     </tr>";
@@ -672,7 +743,11 @@ class HistoriaClinicaController extends Controller
                                         ->where('examenhistoriaclinica.historiaclinica_id', $historiaclinica->id )
                                             ->get();
 
-        $cie10 = Cie::find($historiaclinica->cie_id);
+        //$cie10 = Cie::find($historiaclinica->cie_id);
+
+        
+        $cies = Detallehistoriacie::leftjoin('cie', 'cie.id', '=', 'detallehistoriacie.cie_id')
+        ->where('detallehistoriacie.historiaclinica_id',  $historiaclinica->id )->get();
 
         if($citaproxima != null){
 
@@ -688,12 +763,14 @@ class HistoriaClinicaController extends Controller
                 'antecedentes' => $historia->antecedentes,
                 'numero' => $historiaclinica->numero,
                 'motivo' => $historiaclinica->motivo,
-                'cie10' => $cie10->codigo,
+                //'cie10' => $cie10->codigo,
                 'sintomas' => $historiaclinica->sintomas,
                 'tratamiento' => $historiaclinica->tratamiento,
                 'diagnostico' => $historiaclinica->diagnostico,
                 'exploracion_fisica' => $historiaclinica->exploracion_fisica,
                 'examenes' => $examenes,
+                'cies' => $cies,
+                'cantcies' => count($cies),
             );
 
         }else{
@@ -708,12 +785,14 @@ class HistoriaClinicaController extends Controller
                 'antecedentes' => $historia->antecedentes,
                 'numero' => $historiaclinica->numero,
                 'motivo' => $historiaclinica->motivo,
-                'cie10' => $cie10->codigo,
+                //'cie10' => $cie10->codigo,
                 'sintomas' => $historiaclinica->sintomas,
                 'tratamiento' => $historiaclinica->tratamiento,
                 'diagnostico' => $historiaclinica->diagnostico,
                 'exploracion_fisica' => $historiaclinica->exploracion_fisica,
                 'examenes' => $examenes,
+                'cies' => $cies,
+                'cantcies' => count($cies),
             );
 
         }
@@ -804,6 +883,31 @@ class HistoriaClinicaController extends Controller
 
 
         $historiaclinica = HistoriaClinica::find( $request->input('cita_id') );
+
+        $ciesborrar = Detallehistoriacie::where('historiaclinica_id', $historiaclinica->id )->get();
+
+        foreach ($ciesborrar as $value) {
+
+            $error = DB::transaction(function() use($request, $value){
+
+                $value->delete();
+
+            });
+            
+        }
+
+        $cies = json_decode($request->input('cies'));
+
+        foreach ($cies->{"data"} as $cie) {
+            $error = DB::transaction(function() use($request, $historiaclinica, $cie){
+
+                $detallehistoriacie = new Detallehistoriacie();
+                $detallehistoriacie->historiaclinica_id = $historiaclinica->id;
+                $detallehistoriacie->cie_id = $cie->{"id"};
+                $detallehistoriacie->save();
+
+            });
+        }
 
         $examenesborrar = Examenhistoriaclinica::where('historiaclinica_id', $historiaclinica->id )->get();
 
