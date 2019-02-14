@@ -23,17 +23,33 @@
 	            <td>{{ $value->numero }}</td>
 	            <td>{{ $value->paciente }}</td>
 	            <td align="center">{{ number_format($value->total,2,'.','') }}</td>
-	            @if($value->situacion=='P' || $value->situacion=='B')
-	            <td>PENDIENTE</td>
-	            @elseif($value->situacion=='C')
-	            <td>COBRADO</td>
-				@elseif($value->situacion=='D')
-	            <td>DEBE</td>
-	            @elseif($value->situacion=='U')
-	            <td>ANULADO</td>
-				@elseif($value->situacion=='R')
-	            <td>REPROGRAMADO</td>
-	            @endif
+				
+				<?php
+				$estado ="";
+
+				if($value->situacion=='P' || $value->situacion=='B'){
+					$estado ="PENDIENTE";
+				}else if($value->situacion=='C'){
+					$estado ="COBRADO";
+				}else if($value->situacion=='D'){
+					$estado ="DEBE";
+				}else if($value->situacion=='U'){
+					$estado ="ANULADO";
+				}else if($value->situacion=='R'){
+					$estado ="REPROGRAMADO";
+				}
+
+				if($value->situacion2 == 'A' || $value->situacion2 == 'B' || $value->situacion2 == 'F'){
+					$estado .= " - ATENDIENDO";
+				}else if($value->situacion2 == 'C' || $value->situacion2 == 'N'){
+					$estado .= " - EN ESPERA";
+				}else if($value->situacion2 == 'L'){
+					$estado .= " - ATENDIDO";
+				}				
+				?>
+
+				<td>{{ $estado }}</td>
+
 	  			<td>{{ $value->responsable }}</td>
 	            @if($value->situacion=='C')
 	            	@if($value->total>0)
