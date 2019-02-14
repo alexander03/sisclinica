@@ -806,7 +806,7 @@ $user = Auth::user();
                     $("#listadoLectura").html(a.lectura);
                 }
             });
-		$('.llamando').fadeTo(500, .1).fadeTo(500, 1) ;
+		//$('.llamando').fadeTo(500, .1).fadeTo(500, 1) ;
 		$.ajax({
 	        type: "POST",
 	        url: "ventaadmision/llamarAtender",
@@ -815,8 +815,13 @@ $user = Auth::user();
 	        	$("#atender").html(a);
 	        }
 	    });
+		setInterval( 
+			function(){
+				 $('.llamando').fadeTo(500, .1).fadeTo(500, 1) 
+			}
+		, 1000) ;
 	}	
-    //setInterval(buscar4, 3000);
+    setInterval(buscar4, 3000);
 	
 	function tablaAtendidos(){
 		$.ajax({

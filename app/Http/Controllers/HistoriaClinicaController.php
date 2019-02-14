@@ -859,33 +859,86 @@ class HistoriaClinicaController extends Controller
                     <td width='30%'>
                         <strong><font style='color:blue'>DNI:</font></strong>
                     </td>
-                    <td width='70%'>"
-                        . $paciente->dni .
-                    "</td>
+                    <td width='70%'>";
+                        if($paciente->dni !=null ){
+                            $texto .= $paciente->dni;
+                        }else{
+                            $texto .= " - ";
+                        }
+                    $texto .= "</td>
                 </tr>
                 <tr>
                     <td>
                         <strong><font style='color:blue'>Fecha de nacimiento:</font></strong><br>
                     </td>
-                    <td>"
-                        . date('d-m-Y',strtotime($paciente->fechanacimiento)).
-                    "</td>
+                    <td>";
+                        if( $paciente->fechanacimiento != null){
+                            $texto .= date('d-m-Y',strtotime($paciente->fechanacimiento));
+                        }else{
+                            $texto .= " - ";
+                        }
+                    $texto .= "</td>
+                </tr>
+                <tr>
+                    <td>
+                        <strong><font style='color:blue'>Edad:</font></strong><br>
+                    </td>
+                    <td>";
+
+                        
+                    $dia=date("d");
+                    $mes=date("m");
+                    $ano=date("Y");
+
+
+                    $dianaz=date("d",strtotime($paciente->fechanacimiento));
+                    $mesnaz=date("m",strtotime($paciente->fechanacimiento));
+                    $anonaz=date("Y",strtotime($paciente->fechanacimiento));
+
+                    //si el mes es el mismo pero el día inferior aun no ha cumplido años, le quitaremos un año al actual
+
+                    if (($mesnaz == $mes) && ($dianaz > $dia)) {
+                    $ano=($ano-1); }
+
+                    //si el mes es superior al actual tampoco habrá cumplido años, por eso le quitamos un año al actual
+
+                    if ($mesnaz > $mes) {
+                    $ano=($ano-1);}
+
+                    //ya no habría mas condiciones, ahora simplemente restamos los años y mostramos el resultado como su edad
+
+                    $edad=($ano-$anonaz);
+
+                        if( $paciente->fechanacimiento != null){
+                            $texto .= $edad;
+                        }else{
+                            $texto .= " - ";
+                        }
+                    $texto .= "</td>
                 </tr>
                 <tr>
                     <td>
                         <strong><font style='color:blue'>Teléfono:</font></strong><br>
                     </td>
-                    <td>"
-                       .$paciente->telefono.
-                    "</td>
+                    <td>";
+                        if( $paciente->fechanacimiento != null){
+                            $texto .= $paciente->telefono;
+                        }else{
+                            $texto .= " - ";
+                        }
+                    $texto .= "</td>
                 </tr>
                 <tr>
                     <td>
                         <strong><font style='color:blue'>Dirección</font></strong><br>
                     </td>
-                    <td>"
-                        . $paciente->direccion .
-                    "</td>
+                    <td>";
+                        if( $paciente->fechanacimiento != null){
+                            $texto .= $paciente->direccion;
+                        }else{
+                            $texto .= " - ";
+                        }
+                    $texto .= "</td>
                 </tr>
             </tbody>
         </table>";
