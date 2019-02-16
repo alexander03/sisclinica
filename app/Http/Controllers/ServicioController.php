@@ -79,6 +79,7 @@ class ServicioController extends Controller
         $cabecera[]       = array('valor' => 'Precio', 'numero' => '1');
 
         $vistamedico           = $request->input('vistamedico');
+        
         if($vistamedico != "SI"){
             $cabecera[]       = array('valor' => 'Modo', 'numero' => '1');
             $cabecera[]       = array('valor' => 'Pago Medico', 'numero' => '1');

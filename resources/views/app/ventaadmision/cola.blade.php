@@ -89,6 +89,7 @@
     {!! Html::script('bootstrap/js/bootstrap.min.js') !!}
 
     <script>
+        buscar2();
         function buscar2(){
             $.ajax({
                 type: "POST",
@@ -102,7 +103,11 @@
                     $("#listadoLectura").html(a.lectura);
                 }
             });
-            $('.llamando').fadeTo(500, .1).fadeTo(500, 1) ;
+            setInterval( 
+                function(){
+                     $('.llamando').fadeTo(500, .1).fadeTo(500, 1) 
+                }
+            , 1000) ;
         }
         setInterval(buscar2, 3000);
     </script> 

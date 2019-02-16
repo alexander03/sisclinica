@@ -104,11 +104,17 @@ if(!is_null($ticket)){
                             @else
                             <option value="P">PROCEDIMIENTO</option>
                             @endif
+                            @if($ticket->clasificacionconsulta == 'X')
+                            <option selected value="X">EXAMENES</option>
+                            @else
+                            <option value="X">EXAMENES</option>
+                            @endif
                         @else
                         <option value="C">CONSULTA</option>
                         <option value="E">EMERGENCIA</option>
                         <option value="L">LECT. RESULTADOS</option>
                         <option value="P">PROCEDIMIENTO</option>
+                        <option value="X">EXAMENES</option>
                         @endif
                     </select>
                 </div>
@@ -304,7 +310,6 @@ if(!is_null($ticket)){
      </div>
      <div class="box">
         <div class="box-header">
-            {!! Form::hidden('examenesdetalle', '', array('id' => 'examenesdetalle')) !!}
             <h2 class="box-title col-lg-5 col-md-5 col-sm-5">Detalle <button type="button" class="btn btn-xs btn-info" title="Agregar Detalle" onclick="seleccionarServicioOtro();" ><i class="fa fa-plus"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-xs btn-danger" title="Agregar Hoja Costo" onclick="agregarHojaCosto($('#historia_id').val());">Hoja de Costo<i class="fa fa-file"></i></button></h2>
             <div class="text-right col-lg-7 col-md-7 col-sm-7" style="display: none;">
                 <div class="col-lg-1 col-md-1 col-sm-1">
@@ -457,7 +462,6 @@ $(document).ready(function() {
                     modal("{{ url('/ticket/examenesPendientesMostrar') }}/"+datum.id,"Exámenes Pendientes");
                 }
             });
-
             //
         }
 	});
@@ -801,12 +805,12 @@ function guardarPago (entidad, idboton) {
     				cerrarModal();
                     buscarCompaginado('', 'Accion realizada correctamente', entidad, 'OK');
                     if(dat[0].pagohospital!="0"){
-                        window.open('/juanpablo/ticket/pdfComprobante3?ticket_id='+dat[0].ticket_id,'_blank')
+                        //window.open('/juanpablo/ticket/pdfComprobante3?ticket_id='+dat[0].ticket_id,'_blank')
                     }else{
-                        window.open('/juanpablo/ticket/pdfPrefactura?ticket_id='+dat[0].ticket_id,'_blank')
+                        //window.open('/juanpablo/ticket/pdfPrefactura?ticket_id='+dat[0].ticket_id,'_blank')
                     }
                     if(dat[0].notacredito_id!="0"){
-                        window.open('/juanpablo/notacredito/pdfComprobante3?id='+dat[0].notacredito_id,'_blank');
+                        //window.open('/juanpablo/notacredito/pdfComprobante3?id='+dat[0].notacredito_id,'_blank');
                     }
     			} else if(resp === 'ERROR') {
     				alert(dat[0].msg);

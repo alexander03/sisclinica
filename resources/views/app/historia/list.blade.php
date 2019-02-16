@@ -29,6 +29,28 @@
 			$('#verCita').html(info);
 			$('#exampleModal1').modal('show');
 		});
+	}	
+	function anadirComentario(cita_id) {
+		var comentario = $('#anadirComentario').val();
+		if(comentario == '') {
+			$('#anadirComentario').focus();
+			return 0;
+		}
+		$.ajax({
+			"method": "POST",
+			"url": "{{ url('/historiaclinica/anadirComentario') }}",
+			"data": {
+				"cita_id" : cita_id, 
+				"comentario" : $('#anadirComentario').val(),
+				"_token": "{{ csrf_token() }}",
+				}
+		}).done(function(info){
+			if(info == '1') {
+				alert('Comentario Añadido');
+			} else {
+				alert('No se pudo añadir comentario');
+			}			
+		});
 	}
 </script>
 <!-- Modal -->
@@ -53,7 +75,11 @@
 	    </div>
 	</div>
 </div>
+
+@if($vistamedico != "SI")
 {!! $paginacion or '' !!}
+@endif
+
 <table id="example1" class="table table-bordered table-striped table-condensed table-hover">
 
 	<thead>
@@ -85,16 +111,19 @@
             <td align="center">{{ $value->tipopaciente }}</td>
             <td>{{ $value->persona->telefono }}</td>
             <td>{{ $value->persona->direccion }}</td>
+            @if($vistamedico != "SI")
             @if($value->fallecido=="S")
 				<td> - </td>
 				<td>{!! Form::button('<i class="glyphicon glyphicon-search"></i>', array('class' => 'btn btn-success btn-xs', 'id' => 'btnSeguimiento', 'title' => 'Seguimiento', 'onclick' => 'seguimiento(\''.$entidad.'\','.$value->id.')')) !!}</td>
 	            <td>{!! Form::button('<i class="glyphicon glyphicon-print"></i>', array('class' => 'btn btn-info btn-xs', 'id' => 'btnImprimir', 'title' => 'Imprimir', 'onclick' => 'imprimirHistoria(\''.$entidad.'\','.$value->id.')')) !!}</td>
+	            <td>{!! Form::button('<i class="glyphicon glyphicon-print"></i>', array('class' => 'btn btn-success btn-xs', 'id' => 'btnImprimir2', 'title' => 'Imprimir Citas', 'onclick' => 'imprimirHistoria2(\''.$entidad.'\','.$value->id.')')) !!}</td>
 				<td> - </td>
 				<td> - </td>
             @else
             	<td>{!! Form::button('<i class="glyphicon glyphicon-screenshot"></i>', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnFallecido', 'title' => 'Fallecido', 'onclick' => 'modal (\''.URL::route($ruta["fallecido"], array($value->id, 'SI')).'\', \'Fallecido\', this);')) !!}</td>
             	<td>{!! Form::button('<i class="glyphicon glyphicon-search"></i>', array('class' => 'btn btn-success btn-xs', 'id' => 'btnSeguimiento', 'title' => 'Seguimiento', 'onclick' => 'seguimiento(\''.$entidad.'\','.$value->id.')')) !!}</td>
-	            <td>{!! Form::button('<i class="glyphicon glyphicon-print"></i>', array('class' => 'btn btn-info btn-xs', 'id' => 'btnImprimir', 'title' => 'Imprimir', 'onclick' => 'imprimirHistoria(\''.$entidad.'\','.$value->id.')')) !!}</td>
+	            <td>{!! Form::button('<i class="glyphicon glyphicon-print"></i>', array('class' => 'btn btn-info btn-xs', 'id' => 'btnImprimir', 'title' => 'Imprimir Historia', 'onclick' => 'imprimirHistoria(\''.$entidad.'\','.$value->id.')')) !!}</td>
+	            <td>{!! Form::button('<i class="glyphicon glyphicon-print"></i>', array('class' => 'btn btn-success btn-xs', 'id' => 'btnImprimir2', 'title' => 'Imprimir Citas', 'onclick' => 'imprimirHistoria2(\''.$entidad.'\','.$value->id.')')) !!}</td>
 				<td>{!! Form::button('<div class="glyphicon glyphicon-eye-open"></div>', array( 'title' => 'Historias Clínicas', 'onclick' => 'tablaCita(' . $value->id . ', "' . $value->persona->apellidopaterno.' '.$value->persona->apellidomaterno.' '.$value->persona->nombres . '");', 'class' => 'btn btn-xs btn-primary')) !!}</td>
 				<td>{!! Form::button('<div class="glyphicon glyphicon-pencil"></div>', array( 'title' => 'Editar', 'onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning')) !!}</td>
 				@if($user->usertype_id==1 || $user->usertype_id==2)
@@ -102,6 +131,9 @@
 				@else
 					<td> - </td>
 				@endif				
+			@endif
+			@else
+				<td>{!! Form::button('<div class="glyphicon glyphicon-eye-open"></div>', array( 'title' => 'Historias Clínicas', 'onclick' => 'tablaCita(' . $value->id . ', "' . $value->persona->apellidopaterno.' '.$value->persona->apellidomaterno.' '.$value->persona->nombres . '");', 'class' => 'btn btn-xs btn-primary')) !!}</td>
 			@endif
 		</tr>
 		<?php

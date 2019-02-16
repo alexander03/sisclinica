@@ -36,6 +36,15 @@
 	            	@endif	
 	            	</center>
 	            </td>
+	            <td style="color:blue;font-weight: bold;">
+	            	<center>
+	            	@if ($value->situacion == 'P')
+	            		{!! Form::button('<div class="fa fa-print"></div>', array('onclick' => '', 'class' => 'btn btn-xs btn-warning')) !!}
+	            	@else
+	            	-
+	            	@endif	
+	            	</center>
+	            </td>
 		</tr>
 		@endforeach
 	</tbody>

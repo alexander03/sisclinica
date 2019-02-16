@@ -1138,10 +1138,14 @@ function guardarVenta (entidad, idboton) {
 			                }*/
 			                //alert('hola');
 			                if (dat[0].ind == 1) {
-			                	window.open('/juanpablo/venta/pdfComprobante?venta_id='+dat[0].venta_id+'&guia='+dat[0].guia,'_blank');
-			                	window.open('/juanpablo/venta/pdfComprobante?venta_id='+dat[0].second_id+'&guia='+dat[0].guia,'_blank');
+			                	//window.open('/juanpablo/venta/pdfComprobante?venta_id='+dat[0].venta_id+'&guia='+dat[0].guia,'_blank');
+			                	//window.open('/juanpablo/venta/pdfComprobante?venta_id='+dat[0].second_id+'&guia='+dat[0].guia,'_blank');
 			                }else{
-			                	window.open('/juanpablo/venta/pdfComprobante?venta_id='+dat[0].venta_id+'&guia='+dat[0].guia,'_blank');
+			                	if(dat[0].tipodocumento_id!="15"){
+			                		declarar1(dat[0].venta_id,dat[0].tipodocumento_id,dat[0].numero);
+			                	}else{
+			                		//window.open('venta/pdfComprobante?venta_id='+dat[0].venta_id+'&guia='+dat[0].guia,'_blank');
+			                	}
 			                }
 			                
 						} else if(resp === 'ERROR') {
@@ -1160,9 +1164,35 @@ function guardarVenta (entidad, idboton) {
 			$('body').addClass('modal-open');
 		}
 	},2000);
-
-
 	
+}
+
+function declarar1(idventa,idtipodocumento,numero){
+	if(idtipodocumento==5){
+		var funcion="enviarBoleta";
+	}else{
+		var funcion="enviarFactura";
+	}
+	$.ajax({
+        type: "GET",
+        url: "../clifacturacion/controlador/contComprobante.php?funcion="+funcion,
+        data: "idventa="+idventa+"&_token="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="_token"]').val(),
+        success: function(a) {
+            console.log(a);
+            imprimirVenta(numero);
+	    }
+    });	
+}
+
+function imprimirVenta(numero){
+	$.ajax({
+        type: "POST",
+        url: "http://localhost/clifacturacion/controlador/contImprimir.php?funcion=ImprimirVenta",
+        data: "numero="+numero+"&_token="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="_token"]').val(),
+        success: function(a) {
+            console.log(a);
+	    }
+    });
 }
 
 function validarFormaPago(formapago){
@@ -1232,7 +1262,6 @@ function coincidenciasMontos() {
 		return false;
 	}
 }
-
 
 function filterFloat(evt,input){
     var key = window.Event ? evt.which : evt.keyCode;    

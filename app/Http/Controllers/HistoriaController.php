@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Http\Requests;
 use App\Historia;
+use App\HistoriaClinica;
 use App\Movimiento;
 use App\Seguimiento;
 use App\Convenio;
@@ -15,6 +16,8 @@ use App\Provincia;
 use App\Distrito;
 use App\Person;
 use App\Plan;
+use App\Detallehistoriacie;
+use App\Examenhistoriaclinica;
 use App\Rolpersona;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
@@ -77,7 +80,14 @@ class HistoriaController extends Controller
         $cabecera[]       = array('valor' => 'Telefono', 'numero' => '1');
         //$cabecera[]       = array('valor' => 'Fecha Nacimiento', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Direccion', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '6');
+
+        $vistamedico           = $request->input('vistamedico');
+        
+        if($vistamedico != "SI"){
+            $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '7');
+        }else{
+            $cabecera[]       = array('valor' => 'Ver Citas', 'numero' => '1');
+        }
         
         $titulo_modificar = $this->tituloModificar;
         $titulo_eliminar  = $this->tituloEliminar;
@@ -92,7 +102,7 @@ class HistoriaController extends Controller
             $paginaactual    = $paramPaginacion['nuevapagina'];
             $lista           = $resultado->paginate($filas);
             $request->replace(array('page' => $paginaactual));
-            return view($this->folderview.'.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'user'));
+            return view($this->folderview.'.list')->with(compact('lista', 'paginacion', 'inicio', 'vistamedico' ,'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'user'));
         }
         return view($this->folderview.'.list')->with(compact('lista', 'entidad'));
     }
@@ -125,6 +135,7 @@ class HistoriaController extends Controller
         }
         $cboEstadoCivil = array("SOLTERO(A)"=>"SOLTERO(A)","CASADO(A)"=>"CASADO(A)","VIUDO(A)"=>"VIUDO(A)","DIVORCIADO(A)"=>"DIVORCIADO(A)","CONVIVIENTE"=>"CONVIVIENTE");
         $cboSexo = array("M"=>"M","F"=>"F");
+        $cboCategoria = array("Normal"=>"Normal","Religioso"=>"Religioso","Doctor"=>"Doctor","Familiar Trabajador"=>"Familiar Trabajador","Aldeas Infantiles"=>"Aldeas Infantiles");
         $formData            = array('historia.store');
         $cboTipoPaciente     = array("Particular" => "Particular", "Convenio" => "Convenio", "Hospital" => "Hospital");
         $cboModo             = array("F" => "Fisico", "V" => "Registro Virtual");
@@ -132,7 +143,7 @@ class HistoriaController extends Controller
         $user = Auth::user();
         $formData            = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton               = 'Registrar'; 
-        return view($this->folderview.'.mant')->with(compact('historia', 'formData', 'entidad', 'boton', 'listar', 'cboTipoPaciente', 'cboConvenio', 'cboEstadoCivil', 'modo', 'cboSexo', 'cboDepa', 'cboModo', 'num', 'user'));
+        return view($this->folderview.'.mant')->with(compact('historia', 'formData', 'entidad', 'boton', 'listar', 'cboTipoPaciente', 'cboConvenio', 'cboEstadoCivil', 'modo', 'cboSexo', 'cboDepa', 'cboModo', 'num', 'user', 'cboCategoria'));
     }
 
     public function buscaProv($departamento)
@@ -224,6 +235,8 @@ class HistoriaController extends Controller
             $Historia->departamento=$request->input('departamento');
             $Historia->provincia=$request->input('provincia');
             $Historia->distrito=$request->input('distrito');
+            $Historia->categoria=$request->input('categoria');
+            $Historia->detallecategoria=$request->input('detallecategoria');
             $Historia->usuario_id=$user->person_id;
             if($request->input('tipopaciente')=="Convenio"){
                 $Historia->convenio_id=$request->input('convenio');
@@ -271,6 +284,7 @@ class HistoriaController extends Controller
             $cboConvenio = $cboConvenio + array($value->id => $value->nombre);
         }
         $cboEstadoCivil = array("SOLTERO(A)"=>"SOLTERO(A)","CASADO(A)"=>"CASADO(A)","VIUDO(A)"=>"VIUDO(A)","DIVORCIADO(A)"=>"DIVORCIADO(A)","CONVIVIENTE"=>"CONVIVIENTE");
+        $cboCategoria = array("Normal"=>"Normal","Religioso"=>"Religioso","Doctor"=>"Doctor","Familiar Trabajador"=>"Familiar Trabajador","Aldeas Infantiles"=>"Aldeas Infantiles");
         $cboSexo = array("M"=>"M","F"=>"F");
         $cboModo             = array("F" => "Fisico", "V" => "Registro Virtual");
         $cboTipoPaciente     = array("Particular" => "Particular", "Convenio" => "Convenio", "Hospital" => "Hospital");
@@ -284,7 +298,7 @@ class HistoriaController extends Controller
         foreach ($departamentos as $key => $value) {
             $cboDepa = $cboDepa + array($value->id => $value->nombre);
         }
-        return view($this->folderview.'.mant')->with(compact('historia', 'formData', 'entidad', 'boton', 'listar', 'cboConvenio', 'cboTipoPaciente', 'cboEstadoCivil', 'modo', 'cboSexo', 'cboDepa', 'cboModo', 'user'));
+        return view($this->folderview.'.mant')->with(compact('historia', 'formData', 'entidad', 'boton', 'listar', 'cboConvenio', 'cboTipoPaciente', 'cboEstadoCivil', 'modo', 'cboSexo', 'cboDepa', 'cboModo', 'user', 'cboCategoria'));
     }
 
     public function update(Request $request, $id)
@@ -378,6 +392,8 @@ class HistoriaController extends Controller
             $Historia->departamento=$request->input('departamento');
             $Historia->provincia=$request->input('provincia');
             $Historia->distrito=$request->input('distrito');
+            $Historia->categoria=$request->input('categoria');
+            $Historia->detallecategoria=$request->input('detallecategoria');
             if($request->input('tipopaciente')=="Convenio"){
                 $Historia->convenio_id=$request->input('convenio');
                 $Historia->empresa=$request->input('empresa');
@@ -742,6 +758,17 @@ class HistoriaController extends Controller
         $pdf::Ln();
         $pdf::Cell(40,8,"",0,0,'C');
         $pdf::SetFont('helvetica','B',9);
+        $pdf::Cell(20,8,utf8_decode("CATEGORIA: "),0,0,'L');
+        $pdf::SetFont('helvetica','',9);
+        $pdf::Cell(25,8,utf8_decode($historia->categoria),0,0,'L');
+        $pdf::Cell(8,8,"",0,0,'C');
+        $pdf::SetFont('helvetica','B',9);
+        $pdf::Cell(20,8,utf8_decode("DETALLE: "),0,0,'C');
+        $pdf::SetFont('helvetica','',9);
+        $pdf::Cell(20,8,utf8_decode($historia->detallecategoria),0,0,'L');
+        $pdf::Ln();
+        $pdf::Cell(40,8,"",0,0,'C');
+        $pdf::SetFont('helvetica','B',9);
         $pdf::Cell(20,8,utf8_decode("TELEFONO: "),0,0,'L');
         $pdf::SetFont('helvetica','',9);
         $pdf::Cell(20,8,utf8_decode($historia->persona->telefono .' - '.$historia->persona->telefono2),0,0,'L');
@@ -856,5 +883,227 @@ class HistoriaController extends Controller
         $formData = array('route' => array('historia.guardarfallecido', $id), 'method' => 'Acept', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton    = 'Fallecido';
         return view($this->folderview.'.fallecido')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar', 'numero', 'paciente'));
+    }
+
+    public function pdfHistoria2(Request $request){
+        $citas = HistoriaClinica::where('historia_id', $request->input('id'))->get();
+        $historia = Historia::find($request->id);
+        $pdf = new TCPDF();
+        $pdf::SetTitle('Historial de Citas');
+        foreach ($citas as $cita) {
+            $pdf::AddPage();
+            $pdf::Image("http://localhost:81/clinica/dist/img/logo2-ojos.jpg", 20, 7, 50, 15);
+            $pdf::SetFont('helvetica','B',15);
+            $pdf::Cell(60,10,"",0,0,'C');
+            $pdf::Cell(75,10,"",0,0,'C');
+            $pdf::SetFont('helvetica','B',10);
+            $pdf::Cell(40,10,utf8_decode('Historia '.$historia->numero),1,0,'C');
+            $pdf::Ln();
+            $pdf::SetFont('helvetica','B',15);
+            $pdf::Cell(60,10,strtoupper(""),0,0,'C');
+            $pdf::Cell(70,10,"",0,0,'C');
+            $pdf::Cell(60,6,"",0,0,'C');
+            $pdf::Ln(4);
+            $pdf::SetFont('helvetica','B',14);
+            $pdf::Cell(48,10,"",0,0,'C');
+            $pdf::Cell(95,10,'Cita N° ' . $cita->numero . ' / ' . date('d-m-Y',strtotime($cita->fecha_atencion)),'B',0,'C');
+            $pdf::Ln(4);
+            $pdf::Ln(4);
+            $pdf::Ln(4);
+            $pdf::Ln(4);
+            $pdf::Cell(20,8,"",0,0,'C');
+            $pdf::SetFont('helvetica','B',9);
+            $pdf::Cell(35,8,utf8_decode("PACIENTE: "),0,0,'L');
+            $pdf::SetFont('helvetica','',9);
+            $x=$pdf::GetX();
+            $y=$pdf::GetY();
+            $pdf::Multicell(120,8,($historia->persona->apellidopaterno." ".$historia->persona->apellidomaterno." ".$historia->persona->nombres),0,'L');
+            $pdf::SetXY($x+120,$y);
+
+            $pdf::Ln(4);
+            $pdf::Ln(4);
+
+            $pdf::Cell(20,8,"",0,0,'C');
+            $pdf::SetFont('helvetica','B',9);
+            $pdf::Cell(35,8,utf8_decode("CIE 10: "),0,0,'L');
+            $pdf::SetFont('helvetica','',9);
+
+            $cadenacies = '';
+
+            if($cita->cie_id != 0 || $cita->cie_id != '') {
+                $cadenacies .= $cita->cie->codigo . ' ' . $cita->cie->descripcion . '<br>';
+            }
+
+            $cies = Detallehistoriacie::where('historiaclinica_id', $cita->id)->whereNull('deleted_at')->get();
+
+            if(count($cies) != 0){
+                foreach ($cies as $value) {
+                    $cadenacies .= $value->cie->codigo . ' ' . $value->cie->descripcion .'<br>';
+                }
+            }        
+            $cies2 = explode('<BR>', strtoupper($cadenacies));
+            $i = 0;
+            foreach($cies2 as $c) {
+                if($c != '') {
+                    if($i != 0) {
+                        $pdf::Cell(20,8,"",0,0,'C');
+                        $pdf::Cell(35,8,"",0,0,'L');
+                    }
+                    $x=$pdf::GetX();
+                    $y=$pdf::GetY();
+                    $pdf::Multicell(120,8,$c==''?'-':$c,0,'L');
+                    $pdf::SetXY($x+120,$y+(int)(strlen($c)/50));
+                    $pdf::Ln(5);
+                    $i++;
+                }                    
+            }
+
+            $pdf::Ln(4);
+            $pdf::Ln(4);
+
+            $pdf::Cell(20,8,"",0,0,'C');
+            $pdf::SetFont('helvetica','B',9);
+            $pdf::Cell(35,8,utf8_decode("MOTIVO: "),0,0,'L');
+            $pdf::SetFont('helvetica','',9);
+            
+            $mot = explode('<BR>', strtoupper($cita->motivo));
+            $i = 0;
+            foreach($mot as $m) {
+                if($m != '') {
+                    if($i != 0) {
+                        $pdf::Cell(20,8,"",0,0,'C');
+                        $pdf::Cell(35,8,"",0,0,'L');
+                    }
+                    $x=$pdf::GetX();
+                    $y=$pdf::GetY();
+                    $pdf::Multicell(120,8,$m==''?'-':$m,0,'L');
+                    $pdf::SetXY($x+120,$y+(int)(strlen($m)/50));
+                    $pdf::Ln(5);
+                    $i++;
+                }                    
+            } 
+            $pdf::Ln(4);
+            $pdf::Ln(4);
+            $pdf::Ln(4);
+            $pdf::Ln(4);
+
+            $pdf::Cell(20,8,"",0,0,'C');
+            $pdf::SetFont('helvetica','B',9);
+            $pdf::Cell(35,8,"DIAGNÓSTICO: ",0,0,'L');
+            $pdf::SetFont('helvetica','',9);
+
+            $diag = explode('<BR>', strtoupper($cita->diagnostico));
+            $i = 0;
+            foreach($diag as $d) {
+                if($d != '') {
+                    if($i != 0) {
+                        $pdf::Cell(20,8,"",0,0,'C');
+                        $pdf::Cell(35,8,"",0,0,'L');
+                    }
+                    $x=$pdf::GetX();
+                    $y=$pdf::GetY();
+                    $pdf::Multicell(120,8,$d,0,'L');
+                    $pdf::SetXY($x+120,$y+(int)(strlen($d)/50));
+                    $pdf::Ln(5);
+                    $i++;
+                }
+            } 
+            $pdf::Ln(4);
+            $pdf::Ln(4);
+
+            $pdf::Cell(20,8,"",0,0,'C');
+            $pdf::SetFont('helvetica','B',9);
+            $pdf::Cell(35,8,"TRATAMIENTO: ",0,0,'L');
+            $pdf::SetFont('helvetica','',9);
+
+            $trat = explode('<BR>', strtoupper($cita->tratamiento));
+            $i = 0;
+            foreach($trat as $t) {
+                if($t != '') {
+                    if($i != 0) {
+                        $pdf::Cell(20,8,"",0,0,'C');
+                        $pdf::Cell(35,8,"",0,0,'L');
+                    }
+                    $x=$pdf::GetX();
+                    $y=$pdf::GetY();
+                    $pdf::Multicell(120,8,$t,0,'L');
+                    $pdf::SetXY($x+120,$y+(int)(strlen($t)/50));
+                    $pdf::Ln(5);
+                    $i++;
+                }
+            } 
+            $pdf::Ln(4);
+            $pdf::Ln(4);
+
+            $pdf::Cell(20,8,"",0,0,'C');
+            $pdf::SetFont('helvetica','B',9);
+            $pdf::Cell(35,8,"EXÁMENES: ",0,0,'L');
+            $pdf::SetFont('helvetica','',9);
+
+            $cadenaexamenes = '';
+
+            $examenes = Examenhistoriaclinica::where('historiaclinica_id', $cita->id)->whereNull('deleted_at')->get();
+
+            if(count($examenes) != 0){
+                foreach ($examenes as $value) {
+                    $cadenaexamenes .= $value->servicio->nombre .'<br>';
+                }
+            }  
+
+            $examenes2 = explode('<BR>', strtoupper($cadenaexamenes));
+
+            $i = 0;
+            foreach($examenes2 as $e) {
+                if($e != '') {
+                    if($i != 0) {
+                        $pdf::Cell(20,8,"",0,0,'C');
+                        $pdf::Cell(35,8,"",0,0,'L');
+                    }
+                    $x=$pdf::GetX();
+                    $y=$pdf::GetY();
+                    $pdf::Multicell(120,8,$e,0,'L');
+                    $pdf::SetXY($x+120,$y+(int)(strlen($e)/50));
+                    $pdf::Ln(5);
+                    $i++;
+                }
+            } 
+            $pdf::Ln(4);
+            $pdf::Ln(4);
+
+            $pdf::Cell(20,8,"",0,0,'C');
+            $pdf::SetFont('helvetica','B',9);
+            $pdf::Cell(35,8,"EXPLOR. FÍSICA: ",0,0,'L');
+            $pdf::SetFont('helvetica','',9);
+
+            $exf = explode('<BR>', strtoupper($cita->exploracion_fisica));
+            $i = 0;
+            foreach($exf as $ef) {
+                if($ef != '') {
+                    if($i != 0) {
+                        $pdf::Cell(20,8,"",0,0,'C');
+                        $pdf::Cell(35,8,"",0,0,'L');
+                    }
+                    $x=$pdf::GetX();
+                    $y=$pdf::GetY();
+                    $pdf::Multicell(120,8,$ef,0,'L');
+                    $pdf::SetXY($x+120,$y+(int)(strlen($ef)/50));
+                    $pdf::Ln(5);
+                    $i++;
+                }
+            } 
+            $pdf::Ln(4);
+            $pdf::Ln(4);
+            $pdf::Ln(4);
+            $pdf::Ln(4);
+            $pdf::Cell(20,8,"",0,0,'C');
+            $pdf::SetFont('helvetica','B',9);
+            $pdf::Cell(35,8,"COMENTARIO: ",0,0,'L');
+            $pdf::SetFont('helvetica','',9);
+            $x=$pdf::GetX();
+            $y=$pdf::GetY();
+            $pdf::Multicell(120,8,$cita->comentario==''?'-':utf8_decode($cita->comentario),0,'L');
+            $pdf::SetXY($x+120,$y);
+        }
+        $pdf::Output('HistorialCitas.pdf');
     }
 }

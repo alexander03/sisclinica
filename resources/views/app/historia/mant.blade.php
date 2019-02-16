@@ -87,14 +87,16 @@ if(is_null($historia)){
 			{!! Form::text('nombres', null, array('class' => 'form-control input-xs', 'id' => 'nombres', 'placeholder' => 'Ingrese nombres')) !!}
 		</div>
 	</div>
-
-	<div class="form-group">
-		{!! Form::label('ocupacion', 'Ocupación:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
-		<div class="col-lg-8 col-md-8 col-sm-8">
-			{!! Form::text('ocupacion', null, array('class' => 'form-control input-xs', 'id' => 'ocupacion', 'placeholder' => 'Ingrese ocupacion')) !!}
+    <div class="form-group">
+		{!! Form::label('categoria', 'Categoria:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
+		<div class="col-lg-3 col-md-3 col-sm-3">
+			{!! Form::select('categoria', $cboCategoria, null, array('class' => 'form-control input-xs', 'id' => 'categoria')) !!}
+		</div>
+		{!! Form::label('detallecategoria', 'Detalle:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+		<div class="col-lg-3 col-md-3 col-sm-3">
+			{!! Form::text('detallecategoria', null, array('class' => 'form-control input-xs', 'id' => 'detallecategoria', 'placeholder' => 'Ingrese detalle')) !!}
 		</div>
 	</div>
-
 	<div class="form-group">
 		{!! Form::label('telefono', 'Telef. 1:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 		<div class="col-lg-3 col-md-3 col-sm-3">
@@ -125,6 +127,12 @@ if(is_null($historia)){
 		{!! Form::label('direccion', 'Direccion:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 		<div class="col-lg-8 col-md-8 col-sm-8">
 			{!! Form::text('direccion', null, array('class' => 'form-control input-xs', 'id' => 'direccion', 'placeholder' => 'Ingrese direccion')) !!}
+		</div>
+	</div>
+	<div class="form-group">
+		{!! Form::label('ocupacion', 'Ocupación:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
+		<div class="col-lg-8 col-md-8 col-sm-8">
+			{!! Form::text('ocupacion', null, array('class' => 'form-control input-xs', 'id' => 'ocupacion', 'placeholder' => 'Ingrese ocupacion')) !!}
 		</div>
 	</div>
     <div class="form-group">

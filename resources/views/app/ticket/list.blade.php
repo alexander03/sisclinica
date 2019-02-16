@@ -22,11 +22,25 @@
 	            <td>{{ date('d/m/Y',strtotime($value->fecha)) }}</td>
 	            <td>{{ $value->numero }}</td>
 	            <td>{{ $value->paciente }}</td>
-	            <td align="center">{{ number_format($value->total,2,'.','') }}</td>
-				
-				<?php
-				$estado ="";
+				@if($value->clasificacionconsulta=='C')
+	            <td>CONSULTA</td>
+	            @elseif($value->clasificacionconsulta=='E')
+	            <td>EMERGENCIA</td>
+				@elseif($value->clasificacionconsulta=='L')
+	            <td>LECTURA</td>
+	            @elseif($value->clasificacionconsulta=='P')
+	            <td>PROCEDIMIENTO</td>
+	            @elseif($value->clasificacionconsulta=='X')
+	            <td>EXAMENES</td>
+	            @endif
 
+	            </td>
+	            <td>{{ $value->turno=='M'?'MAÑANA':'TARDE' }}</td>
+	            <td align="center">{{ number_format($value->total,2,'.','') }}</td>
+	            
+	            
+            	<?php
+				$estado ="";
 				if($value->situacion=='P' || $value->situacion=='B'){
 					$estado ="PENDIENTE";
 				}else if($value->situacion=='C'){
@@ -38,7 +52,6 @@
 				}else if($value->situacion=='R'){
 					$estado ="REPROGRAMADO";
 				}
-
 				if($value->situacion2 == 'A' || $value->situacion2 == 'B' || $value->situacion2 == 'F'){
 					$estado .= " - ATENDIENDO";
 				}else if($value->situacion2 == 'C' || $value->situacion2 == 'N'){
@@ -49,6 +62,7 @@
 				?>
 
 				<td>{{ $estado }}</td>
+
 
 	  			<td>{{ $value->responsable }}</td>
 	            @if($value->situacion=='C')
@@ -62,12 +76,12 @@
 	                <td align="center"> - </td>
 	            @endif
 	           
-				@if(($user->usertype_id==1 || $user->usertype_id==2) && $value->situacion=='P' && $value->total!==0)
+				@if(($user->usertype_id==1 || $user->usertype_id==5) && $value->situacion=='P' && $value->total!==0)
 					<td align="center">{!! Form::button('<div class="glyphicon glyphicon-pencil"></div>', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning', 'title' => 'Editar')) !!}</td>
 				@else
 					<td align="center"> - </td>
 				@endif
-				@if(($user->usertype_id==1 || $user->usertype_id==7 || $user->usertype_id==2) && $value->total!==0 && $value->situacion=='P')
+				@if(($user->usertype_id==1 || $user->usertype_id==7 || $user->usertype_id==5 || $user->usertype_id==2) && $value->total!==0 && $value->situacion=='P')
 					<td align="center">{!! Form::button('<div class="glyphicon glyphicon-minus"></div>', array('onclick' => 'modal (\''.URL::route($ruta["anular"], array($value->id, 'listar'=>'SI')).'\', \'Anular\', this);', 'class' => 'btn btn-xs btn-danger', 'title' => 'Anular')) !!}</td>
 				@else
 					<td align="center"> - </td>

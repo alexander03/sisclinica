@@ -11,12 +11,12 @@ use App\Convenio;
 use App\Movimiento;
 use App\Detallemovcaja;
 use App\Detallehojacosto;
+use App\Examenhistoriaclinica;
 use App\Person;
 use App\Caja;
 use App\Tiposervicio;
 use App\Servicio;
 use App\Plan;
-use App\Examenhistoriaclinica;
 use App\Detalleplan;
 use App\Librerias\Libreria;
 use App\Librerias\EnLetras;
@@ -90,6 +90,8 @@ class TicketController extends Controller
         $cabecera[]       = array('valor' => 'Fecha', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Nro', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Paciente', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Tipo', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Turno', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Total', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Situacion', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Usuario', 'numero' => '1');
@@ -2181,10 +2183,9 @@ class TicketController extends Controller
         echo $data;
     }
 
+
     public function examenesPendientes(Request $request){
-
         $historia_id = $request->input('historia_id');
-
         $examenes = Examenhistoriaclinica::leftjoin('historiaclinica as hc','hc.id','=','examenhistoriaclinica.historiaclinica_id')
                         ->where('hc.historia_id','=',$historia_id)
                         ->where('examenhistoriaclinica.situacion','=', 'N')
@@ -2195,28 +2196,22 @@ class TicketController extends Controller
         }else{
             return "NO";
         }
-
     }
 
     public function examenesPendientesMostrar($id){
         $entidad = 'ticket';
         $ruta = $this->rutas;
-
         $examenes = Examenhistoriaclinica::leftjoin('historiaclinica as hc','hc.id','=','examenhistoriaclinica.historiaclinica_id')
                         ->where('hc.historia_id','=',$id)
                         ->where('examenhistoriaclinica.situacion','=', 'N')
                         ->select('examenhistoriaclinica.id as idhc','examenhistoriaclinica.*','hc.*')
                         ->get();
-
         return view($this->folderview.'.examenes')->with(compact('entidad', 'ruta','examenes'));
     }
 
     public function guardarExamenes(Request $request){
-
         $examenes = json_decode($request->input('examenes'));
-
         $error = null;
-
         foreach ($examenes->{"data"} as $examen) {
             $error = DB::transaction(function() use($request, $examen){
                 if( $examen->{"situacion"} == "S"){
@@ -2227,9 +2222,7 @@ class TicketController extends Controller
                 }
             });
         }
-
         return is_null($error) ? "OK" : $error;
-
     }
 
 }

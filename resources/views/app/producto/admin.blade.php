@@ -30,7 +30,7 @@
 							</div>
 							<div class="form-group">
 								{!! Form::label('nombre', 'Nombre:') !!}
-								{!! Form::text('nombre', '', array('class' => 'form-control input-xs', 'id' => 'nombre','onkeyup' => 'buscar(\''.$entidad.'\')')) !!}
+								{!! Form::text('nombre', '', array('class' => 'form-control input-xs', 'id' => 'nombre','onkeyup' => 'if(this.value.lenght>2){buscar(\''.$entidad.'\');}')) !!}
 							</div>
 							<div class="form-group farmacia">
 								{!! Form::label('principioactivo', 'Principio Activo:') !!}

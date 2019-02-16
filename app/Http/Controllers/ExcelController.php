@@ -58,10 +58,10 @@ class ExcelController extends Controller
                     if($dni!="00000000" && strlen($dni)==8){
                         $mdlPerson = new Person();
                         $resultado = Person::where('dni','LIKE',$dni);
-                        $value2     = $resultado->first();
+                        $value2    = $resultado->first();
                         if(count($value2)>0 && strlen(trim($dni))>0){
                             $objHistoria = new Historia();
-                            $Historia       = Historia::where('person_id','=',$value2->id)->first();
+                            $Historia    = Historia::where('person_id','=',$value2->id)->first();
                             if(count($Historia)>0){//SI TIENE HISTORIA
                                 echo "Ya tiene historia ".$value->historia." -> ".$dni;
                                 $idpersona=0;
@@ -84,16 +84,18 @@ class ExcelController extends Controller
                                 }else{//NO TIENE HISTORIA PERO SI ESTA REGISTRADO LA PERSONA COMO PROVEEDOR O PERSONAL
                                     $idpersona=$value2->id;
                                 }
-                            }else
+                            }else{
                                 $idpersona=0;
+                                $Historia=null;
+                            }
                         }        
                     }else{
                         $resultado = Person::where(DB::raw('concat(apellidopaterno,\' \',apellidomaterno,\' \',nombres)'), 'LIKE', '%'.strtoupper(trim($value->apellidopaterno)." ".trim($value->apellidomaterno)." ".trim($value->nombres)).'%');
                         $value2     = $resultado->first();
                         if(count($value2)>0){
                             $objHistoria = new Historia();
-                            $list2       = Historia::where('person_id','=',$value2->id)->first();
-                            if(count($list2)>0){//SI TIENE HISTORIA
+                            $Historia       = Historia::where('person_id','=',$value2->id)->first();
+                            if(count($Historia)>0){//SI TIENE HISTORIA
                                 echo "Ya tiene historia ".$value->historia." -> ".$dni;
                                 $idpersona=0;
                                 $dni="";
@@ -101,8 +103,10 @@ class ExcelController extends Controller
                             }else{//NO TIENE HISTORIA PERO SI ESTA REGISTRADO LA PERSONA COMO PROVEEDOR O PERSONAL
                                 $idpersona=$value2->id;
                             }
-                        }else
+                        }else{
                             $idpersona=0;
+                            $Historia=null;
+                        }
                         $dni='';
                     }
                     $error = DB::transaction(function() use($dni,$idpersona,$value,&$dat,$band,$Historia){
@@ -115,10 +119,10 @@ class ExcelController extends Controller
                                 $person->apellidomaterno=strtoupper(trim($value->apellidomaterno));
                                 $person->nombres=trim(strtoupper($value->nombres));
                                 $person->telefono=$value->telefono;
-                                $person->direccion=trim($value->direccion).' - '.trim($value->distrito);
+                                $person->direccion=trim($value->direccion);
                                 $person->sexo=substr($value->sexo,0,1);
                                 $person->telefono=$value->telefono;
-                                if($value->fechanacimiento!="")    $person->fechanacimiento=$value->fechanacimiento->format("Y-m-d");
+                                //if($value->fechanacimiento!="")    $person->fechanacimiento=$value->fechanacimiento->format("Y-m-d");
                                 $person->save();
                                 $idpersona=$person->id;
                             }else{
@@ -127,10 +131,10 @@ class ExcelController extends Controller
                                 $person->apellidopaterno=strtoupper(trim($value->apellidopaterno));
                                 $person->apellidomaterno=strtoupper(trim($value->apellidomaterno));
                                 $person->nombres=trim(strtoupper($value->nombres));
-                                $person->direccion=trim($value->direccion).' - '.trim($value->distrito);
+                                $person->direccion=trim($value->direccion);
                                 $person->sexo=substr($value->sexo,0,1);
                                 $person->telefono=$value->telefono;
-                                if($value->fechanacimiento!="")    $person->fechanacimiento=$value->fechanacimiento->format("Y-m-d");
+                                //if($value->fechanacimiento!="")    $person->fechanacimiento=$value->fechanacimiento->format("Y-m-d");
                                 $person->save();
                                 $idpersona=$person->id;
                             }
@@ -144,7 +148,7 @@ class ExcelController extends Controller
                                 $tipopaciente="Convenio";
                             }*/
                             $Historia->tipopaciente=$tipopaciente;
-                            $Historia->fecha=date("Y-m-d");
+                            $Historia->fecha="2019-02-10";
                             $Historia->modo="F";
                             $Historia->estadocivil='';
                             if($tipopaciente=="Convenio"){
@@ -154,19 +158,20 @@ class ExcelController extends Controller
                                 $Historia->soat=$value->soat;
                                 $Historia->titular=$value->titular;
                             }
+                            $Historia->detallecategoria="Edad:".$value->edad;
                             $Historia->save();
 
                             $dat[]=array("respuesta"=>"OK","id"=>$Historia->id,"paciente"=>$person->apellidopaterno.' '.$person->apellidomaterno.' '.$person->nombres,"historia"=>$Historia->numero,"person_id"=>$Historia->person_id);
                         }            
+
+                        $Historia->antecedentes = $value->antecedente;
+                        $Historia->save();
                         $HistoriaClinica = new HistoriaClinica();
                         $HistoriaClinica->historia_id = $Historia->id;
-                        $HistoriaClinica->fecha_atencion = date("Y-m-d");
+                        $HistoriaClinica->fecha_atencion = "2019-10-02";
                         $HistoriaClinica->diagnostico = $value->diagnostico;
-                        $HistoriaClinica->examenes = $value->examenes;
-                        $HistoriaClinica->motivo = $value->motivo;
-                        $HistoriaClinica->exploracion_fisica = $value->exploracionfisica;
-                        $HistoriaClinica->sintomas = $value->sintomas;
-                        $HistoriaClinica->tratamiento = $value->tratamiento;
+                        $HistoriaClinica->sintomas = $value->signo;
+                        $HistoriaClinica->motivo = $value->fecha;
                         $HistoriaClinica->save();
                     });
                     if(!is_null($error)){

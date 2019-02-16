@@ -54,7 +54,12 @@ class HistoriaClinicaController extends Controller
         $Ticket   = Movimiento::find($ticket_id);
         $detallemovcaja = Detallemovcaja::where('movimiento_id', $ticket_id)->first();
 
-        $doctor = Person::find($detallemovcaja->persona_id);
+
+        if($detallemovcaja == null){
+            $doctor = Person::find(4);
+        }else{
+            $doctor = Person::find($detallemovcaja->persona_id);
+        }
 
         $fondo = "NO";
         if($Ticket->tiempo_fondo != null){
@@ -68,8 +73,9 @@ class HistoriaClinicaController extends Controller
                                         ->where('examenhistoriaclinica.historiaclinica_id', $historiaclinica->id )
                                             ->get();
 
-            $cies = Detallehistoriacie::leftjoin('cie', 'cie.id', '=', 'detallehistoriacie.cie_id')
+                                             $cies = Detallehistoriacie::leftjoin('cie', 'cie.id', '=', 'detallehistoriacie.cie_id')
                                         ->where('detallehistoriacie.historiaclinica_id',  $historiaclinica->id )->get();
+
 
             $cita = Cita::find($historiaclinica->citaproxima);
 
@@ -85,8 +91,8 @@ class HistoriaClinicaController extends Controller
                 'numhistoria' => $historia->numero,
                 'numero' => $historiaclinica->numero,
                 'motivo' => $historiaclinica->motivo,
-                //'cie10' => $cie10->codigo . " - " . $cie10->descripcion,
-                //'cie10id' => $cie10->id,
+                //'cie10' => (is_null($cie10)?'':$cie10->codigo . " - " . $cie10->descripcion),
+               // 'cie10id' => (is_null($cie10)?0:$cie10->id),
                 'sintomas' => $historiaclinica->sintomas,
                 'tratamiento' => $historiaclinica->tratamiento,
                 'diagnostico' => $historiaclinica->diagnostico,
@@ -112,8 +118,8 @@ class HistoriaClinicaController extends Controller
                     'numhistoria' => $historia->numero,
                     'numero' => $historiaclinica->numero,
                     'motivo' => $historiaclinica->motivo,
-                    //'cie10' => $cie10->codigo . " - " . $cie10->descripcion,
-                    //'cie10id' => $cie10->id,
+                   // 'cie10' => (is_null($cie10)?'':$cie10->codigo . " - " . $cie10->descripcion),
+                //    'cie10id' => (is_null($cie10)?0:$cie10->id),
                     'sintomas' => $historiaclinica->sintomas,
                     'citaproxima' => date('Y-m-d',strtotime($cita->fecha)) ,
                     'cantcitas' => $cantidad,
@@ -161,7 +167,7 @@ class HistoriaClinicaController extends Controller
 
     public function examenesAutocompletar($searching)
     {
-        $resultado        = Servicio::where('nombre', 'LIKE', '%'.strtoupper($searching).'%')->where('tiposervicio_id','=', 21)->whereNull('deleted_at')->orderBy('nombre', 'ASC');
+        $resultado        = Servicio::where('nombre', 'LIKE', '%'.strtoupper($searching).'%')->where('tiposervicio_id','!=', 1)->whereNull('deleted_at')->orderBy('nombre', 'ASC');
         $list      = $resultado->get();
         $data = array();
         foreach ($list as $key => $value) {
@@ -188,7 +194,7 @@ class HistoriaClinicaController extends Controller
                     $user = Auth::user();
                     
                     //sucursal_id
-                    $sucursal_id = Session::get('sucursal_id');
+                    $sucursal_id = 1;
 
                     $Cita->sucursal_id = $sucursal_id;
                     $Cita->fecha = $request->input('citaproxima');
@@ -218,9 +224,7 @@ class HistoriaClinicaController extends Controller
                     
                     $error = DB::transaction(function() use($request, $historiaclinica){
                         if($historiaclinica->citaproxima == null){
-
                             $Cita       = new Cita();
-
                             $user = Auth::user();
                             
                             //sucursal_id
@@ -274,7 +278,7 @@ class HistoriaClinicaController extends Controller
             }
             $historiaclinica->numero         = (int) $request->input('numero');
             $historiaclinica->historia_id    = $request->input('historia_id');
-            $historiaclinica->tratamiento    = strtoupper($request->input('tratamiento'));
+            $historiaclinica->tratamiento    = ($request->input('tratamiento'));
             $historiaclinica->sintomas       = strtoupper($request->input('sintomas'));
             $historiaclinica->diagnostico    = strtoupper($request->input('diagnostico'));
             //$historiaclinica->examenes             = strtoupper($request->input('examenes'));
@@ -287,7 +291,7 @@ class HistoriaClinicaController extends Controller
                 $historiaclinica->citaproxima     = $cita_id;
             }
 
-            $historiaclinica->exploracion_fisica   = strtoupper($request->input('exploracion_fisica'));
+            $historiaclinica->exploracion_fisica   = ($request->input('exploracion_fisica'));
             $historiaclinica->ticket_id =  $request->input('ticket_id');
             $historiaclinica->doctor_id =  $request->input('doctor_id');
             $user = Auth::user();
@@ -318,30 +322,23 @@ class HistoriaClinicaController extends Controller
 
         $historiaclinica = HistoriaClinica::where('ticket_id', $request->input('ticket_id') )->first();
 
-        $ciesborrar = Detallehistoriacie::where('historiaclinica_id', $historiaclinica->id )->get();
-
+         $ciesborrar = Detallehistoriacie::where('historiaclinica_id', $historiaclinica->id )->get();
         foreach ($ciesborrar as $value) {
-
             $error = DB::transaction(function() use($request, $value){
-
                 $value->delete();
-
             });
             
         }
-
         $cies = json_decode($request->input('cies'));
-
         foreach ($cies->{"data"} as $cie) {
             $error = DB::transaction(function() use($request, $historiaclinica, $cie){
-
                 $detallehistoriacie = new Detallehistoriacie();
                 $detallehistoriacie->historiaclinica_id = $historiaclinica->id;
                 $detallehistoriacie->cie_id = $cie->{"id"};
                 $detallehistoriacie->save();
-
             });
         }
+
 
         $examenesborrar = Examenhistoriaclinica::where('historiaclinica_id', $historiaclinica->id )->get();
 
@@ -354,7 +351,7 @@ class HistoriaClinicaController extends Controller
             });
             
         }
-
+/*
         $examenes = json_decode($request->input('examenes'));
 
         foreach ($examenes->{"data"} as $examen) {
@@ -367,7 +364,8 @@ class HistoriaClinicaController extends Controller
                 $examenhistoriaclinica->save();
 
             });
-        }
+        }*/
+
 
         return is_null($error) ? "OK" : $error;
     }
@@ -511,20 +509,18 @@ class HistoriaClinicaController extends Controller
                     </tr>";
                 }
 
-                $cies = Detallehistoriacie::where('historiaclinica_id', $cita->id)->whereNull('deleted_at')->get();
+                 $cies = Detallehistoriacie::where('historiaclinica_id', $cita->id)->whereNull('deleted_at')->get();
 
                 if(count($cies) != 0){
-
                     $cont = 1;
                     $cies2 = "";
                     foreach ($cies as $value) {
                         $cies2 .= $cont . ' - ' . $value->cie->descripcion .'<br>';
                         $cont++;
                     }
-
                     $texto .= "<tr>
                         <td>
-                            <strong><font style='color:blue'>Exámenes</font></strong><br>
+                            <strong><font style='color:blue'>Cie 10</font></strong><br>
                         </td>
                         <td>"
                             . $cies2 .
@@ -533,7 +529,7 @@ class HistoriaClinicaController extends Controller
                 }else{
                     $texto .= "<tr>
                         <td width='15%'>
-                            <strong><font style='color:blue'>Exámenes</font></strong>
+                            <strong><font style='color:blue'>Cie 10</font></strong>
                         </td>
                         <td width='85%'> - </td>
                     </tr>";
@@ -632,9 +628,9 @@ class HistoriaClinicaController extends Controller
                         <td>
                             <strong><font style='color:blue'>Exploración física</font></strong><br>
                         </td>
-                        <td>"
+                        <td><div class='table-responsive' style='max-width:450px;'>"
                             . $cita->exploracion_fisica .
-                        "</td>
+                        "</div></td>
                     </tr>";
                 }else{
                     $texto .= "<tr>
@@ -663,6 +659,15 @@ class HistoriaClinicaController extends Controller
                     </tr>";
                 }
 
+             $texto .= "<tr>
+                        <td>
+                            <strong><font style='color:blue'>Comentario</font></strong><br>
+                        </td>
+                        <td><textarea class='form-control' id='anadirComentario' rows='8'>" . $cita->comentario . "</textarea>
+                        <a class='btn btn-danger btn-xs' href='#' onclick='anadirComentario(" . $cita_id . ")'>Añadir</a>
+                        </td>
+                    </tr>";
+
             $texto .= "</tbody>
         </table>";
 
@@ -671,9 +676,23 @@ class HistoriaClinicaController extends Controller
 
     public function tablaAtendidos(Request $request){
 
+        $nombre = $request->input('nombre');
+
         $ruta             = $this->rutas;
 
         $resultado = HistoriaClinica::whereDate('fecha_atencion', '=' ,Carbon::now()->format('Y-m-d') )->orderBy('id', 'ASC')->get();
+
+        if($nombre != null){
+
+            $resultado = HistoriaClinica::leftjoin('historia as h', 'h.id', '=', 'historiaclinica.historia_id')
+            ->join('person as paciente', 'paciente.id', '=', 'h.person_id')
+            ->whereDate('fecha_atencion', '=' ,Carbon::now()->format('Y-m-d') )
+            ->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'), 'LIKE', '%'.$nombre.'%')
+            ->orderBy('historiaclinica.id', 'ASC')
+            ->select('historiaclinica.*')
+            ->get();
+        
+        }
 
         $tabla = "<table class='table table-bordered table-striped table-condensed table-hover'>
                             <thead>
@@ -740,12 +759,11 @@ class HistoriaClinicaController extends Controller
         }
 
         $examenes = Examenhistoriaclinica::leftjoin('servicio as servicio', 'servicio.id', '=', 'examenhistoriaclinica.servicio_id')
-                                        ->where('examenhistoriaclinica.historiaclinica_id', $historiaclinica->id )
-                                            ->get();
+                    ->where('examenhistoriaclinica.historiaclinica_id', $historiaclinica->id )
+                    ->get();
 
         //$cie10 = Cie::find($historiaclinica->cie_id);
 
-        
         $cies = Detallehistoriacie::leftjoin('cie', 'cie.id', '=', 'detallehistoriacie.cie_id')
         ->where('detallehistoriacie.historiaclinica_id',  $historiaclinica->id )->get();
 
@@ -762,12 +780,12 @@ class HistoriaClinicaController extends Controller
                 'numhistoria' => $historia->numero,
                 'antecedentes' => $historia->antecedentes,
                 'numero' => $historiaclinica->numero,
-                'motivo' => $historiaclinica->motivo,
-                //'cie10' => $cie10->codigo,
-                'sintomas' => $historiaclinica->sintomas,
-                'tratamiento' => $historiaclinica->tratamiento,
-                'diagnostico' => $historiaclinica->diagnostico,
-                'exploracion_fisica' => $historiaclinica->exploracion_fisica,
+                'motivo' => str_replace('<BR>', ',', $historiaclinica->motivo),
+                //'cie10' => (is_null($cie10)?'':$cie10->codigo),
+                'sintomas' => str_replace('<BR>', ',', $historiaclinica->sintomas),
+                'tratamiento' => str_replace('<BR>', ',', $historiaclinica->tratamiento),
+                'diagnostico' => str_replace('<BR>', ',', $historiaclinica->diagnostico),
+                'exploracion_fisica' => str_replace('<BR>', ',', $historiaclinica->exploracion_fisica),
                 'examenes' => $examenes,
                 'cies' => $cies,
                 'cantcies' => count($cies),
@@ -784,12 +802,12 @@ class HistoriaClinicaController extends Controller
                 'numhistoria' => $historia->numero,
                 'antecedentes' => $historia->antecedentes,
                 'numero' => $historiaclinica->numero,
-                'motivo' => $historiaclinica->motivo,
-                //'cie10' => $cie10->codigo,
-                'sintomas' => $historiaclinica->sintomas,
-                'tratamiento' => $historiaclinica->tratamiento,
-                'diagnostico' => $historiaclinica->diagnostico,
-                'exploracion_fisica' => $historiaclinica->exploracion_fisica,
+                'motivo' => str_replace('<BR>', ',', $historiaclinica->motivo),
+                //'cie10' => (is_null($cie10)?'':$cie10->codigo),
+                'sintomas' => str_replace('<BR>', ',', $historiaclinica->sintomas),
+                'tratamiento' => str_replace('<BR>', ',', $historiaclinica->tratamiento),
+                'diagnostico' => str_replace('<BR>', ',', $historiaclinica->diagnostico),
+                'exploracion_fisica' => str_replace('<BR>', ',', $historiaclinica->exploracion_fisica),
                 'examenes' => $examenes,
                 'cies' => $cies,
                 'cantcies' => count($cies),
@@ -826,7 +844,7 @@ class HistoriaClinicaController extends Controller
                     $user = Auth::user();
                     
                     //sucursal_id
-                    $sucursal_id = Session::get('sucursal_id');
+                    $sucursal_id = 1;
 
                     $Cita->sucursal_id = $sucursal_id;
                     $Cita->fecha = $request->input('citaproxima');
@@ -879,35 +897,45 @@ class HistoriaClinicaController extends Controller
             $historia = Historia::find($historiaclinica->historia_id);
             $historia->antecedentes = strtoupper($request->input('antecedentes'));
             $historia->save();
+
+            $Ticket   = Movimiento::find($historiaclinica->ticket_id);
+
+            $now = new \DateTime();
+
+            if( $request->input('fondo') == "SI"){
+                if($Ticket->situacion2 != 'F'){
+                    $Ticket->tiempo_fondo  = $now;
+                    $Ticket->situacion2 = 'F'; // Cola por fondo
+                }
+            }else{
+                $Ticket->tiempo_fondo  = null;
+                $Ticket->situacion2 = 'L'; // Cola por fondo
+            }
+
+            $Ticket->save();
+
         });
 
 
         $historiaclinica = HistoriaClinica::find( $request->input('cita_id') );
 
         $ciesborrar = Detallehistoriacie::where('historiaclinica_id', $historiaclinica->id )->get();
-
         foreach ($ciesborrar as $value) {
-
             $error = DB::transaction(function() use($request, $value){
-
                 $value->delete();
-
             });
             
         }
-
         $cies = json_decode($request->input('cies'));
-
         foreach ($cies->{"data"} as $cie) {
             $error = DB::transaction(function() use($request, $historiaclinica, $cie){
-
                 $detallehistoriacie = new Detallehistoriacie();
                 $detallehistoriacie->historiaclinica_id = $historiaclinica->id;
                 $detallehistoriacie->cie_id = $cie->{"id"};
                 $detallehistoriacie->save();
-
             });
         }
+
 
         $examenesborrar = Examenhistoriaclinica::where('historiaclinica_id', $historiaclinica->id )->get();
 
@@ -922,7 +950,7 @@ class HistoriaClinicaController extends Controller
         }
 
         $examenes = json_decode($request->input('examenes'));
-
+/*
         foreach ($examenes->{"data"} as $examen) {
             $error = DB::transaction(function() use($request, $historiaclinica, $examen){
 
@@ -933,7 +961,7 @@ class HistoriaClinicaController extends Controller
                 $examenhistoriaclinica->save();
 
             });
-        }
+        }*/
 
 
         return is_null($error) ? "OK" : $error;
@@ -941,11 +969,10 @@ class HistoriaClinicaController extends Controller
     }
 
     public function infoPaciente(Request $request){
-        
+       
         $numhistoria = $request->input('historia');
         $historia = Historia::where('numero','=', $numhistoria)->first();
         $paciente = Person::find($historia->person_id);
-
         $texto = "<table class='table table-responsive table-hover'>
             <thead>
                 <tr>
@@ -988,21 +1015,22 @@ class HistoriaClinicaController extends Controller
                         <strong><font style='color:blue'>Edad:</font></strong><br>
                     </td>
                     <td>";
-                    if( $paciente->fechanacimiento != null){
-                            $dia=date("d");
-                            $mes=date("m");
-                            $ano=date("Y");
-                            $dianaz=date("d",strtotime($paciente->fechanacimiento));
-                            $mesnaz=date("m",strtotime($paciente->fechanacimiento));
-                            $anonaz=date("Y",strtotime($paciente->fechanacimiento));
-                            //si el mes es el mismo pero el día inferior aun no ha cumplido años, le quitaremos un año al actual
-                            if (($mesnaz == $mes) && ($dianaz > $dia)) {
-                            $ano=($ano-1); }
-                            //si el mes es superior al actual tampoco habrá cumplido años, por eso le quitamos un año al actual
-                            if ($mesnaz > $mes) {
-                            $ano=($ano-1);}
-                            //ya no habría mas condiciones, ahora simplemente restamos los años y mostramos el resultado como su edad
-                            $edad=($ano-$anonaz);
+                        
+                    $dia=date("d");
+                    $mes=date("m");
+                    $ano=date("Y");
+                    $dianaz=date("d",strtotime($paciente->fechanacimiento));
+                    $mesnaz=date("m",strtotime($paciente->fechanacimiento));
+                    $anonaz=date("Y",strtotime($paciente->fechanacimiento));
+                    //si el mes es el mismo pero el día inferior aun no ha cumplido años, le quitaremos un año al actual
+                    if (($mesnaz == $mes) && ($dianaz > $dia)) {
+                    $ano=($ano-1); }
+                    //si el mes es superior al actual tampoco habrá cumplido años, por eso le quitamos un año al actual
+                    if ($mesnaz > $mes) {
+                    $ano=($ano-1);}
+                    //ya no habría mas condiciones, ahora simplemente restamos los años y mostramos el resultado como su edad
+                    $edad=($ano-$anonaz);
+                        if( $paciente->fechanacimiento != null){
                             $texto .= $edad;
                         }else{
                             $texto .= " - ";
@@ -1014,7 +1042,7 @@ class HistoriaClinicaController extends Controller
                         <strong><font style='color:blue'>Teléfono:</font></strong><br>
                     </td>
                     <td>";
-                        if( $paciente->telefono != null){
+                        if( $paciente->fechanacimiento != null){
                             $texto .= $paciente->telefono;
                         }else{
                             $texto .= " - ";
@@ -1026,7 +1054,7 @@ class HistoriaClinicaController extends Controller
                         <strong><font style='color:blue'>Dirección</font></strong><br>
                     </td>
                     <td>";
-                        if( $paciente->direccion != null){
+                        if( $paciente->fechanacimiento != null){
                             $texto .= $paciente->direccion;
                         }else{
                             $texto .= " - ";
@@ -1035,7 +1063,6 @@ class HistoriaClinicaController extends Controller
                 </tr>
             </tbody>
         </table>";
-
         return $texto;
 
     }
@@ -1048,5 +1075,20 @@ class HistoriaClinicaController extends Controller
         return $cantidad;
     }
 
-}
+    public function anadirComentario(Request $request)
+    {
+        $error = DB::transaction(function() use($request){
 
+            $cita_id = $request->input('cita_id');
+            $comentario = $request->input('comentario');
+
+            $cita     = HistoriaClinica::find($cita_id);
+            $cita->comentario = $comentario;
+            $cita->save();
+
+        });
+
+        return $error == null ? '1' : $error;
+    }
+
+}

@@ -1355,33 +1355,13 @@ class VentaController extends Controller
             }
             $caja = Caja::where('sucursal_id', $sucursal_id)->where('nombre', 'FARMACIA')->limit(1)->first();
 
-            $validar = Venta::where('serie','=','4')->where('manual','like','N')->where('tipodocumento_id','=',$request->input('documento'))->where('numero','=',$request->input('numerodocumento'))->where('sucursal_id', $sucursal_id)->where('caja_id', $caja->id)->where('tipomovimiento_id', '4')->first();
+            $validar = Venta::where('serie','=','2')->where('manual','like','N')->where('tipodocumento_id','=',$request->input('documento'))->where('numero','=',$request->input('numerodocumento'))->where('sucursal_id', $sucursal_id)->where('caja_id', $caja->id)->where('tipomovimiento_id', '4')->first();
             if ($validar == null) { 
                 $ind = 0;
                 $montoafecto = 0;
                 $montonoafecto = 0;
                 //$lista = $request->session()->get('carritoventa');
                 $lista = (int) $request->input('cantproductos') + 1;
-                
-                for ($i=1; $i < $lista; $i++) {
-                    $producto = Producto::find($request->input('producto_id'.$i));
-                    $cantidad  = $request->input('cantidad'.$i);
-                    $precio    = $request->input('precio'.$i);
-                    $subtotal  = round(($cantidad*$precio), 2);
-                    if($request->input('tipoventa')=='C'){
-                        $descuentokayros=$request->input('descuentokayros');
-                        $copago=$request->input('copago');
-                        $precioaux = $precio - ($precio*($descuentokayros/100));
-                        $dscto = round(($precioaux*$cantidad),2);
-                        $subtotal = round(($dscto*($copago/100)),2);
-                    }
-                    if ($producto->afecto == 'NO') {
-                        $ind = 1;
-                        $montonoafecto = $montonoafecto+$subtotal;
-                    }else{
-                        $montoafecto = $montoafecto+$subtotal;
-                    }
-                }
 
                 for ($i=1; $i < $lista; $i++) {
                     $producto = Producto::find($request->input('producto_id'.$i));
@@ -1407,7 +1387,7 @@ class VentaController extends Controller
                     $total = $request->input('totalventa');
                     $venta                 = new Venta();
                     $venta->sucursal_id = $sucursal_id;
-                    $venta->serie = '004';
+                    $venta->serie = '002';
                     $venta->tipodocumento_id          = $request->input('documento');
                     if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
                         $venta->persona_id = $request->input('person_id');
@@ -1466,7 +1446,7 @@ class VentaController extends Controller
                     $venta->doctor_id = Libreria::obtenerParametro($request->input('doctor_id'));
                     //$venta->numeroficha = Libreria::obtenerParametro($request->input('numeroficha'));
                     //$venta->cajaprueba = $request->input('cajafamarcia');
-                    $venta->comentario='Pago de : '.$abreviatura.'004-'.$request->input('numerodocumento');
+                    $venta->comentario='Pago de : '.$abreviatura.'002-'.$request->input('numerodocumento');
                     $venta->save();
                     $movimiento_id = $venta->id;
                     $arr=$lista;    
@@ -1599,7 +1579,7 @@ class VentaController extends Controller
                                 $movimiento->empresa_id = $request->input('empresa_id');
                             }
                             $movimiento->tipomovimiento_id = 2;
-                            $movimiento->serie = '004';
+                            $movimiento->serie = '002';
                             $movimiento->numero = $request->input('numerodocumento');
                             $movimiento->fecha  = Date::createFromFormat('d/m/Y', $request->input('fecha'))->format('Y-m-d');
                             $movimiento->total = $total;
@@ -1625,7 +1605,7 @@ class VentaController extends Controller
                             }else if ($request->input('documento') == '4'){
                                 $abreviatura="F";
                             }
-                            $movimiento->comentario='Pago de : '.$abreviatura.'004-'.$request->input('numerodocumento');
+                            $movimiento->comentario='Pago de : '.$abreviatura.'002-'.$request->input('numerodocumento');
                             
                             $movimiento->save();
 
@@ -1661,7 +1641,7 @@ class VentaController extends Controller
                         $venta                 = new Venta();
                         $venta->sucursal_id = $sucursal_id;
                         $venta->caja_id = $caja->id;
-                        $venta->serie = '004';
+                        $venta->serie = '002';
                         $venta->tipodocumento_id          = $request->input('documento');
                         if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
                             $venta->persona_id = $request->input('person_id');
@@ -1696,7 +1676,7 @@ class VentaController extends Controller
                         $venta->totalpagadomaster = $request->input('master');
                         $venta->credito = $request->input('credito');
                         $venta->tipoventa = $request->input('tipoventa');
-                        $venta->comentario='Pago de : '.$abreviatura.'004-'.$request->input('numerodocumento');
+                        $venta->comentario='Pago de : '.$abreviatura.'002-'.$request->input('numerodocumento');
                         //$venta->formapago = $request->input('formapago');
                         /*if($request->input('formapago')=="Tarjeta"){
                             $venta->tarjeta=$request->input('tipotarjeta');//VISA/MASTER
@@ -1900,7 +1880,7 @@ class VentaController extends Controller
                     $venta2                 = new Venta();
                     $venta2->sucursal_id = $sucursal_id;
                     $venta2->caja_id = $caja->id;
-                    $venta2->serie = '004';
+                    $venta2->serie = '002';
                     $venta2->tipodocumento_id = $request->input('documento');
                     $abreviatura="G";
                     if ($request->input('documento') == '5' || $request->input('documento') == '14' ) {
@@ -1951,7 +1931,7 @@ class VentaController extends Controller
                     
                     $user = Auth::user();
                     $venta2->responsable_id = $user->person_id;
-                    $venta2->comentario='Pago de : '.$abreviatura.'004-'.Movimiento::NumeroSigue($caja->id, $sucursal_id, 4,$request->input('documento'),4,'N');
+                    $venta2->comentario='Pago de : '.$abreviatura.'002-'.Movimiento::NumeroSigue($caja->id, $sucursal_id, 4,$request->input('documento'),4,'N');
                     $venta2->doctor_id = Libreria::obtenerParametro($request->input('doctor_id'));
                     //$venta2->numeroficha = Libreria::obtenerParametro($request->input('numeroficha'));
                     //$venta2->cajaprueba = $request->input('cajafamarcia');
@@ -2134,524 +2114,6 @@ class VentaController extends Controller
                     }
 
                 }
-                
-                /*if ($request->input('documento') != '15') {
-                    if($ind == 1 && $montoafecto>0){
-                        // Monto Afecto
-                        if ($request->input('documento') == '5') {
-                            if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                                $person = Person::find($venta->persona_id);
-                            }else{
-
-                            }
-                            
-                        }else{
-                            $empresa = Person::find($venta->empresa_id);
-                        }
-                        
-                        $columna1=6;
-                        $columna2="20480082673";//RUC HOSPITAL
-                        $columna3="HOSPITAL PRIVADO JUAN PABLO II SOCIEDAD ANONIMA CERRADA";//Razon social Hospital                
-                        $columna4=$codigo; // Revisar
-                        $columna5=$abreviatura.str_pad($venta->serie,3,'0',STR_PAD_LEFT).'-'.$venta->numero;
-                        $columna6=date('Y-m-d');
-                        $columna7="sistemas@hospitaljuanpablo.pe";
-                        if($codigo=="03"){//BOLETA
-                            $columna8=1;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                            if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                                if(strlen($person->dni)<>8){
-                                    $columna9='-';
-                                }else{
-                                    $columna9=$person->dni;
-                                }
-                            }else{
-                                $columna9='-';
-                            }
-                            
-                        }else{
-                            $columna8=6;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                            $columna9=$empresa->ruc;
-                        }
-                        //$columna9='00000000';
-                        
-                        if ($request->input('documento') == '5') {
-                            if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                                $columna10=trim($person->bussinesname." ".$person->apellidopaterno." ".$person->apellidomaterno." ".$person->nombres);//Razon social
-                                $columna101=trim($person->direccion);
-                            }else{
-                               $columna10=trim($venta->nombrepaciente);//Razon social
-                                $columna101=trim('-');
-                            }
-                            
-                        }else{
-                            $columna10=trim($empresa->bussinesname);//Razon social
-                            $columna101=trim($empresa->direccion);
-                        }
-                        //if($person->email!=""){
-                        //    $columna11=$person->email;
-                        //}else{
-                            $columna11="-";    
-                        //}
-
-                        $subtotal=number_format($montoafecto/1.18,2,'.','');
-                        $igv=number_format($montoafecto - $subtotal,2,'.','');
-
-
-                        $columna12="PEN";
-                        $columna13=$subtotal;
-                        $columna14='0.00';
-                        $columna15='0.00';
-                        $columna16="";
-                        $columna17=$igv;
-                        $columna18='0.00';
-                        $columna19='0.00';
-                        $columna20=$montoafecto;
-                        $columna21=1000;
-                        $letras = new EnLetras();
-                        $columna22=$letras->ValorEnLetras($columna20, "SOLES" );//letras
-                        DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER (
-                            tipoDocumentoEmisor,
-                            numeroDocumentoEmisor,
-                            razonSocialEmisor,
-                            tipoDocumento,
-                            serieNumero,
-                            fechaEmision,
-                            correoEmisor,
-                            tipoDocumentoAdquiriente,
-                            numeroDocumentoAdquiriente,
-                            razonSocialAdquiriente,
-                            correoAdquiriente,
-                            tipoMoneda,
-                            totalValorVentaNetoOpGravadas,
-                            totalValorVentaNetoOpNoGravada,
-                            totalValorVentaNetoOpExonerada,
-                            
-                            totalIgv,
-                            
-                            
-                            totalVenta,
-                            codigoLeyenda_1,
-                            textoLeyenda_1
-                            ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-                            [$columna1, $columna2, $columna3, $columna4, $columna5, $columna6, $columna7, $columna8, $columna9, $columna10, $columna11, $columna12, $columna13, $columna14, $columna15, $columna17, $columna20, $columna21, $columna22]);
-
-                        if($abreviatura=="F"){
-                            DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
-                                tipoDocumentoEmisor,
-                                numeroDocumentoEmisor,
-                                serieNumero,
-                                tipoDocumento,
-                                clave,
-                                valor) 
-                                values (?, ?, ?, ?, ?, ?)',
-                                [$columna1, $columna2, $columna5, $columna4, 'direccionAdquiriente', $columna101]);
-                        }else{
-                            DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
-                                tipoDocumentoEmisor,
-                                numeroDocumentoEmisor,
-                                serieNumero,
-                                tipoDocumento,
-                                clave,
-                                valor) 
-                                values (?, ?, ?, ?, ?, ?)',
-                                [$columna1, $columna2, $columna5, $columna4, 'lugarDestino', $columna101]);
-                        }
-                          //---
-                        
-                        //Array Insert Detalle Facturacion
-
-                        for($c=0;$c<count($arr);$c++){
-
-                            $producto = Producto::find($arr[$c]['producto_id']);
-                            if ($producto->afecto == 'SI') {
-                                $columnad1=$c+1;
-                                $columnad2=$producto->id;
-                                $columnad3=$producto->nombre;   
-                                
-                                $columnad4=$arr[$c]['cantidad'];
-                                $columnad5="NIU";
-                                $columnad6=round($arr[$c]['precio']/1.18,2);
-                                $columnad7=$arr[$c]['precio'];
-                                $columnad8="01";
-                                $columnad9=round($columnad4*$columnad6,2);
-                                $columnad10="10";
-                                $columnad11=round($columnad9*0.18,2);
-                                $columnad12='0.00';
-                                $columnad13='0.00';
-                                DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEDETAIL(
-                                tipoDocumentoEmisor,
-                                numeroDocumentoEmisor,
-                                tipoDocumento,
-                                serieNumero,
-                                numeroOrdenItem,
-                                codigoProducto,
-                                descripcion,
-                                cantidad,
-                                unidadMedida,
-                                importeUnitarioSinImpuesto,
-                                importeUnitarioConImpuesto,
-                                codigoImporteUnitarioConImpues,
-                                importeTotalSinImpuesto,
-                                codigoRazonExoneracion,
-                                importeIgv
-                                )
-                                values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                                [$columna1, $columna2, $columna4, $columna5, $columnad1, $columnad2, $columnad3, $columnad4, $columnad5, $columnad6, $columnad7, $columnad8, $columnad9, $columnad10, $columnad11]);
-                            }
-                            
-                        }
-                        DB::connection('sqlsrv')->update('update SPE_EINVOICEHEADER set bl_estadoRegistro = ? where serieNumero  = ?',
-                            ['A',$columna5]);
-                            
-                        //--
-
-                        // Monto Inafecto
-                        if ($request->input('documento') == '5') {
-                            if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                                $person = Person::find($venta2->persona_id);
-                            }else{
-
-                            }
-                            
-                        }else{
-                            $empresa = Person::find($venta2->empresa_id);
-                        }
-                        
-                        $columna1=6;
-                        $columna2="20480082673";//RUC HOSPITAL
-                        $columna3="HOSPITAL PRIVADO JUAN PABLO II SOCIEDAD ANONIMA CERRADA";//Razon social Hospital                
-                        $columna4=$codigo; // Revisar
-                        $columna5=$abreviatura.str_pad($venta2->serie,3,'0',STR_PAD_LEFT).'-'.$venta2->numero;
-                        $columna6=date('Y-m-d');
-                        $columna7="sistemas@hospitaljuanpablo.pe";
-                        if($codigo=="03"){//BOLETA
-                            $columna8=1;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                            if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                                if(strlen($person->dni)<>8){
-                                    $columna9='00000000';
-                                }else{
-                                    $columna9=$person->dni;
-                                }
-                            }else{
-                                $columna9='00000000';
-                            }
-                            
-                        }else{
-                            $columna8=6;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                            $columna9=$empresa->ruc;
-                        }
-                        //$columna9='00000000';
-                        
-                        if ($request->input('documento') == '5') {
-                            if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                                $columna10=trim($person->bussinesname." ".$person->apellidopaterno." ".$person->apellidomaterno." ".$person->nombres);//Razon social
-                                $columna101=trim($person->direccion);
-                            }else{
-                               $columna10=trim($venta2->nombrepaciente);//Razon social
-                                $columna101=trim('-');
-                            }
-                            
-                        }else{
-                            $columna10=trim($empresa->bussinesname);//Razon social
-                            $columna101=trim($empresa->direccion);
-                        }
-                        //if($person->email!=""){
-                        //    $columna11=$person->email;
-                        //}else{
-                            $columna11="-";    
-                        //}
-
-                        //$subtotal=number_format($montoafecto/1.18,2,'.','');
-                        //$igv=number_format($montoafecto - $subtotal,2,'.','');
-
-
-                        $columna12="PEN";
-                        $columna13='0.00';
-                        $columna14=$montonoafecto;
-                        $columna15='0.00';
-                        $columna16="";
-                        $columna17='0.00';
-                        $columna18='0.00';
-                        $columna19='0.00';
-                        $columna20=$montonoafecto;
-                        $columna21=1000;
-                        $letras = new EnLetras();
-                        $columna22=$letras->ValorEnLetras($columna20, "SOLES" );//letras
-                        DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER (
-                            tipoDocumentoEmisor,
-                            numeroDocumentoEmisor,
-                            razonSocialEmisor,
-                            tipoDocumento,
-                            serieNumero,
-                            fechaEmision,
-                            correoEmisor,
-                            tipoDocumentoAdquiriente,
-                            numeroDocumentoAdquiriente,
-                            razonSocialAdquiriente,
-                            correoAdquiriente,
-                            tipoMoneda,
-                            totalValorVentaNetoOpGravadas,
-                            totalValorVentaNetoOpNoGravada,
-                            totalValorVentaNetoOpExonerada,
-                            
-                            totalIgv,
-                            
-                            
-                            totalVenta,
-                            codigoLeyenda_1,
-                            textoLeyenda_1
-                            ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-                            [$columna1, $columna2, $columna3, $columna4, $columna5, $columna6, $columna7, $columna8, $columna9, $columna10, $columna11, $columna12, $columna13, $columna14, $columna15, $columna17, $columna20, $columna21, $columna22]);
-
-                        if($abreviatura=="F"){
-                            DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
-                                tipoDocumentoEmisor,
-                                numeroDocumentoEmisor,
-                                serieNumero,
-                                tipoDocumento,
-                                clave,
-                                valor) 
-                                values (?, ?, ?, ?, ?, ?)',
-                                [$columna1, $columna2, $columna5, $columna4, 'direccionAdquiriente', $columna101]);
-                        }else{
-                            DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
-                                tipoDocumentoEmisor,
-                                numeroDocumentoEmisor,
-                                serieNumero,
-                                tipoDocumento,
-                                clave,
-                                valor) 
-                                values (?, ?, ?, ?, ?, ?)',
-                                [$columna1, $columna2, $columna5, $columna4, 'lugarDestino', $columna101]);
-                        }
-                        //---
-                        
-                        //Array Insert Detalle Facturacion
-
-                        for($c=0;$c<count($arr);$c++){
-
-                            $producto = Producto::find($arr[$c]['producto_id']);
-                            if ($producto->afecto == 'NO') {
-                                $columnad1=$c+1;
-                                $columnad2=$producto->id;
-                                $columnad3=$producto->nombre;   
-                                
-                                $columnad4=$arr[$c]['cantidad'];
-                                $columnad5="NIU";
-                                $columnad6=$arr[$c]['precio'];
-                                $columnad7=$arr[$c]['precio'];
-                                $columnad8="01";
-                                $columnad9=round($columnad4*$columnad6,2);
-                                $columnad10="30";
-                                $columnad11='0.00';
-                                $columnad12='0.00';
-                                $columnad13='0.00';
-                                DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEDETAIL(
-                                tipoDocumentoEmisor,
-                                numeroDocumentoEmisor,
-                                tipoDocumento,
-                                serieNumero,
-                                numeroOrdenItem,
-                                codigoProducto,
-                                descripcion,
-                                cantidad,
-                                unidadMedida,
-                                importeUnitarioSinImpuesto,
-                                importeUnitarioConImpuesto,
-                                codigoImporteUnitarioConImpues,
-                                importeTotalSinImpuesto,
-                                codigoRazonExoneracion,
-                                importeIgv
-                                )
-                                values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                                [$columna1, $columna2, $columna4, $columna5, $columnad1, $columnad2, $columnad3, $columnad4, $columnad5, $columnad6, $columnad7, $columnad8, $columnad9, $columnad10, $columnad11]);
-                            }
-                            
-                        }
-                        DB::connection('sqlsrv')->update('update SPE_EINVOICEHEADER set bl_estadoRegistro = ? where serieNumero  = ?',
-                            ['A',$columna5]);
-                        
-                    }else{
-                        //Array Insert facturacion
-                        if($montonoafecto>0){
-                            $venta=$venta2;
-                        }
-                        if ($request->input('documento') == '5') {
-                            if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                                $person = Person::find($venta->persona_id);
-                            }else{
-
-                            }
-                            
-                        }else{
-                            $empresa = Person::find($venta->empresa_id);
-                        }
-                        
-                        $columna1=6;
-                        $columna2="20480082673";//RUC HOSPITAL
-                        $columna3="HOSPITAL PRIVADO JUAN PABLO II SOCIEDAD ANONIMA CERRADA";//Razon social Hospital                
-                        $columna4=$codigo; // Revisar
-                        $columna5=$abreviatura.str_pad($venta->serie,3,'0',STR_PAD_LEFT).'-'.$venta->numero;
-                        $columna6=date('Y-m-d');
-                        $columna7="sistemas@hospitaljuanpablo.pe";
-                        if($codigo=="03"){//BOLETA
-                            $columna8=1;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                            if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                                if(strlen($person->dni)<>8){
-                                    $columna9='00000000';
-                                }else{
-                                    $columna9=$person->dni;
-                                }
-                            }else{
-                                $columna9='00000000';
-                            }
-                            
-                        }else{
-                            $columna8=6;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                            $columna9=$empresa->ruc;
-                        }
-                        //$columna9='00000000';
-                        
-                        if ($request->input('documento') == '5') {
-                            if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
-                                $columna10=trim($person->bussinesname." ".$person->apellidopaterno." ".$person->apellidomaterno." ".$person->nombres);//Razon social
-                                $columna101=trim($person->direccion);
-                            }else{
-                               $columna10=trim($venta->nombrepaciente);//Razon social
-                                $columna101=trim('-');
-                            }
-                            
-                        }else{
-                            $columna10=trim($empresa->bussinesname);//Razon social
-                            $columna101=trim($empresa->direccion);
-                        }
-                        //if($person->email!=""){
-                        //    $columna11=$person->email;
-                        //}else{
-                            $columna11="-";    
-                        //}
-                        $columna12="PEN";
-                        if($venta->igv>0){
-                            $columna13=$venta->subtotal;
-                            $columna14='0.00';
-                            $columna15='0.00';
-                        }else{
-                            $columna13='0.00';
-                            $columna14=$venta->subtotal;
-                            $columna15='0.00';
-                        }
-                        $columna16="";
-                        $columna17=$venta->igv;
-                        $columna18='0.00';
-                        $columna19='0.00';
-                        $columna20=$venta->total;
-                        $columna21=1000;
-                        $letras = new EnLetras();
-                        $columna22=$letras->ValorEnLetras($columna20, "SOLES" );//letras
-                        DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER (
-                            tipoDocumentoEmisor,
-                            numeroDocumentoEmisor,
-                            razonSocialEmisor,
-                            tipoDocumento,
-                            serieNumero,
-                            fechaEmision,
-                            correoEmisor,
-                            tipoDocumentoAdquiriente,
-                            numeroDocumentoAdquiriente,
-                            razonSocialAdquiriente,
-                            correoAdquiriente,
-                            tipoMoneda,
-                            totalValorVentaNetoOpGravadas,
-                            totalValorVentaNetoOpNoGravada,
-                            totalValorVentaNetoOpExonerada,
-                            
-                            totalIgv,
-                            
-                            
-                            totalVenta,
-                            codigoLeyenda_1,
-                            textoLeyenda_1
-                            ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-                            [$columna1, $columna2, $columna3, $columna4, $columna5, $columna6, $columna7, $columna8, $columna9, $columna10, $columna11, $columna12, $columna13, $columna14, $columna15, $columna17, $columna20, $columna21, $columna22]);
-
-                        if($abreviatura=="F"){
-                            DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
-                                tipoDocumentoEmisor,
-                                numeroDocumentoEmisor,
-                                serieNumero,
-                                tipoDocumento,
-                                clave,
-                                valor) 
-                                values (?, ?, ?, ?, ?, ?)',
-                                [$columna1, $columna2, $columna5, $columna4, 'direccionAdquiriente', $columna101]);
-                        }else{
-                            DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
-                                tipoDocumentoEmisor,
-                                numeroDocumentoEmisor,
-                                serieNumero,
-                                tipoDocumento,
-                                clave,
-                                valor) 
-                                values (?, ?, ?, ?, ?, ?)',
-                                [$columna1, $columna2, $columna5, $columna4, 'lugarDestino', $columna101]);
-                        }
-                        //---
-                        
-                        //Array Insert Detalle Facturacion
-
-                        for($c=0;$c<count($arr);$c++){
-                            $columnad1=$c+1;
-                            $producto = Producto::find($arr[$c]['producto_id']);
-                            $columnad2=$producto->id;
-                            $columnad3=$producto->nombre;   
-                            
-                            $columnad4=$arr[$c]['cantidad'];
-                            $columnad5="NIU";
-                            if($venta->igv>0){
-                                $columnad6=round($arr[$c]['precio']/1.18,2);
-                                $columnad7=$arr[$c]['precio'];
-                                $columnad8="01";
-                                $columnad9=round($columnad4*$columnad6,2);
-                                $columnad10="10";
-                                $columnad11=round($columnad9*0.18,2);
-                            }else{
-                                $columnad6=$arr[$c]['precio'];
-                                $columnad7=$arr[$c]['precio'];
-                                $columnad8="01";
-                                $columnad9=round($columnad4*$columnad6,2);
-                                $columnad10="30";
-                                $columnad11='0.00';
-                            }
-                            $columnad12='0.00';
-                            $columnad13='0.00';
-                            DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEDETAIL(
-                            tipoDocumentoEmisor,
-                            numeroDocumentoEmisor,
-                            tipoDocumento,
-                            serieNumero,
-                            numeroOrdenItem,
-                            codigoProducto,
-                            descripcion,
-                            cantidad,
-                            unidadMedida,
-                            importeUnitarioSinImpuesto,
-                            importeUnitarioConImpuesto,
-                            codigoImporteUnitarioConImpues,
-                            importeTotalSinImpuesto,
-                            codigoRazonExoneracion,
-                            importeIgv
-                            )
-                            values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                            [$columna1, $columna2, $columna4, $columna5, $columnad1, $columnad2, $columnad3, $columnad4, $columnad5, $columnad6, $columnad7, $columnad8, $columnad9, $columnad10, $columnad11]);
-                        }
-                        DB::connection('sqlsrv')->update('update SPE_EINVOICEHEADER set bl_estadoRegistro = ? where serieNumero  = ?',
-                            ['A',$columna5]);
-                            
-                        //--
-
-                    }
-                    
-                }*/
 
                 $guia = 'NO';
                 
@@ -2661,7 +2123,7 @@ class VentaController extends Controller
                             $guia = 'SI';
                         }
                     }
-                    $dat[0]=array("respuesta"=>"OK","venta_id"=>$venta->id, "ind" => $ind, "second_id" => 0, "guia" => $guia);
+                    $dat[0]=array("respuesta"=>"OK","venta_id"=>$venta->id, "ind" => $ind, "second_id" => 0, "guia" => $guia, "tipodocumento_id" => $venta->tipodocumento_id, 'numero' => $abreviatura.'002-'.$request->input('numerodocumento'));
                 }else{
                     /*
                     if ($montoafecto > 0) {
@@ -3367,11 +2829,6 @@ class VentaController extends Controller
                     //Repongo Stock
                     $cant = $value->cantidad;
                     $stocks = Stock::where('producto_id', $lista[$i]['producto_id'])->where('almacen_id', $almacen_id)->first();
-                    if (count($stocks) == 0) {
-                        $stocks = new Stock();
-                        $stocks->producto_id = $lista[$i]['producto_id'];
-                        $stocks->almacen_id = $almacen_id;
-                    }
                     $stocks->cantidad += $cant;
                     $stocks->save();
                     
@@ -3681,11 +3138,6 @@ class VentaController extends Controller
                 //Repongo Stock
                 $cant = $value->cantidad;
                 $stocks = Stock::where('producto_id', $value->producto_id)->where('almacen_id', $almacen_id)->first();
-                if (count($stocks) == 0) {
-                    $stocks = new Stock();
-                    $stocks->producto_id = $value->producto_id;
-                    $stocks->almacen_id = $almacen_id;
-                }
                 $stocks->cantidad += $cant;
                 $stocks->save();
             }

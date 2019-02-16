@@ -87,7 +87,7 @@ class VentaadmisionController extends Controller
             $resultado = $resultado->where('movimiento.situacion','like',$request->input('situacion'));
         }
 
-        $resultado        = $resultado->select('movimiento.*','m2.situacion as situacion2',DB::raw('CONCAT(case when movimiento.tipodocumento_id=4 then "F" else "B" end,movimiento.serie,"-",movimiento.numero) as numero2'))->orderBy('movimiento.fecha', 'ASC')->orderBy('movimiento.serie', 'ASC')->orderBy('movimiento.numero', 'ASC');
+        $resultado        = $resultado->select('movimiento.*','m2.situacion as situacion2',DB::raw('CONCAT(case when movimiento.tipodocumento_id=4 then "F" when movimiento.tipodocumento_id=5 then "B" else "T" end,lpad(movimiento.serie,3,"0"),"-",lpad(movimiento.numero,8,"0")) as numero2'))->orderBy('movimiento.fecha', 'ASC')->orderBy('movimiento.serie', 'ASC')->orderBy('movimiento.numero', 'ASC');
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
@@ -96,7 +96,6 @@ class VentaadmisionController extends Controller
         $cabecera[]       = array('valor' => 'Paciente', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Total', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Situacion', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Estado BZ', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Estado Sunat', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Msg. Sunat', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '3');
@@ -3896,747 +3895,6 @@ class VentaadmisionController extends Controller
         })->export('xls');
     }
 
-    public function declarar(Request $request){
-        
-       /*$resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
-                            ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
-                            ->leftjoin('movimiento as m2','m2.id','=','movimiento.movimiento_id')
-                            ->where('movimiento.tipomovimiento_id','=',4)
-                            ->where('movimiento.tipodocumento_id','=',5)
-                            ->where('movimiento.ventafarmacia','=','N')
-                            ->where('movimiento.fecha','>=','2018-01-06')
-                            ->where('movimiento.fecha','<=','2018-01-12')
-                            ->where('movimiento.serie','=',9)
-                            ->where('m2.tipomovimiento_id','=',1)
-                            ->where('movimiento.situacion','<>','U')
-                            ->select('movimiento.*','m2.persona_id as paciente2_id','m2.plan_id as plan2_id')
-                            ->orderBy('movimiento.id','asc')
-                            ->get(); 
-        $c=198;
-        foreach ($resultado as $key => $value) {$c=$c+1;
-            $value->numero=$c;
-            $value->save();
-        }*/
-        //die();
-        //ADMISION
-        $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
-                            ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
-                            ->leftjoin('movimiento as m2','m2.id','=','movimiento.movimiento_id')
-                            ->where('movimiento.tipomovimiento_id','=',4)
-                            //->where('movimiento.tipodocumento_id','=',4)
-                            ->where('movimiento.ventafarmacia','=','N')
-                            ->where('movimiento.fecha','>=',$request->input('fechainicial'))
-                            ->where('movimiento.fecha','<=',$request->input('fechafinal'))
-                            ->where('m2.tipomovimiento_id','=',1)
-                            ->where('movimiento.manual','like','N')
-                            ->select('movimiento.*','m2.persona_id as paciente2_id','m2.plan_id as plan2_id')
-                            ->orderBy('movimiento.id','asc')
-                            ->get(); 
-        foreach ($resultado as $key => $value) {
-            $numero=($value->tipodocumento_id==4?"F":"B").str_pad($value->serie,3,'0',STR_PAD_LEFT).'-'.str_pad($value->numero,8,'0',STR_PAD_LEFT);
-            $rs=DB::connection('sqlsrv')->table('SPE_EINVOICEHEADER')->where('serieNumero','like',$numero)->first();
-            if(count($rs)==0){
-                if($value->tipodocumento_id==5){
-                    $codigo="03";
-                    $abreviatura="B";
-                }else{
-                    $codigo="01";
-                    $abreviatura="F";
-                }
-                //Array Insert facturacion
-                $person = Person::find($value->persona_id);
-                $persona = Person::find($value->paciente2_id);
-                $plan = Plan::find($value->plan2_id);
-                $historia = Historia::where('person_id','=',$value->paciente2_id)->first();
-                $columna1=6;
-                $columna2="20480082673";//RUC HOSPITAL
-                $columna3="HOSPITAL PRIVADO JUAN PABLO II SOCIEDAD ANONIMA CERRADA";//Razon social Hospital                
-                $columna4=$codigo;
-                $value->numero=str_pad($value->numero,8,'0',STR_PAD_LEFT);
-                $columna5=$abreviatura.str_pad($value->serie,3,'0',STR_PAD_LEFT).'-'.$value->numero;
-                $columna6=$value->fecha;
-                $columna7="sistemas@hospitaljuanpablo.pe";
-                if($codigo=="03"){//BOLETA
-                    if(strlen($person->dni)<>8 || ($value->total)<700){
-                        $columna8=0;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                        $columna9='-';
-                        $columna10="CLIENTES VARIOS";//Razon social
-                    }else{
-                        $columna8=1;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                        $columna9=$person->dni;
-                        $columna10=trim($person->bussinesname." ".$person->apellidopaterno." ".$person->apellidomaterno." ".$person->nombres);//Razon social
-                    }
-                }else{
-                    $columna8=6;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                    $columna9=$person->ruc;
-                    $columna10=trim($person->bussinesname." ".$person->apellidopaterno." ".$person->apellidomaterno." ".$person->nombres);//Razon social
-                }
-                if(trim($person->direccion)==''){
-                    $columna101=trim('-');
-                }else{
-                    $columna101=trim($person->direccion);
-                }
-                //if(trim($person->email)!="" && trim($person->email)!="."){
-                //    $columna11=$person->email;
-                //}else{
-                    $columna11="-";    
-                //}
-                $columna12="PEN";
-                $columna13=number_format($value->subtotal,2,'.','');
-                $columna14='0.00';
-                $columna15='0.00';
-                $columna16="";
-                $columna17=number_format($value->igv,2,'.','');
-                $columna18='0.00';
-                $columna19='0.00';
-                $columna20=number_format($value->total,2,'.','');
-                $columna21=1000;
-                $letras = new EnLetras();
-                $columna22=trim($letras->ValorEnLetras($columna20, "SOLES" ));//letras
-                $columna23='9670';
-                $columna24=substr("CONVENIO: ".$plan->nombre,0,100);
-                $columna25='9199';
-                $columna26=substr(trim($persona->apellidopaterno." ".$persona->apellidomaterno." ".$persona->nombres),0,100);
-                $columna27='9671';                
-                $columna28='HISTORIA CLINICA: '.(is_null($historia)?'':$historia->numero).' - CONDICION: '.($value->situacion=='B'?'PENDIENTE':'PAGADO');
-                $columna29='9672';
-                $columna30='DNI: '.$persona->dni;
-                DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER (
-                    tipoDocumentoEmisor,
-                    numeroDocumentoEmisor,
-                    razonSocialEmisor,
-                    tipoDocumento,
-                    serieNumero,
-                    fechaEmision,
-                    correoEmisor,
-                    tipoDocumentoAdquiriente,
-                    numeroDocumentoAdquiriente,
-                    razonSocialAdquiriente,
-                    correoAdquiriente,
-                    tipoMoneda,
-                    totalValorVentaNetoOpGravadas,
-                    totalValorVentaNetoOpNoGravada,
-                    totalValorVentaNetoOpExonerada,
-                    totalIgv,
-                    totalVenta,
-                    codigoLeyenda_1,
-                    textoLeyenda_1,
-                    codigoAuxiliar100_1,
-                    textoAuxiliar100_1,
-                    codigoAuxiliar100_2,
-                    textoAuxiliar100_2,
-                    codigoAuxiliar100_3,
-                    textoAuxiliar100_3,
-                    codigoAuxiliar100_4,
-                    textoAuxiliar100_4
-                    ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ? ,?, ? ,?)', 
-                    [$columna1, $columna2, $columna3, $columna4, $columna5, $columna6, $columna7, $columna8, $columna9, $columna10, $columna11, $columna12, $columna13, $columna14, $columna15, $columna17, $columna20, $columna21, $columna22, $columna23, $columna24, $columna25, $columna26, $columna27, $columna28, $columna29, $columna30]);
-                if($abreviatura=="F"){
-                    DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
-                        tipoDocumentoEmisor,
-                        numeroDocumentoEmisor,
-                        serieNumero,
-                        tipoDocumento,
-                        clave,
-                        valor) 
-                        values (?, ?, ?, ?, ?, ?)',
-                        [$columna1, $columna2, $columna5, $columna4, 'direccionAdquiriente', $columna101]);
-                }else{
-                    DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
-                        tipoDocumentoEmisor,
-                        numeroDocumentoEmisor,
-                        serieNumero,
-                        tipoDocumento,
-                        clave,
-                        valor) 
-                        values (?, ?, ?, ?, ?, ?)',
-                        [$columna1, $columna2, $columna5, $columna4, 'lugarDestino', $columna101]);
-                }
-                //---
-                
-                //Array Insert Detalle Facturacion
-                $resultado1 = Detallemovcaja::join('movimiento as m','m.id','=','detallemovcaja.movimiento_id')
-                             ->where('m.id','=',$value->movimiento_id)
-                             ->select('detallemovcaja.*');
-                $lista      = $resultado1->get();
-                $c=0;
-                foreach ($lista as $key1 => $value1) {
-                    $columnad1=$c+1;
-                    $servicio = Servicio::find($value1->servicio_id);
-                    if(!is_null($servicio) && $servicio->tipopago=="Convenio"){
-                        $columnad2=$servicio->tarifario->codigo;
-                        $columnad3=$servicio->tarifario->nombre;    
-                    }else{
-                        $columnad2="-";
-                        if($value1->servicio_id>0){
-                            $columnad3=$servicio->nombre;
-                        }else{
-                            $columnad3=trim($value1->descripcion);
-                        }
-                    }
-                    $columnad4=$value1->cantidad;
-                    $columnad5="ZZ";
-                    $columnad6=round($value1->pagohospital/1.18,2);
-                    $columnad7=round($value1->pagohospital,2);
-                    $columnad8="01";
-                    $columnad9=round($columnad4*$columnad6,2);
-                    $columnad10="10";
-                    $columnad11=round($columnad9*0.18,2);
-                    $columnad12='0.00';
-                    $columnad13='0.00';
-                    DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEDETAIL(
-                    tipoDocumentoEmisor,
-                    numeroDocumentoEmisor,
-                    tipoDocumento,
-                    serieNumero,
-                    numeroOrdenItem,
-                    codigoProducto,
-                    descripcion,
-                    cantidad,
-                    unidadMedida,
-                    importeUnitarioSinImpuesto,
-                    importeUnitarioConImpuesto,
-                    codigoImporteUnitarioConImpues,
-                    importeTotalSinImpuesto,
-                    codigoRazonExoneracion,
-                    importeIgv
-                    )
-                    values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    [$columna1, $columna2, $columna4, $columna5, $columnad1, $columnad2, $columnad3, $columnad4, $columnad5, $columnad6, $columnad7, $columnad8, $columnad9, $columnad10, $columnad11]);
-                    $c=$c+1;
-                }
-                DB::connection('sqlsrv')->update('update SPE_EINVOICEHEADER set bl_estadoRegistro = ? where serieNumero  = ?',
-                    ['A',$columna5]);  
-            }
-        } 
-        
-        //FARMACIA
-        $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
-                            ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
-                            ->where('movimiento.tipomovimiento_id','=',4)
-                            ->where('movimiento.tipodocumento_id','<>',15)
-                            ->where('movimiento.ventafarmacia','=','S')
-                            ->where('movimiento.fecha','>=',$request->input('fechainicial'))
-                            ->where('movimiento.fecha','<=',$request->input('fechafinal'))
-                            ->where('movimiento.manual','like','N')
-                            ->select('movimiento.*')
-                            ->orderBy('movimiento.id','asc')
-                            ->get();     
-        foreach ($resultado as $key => $value) {
-            $numero=($value->tipodocumento_id==4?"F":"B").str_pad($value->serie,3,'0',STR_PAD_LEFT).'-'.str_pad($value->numero,8,'0',STR_PAD_LEFT);
-            $rs=DB::connection('sqlsrv')->table('SPE_EINVOICEHEADER')->where('serieNumero','like',$numero)->first();
-            if(count($rs)==0){
-                if($value->tipodocumento_id==5){
-                    $codigo="03";
-                    $abreviatura="B";
-                }else{
-                    $codigo="01";
-                    $abreviatura="F";
-                }
-                //Array Insert facturacion
-                $person = Person::find($value->persona_id);
-                $persona = Person::find($value->paciente2_id);
-                if($value->conveniofarmacia_id>0){
-                    $plan = Plan::find($value->conveniofarmacia_id);
-                }
-                if($value->persona_id>0){
-                    $historia = Historia::where('person_id','=',$value->persona_id)->first();
-                }
-                $columna1=6;
-                $columna2="20480082673";//RUC HOSPITAL
-                $columna3="HOSPITAL PRIVADO JUAN PABLO II SOCIEDAD ANONIMA CERRADA";//Razon social Hospital                
-                $columna4=$codigo;
-                $columna5=$abreviatura.str_pad($value->serie,3,'0',STR_PAD_LEFT).'-'.str_pad($value->numero,8,'0',STR_PAD_LEFT);
-                $columna6=$value->fecha;
-                $columna7="sistemas@hospitaljuanpablo.pe";
-                if($codigo=="03"){//BOLETA
-                    if(is_null($person)){
-                        $columna8=0;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                        $columna9='-';
-                        $columna10="CLIENTES VARIOS";//Razon social
-                    }elseif(strlen($person->dni)<>8 || ($value->total)<700){
-                        $columna8=0;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                        $columna9='-';
-                        $columna10="CLIENTES VARIOS";//Razon social
-                    }else{
-                        $columna8=1;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                        $columna9=$person->dni;
-                        $columna10=trim($person->bussinesname." ".$person->apellidopaterno." ".$person->apellidomaterno." ".$person->nombres);//Razon social
-                    }
-                }else{
-                    $columna8=6;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0}
-                    if($columna5=="F004-00010804"){
-                        //dd($value);
-                    }
-                    $columna9=$value->empresa->ruc;
-                    $columna10=trim($value->empresa->bussinesname);//Razon social
-                }
-                if(is_null($person) || trim($person->direccion)==''){
-                    $columna101=trim('-');
-                }else{
-                    $columna101=trim($person->direccion);
-                }
-                //if(trim($person->email)!="" && trim($person->email)!="."){
-                //    $columna11=$person->email;
-                //}else{
-                    $columna11="-";    
-                //}
-                $columna12="PEN";
-                if($value->igv>0){
-                    $columna13=number_format($value->subtotal,2,'.','');
-                    $columna14='0.00';
-                    $columna15='0.00';
-                }else{
-                    $columna13='0.00';
-                    $columna14=number_format($value->subtotal,2,'.','');
-                    $columna15='0.00';
-                }
-                $columna16="";
-                $columna17=number_format($value->igv,2,'.','');
-                $columna18='0.00';
-                $columna19='0.00';
-                $columna20=number_format($value->total,2,'.','');
-                $columna21=1000;
-                $letras = new EnLetras();
-                $columna22=trim($letras->ValorEnLetras($columna20, "SOLES" ));//letras
-                $columna23='9670';
-                if($value->conveniofarmacia_id>0 && !is_null($plan)){
-                    $columna24=substr("CONVENIO: ".$plan->nombre,0,100);
-                }else{
-                    $columna24=substr("CONVENIO: PARTICULAR",0,100);
-                }
-                $columna25='9199';
-                if($value->persona_id>0){
-                    $columna26=substr(trim($person->apellidopaterno." ".$person->apellidomaterno." ".$person->nombres),0,100);
-                }else{
-                    $columna26=$value->nombrepaciente;
-                }
-                $columna27='9671'; 
-                if($value->persona_id>0){
-                    $columna28='HISTORIA CLINICA: '.(!is_null($historia)?$historia->numero:'SN').' - CONDICION: '.($value->estadopago=='PP'?'PENDIENTE':'PAGADO');
-                }else{
-                    $columna28='HISTORIA CLINICA: SN - CONDICION: '.($value->estadopago=='PP'?'PENDIENTE':'PAGADO');
-                }
-                $columna29='9672';
-                if($value->persona_id>0){
-                    $columna30='DNI: '.$person->dni;
-                }else{
-                    $columna30='DNI: -';
-                }
-                DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER (
-                    tipoDocumentoEmisor,
-                    numeroDocumentoEmisor,
-                    razonSocialEmisor,
-                    tipoDocumento,
-                    serieNumero,
-                    fechaEmision,
-                    correoEmisor,
-                    tipoDocumentoAdquiriente,
-                    numeroDocumentoAdquiriente,
-                    razonSocialAdquiriente,
-                    correoAdquiriente,
-                    tipoMoneda,
-                    totalValorVentaNetoOpGravadas,
-                    totalValorVentaNetoOpNoGravada,
-                    totalValorVentaNetoOpExonerada,
-                    totalIgv,
-                    totalVenta,
-                    codigoLeyenda_1,
-                    textoLeyenda_1,
-                    codigoAuxiliar100_1,
-                    textoAuxiliar100_1,
-                    codigoAuxiliar100_2,
-                    textoAuxiliar100_2,
-                    codigoAuxiliar100_3,
-                    textoAuxiliar100_3,
-                    codigoAuxiliar100_4,
-                    textoAuxiliar100_4
-                    ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ? ,?, ? ,?)', 
-                    [$columna1, $columna2, $columna3, $columna4, $columna5, $columna6, $columna7, $columna8, $columna9, $columna10, $columna11, $columna12, $columna13, $columna14, $columna15, $columna17, $columna20, $columna21, $columna22, $columna23, $columna24, $columna25, $columna26, $columna27, $columna28, $columna29, $columna30]);
-                if($abreviatura=="F"){
-                    DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
-                        tipoDocumentoEmisor,
-                        numeroDocumentoEmisor,
-                        serieNumero,
-                        tipoDocumento,
-                        clave,
-                        valor) 
-                        values (?, ?, ?, ?, ?, ?)',
-                        [$columna1, $columna2, $columna5, $columna4, 'direccionAdquiriente', $columna101]);
-                }else{
-                    DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
-                        tipoDocumentoEmisor,
-                        numeroDocumentoEmisor,
-                        serieNumero,
-                        tipoDocumento,
-                        clave,
-                        valor) 
-                        values (?, ?, ?, ?, ?, ?)',
-                        [$columna1, $columna2, $columna5, $columna4, 'lugarDestino', $columna101]);
-                }
-                //---
-                
-                //Array Insert Detalle Facturacion
-                $resultado1 = Detallemovimiento::where('detallemovimiento.movimiento_id','=',$value->id)
-                             ->select('Detallemovimiento.*');
-                $lista      = $resultado1->get();
-                $c=0;
-                foreach ($lista as $key1 => $value1) {
-                    $columnad1=$c+1;
-                    $columnad2=$value1->producto_id;
-                    $columnad3=$value1->producto->nombre;    
-                    $columnad4=$value1->cantidad;
-                    //PRECIO UNITARIO
-                    if ($value->conveniofarmacia_id !== null) {
-                        $valaux = round(($value1->precio*$value1->cantidad), 2);
-                        $precioaux = $value1->precio - ($value1->precio*($value->descuentokayros/100));
-                        $dscto = round(($precioaux*$value1->cantidad),2);
-                        $subtotal1 = round(($dscto*($value->copago/100)),2);
-                        $value1->precio=round($subtotal1/$value1->cantidad,2);
-                    }
-                    //
-                    $columnad5="NIU";
-                    if($value->igv>0){
-                        $columnad6=round($value1->precio/1.18,2);
-                    }else{
-                        $columnad6=round($value1->precio,2);
-                    }
-                    $columnad7=$value1->precio;
-                    $columnad8="01";
-                    $columnad9=round($columnad4*$columnad6,2);
-                    if($value->igv>0){
-                        $columnad10="10";
-                        $columnad11=round($columnad9*0.18,2);
-                    }else{
-                        $columnad10="30";
-                        $columnad11='0.00';
-                    }
-                    $columnad12='0.00';
-                    $columnad13='0.00';
-                    DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEDETAIL(
-                    tipoDocumentoEmisor,
-                    numeroDocumentoEmisor,
-                    tipoDocumento,
-                    serieNumero,
-                    numeroOrdenItem,
-                    codigoProducto,
-                    descripcion,
-                    cantidad,
-                    unidadMedida,
-                    importeUnitarioSinImpuesto,
-                    importeUnitarioConImpuesto,
-                    codigoImporteUnitarioConImpues,
-                    importeTotalSinImpuesto,
-                    codigoRazonExoneracion,
-                    importeIgv
-                    )
-                    values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    [$columna1, $columna2, $columna4, $columna5, $columnad1, $columnad2, $columnad3, $columnad4, $columnad5, $columnad6, $columnad7, $columnad8, $columnad9, $columnad10, $columnad11]);
-                    $c=$c+1;
-                }
-                DB::connection('sqlsrv')->update('update SPE_EINVOICEHEADER set bl_estadoRegistro = ? where serieNumero  = ?',
-                    ['A',$columna5]);  
-            }
-
-        } 
-        
-        //NOTA DE CREDITO
-        $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
-                            ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
-                            ->join('movimiento as m2','m2.id','=','movimiento.movimiento_id')
-                            ->where('movimiento.tipomovimiento_id','=',6)
-                            ->where('movimiento.fecha','>=',$request->input('fechainicial'))
-                            ->where('movimiento.fecha','<=',$request->input('fechafinal'))
-                            //->where('m2.fecha','>=','2018-01-01')
-                            //->where('movimiento.situacion','=','N')
-                            ->where('movimiento.manual','like','N')
-                            ->select('movimiento.*','m2.serie as serie2','m2.numero as numero2','m2.tipodocumento_id as tipodocumento2_id','m2.ventafarmacia as ventafarmacia2','m2.nombrepaciente as nombrepaciente2','m2.persona_id as persona2_id','m2.movimiento_id as movimiento_id2','m2.conveniofarmacia_id as conveniofarmacia_id2','m2.manual as manual2')
-                            ->orderBy('movimiento.id','asc')
-                            ->get();     
-        foreach ($resultado as $key => $value) {
-            $numero=($value->tipodocumento2_id==5?"BC":"FC").str_pad($value->serie,2,'0',STR_PAD_LEFT).'-'.str_pad($value->numero,8,'0',STR_PAD_LEFT);
-            $rs=DB::connection('sqlsrv')->table('SPE_EINVOICEHEADER')->where('serieNumero','like',$numero)->first();
-            if(count($rs)==0){
-                if($value->tipodocumento2_id==5){
-                    $codigo="03";
-                    $abreviatura="BC";
-                }else{
-                    $codigo="01";
-                    $abreviatura="FC";
-                }
-                //Array Insert facturacion
-                $person = Person::find($value->persona_id);
-                if($value->conveniofarmacia_id>0){
-                    $plan = Plan::find($value->conveniofarmacia_id);
-                }
-                if($value->persona_id>0){
-                    $historia = Historia::where('person_id','=',$value->persona_id)->first();
-                }
-                $columna1=6;
-                $columna2="20480082673";//RUC HOSPITAL
-                $columna3="HOSPITAL PRIVADO JUAN PABLO II SOCIEDAD ANONIMA CERRADA";//Razon social Hospital                
-                $columna4="07";
-                $columna5=$abreviatura.str_pad($value->serie,2,'0',STR_PAD_LEFT).'-'.str_pad($value->numero,8,'0',STR_PAD_LEFT);
-                $columna6=$value->fecha;
-                $columna7="sistemas@hospitaljuanpablo.pe";
-                if($codigo=="03"){//BOLETA
-                    if(is_null($person)){
-                        $columna8=0;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                        $columna9='-';
-                        $columna10="CLIENTES VARIOS";//Razon social
-                    }elseif(strlen($person->dni)<>8 || ($value->total)<700){
-                        $columna8=0;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                        $columna9='-';
-                        $columna10="CLIENTES VARIOS";//Razon social
-                    }else{
-                        $columna8=1;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                        $columna9=$person->dni;
-                        $columna10=trim($person->apellidopaterno." ".$person->apellidomaterno." ".$person->nombres);//Razon social
-                    }
-                }else{
-                    $columna8=6;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-                    $columna9=$person->ruc;
-                    $columna10=trim($person->bussinesname);//Razon social
-                }
-                if(is_null($person) || trim($person->direccion)==''){
-                    $columna101=trim('-');
-                }else{
-                    $columna101=trim($person->direccion);
-                }
-                //if(trim($person->email)!="" && trim($person->email)!="."){
-                //    $columna11=$person->email;
-                //}else{
-                    $columna11="-";    
-                //}
-                $columna12="PEN";
-                $columna13=number_format($value->subtotal,2,'.','');
-                $columna14='0.00';
-                $columna15='0.00';
-                $columna16="";
-                $columna17=number_format($value->igv,2,'.','');
-                $columna18='0.00';
-                $columna19='0.00';
-                $columna20=number_format($value->total,2,'.','');
-                $columna21=1000;
-                $letras = new EnLetras();
-                $columna22=trim($letras->ValorEnLetras($columna20, "SOLES" ));//letras
-                $columna23=$codigo;
-                if($value->manual2=='N'){
-                    $columna24=($value->tipodocumento2_id==5?"B":"F").str_pad($value->serie2,3,'0',STR_PAD_LEFT).'-'.str_pad($value->numero2,8,'0',STR_PAD_LEFT);
-                }else{
-                    $columna24=str_pad($value->serie2,4,'0',STR_PAD_LEFT).'-'.str_pad($value->numero2,8,'0',STR_PAD_LEFT);
-                }
-                $columna25=$value->comentario;
-                $columna26='01';
-                $columna27='9199';
-                if($value->ventafarmacia2=='S'){
-                    if($value->persona2_id>0){
-                        $person2 = Person::find($value->persona2_id);
-                        $paciente=$person2->apellidopaterno.' '.$person2->apellidomaterno.' '.$person2->nombres;
-                        $dni=$person2->dni;
-                        $Historia = Historia::where('person_id','=',$value->persona2_id)->first();
-                        $historia = !is_null($Historia)?$Historia->numero:'SN';
-                        if($value->conveniofarmacia_id2>0){
-                            $plan = Plan::find($value->conveniofarmacia_id2);
-                            $convenio = $plan->nombre;
-                        }else{
-                            $convenio='PARTICULAR';
-                        }
-                    }else{
-                        $paciente=$value->nombrepaciente2;
-                        $historia='SN';
-                        $dni='-';
-                        $convenio='PARTICULAR';
-                    }
-                }else{
-                    if($value->tipodocumento2_id==17){
-                        $mov = Movimiento::find($value->movimiento_id);    
-                        $paciente = $mov->persona->apellidopaterno.' '.$mov->persona->apellidomaterno.' '.$mov->persona->nombres;
-                        $dni=$mov->persona->dni;
-                        $Historia = Historia::where('person_id','=',$mov->persona_id)->first();
-                        $historia = !is_null($Historia)?$Historia->numero:'SN';
-                        $convenio = $mov->plan->nombre;
-                    }else{
-                        $mov = Movimiento::find($value->movimiento_id2);
-                        $paciente = $mov->persona->apellidopaterno.' '.$mov->persona->apellidomaterno.' '.$mov->persona->nombres;
-                        $dni=$mov->persona->dni;
-                        $Historia = Historia::where('person_id','=',$mov->persona_id)->first();
-                        $historia = !is_null($Historia)?$Historia->numero:'SN';
-                        $convenio = $mov->plan->nombre;
-                    }
-                }
-                $columna28=substr(trim($paciente),0,100);
-                $columna29='9671';
-                $columna30='HISTORIA CLINICA: '.$historia;
-                $columna31='9672';
-                $columna32='DNI: '.$dni;
-                $columna33='9670';
-                $columna34=substr("CONVENIO: ".$convenio,0,100);
-                    
-                DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER (
-                    tipoDocumentoEmisor,
-                    numeroDocumentoEmisor,
-                    razonSocialEmisor,
-                    tipoDocumento,
-                    serieNumero,
-                    fechaEmision,
-                    correoEmisor,
-                    tipoDocumentoAdquiriente,
-                    numeroDocumentoAdquiriente,
-                    razonSocialAdquiriente,
-                    correoAdquiriente,
-                    tipoMoneda,
-                    totalValorVentaNetoOpGravadas,
-                    totalValorVentaNetoOpNoGravada,
-                    totalValorVentaNetoOpExonerada,                
-                    totalIgv,
-                    totalVenta,
-                    codigoLeyenda_1,
-                    textoLeyenda_1,
-                    tipoDocumentoReferenciaPrincip,
-                    numeroDocumentoReferenciaPrinc,
-                    motivoDocumento,
-                    codigoSerieNumeroAfectado,
-                    serieNumeroAfectado, 
-                    codigoAuxiliar100_1,
-                    textoAuxiliar100_1,
-                    codigoAuxiliar100_2,
-                    textoAuxiliar100_2,
-                    codigoAuxiliar100_3,
-                    textoAuxiliar100_3,
-                    codigoAuxiliar100_4,
-                    textoAuxiliar100_4
-                    ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-                    [$columna1, $columna2, $columna3, $columna4, $columna5, $columna6, $columna7, $columna8, $columna9, $columna10, $columna11, $columna12, $columna13, $columna14, $columna15, $columna17, $columna20, $columna21, $columna22, $columna23, $columna24, $columna25, $columna26, $columna24, $columna27, $columna28, $columna29, $columna30, $columna31, $columna32, $columna33, $columna34]);
-
-                if($abreviatura=="BC"){
-                    DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
-                        tipoDocumentoEmisor,
-                        numeroDocumentoEmisor,
-                        serieNumero,
-                        tipoDocumento,
-                        clave,
-                        valor) 
-                        values (?, ?, ?, ?, ?, ?)',
-                        [$columna1, $columna2, $columna5, $columna4, 'lugarDestino', $columna101]);
-                }else{
-                    DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
-                        tipoDocumentoEmisor,
-                        numeroDocumentoEmisor,
-                        serieNumero,
-                        tipoDocumento,
-                        clave,
-                        valor) 
-                        values (?, ?, ?, ?, ?, ?)',
-                        [$columna1, $columna2, $columna5, $columna4, 'direccionAdquiriente', $columna101]);
-                }
-                //---
-                if($value->ventafarmacia2=='S'){
-                    //Array Insert Detalle Facturacion
-                    $resultado1 = Detallemovimiento::where('detallemovimiento.movimiento_id','=',$value->id)
-                                 ->select('Detallemovimiento.*');
-                    $lista      = $resultado1->get();
-                    $c=0;
-                    foreach ($lista as $key1 => $value1) {
-                        $columnad1=$c+1;
-                        $columnad2=$value1->producto_id;
-                        $columnad3=$value1->producto->nombre;    
-                        $columnad4=$value1->cantidad;
-                        $columnad5="NIU";
-                        $columnad6=round($value1->precio/1.18,2);
-                        $columnad7=$value1->precio;
-                        $columnad8="01";
-                        $columnad9=round($columnad4*$columnad6,2);
-                        $columnad10="10";
-                        $columnad11=round($columnad9*0.18,2);
-                        $columnad12='0.00';
-                        $columnad13='0.00';
-                        DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEDETAIL(
-                        tipoDocumentoEmisor,
-                        numeroDocumentoEmisor,
-                        tipoDocumento,
-                        serieNumero,
-                        numeroOrdenItem,
-                        codigoProducto,
-                        descripcion,
-                        cantidad,
-                        unidadMedida,
-                        importeUnitarioSinImpuesto,
-                        importeUnitarioConImpuesto,
-                        codigoImporteUnitarioConImpues,
-                        importeTotalSinImpuesto,
-                        codigoRazonExoneracion,
-                        importeIgv
-                        )
-                        values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                        [$columna1, $columna2, $columna4, $columna5, $columnad1, $columnad2, $columnad3, $columnad4, $columnad5, $columnad6, $columnad7, $columnad8, $columnad9, $columnad10, $columnad11]);
-                        $c=$c+1;
-                    }
-                }else{
-                    $resultado1 = Detallemovcaja::join('movimiento as m','m.id','=','detallemovcaja.movimiento_id')
-                                 ->where('m.id','=',$value->id)
-                                 ->select('detallemovcaja.*');
-                    $lista      = $resultado1->get();
-                    $c=0;
-                    foreach ($lista as $key1 => $value1) {
-                        $columnad1=$c+1;
-                        $servicio = Servicio::find($value1->servicio_id);
-                        if(!is_null($servicio) && $servicio->tipopago=="Convenio"){
-                            $columnad2=$servicio->tarifario->codigo;
-                            $columnad3=$servicio->tarifario->nombre;    
-                        }else{
-                            $columnad2="-";
-                            if($value1->servicio_id>0){
-                                $columnad3=$servicio->nombre;
-                            }else{
-                                $columnad3=trim($value1->descripcion);
-                            }
-                        }
-                        $columnad4=$value1->cantidad;
-                        $columnad5="ZZ";
-                        if($value->tipodocumento2_id==17){
-                            $columnad6=round($value1->precio/1.18,2);
-                            $columnad7=$value1->precio;
-                        }else{
-                            $columnad6=round($value1->pagohospital/1.18,2);
-                            $columnad7=$value1->pagohospital;
-                        }
-                        $columnad8="01";
-                        $columnad9=round($columnad4*$columnad6,2);
-                        $columnad10="10";
-                        $columnad11=round($columnad9*0.18,2);
-                        $columnad12='0.00';
-                        $columnad13='0.00';
-                        DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEDETAIL(
-                        tipoDocumentoEmisor,
-                        numeroDocumentoEmisor,
-                        tipoDocumento,
-                        serieNumero,
-                        numeroOrdenItem,
-                        codigoProducto,
-                        descripcion,
-                        cantidad,
-                        unidadMedida,
-                        importeUnitarioSinImpuesto,
-                        importeUnitarioConImpuesto,
-                        codigoImporteUnitarioConImpues,
-                        importeTotalSinImpuesto,
-                        codigoRazonExoneracion,
-                        importeIgv
-                        )
-                        values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                        [$columna1, $columna2, $columna4, $columna5, $columnad1, $columnad2, $columnad3, $columnad4, $columnad5, $columnad6, $columnad7, $columnad8, $columnad9, $columnad10, $columnad11]);
-                        $c=$c+1;
-                    }
-                }
-                DB::connection('sqlsrv')->update('update SPE_EINVOICEHEADER set bl_estadoRegistro = ? where serieNumero  = ?',
-                    ['A',$columna5]); 
-            }
-        } 
-
-        return "OK";  
-    }
-
     public function excelFarmacia(Request $request){
         setlocale(LC_TIME, 'spanish');
         $fechainicio             = Libreria::getParam($request->input('fechainicio'));
@@ -4920,14 +4178,14 @@ class VentaadmisionController extends Controller
             });
         }
 
-        $consultas = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->orderBy('situacion2','ASC')->orderBy('id','ASC')
+        $consultas = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->orderBy('turno','ASC')->orderBy('id','ASC')->orderBy('situacion2','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'B')->orWhere('situacion2', 'like', 'N');
         })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
-        $lista = $consultas->limit(7)->get();
+        $lista = $consultas->limit(20)->get();
 
         $sconsutas = '';
         $semergencias = '';
@@ -4936,7 +4194,7 @@ class VentaadmisionController extends Controller
 
         $sconsultas="
                     <h3 class='text-center' style='font-weight:bold;color:blue'>CONSULTAS</h3>
-                    <table style='width:100%' border='1'>
+                    <table style='width:100%; font-weight: 700;' border='1'>
                         <thead>
                             <tr>
                                 <th class='text-center' width='10%'>Nro</th>
@@ -5004,35 +4262,35 @@ class VentaadmisionController extends Controller
 
         $sconsultas .= '</tbody></table>';
 
-        $emergencias = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->orderBy('situacion2','ASC')->orderBy('id','ASC')
+        $emergencias = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->orderBy('id','ASC')->orderBy('situacion2','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'B')->orWhere('situacion2', 'like', 'N');
         })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
-        $lista2 = $emergencias->limit(7)->get();
+        $lista2 = $emergencias->limit(15)->get();
 
-        $fondos = Movimiento::where('fecha', date('Y-m-d') )->whereNotNull('tiempo_fondo')->orderBy('situacion2','ASC')->orderBy('id','ASC')
+        $fondos = Movimiento::where('fecha', date('Y-m-d') )->whereNotNull('tiempo_fondo')->orderBy('id','ASC')->orderBy('situacion2','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'B')->orWhere('situacion2', 'like', 'F')->orWhere('situacion2', 'like', 'N');
         })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
-        $lista3 = $fondos->limit(7)->get();
+        $lista3 = $fondos->limit(15)->get();
 
-        $lectura = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->orderBy('situacion2','ASC')->orderBy('id','ASC')
+        $lectura = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->orderBy('id','ASC')->orderBy('situacion2','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'B')->orWhere('situacion2', 'like', 'N');
         })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
-        $lista4 = $lectura->limit(7)->get();
+        $lista4 = $lectura->limit(15)->get();
 
         $semergencias.="<h3 class='text-center' style='font-weight:bold;color:red'>EMERGENCIAS</h3>
-                        <table style='width:100%' border='1'>
+                        <table style='width:100%; font-weight: 700;' border='1'>
                             <thead>
                                 <tr>
                                     <th class='text-center' width='10%'>Nro</th>
@@ -5098,7 +4356,7 @@ class VentaadmisionController extends Controller
         $semergencias .= '</tbody></table>';
                             
         $sojos.="<h3 class='text-center' style='font-weight:bold;color:#3498DB'>FONDO DE OJOS</h3>
-                    <table style='width:100%' border='1'>
+                    <table style='width:100%; font-weight: 700;' border='1'>
                             <thead>
                                 <tr>
                                     <th class='text-center' width='10%'>Nro</th>
@@ -5167,7 +4425,7 @@ class VentaadmisionController extends Controller
         $sojos.="</tbody></table>";
 
         $slectura.="<h3 class='text-center' style='font-weight:bold;color:green'>LECTURA DE RESULTADOS</h3>
-                    <table style='width:100%' border='1'>
+                    <table style='width:100%; font-weight: 700;' border='1'>
                             <thead>
                                 <tr>
                                     <th class='text-center' width='10%'>Nro</th>
@@ -5257,7 +4515,7 @@ class VentaadmisionController extends Controller
                 $Ticket->save();
             });
         }
-        $consultasm = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','M')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->orderBy('situacion2','ASC')->orderBy('id','ASC')
+        $consultasm = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','M')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->orderBy('id','ASC')->orderBy('situacion2','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B');
         })
@@ -5265,7 +4523,7 @@ class VentaadmisionController extends Controller
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
 
-        $consultast = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','T')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->orderBy('situacion2','ASC')->orderBy('id','ASC')
+        $consultast = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','T')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->orderBy('id','ASC')->orderBy('situacion2','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B');
         })
@@ -5410,14 +4668,14 @@ class VentaadmisionController extends Controller
 
         $sconsultas .= '</tbody></table>';
 
-        $emergenciasm = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','M')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->orderBy('situacion2','ASC')->orderBy('id','ASC')
+        $emergenciasm = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','M')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->orderBy('id','ASC')->orderBy('situacion2','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B');
         })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
-        $emergenciast = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','T')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->orderBy('situacion2','ASC')->orderBy('id','ASC')
+        $emergenciast = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','T')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->orderBy('id','ASC')->orderBy('situacion2','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B');
         })
@@ -5427,14 +4685,14 @@ class VentaadmisionController extends Controller
         $lista2m = $emergenciasm->get();
         $lista2t = $emergenciast->get();
 
-        $fondosm = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','M')->whereNotNull('tiempo_fondo')->orderBy('situacion2','ASC')->orderBy('id','ASC')
+        $fondosm = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','M')->whereNotNull('tiempo_fondo')->orderBy('id','ASC')->orderBy('situacion2','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B')->orWhere('situacion2', 'like', 'F');
         })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
-        $fondost = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','T')->whereNotNull('tiempo_fondo')->orderBy('situacion2','ASC')->orderBy('id','ASC')
+        $fondost = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','T')->whereNotNull('tiempo_fondo')->orderBy('id','ASC')->orderBy('situacion2','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B')->orWhere('situacion2', 'like', 'F');
         })
@@ -5444,14 +4702,14 @@ class VentaadmisionController extends Controller
         $lista3m = $fondosm->get();
         $lista3t = $fondost->get();
 
-        $lecturam = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','M')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->orderBy('situacion2','ASC')->orderBy('id','ASC')
+        $lecturam = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','M')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->orderBy('id','ASC')->orderBy('situacion2','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B');
         })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
-        $lecturat = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','T')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->orderBy('situacion2','ASC')->orderBy('id','ASC')
+        $lecturat = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','T')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->orderBy('id','ASC')->orderBy('situacion2','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B');
         })
@@ -5978,13 +5236,13 @@ class VentaadmisionController extends Controller
 
         //fin 
 
-        $fondos = Movimiento::where('fecha', date('Y-m-d') )->whereNotNull('tiempo_fondo')->where('situacion2', 'like', 'F')->orderBy('turno','ASC')->orderBy('id','ASC')
+        $fondos = Movimiento::where('fecha', date('Y-m-d') )->whereNotNull('tiempo_fondo')->where('situacion2', 'like', 'F')->orderBy('turno','ASC')->orderBy('tiempo_fondo','ASC')
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
         $fondo = $fondos->first();
 
-        $fondos_no = Movimiento::where('fecha', date('Y-m-d') )->whereNotNull('tiempo_fondo')->where('situacion2', 'like', 'N')->orderBy('turno','ASC')->orderBy('id','ASC')
+        $fondos_no = Movimiento::where('fecha', date('Y-m-d') )->whereNotNull('tiempo_fondo')->where('situacion2', 'like', 'N')->orderBy('turno','ASC')->orderBy('tiempo_fondo','ASC')
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         })->get();
@@ -6001,7 +5259,7 @@ class VentaadmisionController extends Controller
             $date1 = new \DateTime(date("H:i:s",strtotime('now')));
             $date2 = new \DateTime(date("H:i:s",strtotime($fondo->tiempo_fondo)));
             $diff = abs($date2->getTimestamp() - $date1->getTimestamp())/60;
-            if($diff > 40){
+            if($diff > 30){
                 $tabla = $tabla . "<tr>
                                 <td>".$fondo->persona->apellidopaterno." ".$fondo->persona->apellidomaterno." ".$fondo->persona->nombres."</td>
                                 <td align='right'><button data-paciente_id = '" . $fondo->persona->id . "' data-ticket_id = '" . $fondo->id . "' data-pantalla = 'SI' class='btn btn-success btn-sm btnLlamarPaciente' id='btnLlamarConsulta' onclick='' type='button'><i class='fa fa-check fa-lg'></i> Llamar Paciente</button></td>
@@ -6039,9 +5297,9 @@ class VentaadmisionController extends Controller
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
         ->where('movimiento.tipodocumento_id','=','1')
         ->where('movimiento.fecha', date('Y-m-d') )
-        ->where('movimiento.tiempo_fondo', null)
+        //->where('movimiento.tiempo_fondo', null)
         ->where(function($q) {            
-            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'N');
+            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'F');
         })
         ->where(function($q) {            
             $q->where('clasificacionconsulta','like','C')->orWhere('clasificacionconsulta','like','E')->orWhere('clasificacionconsulta','like','L');

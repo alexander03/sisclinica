@@ -91,4 +91,7 @@
     function imprimirHistoria(entidad,id){
         window.open("historia/pdfhistoria?id="+id,"_blank");
     }
+    function imprimirHistoria2(entidad,id){
+        window.open("historia/pdfhistoria2?id="+id,"_blank");
+    }
 </script>

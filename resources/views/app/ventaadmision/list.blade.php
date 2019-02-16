@@ -20,10 +20,10 @@
 			<td>{{ $contador }}</td>
             <td>{{ date('d/m/Y',strtotime($value->fecha)) }}</td>
             <td align="right">{{ $value->numero2 }}</td>
-            @if($value->tipodocumento_id==5)
+            @if($value->tipodocumento_id!=4)
             	<td>{{ $value->persona->apellidopaterno.' '.$value->persona->apellidomaterno.' '.$value->persona->nombres }}</td>
             @else
-            	<td>{{ $value->persona->bussinesname }}</td>
+            	<td>{{ $value->empresa->bussinesname }}</td>
             @endif
             <td align="right">{{ $value->total }}</td>
             @if($value->situacion=='N')
@@ -34,13 +34,6 @@
             	<td align="center">PENDIENTE</td>
             @elseif($value->situacion=='U')
                   <td align="center">Anulada</td>
-            @endif
-            @if($value->situacionbz=='L')
-				<td align="center">LEIDO</td>
-			@elseif($value->situacionbz=='E')
-				<td align="center">ERROR</td>
-            @else
-            	<td align="center">PENDIENTE</td>
             @endif
             @if($value->situacionsunat=='L')
             	<td align="center">PENDIENTE RESPUESTA</td>
@@ -54,7 +47,14 @@
             	<td align="center">PENDIENTE</td>
             @endif
             <td align="center">{{ $value->mensajesunat }}</td>
-            <td align="center">{!! Form::button('<div class="glyphicon glyphicon-print"></div> ', array('onclick' => 'window.open(\'ventaadmision/pdfComprobante?id='.$value->id.'\',\'_blank\')', 'class' => 'btn btn-xs btn-info')) !!}</td>
+            <td align="center" style="display:none">{!! Form::button('<div class="fa fa-gears"></div> ', array('onclick' => 'declarar2(\''.$value->id.'\',\''.$value->tipodocumento_id.'\')', 'class' => 'btn btn-xs btn-info')) !!}</td>
+            @if($value->tipodocumento_id==12)
+                  <td align="center">{!! Form::button('<div class="glyphicon glyphicon-print"></div> ', array('onclick' => 'imprimirTicket(\''.$value->id.'\')', 'class' => 'btn btn-xs btn-info', 'title' => 'Imprimir')) !!}</td>
+                  <td align="center"> - </td>
+            @else
+                  <td align="center">{!! Form::button('<div class="glyphicon glyphicon-file"></div> ', array('onclick' => 'verPDF(\''.$value->numero2.'\')', 'class' => 'btn btn-xs btn-info', 'title' => 'PDF')) !!}</td>
+                  <td align="center">{!! Form::button('<div class="glyphicon glyphicon-print"></div> ', array('onclick' => 'imprimirVenta(\''.$value->numero2.'\')', 'class' => 'btn btn-xs btn-info', 'title' => 'Imprimir')) !!}</td>
+            @endif
             @if($value->situacion=='P')
 			<td>{!! Form::button('<div class="glyphicon glyphicon-usd"></div> ', array('onclick' => 'modal (\''.URL::route($ruta["cobrar"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_cobrar.'\', this);', 'class' => 'btn btn-xs btn-success')) !!}</td>
             @else

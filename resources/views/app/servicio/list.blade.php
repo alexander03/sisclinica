@@ -1,10 +1,16 @@
 @if(count($lista) == 0)
 <h3 class="text-warning">No se encontraron resultados.</h3>
 @else
+
+@if($vistamedico != "SI")
+
 {!! $paginacion or '' !!}
+
+@endif
+
 <div class="table-responsive">
 <table id="example1" class="table table-bordered table-striped table-condensed table-hover">
-
+	
 	<thead>
 		<tr>
 			@foreach($cabecera as $key => $value)
@@ -12,6 +18,7 @@
 			@endforeach
 		</tr>
 	</thead>
+
 	<tbody>
 		<?php
 		$contador = $inicio + 1;
@@ -24,7 +31,7 @@
 			<td>{{ ($value->tipopago=='Convenio')?($value->tarifario->codigo." ".$value->tarifario->nombre):$value->nombre }}</td>
             <td>{{ $value->tiposervicio->nombre }}</td>
             <td>{{ $value->precio }}</td>
-			@if($vistamedico != "SI")
+            @if($vistamedico != "SI")
             <td>{{ $value->modo }}</td>
             <td align="right">{{ $value->pagodoctor }}</td>
             <td align="right">{{ $value->pagohospital }}</td>

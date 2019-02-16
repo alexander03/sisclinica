@@ -355,6 +355,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('historia/pdfseguimiento', 'HistoriaController@pdfSeguimiento')->name('historia.pdfSeguimiento');
     Route::get('historia/pdfhistoria', 'HistoriaController@pdfHistoria')->name('historia.pdfHistoria');
 
+    //Para imprimir las citas
+    Route::get('historia/pdfhistoria2', 'HistoriaController@pdfHistoria2')->name('historia.pdfHistoria2');
+
     /* ACCIDENTES DE TRÁNSITO */
     Route::post('atransito/buscar', 'aTransitoController@buscar')->name('atransito.buscar');
     
@@ -1050,6 +1053,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('historiaclinica/tablaCita', 'HistoriaClinicaController@tablaCita');
     Route::post('historiaclinica/tablaAtendidos', 'HistoriaClinicaController@tablaAtendidos');
     Route::post('historiaclinica/ver', 'HistoriaClinicaController@ver');
+
+    Route::post('historiaclinica/anadirComentario', 'HistoriaClinicaController@anadirComentario');
+
     Route::post('historiaclinica/editarCita', 'HistoriaClinicaController@editarCita');
     Route::post('historiaclinica/guardarEditado', 'HistoriaClinicaController@guardarEditado');
     Route::post('historiaclinica/infoPaciente', 'HistoriaClinicaController@infoPaciente');

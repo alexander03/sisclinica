@@ -281,6 +281,10 @@ $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
             <th>SALDO ($)</th>
             <th class="text-right">{{ number_format($totaldolares,2,'.','') }}</th>
         </tr>
+        <tr>
+            <th>CAJA (S/.)</th>
+            <th class="text-right">{{ number_format($efectivo-$visa2-$master2-$totaldolares-($egreso),2,'.','') }}</th>
+        </tr>
         <tr style="display:none;">
             <th>Garantia</th>
             <th class="text-right">{{ number_format($garantia,2,'.','') }}</th>

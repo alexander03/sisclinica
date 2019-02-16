@@ -70,11 +70,11 @@ $url = URL::route($ruta["create"], array('listar'=>'SI'));
 								}
 							?> 
 							@if($user->usertype_id==8 || $user->usertype_id==1)
-							{!! Form::button('<i class="glyphicon glyphicon-cog"></i> Procesar', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnProcesar', 'onclick' => 'procesar(\''.$entidad.'\')')) !!}
-							{!! Form::button('<i class="glyphicon glyphicon-cog"></i> Pendientes', array('class' => 'btn btn-default btn-xs', 'id' => 'btnProcesar', 'onclick' => 'excel(\''.$entidad.'\')')) !!}
+							{!! Form::button('<i class="glyphicon glyphicon-cog"></i> Procesar', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnProcesar', 'onclick' => 'procesar(\''.$entidad.'\')', 'style' => 'display:none')) !!}
+							{!! Form::button('<i class="glyphicon glyphicon-cog"></i> Pendientes', array('class' => 'btn btn-warning btn-xs', 'id' => 'btnProcesar', 'onclick' => 'excel(\''.$entidad.'\')')) !!}
 							@endif
 							@if($user->person_id==1)
-							<button type="button" class="btn btn-info btn-xs" onclick="modal('{{URL::route($ruta["create2"], array('listar'=>'SI'))}}','{{$titulo_registrar}}',this)"><i class="glyphicon glyphicon-plus"></i> NUEVO 2</button>
+							<!--button type="button" class="btn btn-info btn-xs" onclick="modal('{{URL::route($ruta["create2"], array('listar'=>'SI'))}}','{{$titulo_registrar}}',this)"><i class="glyphicon glyphicon-plus"></i> NUEVO 2</button-->
 							@endif
 							{!! Form::close() !!}
 						</div>
@@ -93,55 +93,82 @@ $url = URL::route($ruta["create"], array('listar'=>'SI'));
 </section>
 <!-- /.content -->	
 <script>
-	$(document).ready(function () {
-		buscar('{{ $entidad }}');
-		init(IDFORMBUSQUEDA+'{{ $entidad }}', '', '{{ $entidad }}');
-		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="begindate"]').inputmask("dd/mm/yyyy");
+$(document).ready(function () {
+	buscar('{{ $entidad }}');
+	init(IDFORMBUSQUEDA+'{{ $entidad }}', '', '{{ $entidad }}');
+	$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="begindate"]').inputmask("dd/mm/yyyy");
 
-		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="numero"]').keyup(function (e) {
-			var key = window.event ? e.keyCode : e.which;
-			if (key == '13') {
-				buscar('{{ $entidad }}');
-			}
-		});
-		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="paciente"]').keyup(function (e) {
-			var key = window.event ? e.keyCode : e.which;
-			if (key == '13') {
-				buscar('{{ $entidad }}');
-			}
-		});
-		$('#divfechainicio').datetimepicker({
-			pickTime: false,
-			language: 'es'
-		});
-		$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="enddate"]').inputmask("dd/mm/yyyy");
-		$('#divfechafin').datetimepicker({
-			pickTime: false,
-			language: 'es'
-		});
-		<?php if($user->usertype_id==11){
-		?> 
-			modal ('{{ $url }}', 'Registrar venta');
-		<?php 
-			}
-		?> 
+	$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="numero"]').keyup(function (e) {
+		var key = window.event ? e.keyCode : e.which;
+		if (key == '13') {
+			buscar('{{ $entidad }}');
+		}
 	});
-	function procesar(entidad){
-		var btn = $(IDFORMBUSQUEDA + '{!! $entidad !!} :input[id="btnProcesar"]');
-		btn.button('loading');
-	    $.ajax({
-	        type: "POST",
-	        url: "venta/procesar",
-	        data: "fechainicial="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="fechainicio"]').val()+"&fechafinal="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="fechafin"]').val()+"&tipodocumento="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="tipodocumento"]').val()+"&numero="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="numero"]').val()+"&_token="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="_token"]').val(),
-	        success: function(a) {
-	        	btn.button('reset');
-	        	alert("Procesado correctamente");
-	            buscar(entidad);
-	        }
-	    });
-	}
+	$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="paciente"]').keyup(function (e) {
+		var key = window.event ? e.keyCode : e.which;
+		if (key == '13') {
+			buscar('{{ $entidad }}');
+		}
+	});
+	$('#divfechainicio').datetimepicker({
+		pickTime: false,
+		language: 'es'
+	});
+	$(IDFORMBUSQUEDA + '{{ $entidad }} :input[id="enddate"]').inputmask("dd/mm/yyyy");
+	$('#divfechafin').datetimepicker({
+		pickTime: false,
+		language: 'es'
+	});
+	<?php if($user->usertype_id==11){
+	?> 
+		modal ('{{ $url }}', 'Registrar venta');
+	<?php 
+		}
+	?> 
+});
+function procesar(entidad){
+	var btn = $(IDFORMBUSQUEDA + '{!! $entidad !!} :input[id="btnProcesar"]');
+	btn.button('loading');
+    $.ajax({
+        type: "POST",
+        url: "venta/procesar",
+        data: "fechainicial="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="fechainicio"]').val()+"&fechafinal="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="fechafin"]').val()+"&tipodocumento="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="tipodocumento"]').val()+"&numero="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="numero"]').val()+"&_token="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="_token"]').val(),
+        success: function(a) {
+        	btn.button('reset');
+        	alert("Procesado correctamente");
+            buscar(entidad);
+        }
+    });
+}
 
-	function excel(entidad){
-	    window.open("venta/excel?fechainicial="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="fechainicio"]').val()+"&fechafinal="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="fechafin"]').val()+"&tipodocumento="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="tipodocumento"]').val()+"&numero="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="numero"]').val()+"&_token="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="_token"]').val(),"_blank");
+function excel(entidad){
+    window.open("venta/excel?fechainicial="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="fechainicio"]').val()+"&fechafinal="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="fechafin"]').val()+"&tipodocumento="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="tipodocumento"]').val()+"&numero="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="numero"]').val()+"&_token="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="_token"]').val(),"_blank");
+}
+
+function imprimirVenta(id){
+    $.ajax({
+        type: "POST",
+        url: "venta/imprimirVenta",
+        data: "id="+id+"&_token="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="_token"]').val(),
+        success: function(a) {
+            console.log(a);
+	    }
+    });
+}
+
+function declarar2(idventa,idtipodocumento){
+	if(idtipodocumento==3){
+		var funcion="enviarBoleta";
+	}else{
+		var funcion="enviarFactura";
 	}
+	$.ajax({
+        type: "GET",
+        url: "../clifacturacion/controlador/contComprobante.php?funcion="+funcion,
+        data: "idventa="+idventa+"&_token="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="_token"]').val(),
+        success: function(a) {
+            console.log(a);
+	    }
+    });	
+}
 </script>

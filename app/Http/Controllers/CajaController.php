@@ -1607,8 +1607,18 @@ class CajaController extends Controller
                 $fila[] = 'SALDO ($)';
                 $fila[] = number_format($subtotaldolares,2,'.','');
                 $sheet->row($a, $fila);
+                $fila = array();
+                $a++;
 
-                $sheet->cells('E'.($a-7).':E'.$a, function ($cells) {
+                $fila[] = '';                           
+                $fila[] = '';                           
+                $fila[] = '';                           
+                $fila[] = '';
+                $fila[] = 'CAJA (S/.)';
+                $fila[] = number_format($totalefectivo-$subtotalegresos,2,'.','');
+                $sheet->row($a, $fila);
+
+                $sheet->cells('E'.($a-9).':E'.$a, function ($cells) {
                     $cells->setFont(array(
                         'family'     => 'Calibri',
                         'size'       => '11',
@@ -1616,9 +1626,9 @@ class CajaController extends Controller
                     ));
                 });
 
-                $sheet->setBorder('E'.($a-6).':F'.$a, 'thin');
+                $sheet->setBorder('E'.($a-8).':F'.$a, 'thin');
 
-                $sheet->cells('F'.($a-7).':F'.$a, function ($cells) {
+                $sheet->cells('F'.($a-9).':F'.$a, function ($cells) {
                     $cells->setFont(array(
                         'size'       => '11',
                     ));
@@ -2450,8 +2460,18 @@ class CajaController extends Controller
                 $fila[] = 'SALDO ($)';
                 $fila[] = number_format($subtotaldolares,2,'.','');
                 $sheet->row($a, $fila);
+                $fila = array();
+                $a++;
 
-                $sheet->cells('E'.($a-7).':E'.$a, function ($cells) {
+                $fila[] = '';                           
+                $fila[] = '';                           
+                $fila[] = '';                           
+                $fila[] = '';
+                $fila[] = 'CAJA (S/.)';
+                $fila[] = number_format($totalefectivo-$subtotalegresos,2,'.','');
+                $sheet->row($a, $fila);
+
+                $sheet->cells('E'.($a-9).':E'.$a, function ($cells) {
                     $cells->setFont(array(
                         'family'     => 'Calibri',
                         'size'       => '11',
@@ -2459,9 +2479,9 @@ class CajaController extends Controller
                     ));
                 });
 
-                $sheet->setBorder('E'.($a-7).':F'.$a, 'thin');
+                $sheet->setBorder('E'.($a-8).':F'.$a, 'thin');
 
-                $sheet->cells('F'.($a-7).':F'.$a, function ($cells) {
+                $sheet->cells('F'.($a-9).':F'.$a, function ($cells) {
                     $cells->setFont(array(
                         'size'       => '11',
                     ));
@@ -3316,8 +3336,18 @@ class CajaController extends Controller
                         $fila[] = 'SALDO ($)';
                         $fila[] = number_format($subtotaldolares,2,'.','');
                         $sheet->row($a, $fila);
+                        $fila = array();
+                        $a++;
 
-                        $sheet->cells('E'.($a-7).':E'.$a, function ($cells) {
+                        $fila[] = '';                           
+                        $fila[] = '';                           
+                        $fila[] = '';                           
+                        $fila[] = '';
+                        $fila[] = 'CAJA (S/.)';
+                        $fila[] = number_format($totalefectivo-$subtotalegresos,2,'.','');
+                        $sheet->row($a, $fila);
+
+                        $sheet->cells('E'.($a-9).':E'.$a, function ($cells) {
                             $cells->setFont(array(
                                 'family'     => 'Calibri',
                                 'size'       => '11',
@@ -3325,9 +3355,9 @@ class CajaController extends Controller
                             ));
                         });
 
-                        $sheet->setBorder('E'.($a-7).':F'.$a, 'thin');
+                        $sheet->setBorder('E'.($a-8).':F'.$a, 'thin');
 
-                        $sheet->cells('F'.($a-7).':F'.$a, function ($cells) {
+                        $sheet->cells('F'.($a-9).':F'.$a, function ($cells) {
                             $cells->setFont(array(
                                 'size'       => '11',
                             ));
@@ -3359,7 +3389,7 @@ class CajaController extends Controller
 
         $rst              = Movimiento::where('tipomovimiento_id','=',2)->where('caja_id','=',$caja_id)->where('conceptopago_id','=',1)->orderBy('id','DESC')->limit(1)->first();
         if(count($rst)>0){
-            $movimiento_mayor = $rst->id;    
+            $movimiento_mayor = $rst->id;
         }else{
             $movimiento_mayor = 0;
         }
@@ -3461,7 +3491,7 @@ class CajaController extends Controller
                     foreach ($detalles as $detalle) {
                         if($i == 0) {
                             $pdf::SetFont('helvetica','',6);                   
-                            $pdf::Cell(15,7*count($detalles ),utf8_decode($row['numeroserie2']),1,0,'C');
+                            $pdf::Cell(15,7*count($detalles ),utf8_decode($row['fecha']),1,0,'C');
                             $pdf::Cell(56,7*count($detalles),$row['paciente'],1,0,'L');
                             $pdf::Cell(8,7*count($detalles),$row->tipodocumento->abreviatura,1,0,'C');
                             $pdf::Cell(12,7*count($detalles),utf8_decode($row['serie'] .'-'. $row['numero']),1,0,'C');
@@ -3768,7 +3798,7 @@ class CajaController extends Controller
                 }
                 $pdf::Cell(8,7,$row['formapago'],1,0,'C');
                 $pdf::Cell(12,7,utf8_decode($row['voucher']),1,0,'C');
-                $pdf::Cell(114,7,$row['nombre'].': '.$row['comentario'],1,0,'L');
+                $pdf::Cell(114,7,substr($row['nombre'].': '.$row['comentario'], 0, 95),1,0,'L');
                 if($row['situacion'] == 'N') {
                     $pdf::Cell(14,7,number_format($row['total'],2,'.',''),1,0,'R');
                     $pdf::Cell(42,7,utf8_decode(""),1,0,'C');                    
@@ -3873,10 +3903,13 @@ class CajaController extends Controller
         $pdf::Ln();
         $pdf::Cell(120,7,utf8_decode(""),0,0,'C');
         $pdf::Cell(30,7,utf8_decode("EGRESOS :"),1,0,'L');
+        $egresitos=0;
         if($caja->nombre == 'FARMACIA') {
             $pdf::Cell(20,7,number_format($subtotalegresos + $subtotalegresoscompra,2,'.',''),1,0,'R');
+            $egresitos = $dubtotalegresos + $subtotalegresoscompra;
         }else{
             $pdf::Cell(20,7,number_format($subtotalegresos,2,'.',''),1,0,'R');
+            $egresitos=$subtotalegresos;
         }
         $pdf::Ln();
         $pdf::Cell(120,7,utf8_decode(""),0,0,'C');
@@ -3890,6 +3923,10 @@ class CajaController extends Controller
         $pdf::Cell(120,7,utf8_decode(""),0,0,'C');
         $pdf::Cell(30,7,utf8_decode("SALDO ($) :"),1,0,'L');
         $pdf::Cell(20,7,number_format($subtotaldolares,2,'.',''),1,0,'R');
+        $pdf::Ln();
+        $pdf::Cell(120,7,utf8_decode(""),0,0,'C');
+        $pdf::Cell(30,7,utf8_decode("CAJA (S/.)"),1,0,'L');
+        $pdf::Cell(20,7,number_format($totalefectivo-$egresitos,2,'.',''),1,0,'R');
         $pdf::Ln();
         /*$pdf::Cell(120,7,utf8_decode(""),0,0,'C');
         $pdf::Cell(30,7,utf8_decode("GARANTIA :"),1,0,'L');
@@ -4422,6 +4459,10 @@ class CajaController extends Controller
         $pdf::Cell(120,7,utf8_decode(""),0,0,'C');
         $pdf::Cell(30,7,utf8_decode("SALDO ($) :"),1,0,'L');
         $pdf::Cell(20,7,number_format($subtotaldolares,2,'.',''),1,0,'R');
+        $pdf::Ln();
+        $pdf::Cell(120,7,utf8_decode(""),0,0,'C');
+        $pdf::Cell(30,7,utf8_decode("CAJA (S/.) :"),1,0,'L');
+        $pdf::Cell(20,7,number_format($totalefectivo-$subtotalegresos,2,'.',''),1,0,'R');
         /*$pdf::Cell(120,7,utf8_decode(""),0,0,'C');
         $pdf::Cell(30,7,utf8_decode("GARANTIA :"),1,0,'L');
         $pdf::Cell(20,7,number_format($garantia,2,'.',''),1,0,'R');*/
@@ -4850,7 +4891,7 @@ class CajaController extends Controller
                     $pdf::Cell(56,7,$row['paciente'],1,0,'L');
                     $pdf::Cell(8,7,$row['formapago'],1,0,'C');
                     $pdf::Cell(12,7,utf8_decode($row['voucher']),1,0,'C');
-                    $pdf::Cell(114,7,$row['nombre'].': '.$row['comentario'],1,0,'L');
+                    $pdf::Cell(114,7,substr($row['nombre'].': '.$row['comentario'],0,95),1,0,'L');
                     if($row['situacion'] == 'N') {
                         $pdf::Cell(14,7,number_format($row['total'],2,'.',''),1,0,'R');
                         $pdf::Cell(42,7,utf8_decode(""),1,0,'C');                    
@@ -4956,6 +4997,10 @@ class CajaController extends Controller
             $pdf::Cell(120,7,utf8_decode(""),0,0,'C');
             $pdf::Cell(30,7,utf8_decode("SALDO ($) :"),1,0,'L');
             $pdf::Cell(20,7,number_format($subtotaldolares,2,'.',''),1,0,'R');
+            $pdf::Ln();
+            $pdf::Cell(120,7,utf8_decode(""),0,0,'C');
+            $pdf::Cell(30,7,utf8_decode("CAJA (S/.) :"),1,0,'L');
+            $pdf::Cell(20,7,number_format($totalefectivo-$subtotalegresos,2,'.',''),1,0,'R');
             $pdf::Ln();
             if($cont == $numcajas) {
                 break;
@@ -8817,8 +8862,8 @@ class CajaController extends Controller
         $pdf::AddPage();
         if($lista->conceptopago_id==10){//GARANTIAS
             $pdf::SetFont('helvetica','B',10);
-            $pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 0, 0, 35, 10);
-            $pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 105, 0, 35, 10);
+            //$pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 0, 0, 35, 10);
+            //$pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 105, 0, 35, 10);
             $pdf::Cell(50,10,utf8_decode("Recibo de ".($lista->conceptopago->tipo=="I"?"Ingreso":"Egreso")." Nro. ".$lista->numero),0,0,'C');
             $pdf::Cell(50,7,utf8_decode(""),0,0,'L');
             $pdf::Cell(50,10,utf8_decode("Recibo de ".($lista->conceptopago->tipo=="I"?"Ingreso":"Egreso")." Nro. ".$lista->numero),0,0,'C');
@@ -8892,8 +8937,8 @@ class CajaController extends Controller
             
         }elseif($lista->conceptopago_id==8 || $lista->conceptopago_id==45){//HONORARIOS MEDICOS
             $pdf::SetFont('helvetica','B',10);
-            $pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 0, 0, 35, 10);
-            $pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 105, 0, 35, 10);
+            //$pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 0, 0, 35, 10);
+            //$pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 105, 0, 35, 10);
             $pdf::Cell(50,10,utf8_decode("Recibo Medico Nro. ".$lista->numero),0,0,'C');
             $pdf::Cell(50,7,utf8_decode(""),0,0,'L');
             $pdf::Cell(50,10,utf8_decode("Recibo Medico Nro. ".$lista->numero),0,0,'C');
@@ -8969,7 +9014,7 @@ class CajaController extends Controller
             
         }else{
             $pdf::SetFont('helvetica','B',12);
-            $pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 0, 0, 70, 20);
+            //$pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 0, 0, 70, 20);
             $pdf::Cell(0,10,utf8_decode("Recibo de ".($lista->conceptopago->tipo=="I"?"Ingreso":"Egreso")." Nro. ".$lista->numero),0,0,'C');
             $pdf::Ln();
             $pdf::SetFont('helvetica','B',9);
@@ -9076,7 +9121,7 @@ class CajaController extends Controller
         if (count($lista) > 0 || count($lista2) > 0) {            
             $pdf::AddPage();
             $pdf::SetFont('helvetica','B',12);
-            $pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 0, 0, 70, 14);
+            //$pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 0, 0, 70, 14);
             $pdf::Cell(0,10,utf8_decode("Honorarios Medicos del ".date("d/m/Y",strtotime($rst->fecha))." - ".$caja->nombre),0,0,'C');
             $pdf::Ln();
             $pdf::SetFont('helvetica','B',8);
@@ -9284,7 +9329,7 @@ class CajaController extends Controller
         if (count($lista) > 0 || count($lista2) > 0) {            
             $pdf::AddPage();
             $pdf::SetFont('helvetica','B',12);
-            $pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 0, 0, 70, 14);
+            //$pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 0, 0, 70, 14);
             $pdf::Cell(0,10,utf8_decode("Honorarios Medicos del ".date("d/m/Y",strtotime($rst->fecha))." - ".$caja->nombre),0,0,'C');
             $pdf::Ln();
             $pdf::SetFont('helvetica','B',8);
@@ -9414,7 +9459,7 @@ class CajaController extends Controller
         if (count($lista) > 0 || count($lista2) > 0) {            
             $pdf::AddPage();
             $pdf::SetFont('helvetica','B',12);
-            $pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 0, 0, 70, 14);
+            //$pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 0, 0, 70, 14);
             $pdf::Cell(0,10,utf8_decode("Honorarios Medicos del ".date("d/m/Y",strtotime($rst->fecha))." - ".$caja->nombre),0,0,'C');
             $pdf::Ln();
             $pdf::SetFont('helvetica','B',8);
@@ -9953,7 +9998,7 @@ class CajaController extends Controller
         
         //sucursal_id
         $sucursal_id = Session::get('sucursal_id');
-
+        $dat=array();
         $error = DB::transaction(function() use($request,$user, $sucursal_id,&$dat,&$numeronc){
             $Ticket = Movimiento::find($request->input('id'));
 
@@ -10104,6 +10149,7 @@ class CajaController extends Controller
                     $movimiento->movimiento_id=$venta->id;
                     $movimiento->save();
                     //
+                    $dat[0]=array("respuesta"=>"OK","venta_id"=>$venta->id,"tipodocumento_id"=>$venta->tipodocumento_id,'numero'=>substr($request->input('tipodocumento'),0,1).' '.$venta->serie.'-'.$venta->numero);
                 }
             }
 
@@ -10189,13 +10235,15 @@ class CajaController extends Controller
                     $movimiento->situacion2='Z';
                     $movimiento->numeroserie2 = $primeracuota->id;
                     $movimiento->movimiento_id=$Ticket->id;
-                    $movimiento->save();               
+                    $movimiento->save(); 
+
+                    $dat[0]=array("respuesta"=>"OK","venta_id"=>0,"tipodocumento_id"=>0);              
                 }
             }
         });
 
         ///////////////////////////////
-        return is_null($error) ? "OK" : $error;
+        return is_null($error) ? json_encode($dat) : $error;
     }
 
     //Para cuentas por cobrar

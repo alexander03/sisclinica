@@ -148,17 +148,19 @@
     	<td>{{ $totalvuelto != 0 ? $totalvuelto : '' }}</td>
     	<td>{{ $totalotrosingresos != 0 ? $totalotrosingresos : '' }}</td>
     	<td style="background-color: #FFE7AC">{{ $totalventas + $totalvuelto + $totalotrosingresos }}</td>
-    	<?php $i = 0; $totalegresos = 0; ?>
+    	<?php $totalegresos = 0; ?>
     	@foreach($egresos as $egreso)
+            <?php $esta = false; ?>
     		@if(count($listaegresos) > 0)
-			<?php for ($a = $i; $a < count($listaegresos); $a++) { ?>
-				@if($egreso->id == $listaegresos[$a]->id)
-					<td>{{ $listaegresos[$a]->tot != 0 ? $listaegresos[$a]->tot : '' }}</td>						
-					<?php $i++; $totalegresos += $listaegresos[$a]->tot; break; ?>	
-				@else
-					<td></td>
-				@endif
-			<?php } ?>	
+    			<?php for ($a = 0; $a < count($listaegresos); $a++) { ?>
+    				@if($egreso->id == $listaegresos[$a]->id)
+    					<td>{{ $listaegresos[$a]->tot != 0 ? $listaegresos[$a]->tot : '' }}</td>
+    					<?php $totalegresos += $listaegresos[$a]->tot; $esta = true; break; ?>
+    				@endif
+    			<?php } ?>	
+                @if($esta == false)
+                    <td></td>
+                @endif
 			@else 
 				<td></td>
 			@endif	
