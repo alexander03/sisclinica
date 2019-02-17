@@ -583,7 +583,7 @@ $user = Auth::user();
 								<div class="form-group col-sm-4">
 									<label for="fondoeditar" class="col-sm-9 control-label">Fondo de ojos:</label>
 									<div class="col-sm-3">
-										<input style="margin-top: 11px;" type="checkbox" id="fondoeditar"><br>
+										<input disabled style="margin-top: 11px;" type="checkbox" id="fondoeditar"><br>
 									</div>
 								</div>		
 								<div class="form-group col-sm-5">
@@ -796,7 +796,7 @@ $user = Auth::user();
 				}
 			});
 			if(!existe){
-				fila =  '<tr align="center" id="'+ datum.id +'" ><td style="vertical-align: middle; text-align: left;">'+ datum.value +'</td><td style="vertical-align: middle;"><a onclick="eliminarDetalleCie(this)" class="btn btn-xs btn-danger btnEliminar" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</a></td></tr>';
+				fila =  '<tr align="center" id="'+ datum.id +'" ><td style="vertical-align: middle; text-align: left;">'+ datum.value +'</td><td style="vertical-align: middle;"><a onclick="eliminarDetalleCie(this,1)" class="btn btn-xs btn-danger btnEliminar" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</a></td></tr>';
 				$("#detallecie").append(fila);
 				cantcie++;
 				$("#cantcie").val(cantcie);
@@ -837,7 +837,7 @@ $user = Auth::user();
 				}
 			});
 			if(!existe){
-				fila =  '<tr align="center" id="'+ datum.id +'" ><td style="vertical-align: middle; text-align: left;">'+ datum.value +'</td><td style="vertical-align: middle;"><a onclick="eliminarDetalleCie(this)" class="btn btn-xs btn-danger btnEliminar" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</a></td></tr>';
+				fila =  '<tr align="center" id="'+ datum.id +'" ><td style="vertical-align: middle; text-align: left;">'+ datum.value +'</td><td style="vertical-align: middle;"><a onclick="eliminarDetalleCie(this,2)" class="btn btn-xs btn-danger btnEliminar" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</a></td></tr>';
 				$("#detallecieeditar").append(fila);
 				cantcie++;
 				$("#cantcieeditar").val(cantcie);
@@ -929,11 +929,17 @@ $user = Auth::user();
 		(($(comp).parent()).parent()).remove();
 	}
 
-	function eliminarDetalleCie(comp){
+	function eliminarDetalleCie(comp,tipo){
 		(($(comp).parent()).parent()).remove();
-		var cantcie = $("#cantcie").val();
-		cantcie--;
-		$("#cantcie").val(cantcie);
+		if(tipo == 1){
+			var cantcie = $("#cantcie").val();
+			cantcie--;
+			$("#cantcie").val(cantcie);
+		}else{
+			var cantcie = $("#cantcieeditar").val();
+			cantcie--;
+			$("#cantcieeditar").val(cantcie);
+		}
 	}
 
 	function buscar2(){
@@ -1402,6 +1408,7 @@ $user = Auth::user();
 					$("#fondo").prop('disabled', true);
 					$('#fondo').prop('checked', false);
 					tablaAtendidos();
+					$('#cantcie').val(0);
 	        	}else{
 	        		alert('OCURRIÓ UN ERROR AL GUARDAR, VUELVA A INTENTAR...');
 	        		//console.log(a);
@@ -1462,7 +1469,7 @@ $user = Auth::user();
 					var fila =  '<tr align="center" id="'+ value.cie_id +'" ><td style="vertical-align: middle; text-align: left;">'+ value.descripcion +'</td><td style="vertical-align: middle;"><a onclick="eliminarDetalleCie(this)" class="btn btn-xs btn-danger btnEliminar" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</a></td></tr>';
 					$("#detallecieeditar").append(fila);
 				});
-				$('#cantcie').val(a.cantcies);
+				$('#cantcieeditar').val(a.cantcies);
 				if(a.fondo == "SI"){
 					$('#fondoeditar').prop('checked', true);
 				}else{
@@ -1483,6 +1490,13 @@ $user = Auth::user();
 
 
 	$(document).on('click', '#btnGuardarEditar', function(event) {	
+
+		
+		if($('#cantcieeditar').val() == 0) {
+    		$('#cie102editar').focus();
+    		alert('Debes ingresar mínimo un CIE 10.');
+    		return 0;
+    	}
 
 		var cita_id = $("#atencion_id").val();
 		var tratamiento = $('#tratamientoeditar').val().replace(/\r?\n/g, "<BR>");
@@ -1523,12 +1537,12 @@ $user = Auth::user();
 		var jsoncie = JSON.stringify(detallecie);
 		//fin detalle
 
-
+/*
 		var fondo = "NO";
 		if( $('#fondoeditar').prop('checked') ){
 			fondo = "SI";
 		}
-
+*/
 
 		$.ajax({
 			"method": "POST",
@@ -1542,7 +1556,7 @@ $user = Auth::user();
 				"cies" : jsoncie,
 				"citaproxima" : citaproxima,
 				"motivo" : motivo,
-				"fondo" : fondo,
+		//		"fondo" : fondo,
 				"exploracion_fisica" : exploracion_fisica,
 				"_token": "{{ csrf_token() }}",
 				}

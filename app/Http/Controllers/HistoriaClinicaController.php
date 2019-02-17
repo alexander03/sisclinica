@@ -281,10 +281,18 @@ class HistoriaClinicaController extends Controller
             $historiaclinica->motivo         = strtoupper($request->input('motivo'));
             
             if($request->input('citaproxima') != null){
-                $historia = Historia::find($request->input('historia_id'));
+                    $historia = Historia::find($request->input('historia_id'));
 
-                $cita_id = Cita::where('historia_id',$historia->id)->where('paciente_id', $historia->persona->id)->max('id');
-                $historiaclinica->citaproxima     = $cita_id;
+                    $cita_id = Cita::where('historia_id',$historia->id)->where('paciente_id', $historia->persona->id)->max('id');
+                    $historiaclinica->citaproxima     = $cita_id;
+            }else{
+
+                if($historiaclinica->citaproxima != null){
+                    $citaant = Cita::find($historiaclinica->citaproxima);
+                    $citaant->delete();
+                    $historiaclinica->citaproxima     =  null ;
+                }
+
             }
 
             $historiaclinica->exploracion_fisica   = strtoupper($request->input('exploracion_fisica'));
@@ -347,7 +355,7 @@ class HistoriaClinicaController extends Controller
             });
             
         }
-/*
+
         $examenes = json_decode($request->input('examenes'));
 
         foreach ($examenes->{"data"} as $examen) {
@@ -360,7 +368,7 @@ class HistoriaClinicaController extends Controller
                 $examenhistoriaclinica->save();
 
             });
-        }*/
+        }
 
         return is_null($error) ? "OK" : $error;
     }
@@ -822,7 +830,7 @@ class HistoriaClinicaController extends Controller
 
             $historiaclinica   = HistoriaClinica::find($request->input('cita_id'));
 
-            if( $historiaclinica->citaproxima != null){
+            if( $historiaclinica->citaproxima != null){ // edito fecha si es que existe
 
                 $error = DB::transaction(function() use($request, $historiaclinica){
                     $cita  = Cita::find($historiaclinica->citaproxima);
@@ -830,7 +838,7 @@ class HistoriaClinicaController extends Controller
                     $cita->save();
                 });
                 
-            }else{
+            }else{ //creo cita 
                             
                 $error = DB::transaction(function() use($request, $historiaclinica){
                         
@@ -882,9 +890,17 @@ class HistoriaClinicaController extends Controller
             $user = Auth::user();
             $historiaclinica->user_id   = $user->id;
 
-            if( $historiaclinica->citaproxima == null){
-                $cita_id = Cita::max('id');
-                $historiaclinica->citaproxima     = $cita_id;
+            if($request->input('citaproxima') != null){
+                    $cita_id = Cita::where('historia_id',$historiaclinica->historia_id)->where('paciente_id', $historiaclinica->historia->persona->id)->max('id');
+                    $historiaclinica->citaproxima     = $cita_id;
+            }else{
+
+                if($historiaclinica->citaproxima != null){
+                    $citaant = Cita::find($historiaclinica->citaproxima);
+                    $citaant->delete();
+                    $historiaclinica->citaproxima     =  null ;
+                }
+
             }
 
             $historiaclinica->save();
@@ -896,7 +912,7 @@ class HistoriaClinicaController extends Controller
             $Ticket   = Movimiento::find($historiaclinica->ticket_id);
 
             $now = new \DateTime();
-
+/*
             if( $request->input('fondo') == "SI"){
                 if($Ticket->situacion2 != 'F'){
                     $Ticket->tiempo_fondo  = $now;
@@ -905,7 +921,7 @@ class HistoriaClinicaController extends Controller
             }else{
                 $Ticket->tiempo_fondo  = null;
                 $Ticket->situacion2 = 'L'; // Cola por fondo
-            }
+            }*/
 
             $Ticket->save();
 
@@ -945,7 +961,7 @@ class HistoriaClinicaController extends Controller
         }
 
         $examenes = json_decode($request->input('examenes'));
-/*
+
         foreach ($examenes->{"data"} as $examen) {
             $error = DB::transaction(function() use($request, $historiaclinica, $examen){
 
@@ -956,7 +972,7 @@ class HistoriaClinicaController extends Controller
                 $examenhistoriaclinica->save();
 
             });
-        }*/
+        }
 
 
         return is_null($error) ? "OK" : $error;
