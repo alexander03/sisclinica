@@ -278,11 +278,11 @@ class HistoriaClinicaController extends Controller
             }
             $historiaclinica->numero         = (int) $request->input('numero');
             $historiaclinica->historia_id    = $request->input('historia_id');
-            $historiaclinica->tratamiento    = ($request->input('tratamiento'));
+            $historiaclinica->tratamiento    = strtoupper(($request->input('tratamiento')));
             $historiaclinica->sintomas       = strtoupper($request->input('sintomas'));
             $historiaclinica->diagnostico    = strtoupper($request->input('diagnostico'));
             //$historiaclinica->examenes             = strtoupper($request->input('examenes'));
-            $historiaclinica->motivo               = strtoupper($request->input('motivo'));
+            $historiaclinica->motivo         = strtoupper($request->input('motivo'));
             
             if($request->input('citaproxima') != null){
                 $historia = Historia::find($request->input('historia_id'));
@@ -291,7 +291,7 @@ class HistoriaClinicaController extends Controller
                 $historiaclinica->citaproxima     = $cita_id;
             }
 
-            $historiaclinica->exploracion_fisica   = ($request->input('exploracion_fisica'));
+            $historiaclinica->exploracion_fisica   = strtoupper($request->input('exploracion_fisica'));
             $historiaclinica->ticket_id =  $request->input('ticket_id');
             $historiaclinica->doctor_id =  $request->input('doctor_id');
             $user = Auth::user();
@@ -322,7 +322,7 @@ class HistoriaClinicaController extends Controller
 
         $historiaclinica = HistoriaClinica::where('ticket_id', $request->input('ticket_id') )->first();
 
-         $ciesborrar = Detallehistoriacie::where('historiaclinica_id', $historiaclinica->id )->get();
+        $ciesborrar = Detallehistoriacie::where('historiaclinica_id', $historiaclinica->id )->get();
         foreach ($ciesborrar as $value) {
             $error = DB::transaction(function() use($request, $value){
                 $value->delete();
@@ -365,7 +365,6 @@ class HistoriaClinicaController extends Controller
 
             });
         }*/
-
 
         return is_null($error) ? "OK" : $error;
     }
@@ -780,12 +779,12 @@ class HistoriaClinicaController extends Controller
                 'numhistoria' => $historia->numero,
                 'antecedentes' => $historia->antecedentes,
                 'numero' => $historiaclinica->numero,
-                'motivo' => str_replace('<BR>', ',', $historiaclinica->motivo),
+                'motivo' => $historiaclinica->motivo,
                 //'cie10' => (is_null($cie10)?'':$cie10->codigo),
-                'sintomas' => str_replace('<BR>', ',', $historiaclinica->sintomas),
-                'tratamiento' => str_replace('<BR>', ',', $historiaclinica->tratamiento),
-                'diagnostico' => str_replace('<BR>', ',', $historiaclinica->diagnostico),
-                'exploracion_fisica' => str_replace('<BR>', ',', $historiaclinica->exploracion_fisica),
+                'sintomas' => $historiaclinica->sintomas,
+                'tratamiento' => $historiaclinica->tratamiento,
+                'diagnostico' => $historiaclinica->diagnostico,
+                'exploracion_fisica' => $historiaclinica->exploracion_fisica,
                 'examenes' => $examenes,
                 'cies' => $cies,
                 'cantcies' => count($cies),
@@ -802,12 +801,12 @@ class HistoriaClinicaController extends Controller
                 'numhistoria' => $historia->numero,
                 'antecedentes' => $historia->antecedentes,
                 'numero' => $historiaclinica->numero,
-                'motivo' => str_replace('<BR>', ',', $historiaclinica->motivo),
+                'motivo' => $historiaclinica->motivo,
                 //'cie10' => (is_null($cie10)?'':$cie10->codigo),
-                'sintomas' => str_replace('<BR>', ',', $historiaclinica->sintomas),
-                'tratamiento' => str_replace('<BR>', ',', $historiaclinica->tratamiento),
-                'diagnostico' => str_replace('<BR>', ',', $historiaclinica->diagnostico),
-                'exploracion_fisica' => str_replace('<BR>', ',', $historiaclinica->exploracion_fisica),
+                'sintomas' => $historiaclinica->sintomas,
+                'tratamiento' => $historiaclinica->tratamiento,
+                'diagnostico' => $historiaclinica->diagnostico,
+                'exploracion_fisica' => $historiaclinica->exploracion_fisica,
                 'examenes' => $examenes,
                 'cies' => $cies,
                 'cantcies' => count($cies),

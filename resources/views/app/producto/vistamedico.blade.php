@@ -1485,23 +1485,13 @@ $user = Auth::user();
 	$(document).on('click', '#btnGuardarEditar', function(event) {	
 
 		var cita_id = $("#atencion_id").val();
-		var tratamiento = $('#tratamientoeditar').val().replace(/\r?\n/g, "<br>");
-    	var antecedentes = $('#antecedenteseditar').val().replace(/\r?\n/g, "<br>");
-    	var diagnostico = $('#diagnosticoeditar').val().replace(/\r?\n/g, "<br>");
-		//var examenes = $('#exameneseditar').val().replace(/\r?\n/g, "<br>");
-    	var motivo = $('#motivoeditar').val().replace(/\r?\n/g, "<br>");
-    	var exploracion_fisica = $('#exploracion_fisicaeditar').val().replace(/\r?\n/g, "<br>");
+		var tratamiento = $('#tratamientoeditar').val().replace(/\r?\n/g, "<BR>");
+    	var antecedentes = $('#antecedenteseditar').val().replace(/\r?\n/g, "<BR>");
+    	var diagnostico = $('#diagnosticoeditar').val().replace(/\r?\n/g, "<BR>");
+		//var examenes = $('#exameneseditar').val().replace(/\r?\n/g, "<BR>");
+    	var motivo = $('#motivoeditar').val().replace(/\r?\n/g, "<BR>");
+    	var exploracion_fisica = $('#exploracion_fisicaeditar').val().replace(/\r?\n/g, "<BR>");
 		var citaproxima = $('#citaproximaeditar').val();
-
-		//editar datos
-
-		tratamiento = tratamiento.replace(',', "<br>");
-    	antecedentes = antecedentes.replace(',', "<br>");
-    	diagnostico = diagnostico.replace(',', "<br>");
-		//var examenes = $('#exameneseditar').val().replace(',', "<br>");
-    	motivo = motivo.replace(',', "<br>");
-    	exploracion_fisica = exploracion_fisica.replace(',', "<br>");
-
 		
 		//detalle
 		var data = [];
