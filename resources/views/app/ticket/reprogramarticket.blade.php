@@ -57,36 +57,70 @@ if(!is_null($ticket)){
         		<div class="col-lg-3 col-md-3 col-sm-3">
         			{!! Form::date('fecha', $fecha, array('class' => 'form-control input-xs', 'id' => 'fecha', 'readonly' => 'true')) !!}
         		</div>
+                <div class="col-lg-1 col-md-1 col-sm-1"></div>
+                <label for="turno" class="col-lg-1 col-md-1 col-sm-1 control-label">Turno:</label>
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    <select disabled class="form-control input-xs" name="turno" id="turno">
+                        @if($ticket != null)
+                            @if($ticket->turno == "M")
+                                <option selected id="manana" value="M">MAÑANA</option>
+                            @else
+                                <option id="manana" value="M">MAÑANA</option>
+                            @endif
+                            @if($ticket->turno == "T")
+                                <option selected id="tarde" value="T">TARDE</option>
+                            @else
+                                <option id="tarde" value="T">TARDE</option>
+                            @endif
+                        @endif
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="clasificacionconsulta" class="col-lg-2 col-md-2 col-sm-2 control-label">Tipo:</label>
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    <select disabled class="form-control input-xs" name="clasificacionconsulta" id="clasificacionconsulta" onchange="lectRes();">
+                        @if($ticket != null)
+                            @if($ticket->clasificacionconsulta == 'C')
+                            <option selected value="C">CONSULTA</option>
+                            @else
+                            <option value="C">CONSULTA</option>
+                            @endif
+                            @if($ticket->clasificacionconsulta == 'E')
+                            <option selected value="E">EMERGENCIA</option>
+                            @else
+                            <option value="E">EMERGENCIA</option>
+                            @endif
+                            @if($ticket->clasificacionconsulta == 'L')
+                            <option selected value="L">LECT. RESULTADOS</option>
+                            @else
+                            <option value="L">LECT. RESULTADOS</option>
+                            @endif
+                            @if($ticket->clasificacionconsulta == 'P')
+                            <option selected value="P">PROCEDIMIENTO</option>
+                            @else
+                            <option value="P">PROCEDIMIENTO</option>
+                            @endif
+                            @if($ticket->clasificacionconsulta == 'X')
+                            <option selected value="X">EXAMENES</option>
+                            @else
+                            <option value="X">EXAMENES</option>
+                            @endif
+                        @endif
+                    </select>
+                </div>
+                <div class="col-lg-1 col-md-1 col-sm-1"></div>
                 {!! Form::label('numero', 'Nro:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
         		<div class="col-lg-2 col-md-2 col-sm-2">
         			{!! Form::text('numero', $numero, array('class' => 'form-control input-xs', 'id' => 'numero', 'readonly' => 'true')) !!}
         		</div>
-                {!! Form::label('manual', 'Manual:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label',  'style' => 'display:none;')) !!}
-                <label for="clasificacionconsulta" class="col-lg-1 col-md-1 col-sm-1 control-label">Tipo</label>
-                <div class="col-lg-3 col-md-3 col-sm-3">
-                    <select disabled class="form-control input-xs" name="clasificacionconsulta" id="clasificacionconsulta" onchange="lectRes();">
-                        @if($ticket->clasificacionconsulta == 'C')
-                        <option selected value="C">CONSULTA</option>
-                        @else
-                        <option value="C">CONSULTA</option>
-                        @endif
-                        @if($ticket->clasificacionconsulta == 'E')
-                        <option selected value="E">EMERGENCIA</option>
-                        @else
-                        <option value="E">EMERGENCIA</option>
-                        @endif
-                        @if($ticket->clasificacionconsulta == 'L')
-                        <option selected value="L">LECT. RESULTADOS</option>
-                        @else
-                        <option value="L">LECT. RESULTADOS</option>
-                        @endif
-                    </select>
-                </div>
                 <div class="col-lg-1 col-md-1 col-sm-1" style="display:none;">
+                    {!! Form::label('manual', 'Manual:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label',  'style' => 'display:none;')) !!}
                     {!! Form::hidden('manual', 'N', array('id' => 'manual')) !!}
                     <input type="checkbox" onclick="Manual(this.checked)" />
                 </div>
         	</div>
+
             <div class="form-group">
         		{!! Form::label('paciente', 'Paciente:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
         		<div class="col-lg-7 col-md-7 col-sm-7">
@@ -271,10 +305,10 @@ if(!is_null($ticket)){
             <div class="form-group fecha_reprogramar">
                 {!! Form::label('fecha_reprogramar', 'Fecha de reprogramación:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
         		<div class="col-lg-3 col-md-3 col-sm-3">
-        			{!! Form::date('fecha_reprogramar', '', array('class' => 'form-control input-xs', 'id' => 'fecha_reprogramar')) !!}
+        			{!! Form::date('fecha_reprogramar', '', array('class' => 'form-control input-xs', 'id' => 'fecha_reprogramar' , 'style' => 'margin-top:7px;')) !!}
         		</div>
             </div>
-            <div class="col-lg-6 col-md-6 col-sm-6 text-right">
+            <div class="col-lg-6 col-md-6 col-sm-6 text-right" style="margin-top: 10px;">
                 {!! Form::button('<i class="glyphicon glyphicon-calendar"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnReprogramar', 'onclick' => 'reprogramar();')) !!}
                 {!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
             </div>

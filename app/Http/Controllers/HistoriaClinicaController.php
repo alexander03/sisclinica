@@ -55,11 +55,7 @@ class HistoriaClinicaController extends Controller
         $detallemovcaja = Detallemovcaja::where('movimiento_id', $ticket_id)->first();
 
 
-        if($detallemovcaja == null){
-            $doctor = Person::find(4);
-        }else{
-            $doctor = Person::find($detallemovcaja->persona_id);
-        }
+        $doctor = Person::find($detallemovcaja->persona_id);
 
         $fondo = "NO";
         if($Ticket->tiempo_fondo != null){

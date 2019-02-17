@@ -5,7 +5,7 @@
 				{!! Form::open(['method' => 'GET' ,'onsubmit' => 'return false;', 'class' => 'form-inline', 'role' => 'form', 'autocomplete' => 'off']) !!}
 					<div class="form-group">
 						{!! Form::label('fecha', 'Fecha:') !!}
-						{!! Form::date('fecha', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fechareprogramar', 'onchange' => 'listaticketsreprogramados();')) !!}
+						{!! Form::date('fecha', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fechareprogramar','readOnly', 'onchange' => 'listaticketsreprogramados();')) !!}
 					</div>
 					<div class="form-group">
 						{!! Form::label('numero', 'Nro:') !!}

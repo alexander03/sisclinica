@@ -2101,6 +2101,7 @@ class TicketController extends Controller
             $ticket_anterior = Movimiento::find($id);
             $Ticket       = new Movimiento();
             $Ticket->fecha = date("Y-m-d");
+            $Ticket->turno = $request->input('turno');
             $Ticket->tiempo_cola =  date('Y-m-d H:i:s');
             $user = Auth::user();
             $Ticket->responsable_id = $user->person_id;
@@ -2121,30 +2122,24 @@ class TicketController extends Controller
             $Ticket->soat = $ticket_anterior->soat;
             $Ticket->sctr = $ticket_anterior->sctr;
             $Ticket->clasificacionconsulta = $ticket_anterior->clasificacionconsulta;
+            $Ticket->ticket_reprogramacion_id = $ticket_anterior->id;
             $Ticket->save();
 
-            $ticket_anterior->ticket_reprogramacion_id = $Ticket->id;
+            //$ticket_anterior->ticket_reprogramacion_id = $Ticket->id;
             $ticket_anterior->situacion2 = "R";
             $ticket_anterior->save();
 
-            $arr2 = array();
+            //Registro de detalles del movimiento
+
             $arr=explode(",",$request->input('listServicio'));
-            Detallemovcaja::where('movimiento_id','=',$id)->whereNotIn('situacionentrega',['A'])->delete();
-            foreach ($arr as $ids) {
-                if(strlen($ids)>0){
-                    $arr2[] = $ids;
-                }
-            }
-            $arr = $arr2;
-            //dd($arr);
+            
             for($c=0;$c<count($arr);$c++){
                 $Detalle = new Detallemovcaja();
                 $Detalle->movimiento_id=$Ticket->id;
-                //dd($Ticket);
                 if($request->input('txtIdTipoServicio'.$arr[$c])!="0"){
                     $Detalle->servicio_id=$request->input('txtIdServicio'.$arr[$c]);
                     $Detalle->descripcion="";
-                    $servicio = Servicio::find($request->input('txtIdServicio'.$arr[$c]));
+                    $servicio = Servicio::find($Detalle->servicio_id);
                     $Detalle->precioconvenio=$servicio->precio;
                     $Detalle->tiposervicio_id=$request->input('cboTipoServicio'.$arr[$c]);
                 }else{
@@ -2161,6 +2156,7 @@ class TicketController extends Controller
                 $Detalle->descuento=$request->input('txtDescuento'.$arr[$c]);
                 $Detalle->save();
             }
+
         });
         $dat[0]=array("respuesta"=>"OK","ticket_id"=>$id,"pagohospital"=>0,"notacredito_id"=>0);
         return is_null($error) ? json_encode($dat) : $error;
