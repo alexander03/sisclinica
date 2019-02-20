@@ -10516,7 +10516,7 @@ class CajaController extends Controller
             $movimiento->comentario=$comentario;
             $movimiento->caja_id=$request->input('caja_id');
             $movimiento->situacion='N';
-            $movimiento->situacion2='Z'; //pARA IDENTIFICAR UNA CUOTA
+            $movimiento->situacion2='Z'; //PARA IDENTIFICAR UNA CUOTA
             $movimiento->numeroserie2=$cuota->id;
             $movimiento->movimiento_id=$Ticket->id;
             $movimiento->save();
@@ -10528,15 +10528,17 @@ class CajaController extends Controller
 
     public function anularmovimiento($id) {
         $Movcaja = Movimiento::find($id);
-        $Tras = Movimiento::find($Movcaja->movimiento_id);
-        $Ticket = Movimiento::find($Tras->movimiento_id);
-        $Ticket->situacion = 'P';
-        $Ticket->save();
+        if($Movcaja !== NULL && $Movcaja->situacion2 != 'Z') {
+            $Tras = Movimiento::find($Movcaja->movimiento_id);
+            $Ticket = Movimiento::find($Tras->movimiento_id);
+            $Ticket->situacion = 'P';
+            $Ticket->save();
+        }            
 
         $obj1 = Movimiento::find($id);
 
         //SOLO PARA CUOTAS
-        if($obj1->situacion2 == 'Z') {
+        if($obj1 !== NULL && $obj1->situacion2 == 'Z') {
             $cuota = Movimiento::find($obj1->numeroserie2);
             $cuota->situacion = 'A';
             $cuota->save();
@@ -10546,9 +10548,19 @@ class CajaController extends Controller
             $rescuotas->totalpagado -= $obj1->totalpagado;
             $rescuotas->totalpagadovisa -= $obj1->totalpagadovisa;
             $rescuotas->totalpagadomaster -= $obj1->totalpagadomaster;
-            $rescuotas->save(); 
+            $rescuotas->save();
+
+            // COMPRUEBO SI GENERÓ UN COMPROBANTE DE PAGO
+
+            $tk = Movimiento::where('ventafarmacia', 'N')->where('movimiento_id', $rescuotas->movimiento_id)->first();
+
+            if($tk !== NULL) {
+                $tk->situacion='U';
+                $tk->save();
+            } 
         }
 
+        //COMPROBANTE DE PAGO
         $obj = Movimiento::find($obj1->movimiento_id);
 
         ////////////////////////////
@@ -10614,8 +10626,13 @@ class CajaController extends Controller
             }
         }
 
+        if($obj !== NULL && $obj->ventafarmacia == 'N') {
+            $obj->situacion='U';
+            $obj->save();
+        }
+
         ////////////////////////////
-        echo $Ticket->id . $obj->ventafarmacia;
+        echo 'OK';
     }
 
     public function pdfReciboCuota(Request $request){
@@ -11264,6 +11281,12 @@ class CajaController extends Controller
         $pdf::Cell(20,7,number_format($garantia,2,'.',''),1,0,'R');*/
         $pdf::Ln();
         $pdf::Output('ListaCaja.pdf');
+    }
+
+    public function cambiartipocons($tipo, $id) {
+        $tk = Movimiento::find($id);
+        $tk->clasificacionconsulta = $tipo;
+        $tk->save();
     }
 
 }

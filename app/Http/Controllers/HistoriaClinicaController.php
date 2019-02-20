@@ -54,7 +54,6 @@ class HistoriaClinicaController extends Controller
         $Ticket   = Movimiento::find($ticket_id);
         $detallemovcaja = Detallemovcaja::where('movimiento_id', $ticket_id)->first();
 
-
         $doctor = Person::find($detallemovcaja->persona_id);
 
         $fondo = "NO";
@@ -278,24 +277,21 @@ class HistoriaClinicaController extends Controller
             $historiaclinica->sintomas       = strtoupper($request->input('sintomas'));
             $historiaclinica->diagnostico    = strtoupper($request->input('diagnostico'));
             //$historiaclinica->examenes             = strtoupper($request->input('examenes'));
-            $historiaclinica->motivo         = strtoupper($request->input('motivo'));
+            $historiaclinica->motivo               = strtoupper($request->input('motivo'));
             
             if($request->input('citaproxima') != null){
-                    $historia = Historia::find($request->input('historia_id'));
-
+                   $historia = Historia::find($request->input('historia_id'));
                     $cita_id = Cita::where('historia_id',$historia->id)->where('paciente_id', $historia->persona->id)->max('id');
                     $historiaclinica->citaproxima     = $cita_id;
             }else{
-
                 if($historiaclinica->citaproxima != null){
                     $citaant = Cita::find($historiaclinica->citaproxima);
                     $citaant->delete();
                     $historiaclinica->citaproxima     =  null ;
                 }
-
             }
 
-            $historiaclinica->exploracion_fisica   = strtoupper($request->input('exploracion_fisica'));
+            $historiaclinica->exploracion_fisica   = strtoupper(($request->input('exploracion_fisica')));
             $historiaclinica->ticket_id =  $request->input('ticket_id');
             $historiaclinica->doctor_id =  $request->input('doctor_id');
             $user = Auth::user();
@@ -326,7 +322,7 @@ class HistoriaClinicaController extends Controller
 
         $historiaclinica = HistoriaClinica::where('ticket_id', $request->input('ticket_id') )->first();
 
-        $ciesborrar = Detallehistoriacie::where('historiaclinica_id', $historiaclinica->id )->get();
+         $ciesborrar = Detallehistoriacie::where('historiaclinica_id', $historiaclinica->id )->get();
         foreach ($ciesborrar as $value) {
             $error = DB::transaction(function() use($request, $value){
                 $value->delete();
@@ -369,6 +365,7 @@ class HistoriaClinicaController extends Controller
 
             });
         }
+
 
         return is_null($error) ? "OK" : $error;
     }
@@ -830,7 +827,7 @@ class HistoriaClinicaController extends Controller
 
             $historiaclinica   = HistoriaClinica::find($request->input('cita_id'));
 
-            if( $historiaclinica->citaproxima != null){ // edito fecha si es que existe
+            if( $historiaclinica->citaproxima != null){
 
                 $error = DB::transaction(function() use($request, $historiaclinica){
                     $cita  = Cita::find($historiaclinica->citaproxima);
@@ -838,7 +835,7 @@ class HistoriaClinicaController extends Controller
                     $cita->save();
                 });
                 
-            }else{ //creo cita 
+            }else{
                             
                 $error = DB::transaction(function() use($request, $historiaclinica){
                         
@@ -894,13 +891,11 @@ class HistoriaClinicaController extends Controller
                     $cita_id = Cita::where('historia_id',$historiaclinica->historia_id)->where('paciente_id', $historiaclinica->historia->persona->id)->max('id');
                     $historiaclinica->citaproxima     = $cita_id;
             }else{
-
                 if($historiaclinica->citaproxima != null){
                     $citaant = Cita::find($historiaclinica->citaproxima);
                     $citaant->delete();
                     $historiaclinica->citaproxima     =  null ;
                 }
-
             }
 
             $historiaclinica->save();
@@ -921,8 +916,8 @@ class HistoriaClinicaController extends Controller
             }else{
                 $Ticket->tiempo_fondo  = null;
                 $Ticket->situacion2 = 'L'; // Cola por fondo
-            }*/
-
+            }
+*/
             $Ticket->save();
 
         });

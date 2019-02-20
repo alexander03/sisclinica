@@ -59,6 +59,16 @@
 		    {!! Form::label('numero', 'Nro. Doc.', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
 		    {!! Form::label('numero', $movimiento->numero, array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm', 'style' => 'font-weight:normal;text-align:left;text-align:left')) !!}		    	
 			{!! Form::label('clasificacionconsulta', 'Tipo:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
+
+
+			<select class="col-lg-2 col-md-2 col-sm-2 control-label input-xs" style="font-weight:normal;text-align:left" name="cclasconsulta" id="cclasconsulta">
+                <option value="C">CONSULTA</option>
+                <option value="E">EMERGENCIA</option>
+                <option value="L">LECT. RESULTADOS</option>
+                <option value="P">PROCEDIMIENTO</option>
+                <option value="X">EXAMENES</option>
+            </select>
+			<!--
 			@if($movimiento->clasificacionconsulta == 'C')
 				{!! Form::label('clasificacionconsulta', 'CONSULTA', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
 			@elseif($movimiento->clasificacionconsulta == 'E')
@@ -70,6 +80,8 @@
 			@else
 				{!! Form::label('clasificacionconsulta', 'PROCEDIMIENTO', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
 			@endif
+			-->
+			
 			{!! Form::label('plan', 'Plan', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
 			{!! Form::label('plan', $movimiento->plan->nombre, array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label input-sm', 'style' => 'font-weight:normal;text-align:left')) !!}
 		</div>
@@ -199,8 +211,19 @@
 		}
 	});
 
+	$(document).on('change', '#cclasconsulta', function(e) {
+		e.preventDefault();
+		$.ajax({
+			url: "caja/cambiartipocons/" + $('#cclasconsulta').val() + "/{{ $movimiento->id }}",
+			type: "GET",
+		}).fail(function() {
+			alert('ERROR AL CAMBIAR TIPO.');
+		});
+	});
+
 	$(document).ready(function() {
 		configurarAnchoModal('1200');
+		$('#cclasconsulta').val('{{ $movimiento->clasificacionconsulta }}');
 		init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'B', '{!! $entidad !!}');
 		inicializarPrecios();
 		cargarEfectivo();

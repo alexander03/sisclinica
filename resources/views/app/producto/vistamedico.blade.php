@@ -1253,13 +1253,13 @@ $user = Auth::user();
     		$('#mensajeHistoriaClinica').html('Debes ingresar exámenes.');
     		return 0;
     	}*/
-    	var tratamiento = $('#tratamiento').val().replace(/\r?\n/g, "<br>");
+    	var tratamiento = $('#tratamiento').val().replace(/\r?\n/g, "<BR>");
     	//ANTECEDENTES
-		var antecedentes = $('#antecedentes').val().replace(/\r?\n/g, "<br>");
-    	var diagnostico = $('#diagnostico').val().replace(/\r?\n/g, "<br>");
+		var antecedentes = $('#antecedentes').val().replace(/\r?\n/g, "<BR>");
+    	var diagnostico = $('#diagnostico').val().replace(/\r?\n/g, "<BR>");
 		//var examenes = $('#examenes').val().replace(/\r?\n/g, "<br>");
-    	var motivo = $('#motivo').val().replace(/\r?\n/g, "<br>");
-    	var exploracion_fisica = $('#exploracion_fisica').val().replace(/\r?\n/g, "<br>");
+    	var motivo = $('#motivo').val().replace(/\r?\n/g, "<BR>");
+    	var exploracion_fisica = $('#exploracion_fisica').val().replace(/\r?\n/g, "<BR>");
 		var fondo = "NO";
 		if( $('#fondo').prop('checked') ){
 			fondo = "SI";
@@ -1491,7 +1491,6 @@ $user = Auth::user();
 
 	$(document).on('click', '#btnGuardarEditar', function(event) {	
 
-		
 		if($('#cantcieeditar').val() == 0) {
     		$('#cie102editar').focus();
     		alert('Debes ingresar mínimo un CIE 10.');
@@ -1506,6 +1505,16 @@ $user = Auth::user();
     	var motivo = $('#motivoeditar').val().replace(/\r?\n/g, "<BR>");
     	var exploracion_fisica = $('#exploracion_fisicaeditar').val().replace(/\r?\n/g, "<BR>");
 		var citaproxima = $('#citaproximaeditar').val();
+
+		/*//editar datos
+
+		tratamiento = tratamiento.replace(',', "<br>");
+    	antecedentes = antecedentes.replace(',', "<br>");
+    	diagnostico = diagnostico.replace(',', "<br>");
+		//var examenes = $('#exameneseditar').val().replace(',', "<br>");
+    	motivo = motivo.replace(',', "<br>");
+    	exploracion_fisica = exploracion_fisica.replace(',', "<br>");*/
+
 		
 		//detalle
 		var data = [];
@@ -1542,8 +1551,8 @@ $user = Auth::user();
 		if( $('#fondoeditar').prop('checked') ){
 			fondo = "SI";
 		}
-*/
 
+*/
 		$.ajax({
 			"method": "POST",
 			"url": "{{ url('/historiaclinica/guardarEditado') }}",
@@ -1556,7 +1565,7 @@ $user = Auth::user();
 				"cies" : jsoncie,
 				"citaproxima" : citaproxima,
 				"motivo" : motivo,
-		//		"fondo" : fondo,
+	//			"fondo" : fondo,
 				"exploracion_fisica" : exploracion_fisica,
 				"_token": "{{ csrf_token() }}",
 				}

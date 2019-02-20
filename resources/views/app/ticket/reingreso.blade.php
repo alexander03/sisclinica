@@ -39,24 +39,24 @@ if(!is_null($ticket)){
 ?>
 <style>
 .tr_hover{
-	color:red;
+    color:red;
 }
 .form-group{
     margin-bottom: 8px !important;
 }
 </style>
 <div id="divMensajeError{!! $entidad !!}"></div>
-{!! Form::model($ticket, $formData) !!}	
-	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
+{!! Form::model($ticket, $formData) !!} 
+    {!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
     {!! Form::hidden('ticket_id', $ticket->id, array('id' => 'ticket_id')) !!}
     {!! Form::hidden('listServicio', null, array('id' => 'listServicio')) !!}
     <div class="row">
         <div class="col-lg-6 col-md-6 col-sm-6">
         <div class="form-group">
-        		{!! Form::label('fecha', 'Fecha:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-        		<div class="col-lg-3 col-md-3 col-sm-3">
-        			{!! Form::date('fecha', $fecha, array('class' => 'form-control input-xs', 'id' => 'fecha', 'readonly' => 'true')) !!}
-        		</div>
+                {!! Form::label('fecha', 'Fecha:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    {!! Form::date('fecha', $fecha, array('class' => 'form-control input-xs', 'id' => 'fecha', 'readonly' => 'true')) !!}
+                </div>
                 <div class="col-lg-1 col-md-1 col-sm-1"></div>
                 <label for="turno" class="col-lg-1 col-md-1 col-sm-1 control-label">Turno:</label>
                 <div class="col-lg-3 col-md-3 col-sm-3">
@@ -101,47 +101,47 @@ if(!is_null($ticket)){
                 </div>
                 <div class="col-lg-1 col-md-1 col-sm-1"></div>
                 {!! Form::label('numero', 'Nro:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-        		<div class="col-lg-2 col-md-2 col-sm-2">
-        			{!! Form::text('numero', $numero, array('class' => 'form-control input-xs', 'id' => 'numero', 'readonly' => 'true')) !!}
-        		</div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    {!! Form::text('numero', $numero, array('class' => 'form-control input-xs', 'id' => 'numero', 'readonly' => 'true')) !!}
+                </div>
                 <div class="col-lg-1 col-md-1 col-sm-1" style="display:none;">
                     {!! Form::label('manual', 'Manual:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label',  'style' => 'display:none;')) !!}
                     {!! Form::hidden('manual', 'N', array('id' => 'manual')) !!}
                     <input type="checkbox" onclick="Manual(this.checked)" />
                 </div>
-        	</div>
+            </div>
             <div class="form-group">
-        		{!! Form::label('paciente', 'Paciente:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-        		<div class="col-lg-7 col-md-7 col-sm-7">
+                {!! Form::label('paciente', 'Paciente:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+                <div class="col-lg-7 col-md-7 col-sm-7">
                 {!! Form::hidden('person_id', $person_id, array('id' => 'person_id')) !!}
                 {!! Form::hidden('dni', $dni, array('id' => 'dni')) !!}
-        		{!! Form::text('paciente', $paciente, array('class' => 'form-control input-xs', 'id' => 'paciente', 'placeholder' => 'Ingrese Paciente', 'readonly' => 'true')) !!}
-        		</div>
+                {!! Form::text('paciente', $paciente, array('class' => 'form-control input-xs', 'id' => 'paciente', 'placeholder' => 'Ingrese Paciente', 'readonly' => 'true')) !!}
+                </div>
                 <div class="col-lg-1 col-md-1 col-sm-1">
                     {!! Form::button('<i class="fa fa-file fa-lg"></i>', array('class' => 'btn btn-info btn-xs', 'onclick' => 'modal (\''.URL::route('historia.create', array('listar'=>'SI','modo'=>'popup')).'\', \'Nueva Historia\', this);', 'title' => 'Nueva Historia')) !!}
-        		</div>
+                </div>
                 <div class="col-lg-1 col-md-1 col-sm-1">
                     {!! Form::button('<i class="fa fa-edit fa-lg"></i>', array('class' => 'btn btn-danger btn-xs', 'onclick' => 'solicitarHistoria();', 'title' => 'Solicitar Historia')) !!}
                 </div>
-        	</div>
+            </div>
             <div class="form-group">
-        		{!! Form::label('numero', 'Historia:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-        		<div class="col-lg-3 col-md-3 col-sm-3">
+                {!! Form::label('numero', 'Historia:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+                <div class="col-lg-3 col-md-3 col-sm-3">
                     {!! Form::hidden('historia_id', $historia_id, array('id' => 'historia_id')) !!}
-        			{!! Form::text('numero_historia', $numero_historia, array('class' => 'form-control input-xs', 'id' => 'numero_historia', 'readonly' => 'true')) !!}
-        		</div>
+                    {!! Form::text('numero_historia', $numero_historia, array('class' => 'form-control input-xs', 'id' => 'numero_historia', 'readonly' => 'true')) !!}
+                </div>
                 {!! Form::label('tipopaciente', 'Tipo Paciente:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
-        		<div class="col-lg-3 col-md-3 col-sm-3">
-        			{!! Form::select('tipopaciente', $cboTipoPaciente, $tipopaciente, array('class' => 'form-control input-xs', 'id' => 'tipopaciente', 'disabled' => 'true')) !!}
-        		</div>
-        	</div>
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    {!! Form::select('tipopaciente', $cboTipoPaciente, $tipopaciente, array('class' => 'form-control input-xs', 'id' => 'tipopaciente', 'disabled' => 'true')) !!}
+                </div>
+            </div>
             <div class="form-group">
                 {!! Form::label('plan', 'Plan:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-        		<div class="col-lg-8 col-md-8 col-sm-8">
+                <div class="col-lg-8 col-md-8 col-sm-8">
                     {!! Form::hidden('tipoplan', $tipoplan, array('id' => 'tipoplan')) !!}
                     {!! Form::hidden('plan_id', $plan_id, array('id' => 'plan_id')) !!}
-        			{!! Form::text('plan', $plan, array('class' => 'form-control input-xs', 'id' => 'plan', 'readonly' => 'true')) !!}
-        		</div>
+                    {!! Form::text('plan', $plan, array('class' => 'form-control input-xs', 'id' => 'plan', 'readonly' => 'true')) !!}
+                </div>
                 {!! Form::label('soat', 'Soat:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
                 <div class="col-lg-1 col-md-1 col-sm-1">
                     {!! Form::hidden('soat', 'N', array('id' => 'soat')) !!}
@@ -157,14 +157,14 @@ if(!is_null($ticket)){
                 </div>
             </div>
             <div class="form-group">
-        		{!! Form::label('deducible', 'Deducible:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-        		<div class="col-lg-2 col-md-2 col-sm-2">
-        			{!! Form::text('deducible', $deducible, array('class' => 'form-control input-xs', 'id' => 'deducible', 'readonly' => 'true')) !!}
-        		</div>
+                {!! Form::label('deducible', 'Deducible:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    {!! Form::text('deducible', $deducible, array('class' => 'form-control input-xs', 'id' => 'deducible', 'readonly' => 'true')) !!}
+                </div>
                 {!! Form::label('coa', 'Coaseguro:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
-        		<div class="col-lg-3 col-md-3 col-sm-3">
-        			{!! Form::text('coa', $coa, array('class' => 'form-control input-xs', 'id' => 'coa', 'readonly' => 'true')) !!}
-        		</div>
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    {!! Form::text('coa', $coa, array('class' => 'form-control input-xs', 'id' => 'coa', 'readonly' => 'true')) !!}
+                </div>
                 {!! Form::label('sctr', 'Sctr:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
                 <div class="col-lg-1 col-md-1 col-sm-1">
                     {!! Form::hidden('sctr', 'N', array('id' => 'sctr')) !!}
@@ -178,47 +178,47 @@ if(!is_null($ticket)){
                         <input disabled type="checkbox" onclick="Sctr(this.checked)" />
                     @endif
                 </div>
-        	</div>
+            </div>
             <div class="form-group" style="display: none;">
                 {!! Form::label('plan', 'Generar:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-        		<div class="col-lg-2 col-md-2 col-sm-2">
-        			{!! Form::hidden('comprobante', 'N', array('id' => 'comprobante')) !!}
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    {!! Form::hidden('comprobante', 'N', array('id' => 'comprobante')) !!}
                     <input type="checkbox" onchange="mostrarDatoCaja(0,this.checked)" id="boleta" class="col-lg-2 col-md-2 col-sm-2 control-label" />
                     {!! Form::label('boleta', 'Comprobante', array('class' => 'col-lg-10 col-md-10 col-sm-10 control-label')) !!}
                     {!! Form::hidden('pagar', 'N', array('id' => 'pagar')) !!}    
-        			<input type="checkbox" onchange="mostrarDatoCaja(this.checked,0)" id="pago" class="col-lg-2 col-md-2 col-sm-2 control-label datocaja" />
+                    <input type="checkbox" onchange="mostrarDatoCaja(this.checked,0)" id="pago" class="col-lg-2 col-md-2 col-sm-2 control-label datocaja" />
                     {!! Form::label('pago', 'Pago', array('class' => 'col-lg-10 col-md-10 col-sm-10 control-label datocaja')) !!}
-        		</div>
+                </div>
                 {!! Form::label('formapago', 'Forma Pago:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label datocaja caja')) !!}
-        		<div class="col-lg-2 col-md-2 col-sm-2">
-        			{!! Form::select('formapago', $cboFormaPago, null, array('class' => 'form-control input-xs datocaja caja', 'id' => 'formapago', 'onchange'=>'validarFormaPago(this.value);')) !!}
-        		</div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    {!! Form::select('formapago', $cboFormaPago, null, array('class' => 'form-control input-xs datocaja caja', 'id' => 'formapago', 'onchange'=>'validarFormaPago(this.value);')) !!}
+                </div>
                 {!! Form::label('caja_id', 'Caja:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label datocaja caja')) !!}
-        		<div class="col-lg-3 col-md-3 col-sm-3">
-        			{!! Form::select('caja_id', $cboCaja, $idcaja, array('class' => 'form-control input-xs datocaja caja', 'id' => 'caja_id', 'readonly' => 'true')) !!}
-        		</div>
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    {!! Form::select('caja_id', $cboCaja, $idcaja, array('class' => 'form-control input-xs datocaja caja', 'id' => 'caja_id', 'readonly' => 'true')) !!}
+                </div>
             </div>
             <div class="form-group datocaja" id="divTarjeta" style="display: none;">
                 {!! Form::label('tipotarjeta', 'Tarjeta:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-        		<div class="col-lg-2 col-md-2 col-sm-2">
-        			{!! Form::select('tipotarjeta', $cboTipoTarjeta, null, array('class' => 'form-control input-xs', 'id' => 'tipotarjeta')) !!}
-        		</div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    {!! Form::select('tipotarjeta', $cboTipoTarjeta, null, array('class' => 'form-control input-xs', 'id' => 'tipotarjeta')) !!}
+                </div>
                 {!! Form::label('tipotarjeta2', 'Tipo Tarjeta:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-        		<div class="col-lg-2 col-md-2 col-sm-2">
-        			{!! Form::select('tipotarjeta2', $cboTipoTarjeta2, null, array('class' => 'form-control input-xs', 'id' => 'tipotarjeta2')) !!}
-        		</div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    {!! Form::select('tipotarjeta2', $cboTipoTarjeta2, null, array('class' => 'form-control input-xs', 'id' => 'tipotarjeta2')) !!}
+                </div>
                 {!! Form::label('nroref', 'Nro. Op.:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
                 <div class="col-lg-2 col-md-2 col-sm-2">
                     {!! Form::text('nroref', null, array('class' => 'form-control input-xs', 'id' => 'nroref')) !!}
                 </div>
-        	</div>
+            </div>
 
-        	<div class="form-group">
+            <div class="form-group">
                 {!! Form::label('plan', 'Boletear Todo:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label', 'style'=>'display:none')) !!}
-        		<div class="col-lg-1 col-md-1 col-sm-1" style="display: none;">
+                <div class="col-lg-1 col-md-1 col-sm-1" style="display: none;">
                     {!! Form::hidden('boletear', 'N', array('id' => 'boletear')) !!}
-        			<input type="checkbox" onclick="boletearTodoCaja(this.checked)" />
-        		</div>
+                    <input type="checkbox" onclick="boletearTodoCaja(this.checked)" />
+                </div>
                 {!! Form::label('plan', 'Editar Reparticion:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label',  'style' => 'display: none;')) !!}
                 <div class="col-lg-1 col-md-1 col-sm-1" style="display: none;">
                     {!! Form::hidden('editarprecio', 'N', array('id' => 'editarprecio')) !!}
@@ -229,11 +229,11 @@ if(!is_null($ticket)){
                     {!! Form::hidden('descuentopersonal', 'N', array('id' => 'descuentopersonal')) !!}
                     <input type="checkbox" class="descuento" style="display: none;" onclick="editarDescuentoPersonal(this.checked)" />
                 </div>
-        		<div class="col-lg-6 col-md-6 col-sm-6 text-right">
-        			{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => '$(\'#listServicio\').val(carro);$(\'#movimiento_id\').val(carroDoc);guardarPago(\''.$entidad.'\', this);')) !!}
-        			{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
-        		</div>
-        	</div>
+                <div class="col-lg-6 col-md-6 col-sm-6 text-right">
+                    {!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => '$(\'#listServicio\').val(carro);$(\'#movimiento_id\').val(carroDoc);guardarPago(\''.$entidad.'\', this);')) !!}
+                    {!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
+                </div>
+            </div>
             <div class="form-group descuentopersonal" style="display: none">
                 {!! Form::label('personal', 'Personal:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
                 <div class="col-lg-7 col-md-7 col-sm-7">
@@ -245,33 +245,33 @@ if(!is_null($ticket)){
          <div class="col-lg-6 col-md-6 col-sm-6">
             <div class="form-group datocaja" style="display:none">
                 {!! Form::label('tipodocumento', 'Tipo Doc.:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-        		<div class="col-lg-3 col-md-3 col-sm-3">
-        			{!! Form::select('tipodocumento', $cboTipoDocumento, null, array('class' => 'form-control input-xs', 'id' => 'tipodocumento', 'onchange' => 'generarNumero()')) !!}
-        		</div>
-                {!! Form::label('numeroventa', 'Nro.:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-        		<div class="col-lg-2 col-md-2 col-sm-2">
-        			{!! Form::text('serieventa', $serie, array('class' => 'form-control input-xs datocaja', 'id' => 'serieventa')) !!}
-        		</div>
                 <div class="col-lg-3 col-md-3 col-sm-3">
-        			{!! Form::text('numeroventa', $numeroventa, array('class' => 'form-control input-xs', 'id' => 'numeroventa', 'readonly' => 'true')) !!}
-        		</div>
-        	</div>
+                    {!! Form::select('tipodocumento', $cboTipoDocumento, null, array('class' => 'form-control input-xs', 'id' => 'tipodocumento', 'onchange' => 'generarNumero()')) !!}
+                </div>
+                {!! Form::label('numeroventa', 'Nro.:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    {!! Form::text('serieventa', $serie, array('class' => 'form-control input-xs datocaja', 'id' => 'serieventa')) !!}
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    {!! Form::text('numeroventa', $numeroventa, array('class' => 'form-control input-xs', 'id' => 'numeroventa', 'readonly' => 'true')) !!}
+                </div>
+            </div>
             <div class="form-group datocaja datofactura" style="display: none;">
                 {!! Form::label('ruc', 'RUC:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-        		<div class="col-lg-2 col-md-2 col-sm-2">
-        			{!! Form::text('ruc', null, array('class' => 'form-control input-xs', 'id' => 'ruc')) !!}
-        		</div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    {!! Form::text('ruc', null, array('class' => 'form-control input-xs', 'id' => 'ruc')) !!}
+                </div>
                 {!! Form::label('razon', 'Razon:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-        		<div class="col-lg-6 col-md-6 col-sm-6">
-        			{!! Form::text('razon', null, array('class' => 'form-control input-xs datocaja', 'id' => 'razon')) !!}
-        		</div>
+                <div class="col-lg-6 col-md-6 col-sm-6">
+                    {!! Form::text('razon', null, array('class' => 'form-control input-xs datocaja', 'id' => 'razon')) !!}
+                </div>
             </div>
             <div class="form-group datocaja datofactura" style="display: none;">
                 {!! Form::label('direccion', 'Direccion:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-        		<div class="col-lg-10 col-md-10 col-sm-10">
-        			{!! Form::text('direccion', null, array('class' => 'form-control input-xs', 'id' => 'direccion')) !!}
-        		</div>
-        	</div>
+                <div class="col-lg-10 col-md-10 col-sm-10">
+                    {!! Form::text('direccion', null, array('class' => 'form-control input-xs', 'id' => 'direccion')) !!}
+                </div>
+            </div>
             <div class="form-group">
                 {!! Form::label('referido', 'Referido:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
                 <div class="col-lg-10 col-md-10 col-sm-10">
@@ -281,21 +281,21 @@ if(!is_null($ticket)){
             </div>
             <div class="form-group" style="display: none;">
                 {!! Form::label('tiposervicio', 'Tipo:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-        		<div class="col-lg-3 col-md-3 col-sm-3">
-        			{!! Form::select('tiposervicio', $cboTipoServicio, null, array('class' => 'form-control input-xs', 'id' => 'tiposervicio', 'disabled' => 'true')) !!}
-        		</div>
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    {!! Form::select('tiposervicio', $cboTipoServicio, null, array('class' => 'form-control input-xs', 'id' => 'tiposervicio', 'disabled' => 'true')) !!}
+                </div>
                 {!! Form::label('descripcion', 'Servicio:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-        		<div class="col-lg-5 col-md-5 col-sm-5">
-        			{!! Form::text('descripcion', null, array('class' => 'form-control input-xs', 'id' => 'descripcion', 'onkeypress' => '', 'readonly' => 'true')) !!}
-        		</div>
+                <div class="col-lg-5 col-md-5 col-sm-5">
+                    {!! Form::text('descripcion', null, array('class' => 'form-control input-xs', 'id' => 'descripcion', 'onkeypress' => '', 'readonly' => 'true')) !!}
+                </div>
             </div>
             <div class="form-group col-lg-12 col-md-12 col-sm-12" id="divBusqueda">
             </div>
             <div class="form-group fecha_reprogramar" style="display: none;">
                 {!! Form::label('fecha_reprogramar', 'Fecha de reprogramación:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
-        		<div class="col-lg-3 col-md-3 col-sm-3">
-        			{!! Form::date('fecha', '', array('class' => 'form-control input-xs', 'id' => 'fecha_reprogramar')) !!}
-        		</div>
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    {!! Form::date('fecha', '', array('class' => 'form-control input-xs', 'id' => 'fecha_reprogramar')) !!}
+                </div>
             </div>
             <div class="col-lg-6 col-md-6 col-sm-6 text-right" style="display: none;">
                 {!! Form::button('<i class="glyphicon glyphicon-calendar"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnReprogramar', 'onclick' => 'reprogramar();')) !!}
@@ -369,8 +369,8 @@ if(!is_null($ticket)){
 <script type="text/javascript">
 var valorbusqueda="";
 $(document).ready(function() {
-	configurarAnchoModal('1300');
-	init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'B', '{!! $entidad !!}');
+    configurarAnchoModal('1300');
+    init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'B', '{!! $entidad !!}');
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="totalboleta"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="ruc"]').inputmask("99999999999");
@@ -393,33 +393,33 @@ $(document).ready(function() {
     }
 
     var personas = new Bloodhound({
-		datumTokenizer: function (d) {
-			return Bloodhound.tokenizers.whitespace(d.value);
-		},
-		queryTokenizer: Bloodhound.tokenizers.whitespace,
+        datumTokenizer: function (d) {
+            return Bloodhound.tokenizers.whitespace(d.value);
+        },
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
         limit:10,
-		remote: {
-			url: 'historia/personautocompletar/%QUERY',
-			filter: function (personas) {
-				return $.map(personas, function (movie) {
-					return {
-						value: movie.value,
-						id: movie.id,
+        remote: {
+            url: 'historia/personautocompletar/%QUERY',
+            filter: function (personas) {
+                return $.map(personas, function (movie) {
+                    return {
+                        value: movie.value,
+                        id: movie.id,
                         historia: movie.numero,
                         person_id:movie.person_id,
                         tipopaciente:movie.tipopaciente,
                         dni:movie.dni,
                         fallecido:movie.fallecido,
-					};
-				});
-			}
-		}
-	});
-	personas.initialize();
-	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="paciente"]').typeahead(null,{
-		displayKey: 'value',
-		source: personas.ttAdapter()
-	}).on('typeahead:selected', function (object, datum) {
+                    };
+                });
+            }
+        }
+    });
+    personas.initialize();
+    $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="paciente"]').typeahead(null,{
+        displayKey: 'value',
+        source: personas.ttAdapter()
+    }).on('typeahead:selected', function (object, datum) {
         if(datum.fallecido=='S'){
             alert('No puede elegir paciente fallecido');
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="paciente"]').val('');
@@ -436,38 +436,38 @@ $(document).ready(function() {
             
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="person_id"]').val(datum.person_id);
         }
-	});
+    });
     
     var personas2 = new Bloodhound({
-		datumTokenizer: function (d) {
-			return Bloodhound.tokenizers.whitespace(d.value);
-		},
-		queryTokenizer: Bloodhound.tokenizers.whitespace,
-		remote: {
-			url: 'ticket/personrucautocompletar/%QUERY',
-			filter: function (personas2) {
-				return $.map(personas2, function (movie) {
-					return {
-						value: movie.value,
-						id: movie.id,
+        datumTokenizer: function (d) {
+            return Bloodhound.tokenizers.whitespace(d.value);
+        },
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        remote: {
+            url: 'ticket/personrucautocompletar/%QUERY',
+            filter: function (personas2) {
+                return $.map(personas2, function (movie) {
+                    return {
+                        value: movie.value,
+                        id: movie.id,
                         ruc: movie.ruc,
                         razonsocial:movie.razonsocial,
                         direccion:movie.direccion,
                         label: movie.label,
-					};
-				});
-			}
-		}
-	});
-	personas2.initialize();
-	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="ruc"]').typeahead(null,{
-		displayKey: 'label',
-		source: personas2.ttAdapter()
-	}).on('typeahead:selected', function (object, datum) {
-		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="ruc"]').val(datum.ruc);
+                    };
+                });
+            }
+        }
+    });
+    personas2.initialize();
+    $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="ruc"]').typeahead(null,{
+        displayKey: 'label',
+        source: personas2.ttAdapter()
+    }).on('typeahead:selected', function (object, datum) {
+        $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="ruc"]').val(datum.ruc);
         $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="razon"]').val(datum.razonsocial);
         $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="direccion"]').val(datum.direccion);
-	});
+    });
 
     var personas4 = new Bloodhound({
         datumTokenizer: function (d) {
@@ -554,38 +554,38 @@ $(document).ready(function() {
     });
     
 
-   	var planes = new Bloodhound({
-		datumTokenizer: function (d) {
-			return Bloodhound.tokenizers.whitespace(d.value);
-		},
+    var planes = new Bloodhound({
+        datumTokenizer: function (d) {
+            return Bloodhound.tokenizers.whitespace(d.value);
+        },
         limit: 10,
-		queryTokenizer: Bloodhound.tokenizers.whitespace,
-		remote: {
-			url: 'plan/planautocompletar/%QUERY',
-			filter: function (planes) {
-				return $.map(planes, function (movie) {
-					return {
-						value: movie.value,
-						id: movie.id,
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        remote: {
+            url: 'plan/planautocompletar/%QUERY',
+            filter: function (planes) {
+                return $.map(planes, function (movie) {
+                    return {
+                        value: movie.value,
+                        id: movie.id,
                         coa: movie.coa,
                         deducible:movie.deducible,
                         tipo:movie.tipo,
-					};
-				});
-			}
-		}
-	});
-	planes.initialize();
-	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="plan"]').typeahead(null,{
-		displayKey: 'value',
-		source: planes.ttAdapter()
-	}).on('typeahead:selected', function (object, datum) {
-		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="plan"]').val(datum.value);
+                    };
+                });
+            }
+        }
+    });
+    planes.initialize();
+    $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="plan"]').typeahead(null,{
+        displayKey: 'value',
+        source: planes.ttAdapter()
+    }).on('typeahead:selected', function (object, datum) {
+        $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="plan"]').val(datum.value);
         $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="coa"]').val(datum.coa);
         $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="deducible"]').val(datum.deducible);
         $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="plan_id"]').val(datum.id);
         $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tipoplan"]').val(datum.tipo);
-	});
+    });
     $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="paciente"]').focus();
 
     $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="descripcion"]').on( 'keydown', function () {
@@ -599,54 +599,54 @@ $(document).ready(function() {
         } else
         if(keyc == 38 || keyc == 40 || keyc == 13) {
             var tabladiv='tablaServicio';
-			var child = document.getElementById(tabladiv).rows;
-			var indice = -1;
-			var i=0;
+            var child = document.getElementById(tabladiv).rows;
+            var indice = -1;
+            var i=0;
             $('#tablaServicio tr').each(function(index, elemento) {
                 if($(elemento).hasClass("tr_hover")) {
-    			    $(elemento).removeClass("par");
-    				$(elemento).removeClass("impar");								
-    				indice = i;
+                    $(elemento).removeClass("par");
+                    $(elemento).removeClass("impar");                               
+                    indice = i;
                 }
                 if(i % 2==0){
-    			    $(elemento).removeClass("tr_hover");
-    			    $(elemento).addClass("impar");
+                    $(elemento).removeClass("tr_hover");
+                    $(elemento).addClass("impar");
                 }else{
-    				$(elemento).removeClass("tr_hover");								
-    				$(elemento).addClass('par');
-    			}
-    			i++;
-    		});		 
-			// return
-			if(keyc == 13) {        				
-			     if(indice != -1){
-					var seleccionado = '';			 
-					if(child[indice].id) {
-					   seleccionado = child[indice].id;
-					} else {
-					   seleccionado = child[indice].id;
-					}		 		
-					seleccionarServicio(seleccionado);
-				}
-			} else {
-				// abajo
-				if(keyc == 40) {
-					if(indice == (child.length - 1)) {
-					   indice = 1;
-					} else {
-					   if(indice==-1) indice=0;
-	                   indice=indice+1;
-					} 
-				// arriba
-				} else if(keyc == 38) {
-					indice = indice - 1;
-					if(indice==0) indice=-1;
-					if(indice < 0) {
-						indice = (child.length - 1);
-					}
-				}	 
-				child[indice].className = child[indice].className+' tr_hover';
-			}
+                    $(elemento).removeClass("tr_hover");                                
+                    $(elemento).addClass('par');
+                }
+                i++;
+            });      
+            // return
+            if(keyc == 13) {                        
+                 if(indice != -1){
+                    var seleccionado = '';           
+                    if(child[indice].id) {
+                       seleccionado = child[indice].id;
+                    } else {
+                       seleccionado = child[indice].id;
+                    }               
+                    seleccionarServicio(seleccionado);
+                }
+            } else {
+                // abajo
+                if(keyc == 40) {
+                    if(indice == (child.length - 1)) {
+                       indice = 1;
+                    } else {
+                       if(indice==-1) indice=0;
+                       indice=indice+1;
+                    } 
+                // arriba
+                } else if(keyc == 38) {
+                    indice = indice - 1;
+                    if(indice==0) indice=-1;
+                    if(indice < 0) {
+                        indice = (child.length - 1);
+                    }
+                }    
+                child[indice].className = child[indice].className+' tr_hover';
+            }
         }
     });
 
@@ -656,34 +656,34 @@ $(document).ready(function() {
 
 
 function guardarHistoria (entidad, idboton) {
-	var idformulario = IDFORMMANTENIMIENTO + entidad;
-	var data         = submitForm(idformulario);
-	var respuesta    = '';
-	var btn = $(idboton);
-	btn.button('loading');
-	data.done(function(msg) {
-		respuesta = msg;
-	}).fail(function(xhr, textStatus, errorThrown) {
-		respuesta = 'ERROR';
-	}).always(function() {
-		btn.button('reset');
-		if(respuesta === 'ERROR'){
-		}else{
-		  //alert(respuesta);
+    var idformulario = IDFORMMANTENIMIENTO + entidad;
+    var data         = submitForm(idformulario);
+    var respuesta    = '';
+    var btn = $(idboton);
+    btn.button('loading');
+    data.done(function(msg) {
+        respuesta = msg;
+    }).fail(function(xhr, textStatus, errorThrown) {
+        respuesta = 'ERROR';
+    }).always(function() {
+        btn.button('reset');
+        if(respuesta === 'ERROR'){
+        }else{
+          //alert(respuesta);
             var dat = JSON.parse(respuesta);
-			if (dat[0]!==undefined && (dat[0].respuesta=== 'OK')) {
-				cerrarModal();
+            if (dat[0]!==undefined && (dat[0].respuesta=== 'OK')) {
+                cerrarModal();
                 $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="historia_id"]').val(dat[0].id);
                 $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="numero_historia"]').val(dat[0].historia);
                 $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="person_id"]').val(dat[0].person_id);
                 $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tipopaciente"]').val(dat[0].tipopaciente);
                 alert('Historia Generada');
                 window.open("historia/pdfhistoria?id="+dat[0].id,"_blank");
-			} else {
-				mostrarErrores(respuesta, idformulario, entidad);
-			}
-		}
-	});
+            } else {
+                mostrarErrores(respuesta, idformulario, entidad);
+            }
+        }
+    });
 }
 
 var contador=0;
@@ -753,22 +753,22 @@ function guardarPago (entidad, idboton) {
     }
     if(band && contador==0){
         contador=1;
-    	var idformulario = IDFORMMANTENIMIENTO + entidad;
-    	var data         = submitForm(idformulario);
-    	var respuesta    = '';
-    	var btn = $(idboton);
-    	btn.button('loading');
-    	data.done(function(msg) {
-    		respuesta = msg;
-    	}).fail(function(xhr, textStatus, errorThrown) {
-    		respuesta = 'ERROR';
+        var idformulario = IDFORMMANTENIMIENTO + entidad;
+        var data         = submitForm(idformulario);
+        var respuesta    = '';
+        var btn = $(idboton);
+        btn.button('loading');
+        data.done(function(msg) {
+            respuesta = msg;
+        }).fail(function(xhr, textStatus, errorThrown) {
+            respuesta = 'ERROR';
             contador=0;
-    	}).always(function() {
-    		btn.button('reset');
+        }).always(function() {
+            btn.button('reset');
             contador=0;
-    		if(respuesta === 'ERROR'){
-    		}else{
-    		  //alert(respuesta);
+            if(respuesta === 'ERROR'){
+            }else{
+              //alert(respuesta);
                 var dat = JSON.parse(respuesta);
                 if(dat[0]!==undefined){
                     resp=dat[0].respuesta;    
@@ -776,8 +776,8 @@ function guardarPago (entidad, idboton) {
                     resp='VALIDACION';
                 }
                 
-    			if (resp === 'OK') {
-    				cerrarModal();
+                if (resp === 'OK') {
+                    cerrarModal();
                     buscarCompaginado('', 'Accion realizada correctamente', entidad, 'OK');
                     if(dat[0].pagohospital!="0"){
                         window.open('/juanpablo/ticket/pdfComprobante3?ticket_id='+dat[0].ticket_id,'_blank')
@@ -788,13 +788,13 @@ function guardarPago (entidad, idboton) {
                         window.open('/juanpablo/notacredito/pdfComprobante3?id='+dat[0].notacredito_id,'_blank');
                     }
                     cerrarModal();
-    			} else if(resp === 'ERROR') {
-    				alert(dat[0].msg);
-    			} else {
-    				mostrarErrores(respuesta, idformulario, entidad);
-    			}
-    		}
-    	});
+                } else if(resp === 'ERROR') {
+                    alert(dat[0].msg);
+                } else {
+                    mostrarErrores(respuesta, idformulario, entidad);
+                }
+            }
+        });
     }else{
         alert("Corregir los sgtes errores: \n"+msg);
     }
@@ -831,7 +831,7 @@ function buscarServicio(valor){
                 });
                 $('#tablaServicio_filter').css('display','none');
                 $("#tablaServicio_info").css("display","none");
-    	    }
+            }
         });
     //}
 }
@@ -872,32 +872,32 @@ function seleccionarServicio(idservicio){
                 $(':input[data="numero"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
                 calcularCoaseguro();
                 eval("var planes"+datos[c].idservicio+" = new Bloodhound({"+
-            		"datumTokenizer: function (d) {"+
-            			"return Bloodhound.tokenizers.whitespace(d.value);"+
-            		"},"+
+                    "datumTokenizer: function (d) {"+
+                        "return Bloodhound.tokenizers.whitespace(d.value);"+
+                    "},"+
                     "limit: 10,"+
-            		"queryTokenizer: Bloodhound.tokenizers.whitespace,"+
-            		"remote: {"+
-            			"url: 'medico/medicoautocompletar/%QUERY',"+
-            			"filter: function (planes"+datos[c].idservicio+") {"+
+                    "queryTokenizer: Bloodhound.tokenizers.whitespace,"+
+                    "remote: {"+
+                        "url: 'medico/medicoautocompletar/%QUERY',"+
+                        "filter: function (planes"+datos[c].idservicio+") {"+
                             "return $.map(planes"+datos[c].idservicio+", function (movie) {"+
-            					"return {"+
-            						"value: movie.value,"+
-            						"id: movie.id,"+
-            					"};"+
-            				"});"+
-            			"}"+
-            		"}"+
-            	"});"+
-            	"planes"+datos[c].idservicio+".initialize();"+
-            	"$('#txtMedico"+datos[c].idservicio+"').typeahead(null,{"+
-            		"displayKey: 'value',"+
-            		"source: planes"+datos[c].idservicio+".ttAdapter()"+
-            	"}).on('typeahead:selected', function (object, datum) {"+
-            		"$('#txtMedico"+datos[c].idservicio+"').val(datum.value);"+
+                                "return {"+
+                                    "value: movie.value,"+
+                                    "id: movie.id,"+
+                                "};"+
+                            "});"+
+                        "}"+
+                    "}"+
+                "});"+
+                "planes"+datos[c].idservicio+".initialize();"+
+                "$('#txtMedico"+datos[c].idservicio+"').typeahead(null,{"+
+                    "displayKey: 'value',"+
+                    "source: planes"+datos[c].idservicio+".ttAdapter()"+
+                "}).on('typeahead:selected', function (object, datum) {"+
+                    "$('#txtMedico"+datos[c].idservicio+"').val(datum.value);"+
                     "$('#txtIdMedico"+datos[c].idservicio+"').val(datum.id);"+
                     "copiarMedico("+datos[c].idservicio+");"+
-            	"});");
+                "});");
                 $("#txtMedico"+datos[c].idservicio).focus();  
                 if($(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="editarprecio"]').val()=='S'){
                     editarPrecio(true);
@@ -908,7 +908,7 @@ function seleccionarServicio(idservicio){
             $('#txtPrecio6').val(0.00);
             $('#txtTotal6').val(0);
             calcularTotal();
-		});
+        });
     }else{
         $('#txtMedico'+idservicio).focus();
     }
@@ -930,32 +930,32 @@ function seleccionarServicioOtro(){
     $('#cboTipoServicio'+idservicio+' option[value=""]').remove();
     $(':input[data="numero"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
     eval("var planes"+idservicio+" = new Bloodhound({"+
-		"datumTokenizer: function (d) {"+
-			"return Bloodhound.tokenizers.whitespace(d.value);"+
-		"},"+
+        "datumTokenizer: function (d) {"+
+            "return Bloodhound.tokenizers.whitespace(d.value);"+
+        "},"+
         "limit: 10,"+
-		"queryTokenizer: Bloodhound.tokenizers.whitespace,"+
-		"remote: {"+
-			"url: 'medico/medicoautocompletar/%QUERY',"+
-			"filter: function (planes"+idservicio+") {"+
+        "queryTokenizer: Bloodhound.tokenizers.whitespace,"+
+        "remote: {"+
+            "url: 'medico/medicoautocompletar/%QUERY',"+
+            "filter: function (planes"+idservicio+") {"+
                 "return $.map(planes"+idservicio+", function (movie) {"+
-					"return {"+
-						"value: movie.value,"+
-						"id: movie.id,"+
-					"};"+
-				"});"+
-			"}"+
-		"}"+
-	"});"+
-	"planes"+idservicio+".initialize();"+
-	"$('#txtMedico"+idservicio+"').typeahead(null,{"+
-		"displayKey: 'value',"+
-		"source: planes"+idservicio+".ttAdapter()"+
-	"}).on('typeahead:selected', function (object, datum) {"+
-		"$('#txtMedico"+idservicio+"').val(datum.value);"+
+                    "return {"+
+                        "value: movie.value,"+
+                        "id: movie.id,"+
+                    "};"+
+                "});"+
+            "}"+
+        "}"+
+    "});"+
+    "planes"+idservicio+".initialize();"+
+    "$('#txtMedico"+idservicio+"').typeahead(null,{"+
+        "displayKey: 'value',"+
+        "source: planes"+idservicio+".ttAdapter()"+
+    "}).on('typeahead:selected', function (object, datum) {"+
+        "$('#txtMedico"+idservicio+"').val(datum.value);"+
         "$('#txtIdMedico"+idservicio+"').val(datum.id);"+
         "copiarMedico('"+idservicio+"');"+
-	"});");
+    "});");
     $("#txtMedico"+idservicio).focus();             
 }
 

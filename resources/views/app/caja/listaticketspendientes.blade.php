@@ -23,8 +23,10 @@
             	<font color="orange">PENDIENTE</font>
             	@elseif($value->situacion == 'D')
             	<font color="red">DEBE</font>
-            	@else
+            	@elseif($value->situacion == 'C')
             	<font color="green">COBRADO</font>
+            	@elseif($value->situacion == 'U')
+            	<font color="purple">COMP. ANULADO</font>
             	@endif
 	            </td>
 	            <td style="color:blue;font-weight: bold;">
@@ -36,7 +38,7 @@
 	            	@endif	
 	            	</center>
 	            </td>
-	            <td style="color:blue;font-weight: bold;">
+	            <!--<td style="color:blue;font-weight: bold;">
 	            	<center>
 	            	@if ($value->situacion == 'P')
 	            		{!! Form::button('<div class="fa fa-print"></div>', array('onclick' => '', 'class' => 'btn btn-xs btn-warning')) !!}
@@ -44,7 +46,7 @@
 	            	-
 	            	@endif	
 	            	</center>
-	            </td>
+	            </td>-->
 		</tr>
 		@endforeach
 	</tbody>

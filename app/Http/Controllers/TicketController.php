@@ -2156,7 +2156,6 @@ class TicketController extends Controller
                 $Detalle->descuento=$request->input('txtDescuento'.$arr[$c]);
                 $Detalle->save();
             }
-
         });
         $dat[0]=array("respuesta"=>"OK","ticket_id"=>$id,"pagohospital"=>0,"notacredito_id"=>0);
         return is_null($error) ? json_encode($dat) : $error;

@@ -54,6 +54,9 @@ if($cita!=null){
                 {!! Form::hidden('person_id', $person_id, array('id' => 'person_id')) !!}
         			{!! Form::text('paciente', null, array('class' => 'form-control input-xs', 'id' => 'paciente', 'placeholder' => 'Ingrese Paciente')) !!}
         		</div>
+                <div class="col-lg-1 col-md-1 col-sm-1">
+                    {!! Form::button('<i class="fa fa-file fa-lg"></i>', array('class' => 'btn btn-info btn-xs', 'onclick' => 'modal (\''.URL::route('historia.create', array('listar'=>'SI','modo'=>'popup')).'\', \'Nueva Historia\', this);', 'title' => 'Nueva Historia')) !!}
+                </div>
         	</div>
             <div class="form-group">
         		{!! Form::label('numero', 'Historia:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}

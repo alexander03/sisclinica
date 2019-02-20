@@ -619,6 +619,10 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('caja/cobrarcuentapendiente/{id}', 'CajaController@cobrarcuentapendiente')->name('caja.cobrarcuentapendiente');
     Route::post('caja/cobrarcuentapendiente2', 'CajaController@cobrarcuentapendiente2')->name('caja.cobrarcuentapendiente2');
+
+    //CAMBIO TIPO CONSULTA
+
+    Route::get('caja/cambiartipocons/{tipo}/{id}', 'CajaController@cambiartipocons')->name('caja.cambiartipocons');
     
     /* CAJA TESORERIA*/
     Route::post('cajatesoreria/buscar', 'CajatesoreriaController@buscar')->name('cajatesoreria.buscar');

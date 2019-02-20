@@ -17,7 +17,7 @@
 			$contador = $inicio + 1;
 			?>
 			@foreach ($lista as $key => $value)
-			<tr>
+			<tr class="{{ $value->id }}">
 				<td>{{ $contador }}</td>
 	            <td>{{ date('d/m/Y',strtotime($value->fecha)) }}</td>
 	            <td>{{ $value->numero }}</td>
