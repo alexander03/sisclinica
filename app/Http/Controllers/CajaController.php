@@ -10550,14 +10550,23 @@ class CajaController extends Controller
             $rescuotas->totalpagadomaster -= $obj1->totalpagadomaster;
             $rescuotas->save();
 
-            // COMPRUEBO SI GENERÓ UN COMPROBANTE DE PAGO
+            // PONGO TICKET EN DEBE
 
-            $tk = Movimiento::where('ventafarmacia', 'N')->where('movimiento_id', $rescuotas->movimiento_id)->first();
+            $tk = Movimiento::find($rescuotas->movimiento_id);
 
             if($tk !== NULL) {
-                $tk->situacion='U';
+                $tk->situacion='D';
                 $tk->save();
-            } 
+
+                // COMPRUEBO SI GENERÓ UN COMPROBANTE DE PAGO
+
+                $tk2 = Movimiento::where("ventafarmacia", "N")->where("movimiento_id", $tk->id)->orderBy('id', 'DESC')->limit(1)->first();
+
+                if($tk2 !== NULL) {
+                    $tk2->situacion='U';
+                    $tk2->save();
+                }
+            }  
         }
 
         //COMPROBANTE DE PAGO
