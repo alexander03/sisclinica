@@ -888,11 +888,26 @@ class HistoriaController extends Controller
     public function pdfHistoria2(Request $request){
         $citas = HistoriaClinica::where('historia_id', $request->input('id'))->get();
         $historia = Historia::find($request->id);
-        $pdf = new TCPDF();
+        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
         $pdf::SetTitle('Historial de Citas');
+        // remove default header/footer
+        $pdf::setPrintHeader(false);
+        $pdf::setPrintFooter(false);
+
+        // set default monospaced font
+        $pdf::SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+
+        // set margins
+        $pdf::SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+
+        // set auto page breaks
+        $pdf::SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+
+        // set image scale factor
+        $pdf::setImageScale(PDF_IMAGE_SCALE_RATIO);
         foreach ($citas as $cita) {
             $pdf::AddPage();
-            $pdf::Image("http://localhost:81/clinica/dist/img/logo2-ojos.jpg", 20, 7, 50, 15);
+            $pdf::Image("http://localhost:81/clinica/dist/img/logo2-ojos.jpg", 20, 26, 50, 15);
             $pdf::SetFont('helvetica','B',15);
             $pdf::Cell(60,10,"",0,0,'C');
             $pdf::Cell(75,10,"",0,0,'C');
@@ -911,19 +926,17 @@ class HistoriaController extends Controller
             $pdf::Ln(4);
             $pdf::Ln(4);
             $pdf::Ln(4);
-            $pdf::Cell(20,8,"",0,0,'C');
+            $pdf::Cell(8,8,"",0,0,'C');
             $pdf::SetFont('helvetica','B',9);
             $pdf::Cell(35,8,utf8_decode("PACIENTE: "),0,0,'L');
             $pdf::SetFont('helvetica','',9);
-            $x=$pdf::GetX();
-            $y=$pdf::GetY();
             $pdf::Multicell(120,8,($historia->persona->apellidopaterno." ".$historia->persona->apellidomaterno." ".$historia->persona->nombres),0,'L');
-            $pdf::SetXY($x+120,$y);
 
-            $pdf::Ln(4);
-            $pdf::Ln(4);
+            $pdf::Ln(2);
+            $pdf::Ln(3);
+            $pdf::Ln(3);
 
-            $pdf::Cell(20,8,"",0,0,'C');
+            $pdf::Cell(8,8,"",0,0,'C');
             $pdf::SetFont('helvetica','B',9);
             $pdf::Cell(35,8,utf8_decode("CIE 10: "),0,0,'L');
             $pdf::SetFont('helvetica','',9);
@@ -940,102 +953,100 @@ class HistoriaController extends Controller
                 foreach ($cies as $value) {
                     $cadenacies .= $value->cie->codigo . ' ' . $value->cie->descripcion .'<br>';
                 }
-            }        
+            }
             $cies2 = explode('<BR>', strtoupper($cadenacies));
+            if($cies2[0] == ''){
+                $cies2[] = '-';
+            }
             $i = 0;
             foreach($cies2 as $c) {
                 if($c != '') {
                     if($i != 0) {
-                        $pdf::Cell(20,8,"",0,0,'C');
+                        $pdf::Cell(8,8,"",0,0,'C');
                         $pdf::Cell(35,8,"",0,0,'L');
                     }
-                    $x=$pdf::GetX();
-                    $y=$pdf::GetY();
                     $pdf::Multicell(120,8,$c==''?'-':$c,0,'L');
-                    $pdf::SetXY($x+120,$y+(int)(strlen($c)/50));
-                    $pdf::Ln(5);
+                    $pdf::Ln(3);
                     $i++;
                 }                    
             }
 
-            $pdf::Ln(4);
-            $pdf::Ln(4);
+            $pdf::Ln(3);
+            $pdf::Ln(3);
 
-            $pdf::Cell(20,8,"",0,0,'C');
+            $pdf::Cell(8,8,"",0,0,'C');
             $pdf::SetFont('helvetica','B',9);
             $pdf::Cell(35,8,utf8_decode("MOTIVO: "),0,0,'L');
             $pdf::SetFont('helvetica','',9);
             
             $mot = explode('<BR>', strtoupper($cita->motivo));
+            if($mot[0] == ''){
+                $mot[] = '-';
+            }
             $i = 0;
             foreach($mot as $m) {
                 if($m != '') {
                     if($i != 0) {
-                        $pdf::Cell(20,8,"",0,0,'C');
+                        $pdf::Cell(8,8,"",0,0,'C');
                         $pdf::Cell(35,8,"",0,0,'L');
                     }
-                    $x=$pdf::GetX();
-                    $y=$pdf::GetY();
                     $pdf::Multicell(120,8,$m==''?'-':$m,0,'L');
-                    $pdf::SetXY($x+120,$y+(int)(strlen($m)/50));
-                    $pdf::Ln(5);
+                    $pdf::Ln(3);
                     $i++;
                 }                    
             } 
-            $pdf::Ln(4);
-            $pdf::Ln(4);
-            $pdf::Ln(4);
-            $pdf::Ln(4);
+            $pdf::Ln(3);
+            $pdf::Ln(3);
 
-            $pdf::Cell(20,8,"",0,0,'C');
+            $pdf::Cell(8,8,"",0,0,'C');
             $pdf::SetFont('helvetica','B',9);
             $pdf::Cell(35,8,"DIAGNÓSTICO: ",0,0,'L');
             $pdf::SetFont('helvetica','',9);
 
             $diag = explode('<BR>', strtoupper($cita->diagnostico));
+            if($diag[0] == ''){
+                $diag[] = '-';
+            }
             $i = 0;
             foreach($diag as $d) {
                 if($d != '') {
                     if($i != 0) {
-                        $pdf::Cell(20,8,"",0,0,'C');
+                        $pdf::Cell(8,8,"",0,0,'C');
                         $pdf::Cell(35,8,"",0,0,'L');
                     }
-                    $x=$pdf::GetX();
-                    $y=$pdf::GetY();
                     $pdf::Multicell(120,8,$d,0,'L');
-                    $pdf::SetXY($x+120,$y+(int)(strlen($d)/50));
-                    $pdf::Ln(5);
+                    $pdf::Ln(3);
                     $i++;
                 }
             } 
-            $pdf::Ln(4);
-            $pdf::Ln(4);
+            $pdf::Ln(3);
+            $pdf::Ln(3);
 
-            $pdf::Cell(20,8,"",0,0,'C');
+            $pdf::Cell(8,8,"",0,0,'C');
             $pdf::SetFont('helvetica','B',9);
             $pdf::Cell(35,8,"TRATAMIENTO: ",0,0,'L');
             $pdf::SetFont('helvetica','',9);
 
             $trat = explode('<BR>', strtoupper($cita->tratamiento));
+            if($trat[0] == ''){
+                $trat[] = '-';
+            }
             $i = 0;
             foreach($trat as $t) {
                 if($t != '') {
                     if($i != 0) {
-                        $pdf::Cell(20,8,"",0,0,'C');
+                        $pdf::Cell(8,8,"",0,0,'C');
                         $pdf::Cell(35,8,"",0,0,'L');
                     }
-                    $x=$pdf::GetX();
-                    $y=$pdf::GetY();
                     $pdf::Multicell(120,8,$t,0,'L');
-                    $pdf::SetXY($x+120,$y+(int)(strlen($t)/50));
-                    $pdf::Ln(5);
+                    $pdf::Ln(3);
                     $i++;
                 }
             } 
-            $pdf::Ln(4);
-            $pdf::Ln(4);
+            $pdf::Ln(3);
+            $pdf::Ln(3);
 
-            $pdf::Cell(20,8,"",0,0,'C');
+            $pdf::Cell(8,8,"",0,0,'C');
             $pdf::SetFont('helvetica','B',9);
             $pdf::Cell(35,8,"EXÁMENES: ",0,0,'L');
             $pdf::SetFont('helvetica','',9);
@@ -1052,57 +1063,55 @@ class HistoriaController extends Controller
 
             $examenes2 = explode('<BR>', strtoupper($cadenaexamenes));
 
+            if($examenes2[0] == ''){
+                $examenes2[] = '-';
+            }
+
             $i = 0;
             foreach($examenes2 as $e) {
                 if($e != '') {
                     if($i != 0) {
-                        $pdf::Cell(20,8,"",0,0,'C');
+                        $pdf::Cell(8,8,"",0,0,'C');
                         $pdf::Cell(35,8,"",0,0,'L');
                     }
-                    $x=$pdf::GetX();
-                    $y=$pdf::GetY();
                     $pdf::Multicell(120,8,$e,0,'L');
-                    $pdf::SetXY($x+120,$y+(int)(strlen($e)/50));
-                    $pdf::Ln(5);
+                    $pdf::Ln(3);
                     $i++;
                 }
             } 
-            $pdf::Ln(4);
-            $pdf::Ln(4);
+            $pdf::Ln(3);
+            $pdf::Ln(3);
 
-            $pdf::Cell(20,8,"",0,0,'C');
+            $pdf::Cell(8,8,"",0,0,'C');
             $pdf::SetFont('helvetica','B',9);
             $pdf::Cell(35,8,"EXPLOR. FÍSICA: ",0,0,'L');
             $pdf::SetFont('helvetica','',9);
 
             $exf = explode('<BR>', strtoupper($cita->exploracion_fisica));
+
+            if($exf[0] == ''){
+                $exf[] = '-';
+            }
+
             $i = 0;
             foreach($exf as $ef) {
                 if($ef != '') {
                     if($i != 0) {
-                        $pdf::Cell(20,8,"",0,0,'C');
+                        $pdf::Cell(8,8,"",0,0,'C');
                         $pdf::Cell(35,8,"",0,0,'L');
                     }
-                    $x=$pdf::GetX();
-                    $y=$pdf::GetY();
                     $pdf::Multicell(120,8,$ef,0,'L');
-                    $pdf::SetXY($x+120,$y+(int)(strlen($ef)/50));
-                    $pdf::Ln(5);
+                    $pdf::Ln(3);
                     $i++;
                 }
             } 
-            $pdf::Ln(4);
-            $pdf::Ln(4);
-            $pdf::Ln(4);
-            $pdf::Ln(4);
-            $pdf::Cell(20,8,"",0,0,'C');
+            $pdf::Ln(3);
+            $pdf::Ln(3);
+            $pdf::Cell(8,8,"",0,0,'C');
             $pdf::SetFont('helvetica','B',9);
             $pdf::Cell(35,8,"COMENTARIO: ",0,0,'L');
             $pdf::SetFont('helvetica','',9);
-            $x=$pdf::GetX();
-            $y=$pdf::GetY();
-            $pdf::Multicell(120,8,$cita->comentario==''?'-':utf8_decode($cita->comentario),0,'L');
-            $pdf::SetXY($x+120,$y);
+            $pdf::Multicell(120,8,$cita->comentario== null ?'-':$cita->comentario,0,'L');
         }
         $pdf::Output('HistorialCitas.pdf');
     }

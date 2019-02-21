@@ -282,9 +282,8 @@
 
 	$(document).on('change', '#clasconsulta', function(e) {
 		e.preventDefault();
-		e.stopImmediatePropagation();
 		$.ajax({
-			url: "caja/cambiartipocons/{{ $movimiento->clasificacionconsulta }}/{{ $movimiento->id }}",
+			url: "caja/cambiartipocons/" + $('#clasconsulta').val() + "/{{ $movimiento->id }}",
 			type: "GET",
 		}).fail(function() {
 			alert('ERROR AL CAMBIAR TIPO.');

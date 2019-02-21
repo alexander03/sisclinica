@@ -623,6 +623,10 @@ Route::group(['middleware' => 'auth'], function () {
     //CAMBIO TIPO CONSULTA
 
     Route::get('caja/cambiartipocons/{tipo}/{id}', 'CajaController@cambiartipocons')->name('caja.cambiartipocons');
+
+    //ANULAR DOC VENTA PROVISIONAL
+
+    Route::get('caja/anularProv/{id}', 'CajaController@anularProv')->name('caja.anularProv');
     
     /* CAJA TESORERIA*/
     Route::post('cajatesoreria/buscar', 'CajatesoreriaController@buscar')->name('cajatesoreria.buscar');

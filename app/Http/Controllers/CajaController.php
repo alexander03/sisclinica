@@ -11289,4 +11289,10 @@ class CajaController extends Controller
         $tk->save();
     }
 
+    public function anularProv($id) {
+        $docventa = Movimiento::find($id);
+        $docventa->situacion = 'U';
+        $docventa->save();
+    }
+
 }

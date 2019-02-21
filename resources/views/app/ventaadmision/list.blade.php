@@ -73,6 +73,7 @@
 		@else
                   <td align="center"> - </td>
             @endif	
+            <td style="display:none">{!! Form::button('<div class="glyphicon glyphicon-trash"></div> Anular Prov.', array('onclick' => 'anularProv(\'' . $value->id . '\');', 'class' => 'btn btn-xs btn-warning')) !!}</td>
 		</tr>
 		<?php
 		$contador = $contador + 1;
@@ -81,3 +82,15 @@
 	</tbody>
 </table>
 @endif
+
+<script type="text/javascript">
+      function anularProv(id_docventa) {
+            $.ajax({
+                  url: 'caja/anularProv/' + id_docventa,
+                  type: 'GET',
+                  success: function() {
+                        buscar('Ventaadmision');
+                  }
+            });
+      }
+</script>
