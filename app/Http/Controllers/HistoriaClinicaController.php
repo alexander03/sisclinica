@@ -61,6 +61,16 @@ class HistoriaClinicaController extends Controller
             $fondo = "SI";
         }
 
+        $ultimahc = HistoriaClinica::where('historia_id', $historia->id)->orderBy('id', 'DESC')->limit(1)->first();
+
+        $mensaje = 'No hay mensajes.';
+
+        if($ultimahc !== NULL && count($ultimahc)>0) {
+            if($ultimahc->comentario != null || $ultimahc->comentario != '') {
+                $mensaje = $ultimahc->comentario;
+            }            
+        }
+
         if($historiaclinica != null){
             //$cie10 = Cie::find($historiaclinica->cie_id);
 
@@ -69,8 +79,7 @@ class HistoriaClinicaController extends Controller
                                             ->get();
 
                                              $cies = Detallehistoriacie::leftjoin('cie', 'cie.id', '=', 'detallehistoriacie.cie_id')
-                                        ->where('detallehistoriacie.historiaclinica_id',  $historiaclinica->id )->get();
-
+                                        ->where('detallehistoriacie.historiaclinica_id',  $historiaclinica->id )->get();           
 
             $cita = Cita::find($historiaclinica->citaproxima);
 
@@ -95,6 +104,7 @@ class HistoriaClinicaController extends Controller
                 'examenes' => $examenes,
                 'cies' => $cies,
                 'cantcies' => count($cies),
+                'mensaje' => $mensaje,
             );
 
             if($cita != null){
@@ -124,6 +134,7 @@ class HistoriaClinicaController extends Controller
                     'examenes' => $examenes,
                     'cies' => $cies,
                     'cantcies' => count($cies),
+                    'mensaje' => $mensaje,
                 );
     
             }
@@ -138,6 +149,7 @@ class HistoriaClinicaController extends Controller
                 'paciente' => $historia->persona->apellidopaterno . ' ' . $historia->persona->apellidomaterno . ' ' . $historia->persona->nombres,
                 'numhistoria' => $historia->numero,
                 'numero' => HistoriaClinica::numeroSigue($historia->id),
+                'mensaje' => $mensaje,
             );
         }
         return json_encode($jsondata);

@@ -488,7 +488,13 @@ $user = Auth::user();
 														</div>
 														<!-- Fin historias clinicas anteriores -->	
 
-														<div class="form-group" style="padding:15px;">
+														<div class="form-group" style="padding:5px;">
+															{!! Form::label('mensopera', 'Mensaje:', array('class' => 'col-sm-3 control-label', 'style' => 'color:red; margin-left: -15px;')) !!}
+															<div class="col-sm-9" id="mensopera" style="color: blue;">
+															</div>
+														</div>
+
+														<div class="form-group" style="padding:5px;">
 															{!! Form::label('examenes', 'Exámenes:', array('class' => 'col-sm-3 control-label', 'style' => 'margin-left: -15px;')) !!}
 															<div class="col-sm-9" style="margin-top:7px;">
 																{!! Form::text('examenes', '', array('class' => 'form-control input-xs', 'id' => 'examenes', 'style' => 'font-size: 16px;')) !!}
@@ -504,7 +510,6 @@ $user = Auth::user();
 																<tbody id="detalle"></tbody>
 															</table>
 														</div>
-														
 													</div>
 
 													</div>
@@ -1147,6 +1152,7 @@ $user = Auth::user();
 	        data: "_token=<?php echo csrf_token(); ?>",
 	        dataType: "json",
 	        success: function(a) {
+	        	$('#mensopera').html(a.mensaje);
 	        	$("li").removeClass('in active');
 	        	$('#Farmacia').removeClass('in active');
 				$('#cie').removeClass('in active');
