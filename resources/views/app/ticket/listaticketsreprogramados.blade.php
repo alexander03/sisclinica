@@ -29,11 +29,15 @@
 	            </td>
 	            <td style="color:blue;font-weight: bold;">
 	            	<center>
-	            	@if ($value->situacion == 'C')
-						{!! Form::button('<div class="glyphicon glyphicon-check"></div> Generar Reingreso', array('onclick' => 'modal (\''.URL::route($ruta["reingreso"], array($value->id, 'listar'=>'SI')).'\', \'Generar Ticket Reingreso\', this);', 'class' => 'btn btn-xs btn-success', 'title' => 'Editar')) !!}
-	            	@else
-	            	-
-	            	@endif	
+	            	@if($hoy == substr($value->fecha_reprogramacion, 0, 10))
+		            	@if ($value->situacion == 'C')
+							{!! Form::button('<div class="glyphicon glyphicon-check"></div> Generar Reingreso', array('onclick' => 'modal (\''.URL::route($ruta["reingreso"], array($value->id, 'listar'=>'SI')).'\', \'Generar Ticket Reingreso\', this);', 'class' => 'btn btn-xs btn-success', 'title' => 'Editar')) !!}
+		            	@else
+		            	-
+		            	@endif	
+		            @else
+		            -
+		            @endif	
 	            	</center>
 	            </td>
 		</tr>

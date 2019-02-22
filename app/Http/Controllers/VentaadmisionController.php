@@ -4424,7 +4424,7 @@ class VentaadmisionController extends Controller
 
         $sojos.="</tbody></table>";
 
-        $slectura.="<h3 class='text-center' style='font-weight:bold;color:green'>LECTURA DE RESULTADOS</h3>
+        $slectura.="<h3 class='text-center' style='font-weight:bold;color:green'>LECT. DE RESULTADOS</h3>
                     <table style='width:100%; font-weight: 700;' border='1'>
                             <thead>
                                 <tr>

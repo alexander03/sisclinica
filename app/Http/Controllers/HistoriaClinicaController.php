@@ -416,6 +416,8 @@ class HistoriaClinicaController extends Controller
         //$cie10               = Cie::find($cita->cie_id);
         $doctor              = Person::find($cita->doctor_id);
         $user                = User::find($cita->user_id);
+        $user2 = Auth::user();
+
 
         $texto = "<table class='table table-responsive table-hover'>
             <thead>
@@ -663,13 +665,14 @@ class HistoriaClinicaController extends Controller
                         <td>
                             <strong><font style='color:blue'>Comentario</font></strong><br>
                         </td>
-                        <td><textarea class='form-control' id='anadirComentario' rows='8'>" . $cita->comentario . "</textarea>
-                        <a class='btn btn-danger btn-xs' href='#' onclick='anadirComentario(" . $cita_id . ")'>Añadir</a>
-                        </td>
-                    </tr>";
+                        <td><textarea class='form-control' id='anadirComentario' rows='8'>" . $cita->comentario . "</textarea>";
 
-            $texto .= "</tbody>
-        </table>";
+            if($user2->usertype_id == 5 || $user2->usertype_id == 7 || $user2->usertype_id == 1) {
+
+                $texto .= "<a class='btn btn-danger btn-xs' href='#' onclick='anadirComentario(" . $cita_id . ")'>Añadir</a>";
+            }
+
+            $texto .= "</td></tr></tbody></table>";
 
         return $texto;
     }

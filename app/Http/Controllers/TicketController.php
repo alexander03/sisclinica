@@ -1959,6 +1959,8 @@ class TicketController extends Controller
             $numero = '';
         }
         $ruta = $this->rutas;
+
+        $hoy = date("Y-m-d");
             
         //A -> LLAMANDO
         //B -> ATENDIENDO
@@ -1996,9 +1998,9 @@ class TicketController extends Controller
         
         //$conf = DB::connection('sqlsrv')->table('BL_CONFIGURATION')->get();
         if (count($lista) > 0) {
-            return view($this->folderview.'.listaticketsreprogramados')->with(compact('lista', 'cabecera', 'ruta'));
+            return view($this->folderview.'.listaticketsreprogramados')->with(compact('lista', 'cabecera', 'ruta', 'hoy'));
         }
-        return view($this->folderview.'.listaticketsreprogramados')->with(compact('lista', 'ruta'));
+        return view($this->folderview.'.listaticketsreprogramados')->with(compact('lista', 'ruta', 'hoy'));
     }
 
     public function reingreso($id, Request $request)
