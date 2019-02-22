@@ -21,7 +21,7 @@
             <td>{{ date('d/m/Y',strtotime($value->fecha)) }}</td>
             <td align="right">{{ $value->numero2 }}</td>
             @if($value->tipodocumento_id!=4)
-            	<td>{{ $value->persona->apellidopaterno.' '.$value->persona->apellidomaterno.' '.$value->persona->nombres }}</td>
+            	<td>{{ $value->persona === NULL ? $value->nombrepaciente : $value->persona->apellidopaterno.' '.$value->persona->apellidomaterno.' '.$value->persona->nombres }}</td>
             @else
             	<td>{{ $value->empresa->bussinesname }}</td>
             @endif

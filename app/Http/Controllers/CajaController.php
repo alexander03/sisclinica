@@ -3906,7 +3906,7 @@ class CajaController extends Controller
         $egresitos=0;
         if($caja->nombre == 'FARMACIA') {
             $pdf::Cell(20,7,number_format($subtotalegresos + $subtotalegresoscompra,2,'.',''),1,0,'R');
-            $egresitos = $dubtotalegresos + $subtotalegresoscompra;
+            $egresitos = $subtotalegresos + $subtotalegresoscompra;
         }else{
             $pdf::Cell(20,7,number_format($subtotalegresos,2,'.',''),1,0,'R');
             $egresitos=$subtotalegresos;
