@@ -4515,13 +4515,30 @@ class VentaadmisionController extends Controller
     public function colamedico(Request $request){
         date_default_timezone_set('America/Lima');
 
+        if($request->input('actualizado') == "NO"){
+            $llamando = Movimiento::where('ip', $request->ip() )
+            ->where(function($q) {            
+                $q->where('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'B');
+            })->get();
+
+            if( count($llamando) != 0 ){
+                foreach ($llamando as $value) {
+                    $value->situacion2 = 'C';
+                    $value->ip = null;
+                    $value->save();
+                }
+            }
+
+        }
+
         $ticket_id = null;
 
         if($request->input('ticket_id') != null){
             $ticket_id = $request->input('ticket_id');
             $error = DB::transaction(function() use($request,$ticket_id){
                 $Ticket = Movimiento::find($ticket_id);
-                $Ticket->situacion2 = 'A'; // Llamando
+                $Ticket->situacion2 = 'A'; // Llamando -> agregar ip
+                $Ticket->ip = $request->ip();
                 $Ticket->save();
             });
         }

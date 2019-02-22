@@ -699,6 +699,7 @@ $user = Auth::user();
 	            </div>
 			</footer>
 	    </div>
+		{!! Form::hidden('actualizado', 'NO', array('id' => 'actualizado')) !!}
 	</form>
     <!-- ./wrapper -->
     <!-- jQuery 2.2.3 -->
@@ -979,34 +980,69 @@ $user = Auth::user();
 	}
 
 	function buscar4(){
-		$.ajax({
-                type: "POST",
-                url: "ventaadmision/colamedico",
-                data: "_token=<?php echo csrf_token(); ?>",
-                dataType: 'json',
-                success: function(a) {
-                    $("#listadoConsultas").html(a.consultas);
-                    $("#listadoEmergencias").html(a.emergencias);
-                    $("#listadoOjos").html(a.ojos);
-                    $("#listadoLectura").html(a.lectura);
-                }
-            });
-		//$('.llamando').fadeTo(500, .1).fadeTo(500, 1) ;
-		$.ajax({
-	        type: "POST",
-	        url: "ventaadmision/llamarAtender",
-	        data: "_token=<?php echo csrf_token(); ?>",
-	        success: function(a) {
-	        	$("#atender").html(a);
-	        }
-	    });
-	    setInterval( 
-			function(){
-				 $('.llamando').fadeTo(500, .1).fadeTo(500, 1) 
-			}
-		, 1000) ;
+		var actualizado = $('#actualizado').val();
+		if(actualizado == "NO"){
+			$.ajax({
+					type: "POST",
+					url: "ventaadmision/colamedico",
+					data: {
+							"actualizado" : actualizado, 
+							"_token": "{{ csrf_token() }}",
+							},
+					dataType: 'json',
+					success: function(a) {
+						$("#listadoConsultas").html(a.consultas);
+						$("#listadoEmergencias").html(a.emergencias);
+						$("#listadoOjos").html(a.ojos);
+						$("#listadoLectura").html(a.lectura);
+					}
+				});
+			//$('.llamando').fadeTo(500, .1).fadeTo(500, 1) ;
+			$.ajax({
+				type: "POST",
+				url: "ventaadmision/llamarAtender",
+				data: "_token=<?php echo csrf_token(); ?>",
+				success: function(a) {
+					$("#atender").html(a);
+				}
+			});
+			setInterval( 
+				function(){
+					$('.llamando').fadeTo(500, .1).fadeTo(500, 1) 
+				}
+			, 1000);
+			actualizado = "SI";
+			$('#actualizado').val(actualizado);
+		}else{
+			$.ajax({
+					type: "POST",
+					url: "ventaadmision/colamedico",
+					data: "_token=<?php echo csrf_token(); ?>",
+					dataType: 'json',
+					success: function(a) {
+						$("#listadoConsultas").html(a.consultas);
+						$("#listadoEmergencias").html(a.emergencias);
+						$("#listadoOjos").html(a.ojos);
+						$("#listadoLectura").html(a.lectura);
+					}
+				});
+			//$('.llamando').fadeTo(500, .1).fadeTo(500, 1) ;
+			$.ajax({
+				type: "POST",
+				url: "ventaadmision/llamarAtender",
+				data: "_token=<?php echo csrf_token(); ?>",
+				success: function(a) {
+					$("#atender").html(a);
+				}
+			});
+			setInterval( 
+				function(){
+					$('.llamando').fadeTo(500, .1).fadeTo(500, 1) 
+				}
+			, 1000);
+		}
 	}	
-    setInterval(buscar4, 4000);
+    setInterval(buscar4, 2000);
 	
 	function tablaAtendidos(){
 		$.ajax({
