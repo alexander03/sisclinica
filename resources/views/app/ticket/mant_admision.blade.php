@@ -639,7 +639,7 @@ $(document).ready(function() {
 			}
         }
     });
-
+    generarNumero();
 }); 
 
 function guardarHistoria (entidad, idboton) {
@@ -1226,11 +1226,27 @@ function editarPrecio(check){
     }
 }
 
+/*function generarNumero(){
+    $.ajax({
+        type: "POST",
+        url: "ticket/generarNumero",
+        data: "tipodocumento="+$(IDFORMMANTENIMIENTO + '{! $entidad !!} :input[name="tipodocumento"]').val()+"&serie="+$(IDFORMMANTENIMIENTO + '{! $entidad !!} :input[name="serieventa"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{! $entidad !!} :input[name="_token"]').val(),
+        success: function(a) {
+            $(IDFORMMANTENIMIENTO + '{! $entidad !!} :input[name="numeroventa"]').val(a);
+            if($(IDFORMMANTENIMIENTO + '{! $entidad !!} :input[name="tipodocumento"]').val()=="Factura"){
+                $(".datofactura").css("display","");
+            }else{
+                $(".datofactura").css("display","none");
+            }
+        }
+    });
+}*/
+
 function generarNumero(){
     $.ajax({
         type: "POST",
         url: "ticket/generarNumero",
-        data: "tipodocumento="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="tipodocumento"]').val()+"&serie="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="serieventa"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
+        data: "tipodocumento="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="tipodocumento"]').val()+"&serie="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="serieventa"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val() + '&caja_id=2',
         success: function(a) {
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="numeroventa"]').val(a);
             if($(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="tipodocumento"]').val()=="Factura"){
