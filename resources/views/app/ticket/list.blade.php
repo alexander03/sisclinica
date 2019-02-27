@@ -1,3 +1,9 @@
+<?php
+
+use App\Detallemovcaja;
+
+?>
+
 @if(count($lista) == 0)
 <h3 class="text-warning">No se encontraron resultados.</h3>
 @else
@@ -58,13 +64,16 @@
 					$estado .= " - EN ESPERA";
 				}else if($value->situacion2 == 'L'){
 					$estado .= " - ATENDIDO";
-				}				
+				}	
+				$Detalle = Detallemovcaja::where('movimiento_id', $value->id)->orderBy('id', 'ASC')->first();
+
 				?>
 
 				<td>{{ $estado }}</td>
 
 
 	  			<td>{{ $value->responsable }}</td>
+	  			<td>{{ $Detalle->persona->apellidopaterno . ' ' . explode(" ", $Detalle->persona->nombres)[0] }}</td>
 	            @if($value->situacion=='C')
 	            	@if($value->total>0)
 	                	<td align="center">{!! Form::button('<div class="glyphicon glyphicon-print"></div>', array('onclick' => 'window.open(\'ticket/pdfComprobante?ticket_id='.$value->id.'\',\'_blank\')', 'class' => 'btn btn-xs btn-info', 'title'=>'Comprobante A4')) !!}</td>
