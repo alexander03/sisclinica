@@ -341,7 +341,7 @@ if(!is_null($ticket)){
                     <th class="text-center">Medico</th>
                     <th class="text-center">Subtotal</th>
                 </thead>
-                <tbody>
+                <tbody id="cuerpoTabla">
                 </tbody>
                 <tfoot>
                     <th class="text-right" colspan="7">Comprobante</th>
@@ -675,6 +675,25 @@ function guardarHistoria (entidad, idboton) {
 
 var contador=0;
 function guardarPago (entidad, idboton) {
+    if ($('#tipodocumento').val() == 'Factura') {
+        if($('#ccruc').val().length != 11 || $('#ccrazon').val() == '' || $('#ccdireccion').val() == '') {
+            alert('No olvide digitar un RUC válido.');
+            return false;
+        }
+    }
+    if(!camposNoVacios()) {
+        return false;
+    }
+    if(!coincidenciasMontos()) {
+        $('#efectivo').focus();
+        alert('Los montos no coinciden.');
+        return false;
+    }
+    if($('#cuerpoTabla tr').length == 0) {
+        alert('Debes seleccionar al menos un servicio.');
+        $('#descripcion').focus();
+        return false;
+    }
     var band=true;
     var msg="";
     calcularTotal();
@@ -1620,6 +1639,40 @@ function buscarEmpresa2(ruc){
             }
         }
     });
+}
+
+function camposNoVacios() {     
+    if(!$('#numeroventa').val() || !$('#serieventa').val()) {
+        $('#serieventa').focus();
+        alert('Ingresa un numero de comprobante.');
+        return false;
+    } else {
+        if(!$('#visa').attr('readonly')) {
+            if($('#visa').val().length == 0) {
+                $('#visa').focus();
+                alert('Ingresa un monto para visa.');
+                return false;
+            }
+            /*if($('#numvisa').val().length == 0) {
+                $('#numvisa').focus();
+                alert('Ingresa un numero para visa.');
+                return false;
+            }*/
+        } 
+        if(!$('#master').attr('readonly')) {
+            if($('#master').val().length == 0) {
+                $('#master').focus();
+                alert('Ingresa un monto para master.');
+                return false;
+            }
+            /*if($('#nummaster').val().length == 0) {
+                $('#nummaster').focus();
+                alert('Ingresa un numero para master.');
+                return false;
+            }*/
+        }
+        return true;
+    }       
 }
 
 <?php
