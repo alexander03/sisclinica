@@ -4188,7 +4188,7 @@ class VentaadmisionController extends Controller
             });
         }
 
-        $consultas = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->orderBy('turno','ASC')->orderBy('tiempo_cola','ASC')->orderBy('situacion2','ASC')
+        $consultas = Movimiento::where('fecha', date('Y-m-d') )->where('sucursal_id' , '=' , 1)->where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->orderBy('turno','ASC')->orderBy('tiempo_cola','ASC')->orderBy('situacion2','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'B')->orWhere('situacion2', 'like', 'N');
         })
@@ -4272,7 +4272,7 @@ class VentaadmisionController extends Controller
 
         $sconsultas .= '</tbody></table>';
 
-        $emergencias = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->orderBy('tiempo_cola','ASC')->orderBy('situacion2','ASC')
+        $emergencias = Movimiento::where('fecha', date('Y-m-d') )->where('sucursal_id' , '=' , 1)->where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->orderBy('tiempo_cola','ASC')->orderBy('situacion2','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'B')->orWhere('situacion2', 'like', 'N');
         })
@@ -4281,7 +4281,7 @@ class VentaadmisionController extends Controller
         });
         $lista2 = $emergencias->limit(15)->get();
 
-        $fondos = Movimiento::where('fecha', date('Y-m-d') )->whereNotNull('tiempo_fondo')->orderBy('tiempo_fondo','ASC')->orderBy('situacion2','ASC')
+        $fondos = Movimiento::where('fecha', date('Y-m-d') )->where('sucursal_id' , '=' , 1)->whereNotNull('tiempo_fondo')->orderBy('tiempo_fondo','ASC')->orderBy('situacion2','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'B')->orWhere('situacion2', 'like', 'F')->orWhere('situacion2', 'like', 'N');
         })
@@ -4290,7 +4290,7 @@ class VentaadmisionController extends Controller
         });
         $lista3 = $fondos->limit(15)->get();
 
-        $lectura = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->orderBy('tiempo_cola','ASC')->orderBy('situacion2','ASC')
+        $lectura = Movimiento::where('fecha', date('Y-m-d') )->where('sucursal_id' , '=' , 1)->where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->orderBy('tiempo_cola','ASC')->orderBy('situacion2','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'B')->orWhere('situacion2', 'like', 'N');
         })
@@ -4516,7 +4516,7 @@ class VentaadmisionController extends Controller
         date_default_timezone_set('America/Lima');
 
         if($request->input('actualizado') == "NO"){
-            $llamando = Movimiento::where('ip', $request->ip() )
+            $llamando = Movimiento::where('ip', $request->ip() )->where('sucursal_id' , '=' , 1)
             ->where(function($q) {            
                 $q->where('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'B');
             })->get();
@@ -4542,7 +4542,7 @@ class VentaadmisionController extends Controller
                 $Ticket->save();
             });
         }
-        $consultasm = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','M')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->orderBy('tiempo_cola','ASC')->orderBy('situacion2','ASC')
+        $consultasm = Movimiento::where('fecha', date('Y-m-d') )->where('sucursal_id' , '=' , 1)->where('turno','like','M')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->orderBy('tiempo_cola','ASC')->orderBy('situacion2','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B');
         })
@@ -4550,7 +4550,7 @@ class VentaadmisionController extends Controller
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
 
-        $consultast = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','T')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->orderBy('tiempo_cola','ASC')->orderBy('situacion2','ASC')
+        $consultast = Movimiento::where('fecha', date('Y-m-d') )->where('sucursal_id' , '=' , 1)->where('turno','like','T')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->orderBy('tiempo_cola','ASC')->orderBy('situacion2','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B');
         })
@@ -4695,14 +4695,14 @@ class VentaadmisionController extends Controller
 
         $sconsultas .= '</tbody></table>';
 
-        $emergenciasm = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','M')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->orderBy('tiempo_cola','ASC')->orderBy('situacion2','ASC')
+        $emergenciasm = Movimiento::where('fecha', date('Y-m-d') )->where('sucursal_id' , '=' , 1)->where('turno','like','M')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->orderBy('tiempo_cola','ASC')->orderBy('situacion2','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B');
         })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
-        $emergenciast = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','T')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->orderBy('tiempo_cola','ASC')->orderBy('situacion2','ASC')
+        $emergenciast = Movimiento::where('fecha', date('Y-m-d') )->where('sucursal_id' , '=' , 1)->where('turno','like','T')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->orderBy('tiempo_cola','ASC')->orderBy('situacion2','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B');
         })
@@ -4712,14 +4712,14 @@ class VentaadmisionController extends Controller
         $lista2m = $emergenciasm->get();
         $lista2t = $emergenciast->get();
 
-        $fondosm = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','M')->whereNotNull('tiempo_fondo')->orderBy('tiempo_fondo','ASC')->orderBy('situacion2','ASC')
+        $fondosm = Movimiento::where('fecha', date('Y-m-d') )->where('sucursal_id' , '=' , 1)->where('turno','like','M')->whereNotNull('tiempo_fondo')->orderBy('tiempo_fondo','ASC')->orderBy('situacion2','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B')->orWhere('situacion2', 'like', 'F');
         })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
-        $fondost = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','T')->whereNotNull('tiempo_fondo')->orderBy('tiempo_fondo','ASC')->orderBy('situacion2','ASC')
+        $fondost = Movimiento::where('fecha', date('Y-m-d') )->where('sucursal_id' , '=' , 1)->where('turno','like','T')->whereNotNull('tiempo_fondo')->orderBy('tiempo_fondo','ASC')->orderBy('situacion2','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B')->orWhere('situacion2', 'like', 'F');
         })
@@ -4729,14 +4729,14 @@ class VentaadmisionController extends Controller
         $lista3m = $fondosm->get();
         $lista3t = $fondost->get();
 
-        $lecturam = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','M')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->orderBy('tiempo_cola','ASC')->orderBy('situacion2','ASC')
+        $lecturam = Movimiento::where('fecha', date('Y-m-d') )->where('sucursal_id' , '=' , 1)->where('turno','like','M')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->orderBy('tiempo_cola','ASC')->orderBy('situacion2','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B');
         })
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
-        $lecturat = Movimiento::where('fecha', date('Y-m-d') )->where('turno','like','T')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->orderBy('tiempo_cola','ASC')->orderBy('situacion2','ASC')
+        $lecturat = Movimiento::where('fecha', date('Y-m-d') )->where('sucursal_id' , '=' , 1)->where('turno','like','T')->where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->orderBy('tiempo_cola','ASC')->orderBy('situacion2','ASC')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'A')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'B');
         })
@@ -5159,13 +5159,13 @@ class VentaadmisionController extends Controller
         $tabla="<table class='table table-bordered table-striped table-condensed table-hover' style='width:auto; vertical-align:middle;'>
                         <tbody>";
 
-        $consultas = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->where('situacion2', 'like', 'C')->orderBy('turno','ASC')->orderBy('tiempo_cola','ASC')
+        $consultas = Movimiento::where('fecha', date('Y-m-d') )->where('sucursal_id' , '=' , 1)->where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->where('situacion2', 'like', 'C')->orderBy('turno','ASC')->orderBy('tiempo_cola','ASC')
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
         $consulta = $consultas->first();
 
-        $consultas_no = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->where('situacion2', 'like', 'N')->orderBy('turno','ASC')->orderBy('tiempo_cola','ASC')
+        $consultas_no = Movimiento::where('fecha', date('Y-m-d') )->where('sucursal_id' , '=' , 1)->where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->where('situacion2', 'like', 'N')->orderBy('turno','ASC')->orderBy('tiempo_cola','ASC')
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         })->get();
@@ -5192,13 +5192,13 @@ class VentaadmisionController extends Controller
                                 </tr>";
         }
 
-        $emergencias = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->where('situacion2', 'like', 'C')->orderBy('turno','ASC')->orderBy('tiempo_cola','ASC')
+        $emergencias = Movimiento::where('fecha', date('Y-m-d') )->where('sucursal_id' , '=' , 1)->where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->where('situacion2', 'like', 'C')->orderBy('turno','ASC')->orderBy('tiempo_cola','ASC')
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
         $emergencia = $emergencias->first();
 
-        $emergencias_no = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->where('situacion2', 'like', 'N')->orderBy('turno','ASC')->orderBy('tiempo_cola','ASC')
+        $emergencias_no = Movimiento::where('fecha', date('Y-m-d') )->where('sucursal_id' , '=' , 1)->where('tiempo_fondo', null)->where('clasificacionconsulta','like','E')->where('situacion2', 'like', 'N')->orderBy('turno','ASC')->orderBy('tiempo_cola','ASC')
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         })->get();
@@ -5227,13 +5227,13 @@ class VentaadmisionController extends Controller
 
         //lectura de resultados
         
-        $lecturas = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->where('situacion2', 'like', 'C')->orderBy('turno','ASC')->orderBy('tiempo_cola','ASC')
+        $lecturas = Movimiento::where('fecha', date('Y-m-d') )->where('sucursal_id' , '=' , 1)->where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->where('situacion2', 'like', 'C')->orderBy('turno','ASC')->orderBy('tiempo_cola','ASC')
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
         $lectura = $lecturas->first();
 
-        $lecturas_no = Movimiento::where('fecha', date('Y-m-d') )->where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->where('situacion2', 'like', 'N')->orderBy('turno','ASC')->orderBy('tiempo_cola','ASC')
+        $lecturas_no = Movimiento::where('fecha', date('Y-m-d') )->where('sucursal_id' , '=' , 1)->where('tiempo_fondo', null)->where('clasificacionconsulta','like','L')->where('situacion2', 'like', 'N')->orderBy('turno','ASC')->orderBy('tiempo_cola','ASC')
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         })->get();
@@ -5263,13 +5263,13 @@ class VentaadmisionController extends Controller
 
         //fin 
 
-        $fondos = Movimiento::where('fecha', date('Y-m-d') )->whereNotNull('tiempo_fondo')->where('situacion2', 'like', 'F')->orderBy('turno','ASC')->orderBy('tiempo_fondo','ASC')
+        $fondos = Movimiento::where('fecha', date('Y-m-d') )->where('sucursal_id' , '=' , 1)->whereNotNull('tiempo_fondo')->where('situacion2', 'like', 'F')->orderBy('turno','ASC')->orderBy('tiempo_fondo','ASC')
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         });
         $fondo = $fondos->first();
 
-        $fondos_no = Movimiento::where('fecha', date('Y-m-d') )->whereNotNull('tiempo_fondo')->where('situacion2', 'like', 'N')->orderBy('turno','ASC')->orderBy('tiempo_fondo','ASC')
+        $fondos_no = Movimiento::where('fecha', date('Y-m-d') )->where('sucursal_id' , '=' , 1)->whereNotNull('tiempo_fondo')->where('situacion2', 'like', 'N')->orderBy('turno','ASC')->orderBy('tiempo_fondo','ASC')
         ->where(function($q) {            
             $q->where('situacion', 'like', 'C')->orWhere('situacion', 'like', 'R');
         })->get();
@@ -5323,6 +5323,7 @@ class VentaadmisionController extends Controller
         
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
         ->where('movimiento.tipodocumento_id','=','1')
+        ->where('movimiento.sucursal_id' , '=' , 1)
         ->where('movimiento.fecha', date('Y-m-d') )
         //->where('movimiento.tiempo_fondo', null)
         ->where(function($q) {            

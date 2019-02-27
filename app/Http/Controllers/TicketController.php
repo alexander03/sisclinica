@@ -49,6 +49,7 @@ class TicketController extends Controller
             'guardarreingreso' => 'ticket.guardarreingreso',
             'ticketsatendidos' => 'ticket.ticketsatendidos',
             'listaticketsatendidos' => 'ticket.listaticketsatendidos',
+            'atendido' => 'ticket.atendido',
         );
 
     public function __construct()
@@ -108,6 +109,7 @@ class TicketController extends Controller
         $titulo_modificar = $this->tituloModificar;
         $titulo_eliminar  = $this->tituloEliminar;
         $ruta             = $this->rutas;
+        $sucursal_id = Session::get('sucursal_id');
         //$conf = DB::connection('sqlsrv')->table('BL_CONFIGURATION')->get();
         if (count($lista) > 0) {
             $clsLibreria     = new Libreria();
@@ -118,7 +120,7 @@ class TicketController extends Controller
             $paginaactual    = $paramPaginacion['nuevapagina'];
             $lista           = $resultado->paginate($filas);
             $request->replace(array('page' => $paginaactual));
-            return view($this->folderview.'.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'conf', 'user'));
+            return view($this->folderview.'.list')->with(compact('lista', 'sucursal_id' ,'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'conf', 'user'));
         }
         return view($this->folderview.'.list')->with(compact('lista', 'entidad','conf'));
     }
@@ -652,6 +654,7 @@ class TicketController extends Controller
             $Ticket->soat = $request->input('soat');
             $Ticket->sctr = $request->input('sctr');
             $Ticket->situacion='C';//Pendiente => P / Cobrado => C / Boleteado => B
+            $Ticket->situacion2='N';
             $Ticket->comentario = $request->input('formapago')."@".$request->input('tipodocumento');
             $Ticket->responsable_id=$user->person_id;
 
@@ -2524,18 +2527,13 @@ class TicketController extends Controller
         //L -> LISTO
         
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
-        ->where('movimiento.numero','LIKE','%'.$numero.'%')->where('movimiento.tipodocumento_id','=','1')
-        ->where(function($q) {            
-            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'N');
-        })
-        ->where(function($q) {            
-            $q->where('ticket_reprogramacion_id',null);
-        })
-        ->where(function($q) {            
-            $q->where('situacion', 'like', 'C');
-        });
+        ->where('movimiento.numero','LIKE','%'.$numero.'%')
+        ->where('movimiento.tipomovimiento_id','=','1') // ticket
+        ->where('movimiento.sucursal_id', '=', '2') // especialidades
+        ->where('movimiento.situacion', 'like', 'C') // cobrado
+        ->where('movimiento.situacion2', '!=', 'L'); // que no esté atendido
         if($fecha!=""){
-            $resultado = $resultado->where('movimiento.fecha_reprogramacion', '=', ''.$fecha.'');
+            $resultado = $resultado->where('movimiento.fecha', '=', ''.$fecha.'');
         }
         if($paciente!="0"){
             $resultado = $resultado->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'), 'LIKE', '%'.$paciente.'%');
@@ -2555,6 +2553,60 @@ class TicketController extends Controller
             return view($this->folderview.'.listaticketsatendidos')->with(compact('lista', 'cabecera', 'ruta', 'hoy'));
         }
         return view($this->folderview.'.listaticketsatendidos')->with(compact('lista', 'ruta', 'hoy'));
+    }
+
+    public function atendido($id, Request $request)
+    {
+        $existe = Libreria::verificarExistencia($id, 'Movimiento');
+        if ($existe !== true) {
+            return $existe;
+        }
+        $listar              = Libreria::getParam($request->input('listar'), 'NO');
+        $ticket = Movimiento::find($id);
+        $entidad             = 'Ticket';
+        $cboConvenio = array();
+        $convenios = Convenio::where(DB::raw('1'),'=','1')->orderBy('nombre','ASC')->get();
+        foreach ($convenios as $key => $value) {
+            $cboConvenio = $cboConvenio + array($value->id => $value->nombre);
+        }
+        $cboTipoServicio = array(""=>"--Todos--");
+        $tiposervicio = Tiposervicio::where(DB::raw('1'),'=','1')->orderBy('nombre','ASC')->get();
+        foreach ($tiposervicio as $key => $value) {
+            $cboTipoServicio = $cboTipoServicio + array($value->id => $value->nombre);
+        }
+        $formData            = array('ticket.store');
+        $cboTipoPaciente     = array("Convenio" => "Convenio", "Particular" => "Particular", "Hospital" => "Hospital");
+        $cboTipoDocumento     = array("Boleta" => "Boleta", "Factura" => "Factura");
+        $cboFormaPago     = array("Efectivo" => "Efectivo", "Tarjeta" => "Tarjeta");
+        $cboTipoTarjeta    = array("VISA" => "VISA", "MASTER" => "MASTER");
+        $cboTipoTarjeta2    = array("CREDITO" => "CREDITO", "DEBITO" => "DEBITO");        
+        $cboCaja = array();
+        $rs = Caja::where('nombre','<>','FARMACIA')->orderBy('nombre','ASC')->get();
+        $idcaja=0;
+        foreach ($rs as $key => $value) {
+            $cboCaja = $cboCaja + array($value->id => $value->nombre);
+            if($request->ip()==$value->ip){
+                $idcaja=$value->id;
+                $serie=$value->serie;
+            }
+        }
+        if($idcaja==0){//ADMISION 1
+            $serie=3;
+            $idcaja=1;
+        }
+        $user = Auth::user();
+
+        $sucursal_id = Session::get('sucursal_id');
+
+        $numero = Movimiento::NumeroSigue(null, $sucursal_id, 1);
+
+        $numeroventa = Movimiento::NumeroSigue($idcaja,$sucursal_id,$serie,'N');
+        $serie='00'.$serie;
+
+        $formData            = array('ticket.guardarreingreso', $id);
+        $formData            = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $boton               = 'Guardar';
+        return view($this->folderview.'.reingreso')->with(compact('ticket', 'formData', 'entidad', 'boton', 'listar', 'cboTipoPaciente', 'cboConvenio', 'cboTipoDocumento', 'cboFormaPago', 'cboTipoTarjeta', 'cboTipoServicio', 'cboTipoTarjeta2', 'numero', 'cboCaja', 'numeroventa','serie','idcaja'));
     }
 
 }

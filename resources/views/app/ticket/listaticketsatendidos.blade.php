@@ -29,9 +29,9 @@
 	            </td>
 	            <td style="color:blue;font-weight: bold;">
 	            	<center>
-	            	@if($hoy == substr($value->fecha_reprogramacion, 0, 10))
+	            	@if($hoy == substr($value->fecha, 0, 10)) 
 		            	@if ($value->situacion == 'C')
-							{!! Form::button('<div class="glyphicon glyphicon-check"></div> Generar Reingreso', array('onclick' => 'modal (\''.URL::route($ruta["reingreso"], array($value->id, 'listar'=>'SI')).'\', \'Generar Ticket Reingreso\', this);', 'class' => 'btn btn-xs btn-success', 'title' => 'Editar')) !!}
+							{!! Form::button('<div class="glyphicon glyphicon-check"></div> Guardar Atendido', array('onclick' => 'modal (\''.URL::route($ruta["atendido"], array($value->id, 'listar'=>'SI')).'\', \'Guardar Atendido\', this);', 'class' => 'btn btn-xs btn-success', 'title' => 'Editar')) !!}
 		            	@else
 		            	-
 		            	@endif	
