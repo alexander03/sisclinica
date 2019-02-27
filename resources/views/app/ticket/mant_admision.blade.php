@@ -90,30 +90,30 @@ if(!is_null($ticket)){
         	</div>
             <div class="form-group">
                 {!! Form::label('plan', 'Plan:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-        		<div class="col-lg-8 col-md-8 col-sm-8">
+        		<div class="col-lg-9 col-md-9 col-sm-9">
                     {!! Form::hidden('tipoplan', $tipoplan, array('id' => 'tipoplan')) !!}
                     {!! Form::hidden('plan_id', $plan_id, array('id' => 'plan_id')) !!}
         			{!! Form::text('plan', $plan, array('class' => 'form-control input-xs', 'id' => 'plan')) !!}
         		</div>
-                {!! Form::label('soat', 'Soat:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
+                {!! Form::label('soat', 'Soat:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label', 'style' => 'display:none')) !!}
                 <div class="col-lg-1 col-md-1 col-sm-1">
                     {!! Form::hidden('soat', 'N', array('id' => 'soat')) !!}
-                    <input type="checkbox" onclick="Soat(this.checked)" />
+                    <input type="checkbox" onclick="Soat(this.checked)" style="display: none;" />
                 </div>
             </div>
             <div class="form-group">
         		{!! Form::label('deducible', 'Deducible:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-        		<div class="col-lg-2 col-md-2 col-sm-2">
+        		<div class="col-lg-3 col-md-3 col-sm-3">
         			{!! Form::text('deducible', $deducible, array('class' => 'form-control input-xs', 'id' => 'deducible')) !!}
         		</div>
                 {!! Form::label('coa', 'Coaseguro:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
         		<div class="col-lg-3 col-md-3 col-sm-3">
         			{!! Form::text('coa', $coa, array('class' => 'form-control input-xs', 'id' => 'coa')) !!}
         		</div>
-                {!! Form::label('sctr', 'Sctr:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
+                {!! Form::label('sctr', 'Sctr:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label', 'style' => 'display:none')) !!}
                 <div class="col-lg-1 col-md-1 col-sm-1">
                     {!! Form::hidden('sctr', 'N', array('id' => 'sctr')) !!}
-                    <input type="checkbox" onclick="Sctr(this.checked)" />
+                    <input type="checkbox" onclick="Sctr(this.checked)" style="display: none;" />
                 </div>
         	</div>
             <div class="form-group">
@@ -363,6 +363,13 @@ $(document).ready(function() {
             $('#ccruc').focus();
         } else {
             $('#opcEmpresa').css('display', 'none');
+        }
+    });
+    $(document).on('keyup', '#ccruc', function(e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        if ($(this).val().length == 11) {
+            buscarEmpresa();
         }
     });
     $('#efectivo').val('0.00');
@@ -1568,6 +1575,51 @@ function filter(__val__){
     }else{
        return false;
     }       
+}
+
+function buscarEmpresa() {
+    ruc = $("#ccruc").val();     
+    $.ajax({
+        type: 'GET',
+        url: "ticket/buscarEmpresa",
+        data: "ruc="+ruc,
+        beforeSend(){
+            $("#ccruc").val('Comprobando...');
+        },
+        success: function (a) {
+            if(a == '')  {
+                buscarEmpresa2(ruc);
+            } else {
+                var e = a.split(';;');
+                $("#ccruc").val(ruc);
+                $('#ccrazon').val(e[0]);
+                $('#ccdireccion').val(e[1]);
+            }
+        }
+    });
+}
+
+function buscarEmpresa2(ruc){
+    $.ajax({
+        type: 'GET',
+        url: "SunatPHP/demo.php",
+        data: "ruc="+ruc,
+        beforeSend(){
+            $("#ccruc").val('Comprobando...');
+        },
+        success: function (data, textStatus, jqXHR) {
+            if(data.RazonSocial == null) {
+                alert('El RUC ingresado no existe... Digite uno válido.');
+                $("#ccruc").val('').focus();
+                $("#ccrazon").val('');
+                $("#ccdireccion").val('');
+            } else {
+                $("#ccruc").val(ruc);
+                $("#ccrazon").val(data.RazonSocial);
+                $("#ccdireccion").val('-');
+            }
+        }
+    });
 }
 
 <?php
