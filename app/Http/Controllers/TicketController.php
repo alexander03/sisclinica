@@ -95,7 +95,6 @@ class TicketController extends Controller
         $cabecera[]       = array('valor' => 'Total', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Situacion', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Usuario', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Doctor', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '4');
         
         $titulo_modificar = $this->tituloModificar;
