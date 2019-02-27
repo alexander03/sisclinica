@@ -47,6 +47,8 @@ class TicketController extends Controller
             'listaticketsreprogramados' => 'ticket.listaticketsreprogramados',
             'reingreso' => 'ticket.reingreso',
             'guardarreingreso' => 'ticket.guardarreingreso',
+            'ticketsatendidos' => 'ticket.ticketsatendidos',
+            'listaticketsatendidos' => 'ticket.listaticketsatendidos',
         );
 
     public function __construct()
@@ -73,9 +75,14 @@ class TicketController extends Controller
         }else{
             $responsable_id=$user->person_id;
         }
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->leftjoin('person as responsable','responsable.id','=','movimiento.responsable_id')
                             ->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'), 'LIKE', '%'.strtoupper($paciente).'%')
+                            ->where('movimiento.sucursal_id','=',$sucursal_id)
                             ->where('movimiento.numero','LIKE','%'.$numero.'%')->where('movimiento.tipodocumento_id','=','1');
         if($fecha!=""){
             $resultado = $resultado->where('movimiento.fecha', '=', ''.$fecha.'');
@@ -128,8 +135,11 @@ class TicketController extends Controller
         $titulo_registrar = $this->tituloRegistrar;
         $titulo_ticketsreprogramar    = 'Tickets para Reprogramar'; 
         $titulo_ticketsreprogramados    = 'Tickets Reprogramados'; 
+        $titulo_ticketsatendidos    = 'Tickets guardar Atendidos'; 
         $ruta             = $this->rutas;
-        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'titulo_ticketsreprogramados', 'titulo_ticketsreprogramar' , 'ruta'));
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'sucursal_id', 'titulo_registrar', 'titulo_ticketsreprogramados', 'titulo_ticketsreprogramar' , 'titulo_ticketsatendidos' , 'ruta'));
     }
 
     /**
@@ -2490,6 +2500,61 @@ class TicketController extends Controller
             });
         }
         return is_null($error) ? "OK" : $error;
+    }
+
+    public function ticketsatendidos(Request $request) {
+        $entidad = 'ticket';
+        $ruta = $this->rutas;
+        return view($this->folderview.'.ticketsatendidos')->with(compact('entidad', 'ruta'));
+    }
+
+    public function listaticketsatendidos($numero, $fecha, $paciente) {
+        if($numero == '0') {
+            $numero = '';
+        }
+        $ruta = $this->rutas;
+
+        $hoy = date("Y-m-d");
+            
+        //A -> LLAMANDO
+        //B -> ATENDIENDO
+        //C -> COLA
+        //F -> FONDO
+        //N -> NO ESTA
+        //L -> LISTO
+        
+        $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+        ->where('movimiento.numero','LIKE','%'.$numero.'%')->where('movimiento.tipodocumento_id','=','1')
+        ->where(function($q) {            
+            $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'N');
+        })
+        ->where(function($q) {            
+            $q->where('ticket_reprogramacion_id',null);
+        })
+        ->where(function($q) {            
+            $q->where('situacion', 'like', 'C');
+        });
+        if($fecha!=""){
+            $resultado = $resultado->where('movimiento.fecha_reprogramacion', '=', ''.$fecha.'');
+        }
+        if($paciente!="0"){
+            $resultado = $resultado->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'), 'LIKE', '%'.$paciente.'%');
+        }
+        $resultado        = $resultado->select('movimiento.*',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'))->orderBy('movimiento.id','DESC')->orderBy('movimiento.situacion','DESC');
+        $lista            = $resultado->get();
+        $cabecera         = array();
+        $cabecera[]       = array('valor' => 'Fecha', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Nro', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Paciente', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Total', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Situacion', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Operacion', 'numero' => '1');
+        
+        //$conf = DB::connection('sqlsrv')->table('BL_CONFIGURATION')->get();
+        if (count($lista) > 0) {
+            return view($this->folderview.'.listaticketsatendidos')->with(compact('lista', 'cabecera', 'ruta', 'hoy'));
+        }
+        return view($this->folderview.'.listaticketsatendidos')->with(compact('lista', 'ruta', 'hoy'));
     }
 
 }
