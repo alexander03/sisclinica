@@ -796,6 +796,7 @@ class TicketController extends Controller
 
                     //guardo movimiento en caja
                     $movimiento        = new Movimiento();
+                    $movimiento->sucursal_id = $sucursal_id;
                     $movimiento->fecha = date("Y-m-d");
                     $movimiento->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,2,2);
                     $movimiento->responsable_id=$user->person_id;
@@ -808,7 +809,6 @@ class TicketController extends Controller
                     $movimiento->conceptopago_id=3;//PAGO DE CLIENTE
                     $movimiento->comentario='Pago de : '.substr($request->input('tipodocumento'),0,1).' '.$venta->serie.'-'.$venta->numero;
                     $movimiento->caja_id= 2 ;
-                    $movimiento->total=$Ticket->total;
                     $movimiento->totalpagado = $request->input('efectivo', 0);
                     $movimiento->totalpagadovisa = $request->input('visa', 0);
                     $movimiento->totalpagadomaster = $request->input('master', 0);
