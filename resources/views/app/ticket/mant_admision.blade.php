@@ -356,6 +356,15 @@ if(!is_null($ticket)){
 <script type="text/javascript">
 var valorbusqueda="";
 $(document).ready(function() {
+    $(document).on('change', '#tipodocumento', function(e) {
+        e.preventDefault();
+        if ($(this).val() == 'Factura') {
+            $('#opcEmpresa').css('display', '');
+            $('#ccruc').focus();
+        } else {
+            $('#opcEmpresa').css('display', 'none');
+        }
+    });
     $('#efectivo').val('0.00');
 	configurarAnchoModal('1300');
 	init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'B', '{!! $entidad !!}');
@@ -1074,6 +1083,8 @@ function calcularTotalItem(id){
         $("#txtPrecioMedico"+id).val(med);
     }
     calcularTotal();
+    $('#efectivo').val(parseFloat($('#total').val()).toFixed(2));  
+    calcularTotalPago();
 }
 
 function calcularTotalItem2(id){
@@ -1110,6 +1121,8 @@ function calcularTotalItem2(id){
         $("#txtPrecioMedico"+id).val(med);
     }
     calcularTotal();
+    $('#efectivo').val(parseFloat($('#total').val()).toFixed(2));  
+    calcularTotalPago();
 }
 
 function quitarServicio(id){
