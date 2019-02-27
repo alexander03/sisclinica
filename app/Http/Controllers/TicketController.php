@@ -583,11 +583,11 @@ class TicketController extends Controller
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
             return $validacion->messages()->toJson();
-        }     
+        }
 
         //Reviso si es que ya se registró el comprobante  
         
-        $validar = Movimiento::where('serie','=',$request->input('serieventa'))->where('manual','like','N')->where('tipodocumento_id','=',$request->input('tipodocumento')=="Boleta"?'5':'4')->where('numero','=',$request->input('numeroventa'))->first();
+        $validar = Movimiento::where('serie','=',$request->input('serieventa'))->where('manual','like','N')->where('tipodocumento_id','=',$request->input('tipodocumento')=="Boleta"?'5':'4')->where('numero','=',$request->input('numeroventa'))->where('sucursal_id', 2)->first();
         if ($validar != null) {
             $dat[0]=array("respuesta"=>"ERROR","msg"=>"Nro de Comprobante ya registrado");
                 return json_encode($dat);
@@ -622,6 +622,13 @@ class TicketController extends Controller
         $error = DB::transaction(function() use($request,$user,&$dat,&$numeronc){
             $Ticket       = new Movimiento();
             $Ticket->fecha = $request->input('fecha');
+
+            $Ticket->totalpagado = $request->input('efectivo');
+            $Ticket->totalpagadovisa = $request->input('visa');
+            $Ticket->totalpagadomaster = $request->input('master');
+            $Ticket->numvisa = $request->input('numvisa');
+            $Ticket->nummaster = $request->input('nummaster');
+
             $sucursal_id = 2; // ESPECIALIDADES
             $Ticket->numero = Movimiento::NumeroSigue(null, $sucursal_id, 1);
             $Ticket->subtotal = $request->input('coa');//COASEGURO
@@ -693,7 +700,7 @@ class TicketController extends Controller
 
             //Solo si se genera un comprobante de pago
 
-            if($request->input('quedan') == '0.000'){
+            if($request->input('total') == $request->input('total2')){
                 if($pagohospital>0){//Puse con pago hospital por generar F.E.            
                     //Genero Documento de Venta
                     //Boleta
@@ -710,16 +717,16 @@ class TicketController extends Controller
 
                         //Algoritmo para la empresa
 
-                        $empresa = Person::where('ruc', $request->input('cruc'))->first();
+                        $empresa = Person::where('ruc', $request->input('ccruc'))->first();
 
                         if(count($empresa) == 1) {
                             $idempresa = $empresa->id;
                         } else {
                             //Guardo la empresa como una nueva person
                             $nuevaempresa = new Person();
-                            $nuevaempresa->ruc = $request->input('cruc');
-                            $nuevaempresa->bussinesname = $request->input('crazon');
-                            $nuevaempresa->direccion = $request->input('cdireccion');
+                            $nuevaempresa->ruc = $request->input('ccruc');
+                            $nuevaempresa->bussinesname = $request->input('ccrazon');
+                            $nuevaempresa->direccion = $request->input('ccdireccion');
                             $nuevaempresa->save();
 
                             $idempresa = $nuevaempresa->id;
@@ -791,14 +798,18 @@ class TicketController extends Controller
                     $movimiento->conceptopago_id=3;//PAGO DE CLIENTE
                     $movimiento->comentario='Pago de : '.substr($request->input('tipodocumento'),0,1).' '.$venta->serie.'-'.$venta->numero;
                     $movimiento->caja_id= 2 ;
-                    if($request->input('formapago')=="Tarjeta"){
+                    $movimiento->total=$Ticket->total;
+                    $movimiento->totalpagado = $request->input('efectivo', 0);
+                    $movimiento->totalpagadovisa = $request->input('visa', 0);
+                    $movimiento->totalpagadomaster = $request->input('master', 0);
+                    /*if($request->input('formapago')=="Tarjeta"){
                         $movimiento->tipotarjeta=$request->input('tipotarjeta');
                         $movimiento->tarjeta=$request->input('tipotarjeta2');
                         $movimiento->voucher=$request->input('nroref');
                         $movimiento->totalpagado=0;
                     }else{
                         $movimiento->totalpagado=$request->input('total',0);
-                    }
+                    }*/
                     $movimiento->situacion='N';
                     $movimiento->movimiento_id=$venta->id;
                     $movimiento->save();
