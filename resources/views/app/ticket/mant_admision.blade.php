@@ -117,14 +117,63 @@ if(!is_null($ticket)){
                 </div>
         	</div>
             <div class="form-group">
-                {!! Form::label('plan', 'Generar:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+                <div class="col-lg-12 col-md-12 col-sm-12">
+                    {!! Form::label('formapago', 'Forma Pago:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label datocaja caja input-sm')) !!}
+                    <label id="divcbx0" class="checkbox-inline" style="color:red" onclick="divFormaPago('0', '0')">
+                        <input style="display: none;" type="checkbox" id="cbx0">Efectivo
+                    </label>
+                    <label id="divcbx1" class="checkbox-inline" onclick="divFormaPago('1', '1')">
+                        <input style="display: none;" type="checkbox" id="cbx1">Visa
+                    </label>
+                    <label id="divcbx2" class="checkbox-inline" onclick="divFormaPago('2', '1')">
+                        <input style="display: none;" type="checkbox" id="cbx2">Master
+                    </label>
+                </div>          
+            </div>
+            <div class="row">
+                <div class="col-lg-4 col-md-4 col-sm-4">            
+                    <div class="input-group form-control">
+                        <span class="input-group-addon input-xs">EFECTIVO</span>
+                        <input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="efectivo" id="efectivo" type="text" class="form-control input-xs">
+                    </div>
+                    <div class="input-group form-control">
+                        <span class="input-group-addon input-xs">VISA.</span>
+                        <input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="visa" id="visa" type="text" class="form-control input-xs" readonly="">
+                        <span style="display:none;" class="input-group-addon input-xs">N°</span>
+                        <input style="display:none;" onkeypress="return filterFloat(event,this);" name="numvisa" id="numvisa" type="text" class="form-control input-xs" readonly="">
+                    </div>
+                    <div class="input-group form-control">
+                        <span class="input-group-addon input-xs">MAST.</span>
+                        <input onkeypress="return filterFloat(event,this);" onkeyup="calcularTotalPago();" name="master" id="master" type="text" class="form-control input-xs" readonly="">
+                        <span style="display:none;" class="input-group-addon input-xs">N°</span>
+                        <input style="display:none;" onkeypress="return filterFloat(event,this);" name="nummaster" id="nummaster" type="text" class="form-control input-xs" readonly="">
+                    </div>  
+                </div>  
+                <div class="col-lg-4 col-md-4 col-sm-4">            
+                    <div class="input-group form-control">
+                        <span class="input-group-addon input-xs">TOTAL</span>
+                        <input name="total2" id="total2" type="text" class="form-control input-xs" readonly="" value="0.000">
+                    </div>
+                    <b id="mensajeMontos" style="color:red"></b>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-4">
+                    {!! Form::label('plan', 'Editar Reparticion:', array('class' => 'col-lg-6 col-md-6 col-sm-6 control-label')) !!}
+                    <div class="col-lg-1 col-md-1 col-sm-1">
+                        {!! Form::hidden('editarprecio', 'N', array('id' => 'editarprecio')) !!}
+                        <input type="checkbox" onclick="editarPrecio(this.checked)" />
+                    </div>
+                </div>      
+            </div>
+            <br>
+            <div class="form-group" style="display: none;">
+                {!! Form::label('plan', 'Generar:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label', 'style' => 'display:none;')) !!}
         		<div class="col-lg-2 col-md-2 col-sm-2">
         			{!! Form::hidden('comprobante', 'S', array('id' => 'comprobante')) !!}
-                    <input type="checkbox" onchange="mostrarDatoCaja(0,this.checked)" checked id="boleta" class="col-lg-2 col-md-2 col-sm-2 control-label" />
+                    <input type="checkbox" onchange="mostrarDatoCaja(0,this.checked)" checked id="boleta" class="col-lg-2 col-md-2 col-sm-2 control-label" style="display: none;" />
                     {!! Form::label('boleta', 'Comprobante', array('class' => 'col-lg-10 col-md-10 col-sm-10 control-label')) !!}
                     {!! Form::hidden('pagar', 'S', array('id' => 'pagar')) !!}    
-        			<input type="checkbox" onchange="mostrarDatoCaja(this.checked,0)" checked id="pago" class="col-lg-2 col-md-2 col-sm-2 control-label datocaja" />
-                    {!! Form::label('pago', 'Pago', array('class' => 'col-lg-10 col-md-10 col-sm-10 control-label datocaja')) !!}
+        			<input type="checkbox" onchange="mostrarDatoCaja(this.checked,0)" checked id="pago" class="col-lg-2 col-md-2 col-sm-2 control-label datocaja" style="display: none;" />
+                    {!! Form::label('pago', 'Pago', array('class' => 'col-lg-10 col-md-10 col-sm-10 control-label datocaja', 'style' => 'display:none')) !!}
         		</div>
                 {!! Form::label('formapago', 'Forma Pago:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label datocaja caja')) !!}
         		<div class="col-lg-2 col-md-2 col-sm-2">
@@ -158,11 +207,6 @@ if(!is_null($ticket)){
                     {!! Form::hidden('boletear', 'N', array('id' => 'boletear')) !!}
         			<input type="checkbox" onclick="boletearTodoCaja(this.checked)" />
         		</div>
-                {!! Form::label('plan', 'Editar Reparticion:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-                <div class="col-lg-1 col-md-1 col-sm-1">
-                    {!! Form::hidden('editarprecio', 'N', array('id' => 'editarprecio')) !!}
-                    <input type="checkbox" onclick="editarPrecio(this.checked)" />
-                </div>
                 {!! Form::label('personal', 'Pendiente Personal / Medico:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label descuento', 'style' => 'display:none' )) !!}
                 <div class="col-lg-1 col-md-1 col-sm-1">
                     {!! Form::hidden('descuentopersonal', 'N', array('id' => 'descuentopersonal')) !!}
@@ -185,24 +229,38 @@ if(!is_null($ticket)){
             <div class="form-group datocaja">
                 {!! Form::label('tipodocumento', 'Tipo Doc.:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
         		<div class="col-lg-3 col-md-3 col-sm-3">
-        			{!! Form::select('tipodocumento', $cboTipoDocumento, null, array('class' => 'form-control input-xs', 'id' => 'tipodocumento', 'onchange' => 'generarNumero()')) !!}
+        			{!! Form::select('tipodocumento', $cboTipoDocumento + array('Ticket' => 'Ticket'), 'Ticket', array('class' => 'form-control input-xs', 'id' => 'tipodocumento', 'onchange' => 'generarNumero()')) !!}
         		</div>
                 {!! Form::label('numeroventa', 'Nro.:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
         		<div class="col-lg-2 col-md-2 col-sm-2">
-        			{!! Form::text('serieventa', $serie, array('class' => 'form-control input-xs datocaja', 'id' => 'serieventa')) !!}
+        			{!! Form::text('serieventa', $serie, array('class' => 'form-control input-xs datocaja', 'id' => 'serieventa', 'readonly' => 'true')) !!}
         		</div>
                 <div class="col-lg-3 col-md-3 col-sm-3">
         			{!! Form::text('numeroventa', $numeroventa, array('class' => 'form-control input-xs', 'id' => 'numeroventa', 'readonly' => 'true')) !!}
         		</div>
         	</div>
+            <div class="form-group" id="opcEmpresa" style="display: none;">
+                {!! Form::label('ccruc', 'Ruc:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    {!! Form::text('ccruc','', array('class' => 'form-control input-xs datocaja', 'id' => 'ccruc', 'maxlength' => '11')) !!}
+                </div> 
+                {!! Form::label('ccrazon', 'Razón:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    {!! Form::text('ccrazon','', array('class' => 'form-control input-xs datocaja', 'id' => 'ccrazon', 'readonly' => 'readonly')) !!}
+                </div> 
+                {!! Form::label('ccdireccion', 'Direcc:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm')) !!}
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    {!! Form::text('ccdireccion','-', array('class' => 'form-control input-xs datocaja', 'id' => 'ccdireccion')) !!}
+                </div>  
+            </div>
             <div class="form-group datocaja datofactura" style="display: none;">
-                {!! Form::label('ruc', 'RUC:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+                {!! Form::label('ruc', 'RUC:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label', 'style' => 'display:none;')) !!}
         		<div class="col-lg-2 col-md-2 col-sm-2">
-        			{!! Form::text('ruc', null, array('class' => 'form-control input-xs', 'id' => 'ruc')) !!}
+        			{!! Form::text('ruc', null, array('class' => 'form-control input-xs', 'id' => 'ruc', 'style' => 'display:none;')) !!}
         		</div>
-                {!! Form::label('razon', 'Razon:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+                {!! Form::label('razon', 'Razon:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label', 'style' => 'display:none;')) !!}
         		<div class="col-lg-6 col-md-6 col-sm-6">
-        			{!! Form::text('razon', null, array('class' => 'form-control input-xs datocaja', 'id' => 'razon')) !!}
+        			{!! Form::text('razon', null, array('class' => 'form-control input-xs datocaja', 'id' => 'razon', 'style' => 'display:none;')) !!}
         		</div>
             </div>
             <div class="form-group datocaja datofactura" style="display: none;">
@@ -236,11 +294,11 @@ if(!is_null($ticket)){
         <div class="box-header">
             <h2 class="box-title col-lg-5 col-md-5 col-sm-5">Detalle <button type="button" class="btn btn-xs btn-info" title="Agregar Detalle" onclick="seleccionarServicioOtro();" ><i class="fa fa-plus"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-xs btn-danger" title="Agregar Hoja Costo" onclick="agregarHojaCosto($('#historia_id').val());">Hoja de Costo<i class="fa fa-file"></i></button></h2>
             <div class="text-right col-lg-7 col-md-7 col-sm-7">
-                <div class="col-lg-1 col-md-1 col-sm-1">
+                <div class="col-lg-1 col-md-1 col-sm-1" style="display: none;">
                     {!! Form::hidden('movimientoref', 'N', array('id' => 'movimientoref')) !!}
                     <input type="checkbox" onclick="movimientoRef(this.checked)" />
                 </div>
-                {!! Form::label('movimiento', 'Doc. Ref.:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+                {!! Form::label('movimiento', 'Doc. Ref.:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label', 'style' => 'display:none')) !!}
                 <div class="col-lg-3 col-md-3 col-sm-3">
                     {!! Form::hidden('movimiento_id', 0, array('id' => 'movimiento_id')) !!}
                     {!! Form::text('movimiento', null, array('class' => 'form-control input-xs', 'id' => 'movimiento', 'style' => 'display:none')) !!}
@@ -298,6 +356,7 @@ if(!is_null($ticket)){
 <script type="text/javascript">
 var valorbusqueda="";
 $(document).ready(function() {
+    $('#efectivo').val('0.00');
 	configurarAnchoModal('1300');
 	init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'B', '{!! $entidad !!}');
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
@@ -812,7 +871,9 @@ function seleccionarServicio(idservicio){
                 $("#txtMedico"+datos[c].idservicio).focus();  
                 if($(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="editarprecio"]').val()=='S'){
                     editarPrecio(true);
-                }             
+                }  
+                $('#efectivo').val(parseFloat($('#total').val()).toFixed(2));  
+                calcularTotalPago(); 
             }
         });
     }else{
@@ -878,6 +939,42 @@ function calcularTotal(){
         total2=Math.round((total2+tot) * 100) / 100;        
     }
     $("#totalboleta").val(total2);
+}
+
+function calcularTotalPago() {
+    var efectivo = $('#efectivo').val();
+    var visa = $('#visa').val();
+    var master = $('#master').val();
+    var total = 0.00;
+    if(efectivo == '') {
+        efectivo = 0.00;
+    } 
+    if(visa == '') {
+        visa = 0.00;
+    }
+    if(master == '') {
+        master = 0.00;
+    }
+    total = parseFloat(efectivo) + parseFloat(visa) + parseFloat(master);
+    $('#total2').val(total.toFixed(2));
+
+    coincidenciasMontos();      
+}
+
+function coincidenciasMontos() {
+    if(parseFloat($('#total').val()) == parseFloat($('#total2').val())) {
+        $('#mensajeMontos').html('Los montos coindicen.').css('color', 'green');
+        $('#genComp').css('display', '');
+        return true;
+    } else if(parseFloat($('#total').val()) > parseFloat($('#total2').val())) {
+        $('#mensajeMontos').html('Es un monto menor.').css('color', 'orange');  
+        $('#genComp').css('display', 'none');       
+        return true;
+    } else if(parseFloat($('#total').val()) < parseFloat($('#total2').val())) {
+        $('#mensajeMontos').html('Es un monto mayor.').css('color', 'red'); 
+        $('#genComp').css('display', 'none');       
+        return false;
+    }
 }
 
 function calcularCoaseguro(){
@@ -1023,6 +1120,8 @@ function quitarServicio(id){
         }
     }
     calcularTotal();
+    $('#efectivo').val(parseFloat($('#total').val()).toFixed(2));
+    calcularTotalPago();
 }
 
 function mostrarDatoCaja(check,check2){
@@ -1390,6 +1489,72 @@ function solicitarHistoria(){
     }else{
         alert('No ha seleccionado historia');
     }
+}
+
+function divFormaPago(num, mostrar) {
+    var m;
+    if(mostrar == '0') {
+        m = '1';
+        $('#cbx' + num).attr('checked', false);
+        $('#divcbx' + num).css('color', 'black');
+        if(num == '0') {
+            $('#efectivo').attr('readonly', true).val('');
+        } else if(num == '1') {
+            $('#visa').attr('readonly', true).val('');
+            $('#numvisa').attr('readonly', true).val('');
+        } else {
+            $('#master').attr('readonly', true).val('');
+            $('#nummaster').attr('readonly', true).val('');
+        }
+    } else {
+        m = '0';
+        $('#cbx' + num).attr('checked', true);
+        $('#divcbx' + num).css('color', 'red');
+        if(num == '0') {
+            $('#efectivo').attr('readonly', false).focus();
+        } else if(num == '1') {
+            $('#visa').attr('readonly', false).focus();
+            $('#numvisa').attr('readonly', false);
+        } else {
+            $('#master').attr('readonly', false).focus();
+            $('#nummaster').attr('readonly', false);
+        }
+    }
+    $('#divcbx' + num).attr("onclick", "divFormaPago('" + num + "', '" + m + "');");
+    calcularTotalPago();
+}
+
+function filterFloat(evt,input){
+    var key = window.Event ? evt.which : evt.keyCode;    
+    var chark = String.fromCharCode(key);
+    var tempValue = input.value+chark;
+    if(key >= 48 && key <= 57){
+        if(filter(tempValue)=== false){
+            return false;
+        }else{       
+            return true;
+        }
+    }else{
+          if(key == 8 || key == 13 || key == 0) {     
+              return true;              
+          }else if(key == 46){
+                if(filter(tempValue)=== false){
+                    return false;
+                }else{       
+                    return true;
+                }
+          }else{
+              return false;
+          }
+    }
+}
+function filter(__val__){
+    var preg = /^([0-9]+\.?[0-9]{0,3})$/; 
+    if(preg.test(__val__) === true){
+        return true;
+    }else{
+       return false;
+    }       
 }
 
 <?php
