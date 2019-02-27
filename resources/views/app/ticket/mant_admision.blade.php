@@ -55,10 +55,12 @@ if(!is_null($ticket)){
         		<div class="col-lg-2 col-md-2 col-sm-2">
         			{!! Form::text('numero', $numero, array('class' => 'form-control input-xs', 'id' => 'numero', 'readonly' => 'true')) !!}
         		</div>
-                {!! Form::label('manual', 'Manual:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-                <div class="col-lg-1 col-md-1 col-sm-1">
-                    {!! Form::hidden('manual', 'N', array('id' => 'manual')) !!}
-                    <input type="checkbox" onclick="Manual(this.checked)" />
+                <div style ="display:none;">
+                    {!! Form::label('manual', 'Manual:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+                    <div class="col-lg-1 col-md-1 col-sm-1">
+                        {!! Form::hidden('manual', 'N', array('id' => 'manual')) !!}
+                        <input type="checkbox" onclick="Manual(this.checked)" />
+                    </div>
                 </div>
         	</div>
             <div class="form-group">
@@ -128,10 +130,12 @@ if(!is_null($ticket)){
         		<div class="col-lg-2 col-md-2 col-sm-2">
         			{!! Form::select('formapago', $cboFormaPago, null, array('class' => 'form-control input-xs datocaja caja', 'id' => 'formapago', 'onchange'=>'validarFormaPago(this.value);')) !!}
         		</div>
-                {!! Form::label('caja_id', 'Caja:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label datocaja caja')) !!}
-        		<div class="col-lg-3 col-md-3 col-sm-3">
-        			{!! Form::select('caja_id', $cboCaja, $idcaja, array('class' => 'form-control input-xs datocaja caja', 'id' => 'caja_id', 'readonly' => 'true')) !!}
-        		</div>
+                <div style ="display:none;">
+                    {!! Form::label('caja_id', 'Caja:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label datocaja caja')) !!}
+                    <div class="col-lg-3 col-md-3 col-sm-3">
+                        {!! Form::select('caja_id', $cboCaja, $idcaja, array('class' => 'form-control input-xs datocaja caja', 'id' => 'caja_id', 'readonly' => 'true')) !!}
+                    </div>
+                </div>
             </div>
             <div class="form-group datocaja" id="divTarjeta" style="display: none;">
                 {!! Form::label('tipotarjeta', 'Tarjeta:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}

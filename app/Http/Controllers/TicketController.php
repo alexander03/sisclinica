@@ -152,7 +152,12 @@ class TicketController extends Controller
         foreach ($tiposervicio as $key => $value) {
             $cboTipoServicio = $cboTipoServicio + array($value->id => $value->nombre);
         }
-        $formData            = array('ticket.store');
+        $sucursal_id = Session::get('sucursal_id');
+        if($sucursal_id == 1){
+            $formData            = array('ticket.store');
+        }else{
+            $formData            = array('ticket.store2');
+        }
         $cboTipoPaciente     = array("Convenio" => "Convenio", "Particular" => "Particular", "Hospital" => "Hospital");
         $cboFormaPago     = array("Efectivo" => "Efectivo", "Tarjeta" => "Tarjeta");
         $cboTipoTarjeta    = array("VISA" => "VISA", "MASTER" => "MASTER");
@@ -171,7 +176,6 @@ class TicketController extends Controller
             $serie=3;
             $idcaja=1;
         }
-        $sucursal_id = Session::get('sucursal_id');
         $numero = Movimiento::NumeroSigue(null, $sucursal_id, 1);
         $user = Auth::user();
         //|| $user->usertype_id == 5 || $user->usertype_id == 6
@@ -552,6 +556,256 @@ class TicketController extends Controller
                 
                 ///////
             }
+            $dat[0]=array("respuesta"=>"OK","ticket_id"=>$Ticket->id,"pagohospital"=>$pagohospital,"notacredito_id"=>$notacredito_id);
+        });
+        return is_null($error) ? json_encode($dat) : $error;
+    }
+
+    public function store2(Request $request)
+    {
+        $listar     = Libreria::getParam($request->input('listar'), 'NO');
+        $reglas     = array(
+                'fecha'                  => 'required',
+                'numero'          => 'required',
+                'paciente'          => 'required',
+                'numero'          => 'required',
+                'total'         => 'required',
+                'plan'          => 'required',
+                );
+        $mensajes = array(
+            'fecha.required'         => 'Debe seleccionar una fecha',
+            'numero.required'         => 'El ticket debe tener un numero',
+            'paciente.required'         => 'Debe seleccionar un paciente',
+            'plan.required'         => 'Debe seleccionar un plan',
+            'total.required'         => 'Debe agregar detalle al ticket',
+            );
+        $validacion = Validator::make($request->all(), $reglas, $mensajes);
+        if ($validacion->fails()) {
+            return $validacion->messages()->toJson();
+        }     
+
+        //Reviso si es que ya se registró el comprobante  
+        
+        $validar = Movimiento::where('serie','=',$request->input('serieventa'))->where('manual','like','N')->where('tipodocumento_id','=',$request->input('tipodocumento')=="Boleta"?'5':'4')->where('numero','=',$request->input('numeroventa'))->first();
+        if ($validar != null) {
+            $dat[0]=array("respuesta"=>"ERROR","msg"=>"Nro de Comprobante ya registrado");
+                return json_encode($dat);
+        }
+
+        //Reviso si ya se cerró la caja
+
+        $user = Auth::user();
+        $dat=array();
+        if($request->input('pagar')=='S'){
+            $rst  = Movimiento::where('tipomovimiento_id','=',2)->where('caja_id','=', 2 )->orderBy('movimiento.id','DESC')->limit(1)->first();
+            if(count($rst)==0){
+                $conceptopago_id=2;
+            }else{
+                $conceptopago_id=$rst->conceptopago_id;
+            }
+            if($conceptopago_id==2){
+                $dat[0]=array("respuesta"=>"ERROR","msg"=>"Caja cerrada");
+                return json_encode($dat);
+            }
+        }
+
+
+        $numero=($request->input('tipodocumento')=="Boleta"?"B":"F").str_pad($request->input('serieventa'),3,'0',STR_PAD_LEFT).'-'.$request->input('numeroventa');
+        $numeronc="";//numero nota credito
+
+        //BORRO BOLETA O FACUTRA REGISTRADA
+        /* DB::connection('sqlsrv')->delete('delete from SPE_EINVOICEHEADER where serieNumero="'.$numero.'"');
+        DB::connection('sqlsrv')->delete('delete from SPE_EINVOICEDETAIL where serieNumero="'.$numero.'"');
+        DB::connection('sqlsrv')->delete('delete from SPE_EINVOICEHEADER_ADD where serieNumero="'.$numero.'"');*/
+
+        $error = DB::transaction(function() use($request,$user,&$dat,&$numeronc){
+            $Ticket       = new Movimiento();
+            $Ticket->fecha = $request->input('fecha');
+            $sucursal_id = 2; // ESPECIALIDADES
+            $Ticket->numero = Movimiento::NumeroSigue(null, $sucursal_id, 1);
+            $Ticket->subtotal = $request->input('coa');//COASEGURO
+            $Ticket->sucursal_id = $sucursal_id;//SUCURSAL
+            $Ticket->igv = $request->input('deducible');//DEDUCIBLE
+            $Ticket->total = $request->input('total');
+            $Ticket->tipomovimiento_id=1;//TICKET
+            $Ticket->tipodocumento_id=1;//TICKET
+            $Ticket->persona_id = $request->input('person_id');
+            $Ticket->plan_id = $request->input('plan_id');
+            $Ticket->soat = $request->input('soat');
+            $Ticket->sctr = $request->input('sctr');
+            $Ticket->situacion='C';//Pendiente => P / Cobrado => C / Boleteado => B
+            $Ticket->comentario = $request->input('formapago')."@".$request->input('tipodocumento');
+            $Ticket->responsable_id=$user->person_id;
+
+            if($request->input('referido_id')>0){
+                $Ticket->doctor_id=$request->input('referido_id');
+            }
+
+            //Guardamos el Ticket
+
+            $arr=explode(",",$request->input('listServicio'));
+
+            for ($x=0; $x < count($arr); $x++) { 
+                if ($request->input('txtIdServicio'.$arr[$x]) == '13') {
+                    //Si es alquiler en dólares
+                    $Ticket->numeroserie2 = 'DOLAR';
+                    break;
+                }
+            }
+
+            $Ticket->save();
+
+            //Registro de detalles del movimiento
+
+            $pagohospital=0;
+            
+            for($c=0;$c<count($arr);$c++){
+                $Detalle = new Detallemovcaja();
+                $Detalle->movimiento_id=$Ticket->id;
+                if($request->input('txtIdTipoServicio'.$arr[$c])!="0"){
+                    $Detalle->servicio_id=$request->input('txtIdServicio'.$arr[$c]);
+                    $Detalle->descripcion="";
+                    $servicio = Servicio::find($Detalle->servicio_id);
+                    $Detalle->precioconvenio=$servicio->precio;
+                    $Detalle->tiposervicio_id=$request->input('cboTipoServicio'.$arr[$c]);
+                }else{
+                    $Detalle->servicio_id=null;
+                    $Detalle->descripcion=trim($request->input('txtServicio'.$arr[$c]));
+                    $Detalle->tiposervicio_id=$request->input('cboTipoServicio'.$arr[$c]);
+                }
+                $Detalle->persona_id=$request->input('txtIdMedico'.$arr[$c]);
+                $Detalle->cantidad=$request->input('txtCantidad'.$arr[$c]);
+                $Detalle->precio=$request->input('txtPrecio'.$arr[$c]);
+                $Detalle->pagodoctor=$request->input('txtPrecioMedico'.$arr[$c]);
+                $Detalle->pagohospital=$request->input('txtPrecioHospital'.$arr[$c]);
+                $Detalle->tipodescuento=$request->input('cboDescuento');
+                $Detalle->descuento=$request->input('txtDescuento'.$arr[$c]);
+                $Detalle->save();
+                $pagohospital=$pagohospital + $request->input('txtPrecioHospital'.$arr[$c]) * $request->input('txtCantidad'.$arr[$c]);
+            }
+            
+            $notacredito_id=0;
+
+            $pagohospital=$Ticket->total;
+
+            $caja = Caja::find(2);
+
+            //Solo si se genera un comprobante de pago
+
+            if($request->input('quedan') == '0.000'){
+                if($pagohospital>0){//Puse con pago hospital por generar F.E.            
+                    //Genero Documento de Venta
+                    //Boleta
+                    if($request->input('tipodocumento')=="Boleta"){
+                        $tipodocumento_id=5;
+                        $codigo="03";
+                        $abreviatura="B";
+                    }
+                    //Factura
+                    else if($request->input('tipodocumento')=="Factura"){
+                        $tipodocumento_id=4;
+                        $codigo="01";
+                        $abreviatura="F";
+
+                        //Algoritmo para la empresa
+
+                        $empresa = Person::where('ruc', $request->input('cruc'))->first();
+
+                        if(count($empresa) == 1) {
+                            $idempresa = $empresa->id;
+                        } else {
+                            //Guardo la empresa como una nueva person
+                            $nuevaempresa = new Person();
+                            $nuevaempresa->ruc = $request->input('cruc');
+                            $nuevaempresa->bussinesname = $request->input('crazon');
+                            $nuevaempresa->direccion = $request->input('cdireccion');
+                            $nuevaempresa->save();
+
+                            $idempresa = $nuevaempresa->id;
+                        }
+
+                    } else {
+                        $tipodocumento_id=12;
+                        //$codigo="01";
+                        $abreviatura="T";
+                    }
+
+                    //Genero venta como nuevo movimiento
+
+                    $venta        = new Movimiento();
+                    $venta->sucursal_id = $sucursal_id;
+                    $venta->fecha = date("Y-m-d");
+
+                    //Puede ser manual o no
+
+                    $venta->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,4,$tipodocumento_id,$request->input('serieventa')+0,'N');
+                    $venta->serie = '00'.$request->input('serieventa');
+
+                    if($request->input('tipodocumento')=="Factura") {
+                        $venta->empresa_id = $idempresa;
+                    }
+                    
+                    $venta->responsable_id=$user->person_id;
+                    $venta->persona_id=$Ticket->persona_id;
+                    if($request->input('tipodocumento')=="Boleta"){
+                        $venta->subtotal=number_format($pagohospital/1.18,2,'.','');
+                        $venta->igv=number_format($pagohospital - $venta->subtotal,2,'.','');
+                        $venta->total=$pagohospital;     
+                    }else if($request->input('tipodocumento')=="Factura"){
+                        $venta->subtotal=number_format($pagohospital/1.18,2,'.','');
+                        $venta->igv=number_format($pagohospital - $venta->subtotal,2,'.','');
+                        $venta->total=number_format($pagohospital,2,'.','');                     
+                    } else {
+                        $venta->subtotal=number_format($pagohospital,2,'.','');
+                        $venta->igv=0;
+                        $venta->total=number_format($pagohospital,2,'.','');  
+                    }
+                    $venta->tipomovimiento_id=4;
+                    $venta->caja_id=$caja->id;
+                    $venta->numero=$request->input('numeroventa');
+                    $venta->serie=$request->input('serieventa');
+                    $venta->tipodocumento_id=$tipodocumento_id;
+                    $venta->comentario='';
+                    $venta->manual='N';
+                    $venta->situacion='N';        
+                    $venta->movimiento_id=$Ticket->id;
+                    $venta->ventafarmacia='N';
+
+                    //Guardamos la venta
+
+                    $venta->save();
+                    //
+
+                    //guardo movimiento en caja
+                    $movimiento        = new Movimiento();
+                    $movimiento->fecha = date("Y-m-d");
+                    $movimiento->numero= Movimiento::NumeroSigue($caja->id, $sucursal_id,2,2);
+                    $movimiento->responsable_id=$user->person_id;
+                    $movimiento->persona_id=$request->input('person_id');
+                    $movimiento->subtotal=0;
+                    $movimiento->igv=0;
+                    $movimiento->total=$request->input('total',0); 
+                    $movimiento->tipomovimiento_id=2;
+                    $movimiento->tipodocumento_id=2;
+                    $movimiento->conceptopago_id=3;//PAGO DE CLIENTE
+                    $movimiento->comentario='Pago de : '.substr($request->input('tipodocumento'),0,1).' '.$venta->serie.'-'.$venta->numero;
+                    $movimiento->caja_id= 2 ;
+                    if($request->input('formapago')=="Tarjeta"){
+                        $movimiento->tipotarjeta=$request->input('tipotarjeta');
+                        $movimiento->tarjeta=$request->input('tipotarjeta2');
+                        $movimiento->voucher=$request->input('nroref');
+                        $movimiento->totalpagado=0;
+                    }else{
+                        $movimiento->totalpagado=$request->input('total',0);
+                    }
+                    $movimiento->situacion='N';
+                    $movimiento->movimiento_id=$venta->id;
+                    $movimiento->save();
+                    $idref=$movimiento->id;
+
+                }
+            }
+                
             $dat[0]=array("respuesta"=>"OK","ticket_id"=>$Ticket->id,"pagohospital"=>$pagohospital,"notacredito_id"=>$notacredito_id);
         });
         return is_null($error) ? json_encode($dat) : $error;
