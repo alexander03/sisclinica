@@ -435,7 +435,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('ticket/store2', 'TicketController@store2')->name('ticket.store2');
     Route::get('ticket/ticketsatendidos', 'TicketController@ticketsatendidos')->name('ticket.ticketsatendidos');
     Route::get('ticket/listaticketsatendidos/{numero}/{fecha}/{paciente}', 'TicketController@listaticketsatendidos')->name('ticket.listaticketsatendidos');
-    Route::get('ticket/atendido/{id}', 'TicketController@atendido')->name('ticket.atendido');
+    Route::post('ticket/guardarAtendidos', 'TicketController@guardarAtendidos')->name('ticket.guardarAtendidos');
 
     Route::get('ticket/buscarEmpresa', 'TicketController@buscarEmpresa')->name('ticket.buscarEmpresa');
 

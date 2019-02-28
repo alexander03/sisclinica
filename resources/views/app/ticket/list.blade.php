@@ -59,7 +59,7 @@ use App\Detallemovcaja;
 				}
 				if($value->situacion2 == 'A' || $value->situacion2 == 'B' || $value->situacion2 == 'F'){
 					$estado .= " - ATENDIENDO";
-				}else if($value->situacion2 == 'C' || $value->situacion2 == 'N'){
+				}else if($value->situacion2 == 'C' || $value->situacion2 == 'N' || $value->situacion2 == ''){
 					$estado .= " - EN ESPERA";
 				}else if($value->situacion2 == 'L'){
 					$estado .= " - ATENDIDO";
