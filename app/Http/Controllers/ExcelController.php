@@ -379,21 +379,22 @@ class ExcelController extends Controller
             })->get();
             if(!empty($data) && $data->count()){
                 $dat=array();
-                /*
-                $movimientoalmacen                 = new Movimiento();
+                
+                $movimientoalmacen = new Movimiento();
                 $movimientoalmacen->tipodocumento_id = 8;
-                $movimientoalmacen->tipomovimiento_id          = 5;
-                $movimientoalmacen->almacen_id          = 2;
+                $movimientoalmacen->tipomovimiento_id  = 5;
+                $movimientoalmacen->almacen_id  = 1;
+                $movimientoalmacen->sucursal_id  = 1;
                 $movimientoalmacen->comentario   = 'Carga inicial de inventario';
                 $movimientoalmacen->numero = '00000001';
                 $movimientoalmacen->fecha  = date("Y-m-d");
                 $movimientoalmacen->total = 0;
                 $movimientoalmacen->responsable_id = 1;
                 $movimientoalmacen->save();
-                */
+                
             
                 foreach ($data as $key => $value) {
-                    $error = DB::transaction(function() use($value,&$dat){//$movimientoalmacen
+                    $error = DB::transaction(function() use($value,&$dat,$movimientoalmacen){
                         $producto = Producto::where('nombre','like',trim(strtoupper($value->producto)))->first();
                         if(is_null($producto)){
                             $producto       = new Producto();
@@ -410,8 +411,8 @@ class ExcelController extends Controller
                             $producto->codigo_producto    = '';
                             $producto->registro_sanitario = '';
                             $producto->precioxcaja    = 0;
-                            $producto->preciocompra   = $value->costo;
-                            $producto->precioventa    = $value->precio;
+                            $producto->preciocompra   = $value->precio;
+                            $producto->precioventa    = 0;
                             $producto->preciokayros   = 0; 
                             $producto->stockseguridad   = 0; 
                             $producto->categoria_id = null;
@@ -421,12 +422,12 @@ class ExcelController extends Controller
                             $producto->proveedor_id = null;
                             $producto->origen_id = null;
 
-                            $anaquel = Anaquel::where('descripcion','like',trim($value->bloque))->first();
+                            /*$anaquel = Anaquel::where('descripcion','like',trim($value->bloque))->first();
                             if(is_null($anaquel)){
                                 $anaquel = new Anaquel();
                                 $anaquel->descripcion = trim($value->bloque);
                                 $anaquel->save();
-                            }
+                            }*/
                             //$producto->anaquel_id = $anaquel->id;
                             $producto->anaquel_id = null;
                             $producto->save();
@@ -454,7 +455,7 @@ class ExcelController extends Controller
                                 $lote->cantidad = $cantidad;
                                 $lote->queda = $cantidad;
                                 $lote->producto_id = $producto->id;
-                                $lote->almacen_id = 2;
+                                $lote->almacen_id = 1;
                                 $lote->save();
 
                                 $detalleVenta->lote_id = $lote->id;
@@ -473,7 +474,7 @@ class ExcelController extends Controller
                                 $kardex->stockactual = $stockactual;
                                 $kardex->cantidad = $cantidad;
                                 $kardex->preciocompra = $precio;
-                                //$kardex->almacen_id = 2;
+                                $kardex->almacen_id = 1;
                                 $kardex->detallemovimiento_id = $detalleVenta->id;
                                 if($value->fechavencimiento!="-"){
                                     $kardex->lote_id = $lote->id;
@@ -489,7 +490,7 @@ class ExcelController extends Controller
                                 $kardex->stockactual = $stockactual;
                                 $kardex->cantidad = $cantidad;
                                 $kardex->preciocompra = $precio;
-                                //$kardex->almacen_id = 2;
+                                $kardex->almacen_id = 1;
                                 $kardex->detallemovimiento_id = $detalleVenta->id;
                                 if($value->fechavencimiento!="-"){
                                     $kardex->lote_id = $lote->id;
@@ -502,7 +503,7 @@ class ExcelController extends Controller
                                 $stock = new Stock();
                                 $stock->producto_id = $producto->id;
                                 $stock->cantidad = $stockactual;
-                                $stock->almacen_id = 2;
+                                $stock->almacen_id = 1;
                                 $stock->save();
                             }else{
                                 $stock->cantidad = $stock->cantidad + $cantidad;

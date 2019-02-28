@@ -3,7 +3,6 @@
 use App\Detallemovcaja;
 
 ?>
-
 @if(count($lista) == 0)
 <h3 class="text-warning">No se encontraron resultados.</h3>
 @else
@@ -65,14 +64,14 @@ use App\Detallemovcaja;
 				}else if($value->situacion2 == 'L'){
 					$estado .= " - ATENDIDO";
 				}	
-				$Detalle = Detallemovcaja::where('movimiento_id', $value->id)->orderBy('id', 'ASC')->first();
-
+				$responsable = explode(" ", $value->responsable);	
+				$Detalle = Detallemovcaja::where('movimiento_id', $value->id)->orderBy('id', 'ASC')->first();		
 				?>
 
-				<td>{{ $estado }}</td>
+				<td style="font-size:12px">{{ $estado }}</td>
 
 
-	  			<td>{{ $value->responsable }}</td>
+	  			<td>{{ $responsable[0] }}</td>
 	  			<td>{{ $Detalle->persona->apellidopaterno . ' ' . explode(" ", $Detalle->persona->nombres)[0] }}</td>
 	            @if($value->situacion=='C')
 	            	@if($value->total>0)
@@ -80,8 +79,10 @@ use App\Detallemovcaja;
 	                	<td align="center">{!! Form::button('<div class="glyphicon glyphicon-print"></div>', array('onclick' => 'window.open(\'ticket/pdfComprobante3?ticket_id='.$value->id.'\',\'_blank\')', 'class' => 'btn btn-xs btn-info', 'title'=>'Comprobante Ticketera')) !!}</td>
 	                @else
 	                	<td align="center">{!! Form::button('<div class="glyphicon glyphicon-print"></div>', array('onclick' => 'window.open(\'ticket/pdfPrefactura?ticket_id='.$value->id.'\',\'_blank\')', 'class' => 'btn btn-xs btn-info', 'title' => 'Prefactura')) !!}</td>
+	                	<td align="center"> - </td>
 	                @endif
 	            @else
+	                <td align="center"> - </td>
 	                <td align="center"> - </td>
 	            @endif
 	           

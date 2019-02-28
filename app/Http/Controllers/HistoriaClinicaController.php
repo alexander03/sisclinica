@@ -79,7 +79,8 @@ class HistoriaClinicaController extends Controller
                                             ->get();
 
                                              $cies = Detallehistoriacie::leftjoin('cie', 'cie.id', '=', 'detallehistoriacie.cie_id')
-                                        ->where('detallehistoriacie.historiaclinica_id',  $historiaclinica->id )->get();           
+                                        ->where('detallehistoriacie.historiaclinica_id',  $historiaclinica->id )->get();
+
 
             $cita = Cita::find($historiaclinica->citaproxima);
 
@@ -235,7 +236,7 @@ class HistoriaClinicaController extends Controller
                             $user = Auth::user();
                             
                             //sucursal_id
-                            $sucursal_id = Session::get('sucursal_id');
+                            $sucursal_id = 1;
         
                             $Cita->sucursal_id = $sucursal_id;
                             $Cita->fecha = $request->input('citaproxima');

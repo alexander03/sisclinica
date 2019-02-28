@@ -45,6 +45,8 @@ Route::get('/config-cache', function() {
 Route::get('auth/login', 'Auth\AuthController@getLogin');
 Route::post('auth/login', ['as' =>'auth/login', 'uses' => 'Auth\AuthController@postLogin']);
 Route::get('auth/logout', ['as' => 'auth/logout', 'uses' => 'Auth\AuthController@getLogout']);
+
+//Route::get('ventaadmision/cola2', 'VentaadmisionController@cola');
  
 // Registration routes...
 Route::get('auth/register', 'Auth\AuthController@getRegister');
@@ -61,6 +63,8 @@ Route::get('/vistamedico', function(){
 Route::get('/cola', function(){
     return View::make('app.ventaadmision.cola');
 });
+
+Route::post('ventaadmision/cola', 'ColaController@cola');
 
 Route::post('/seguimiento/alerta', 'SeguimientoController@alerta')->name('seguimiento.alerta');
 
@@ -427,6 +431,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('ticket/listaticketsreprogramados/{numero}/{fecha}/{paciente}', 'TicketController@listaticketsreprogramados')->name('ticket.listaticketsreprogramados');
     Route::get('ticket/reingreso/{id}', 'TicketController@reingreso')->name('ticket.reingreso');
     Route::put('ticket/guardarreingreso/{id}', 'TicketController@guardarreingreso')->name('ticket.guardarreingreso');
+
     Route::post('ticket/store2', 'TicketController@store2')->name('ticket.store2');
     Route::get('ticket/ticketsatendidos', 'TicketController@ticketsatendidos')->name('ticket.ticketsatendidos');
     Route::get('ticket/listaticketsatendidos/{numero}/{fecha}/{paciente}', 'TicketController@listaticketsatendidos')->name('ticket.listaticketsatendidos');
@@ -704,7 +709,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('ventaadmision/excelVentaBizlink', 'VentaadmisionController@excelVentaBizlink')->name('ventaadmision.excelVentaBizlink');
     Route::get('ventaadmision/excelFarmacia', 'VentaadmisionController@excelFarmacia')->name('ventaadmision.excelFarmacia');
     Route::get('ventaadmision/excelFarmacia1', 'VentaadmisionController@excelFarmacia1')->name('ventaadmision.excelFarmacia1');
-    Route::post('ventaadmision/cola', 'VentaadmisionController@cola');
+    //Route::post('ventaadmision/cola', 'VentaadmisionController@cola');
     Route::post('ventaadmision/colamedico', 'VentaadmisionController@colamedico');
     Route::post('ventaadmision/llamarAtender', 'VentaadmisionController@llamarAtender');
     Route::post('ventaadmision/llamarPacienteNombre', 'VentaadmisionController@llamarPacienteNombre');

@@ -12,6 +12,6 @@ class VerifyCsrfToken extends BaseVerifier
      * @var array
      */
     protected $except = [
-        'importHistoriaExcel','importHistoria','importTarifario','importCie','importApellidoExcel','importServicio','producto/vistamedico','vistamedico2','seguimiento/alerta','ventaadmision/cola'
+        'importHistoriaExcel','importHistoria','importTarifario','importProducto','importCie','importApellidoExcel','importServicio','producto/vistamedico','vistamedico2','seguimiento/alerta','ventaadmision/cola'
     ];
 }

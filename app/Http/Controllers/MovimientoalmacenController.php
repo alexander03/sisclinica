@@ -71,8 +71,9 @@ class MovimientoalmacenController extends Controller
         $ruta             = $this->rutas;
         //sucursal_id
         $sucursal_id = Session::get('sucursal_id');
+        $user=Auth::user();
         $cboAlmacen      = Almacen::where('sucursal_id', '=', $sucursal_id)->get()->pluck('nombre', 'id');
-        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'cboAlmacen', 'titulo_registrar', 'ruta'));
+        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'cboAlmacen', 'titulo_registrar', 'ruta', 'user'));
     }
 
     public function buscarproducto(Request $request)
@@ -102,18 +103,23 @@ class MovimientoalmacenController extends Controller
         //sucursal_id
         $sucursal_id = Session::get('sucursal_id');
 
-        $user=Auth::user();
-        if($sucursal_id == 1) {
-            if($user->usertype_id == 11) {
-                $almacen_id = 1;
-            } else {
-                $almacen_id = 2;
-            }
+        $user=Auth::user();            
+
+        if($user->usertype_id == 1) {
+            $almacen_id = $request->input('almacen_id');
         } else {
-            if($user->usertype_id == 11) {
-                $almacen_id = 3;
+            if($sucursal_id == 1) {
+                if($user->usertype_id == 11) {
+                    $almacen_id = 1;
+                } else {
+                    $almacen_id = 2;
+                }
             } else {
-                $almacen_id = 4;
+                if($user->usertype_id == 11) {
+                    $almacen_id = 3;
+                } else {
+                    $almacen_id = 4;
+                }
             }
         }
 
@@ -155,9 +161,9 @@ class MovimientoalmacenController extends Controller
             $paginaactual    = $paramPaginacion['nuevapagina'];
             $lista           = $resultado->paginate($filas);
             $request->replace(array('page' => $paginaactual));
-            return view($this->folderview.'.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'titulo_ver', 'ruta'));
+            return view($this->folderview.'.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'titulo_ver', 'ruta', 'user'));
         }
-        return view($this->folderview.'.list')->with(compact('lista', 'entidad'));
+        return view($this->folderview.'.list')->with(compact('lista', 'entidad', 'user'));
     }
 
     public function listarproducto(Request $request)

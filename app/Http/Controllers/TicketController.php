@@ -70,6 +70,7 @@ class TicketController extends Controller
         $paciente         = Libreria::getParam($request->input('paciente'),'');
         $numero           = Libreria::getParam($request->input('numero'),'');
         $fecha            = Libreria::getParam($request->input('fecha'));
+        $tipo             = Libreria::getParam($request->input('clasificacionconsulta'));
         $user = Auth::user();
         if($request->input('usuario')=="Todos"){
             $responsable_id=0;
@@ -87,6 +88,9 @@ class TicketController extends Controller
                             ->where('movimiento.numero','LIKE','%'.$numero.'%')->where('movimiento.tipodocumento_id','=','1');
         if($fecha!=""){
             $resultado = $resultado->where('movimiento.fecha', '=', ''.$fecha.'');
+        }
+        if($tipo!=""){
+            $resultado = $resultado->where('movimiento.clasificacionconsulta', 'like', '%'.$tipo.'%');
         }
         if($responsable_id>0){
             $resultado = $resultado->where('movimiento.responsable_id', '=', $responsable_id);   
@@ -120,7 +124,7 @@ class TicketController extends Controller
             $paginaactual    = $paramPaginacion['nuevapagina'];
             $lista           = $resultado->paginate($filas);
             $request->replace(array('page' => $paginaactual));
-            return view($this->folderview.'.list')->with(compact('lista', 'sucursal_id' ,'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'conf', 'user'));
+            return view($this->folderview.'.list')->with(compact('lista', 'paginacion', 'sucursal_id', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'conf', 'user'));
         }
         return view($this->folderview.'.list')->with(compact('lista', 'entidad','conf'));
     }
@@ -165,12 +169,7 @@ class TicketController extends Controller
         foreach ($tiposervicio as $key => $value) {
             $cboTipoServicio = $cboTipoServicio + array($value->id => $value->nombre);
         }
-        $sucursal_id = Session::get('sucursal_id');
-        if($sucursal_id == 1){
-            $formData            = array('ticket.store');
-        }else{
-            $formData            = array('ticket.store2');
-        }
+        $formData            = array('ticket.store');
         $cboTipoPaciente     = array("Convenio" => "Convenio", "Particular" => "Particular", "Hospital" => "Hospital");
         $cboFormaPago     = array("Efectivo" => "Efectivo", "Tarjeta" => "Tarjeta");
         $cboTipoTarjeta    = array("VISA" => "VISA", "MASTER" => "MASTER");
@@ -189,6 +188,7 @@ class TicketController extends Controller
             $serie=3;
             $idcaja=1;
         }
+        $sucursal_id = Session::get('sucursal_id');
         $numero = Movimiento::NumeroSigue(null, $sucursal_id, 1);
         $user = Auth::user();
         //|| $user->usertype_id == 5 || $user->usertype_id == 6
@@ -240,7 +240,7 @@ class TicketController extends Controller
 
         //Reviso si es que ya se registró el comprobante  
         
-        $validar = Movimiento::where('serie','=',$request->input('serieventa'))->where('manual','like','N')->where('tipodocumento_id','=',$request->input('tipodocumento')=="Boleta"?'5':'4')->where('numero','=',$request->input('numeroventa'))->first();
+        $validar = Movimiento::where('serie','=',$request->input('serieventa'))->where('manual','like','N')->where('tipodocumento_id','=',$request->input('tipodocumento')=="Boleta"?'5':'4')->where('numero','=',$request->input('numeroventa'))->where('sucursal_id', 2)->first();
         if ($validar != null) {
             $dat[0]=array("respuesta"=>"ERROR","msg"=>"Nro de Comprobante ya registrado");
                 return json_encode($dat);
@@ -2138,6 +2138,9 @@ class TicketController extends Controller
         ->where('movimiento.numero','LIKE','%'.$numero.'%')->where('movimiento.tipodocumento_id','=','1')
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'N');
+        })
+        ->where(function($q) {            
+            $q->where('clasificacionconsulta','like','C')->orWhere('clasificacionconsulta','like','E')->orWhere('clasificacionconsulta','like','L');
         })
         ->where(function($q) {            
             $q->where('fecha_reprogramacion' , null)->orWhere('ticket_reprogramacion_id',null);

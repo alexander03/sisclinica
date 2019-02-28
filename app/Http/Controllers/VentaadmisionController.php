@@ -5323,8 +5323,8 @@ class VentaadmisionController extends Controller
         
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
         ->where('movimiento.tipodocumento_id','=','1')
-        ->where('movimiento.sucursal_id' , '=' , 1)
         ->where('movimiento.fecha', date('Y-m-d') )
+        ->where('movimiento.sucursal_id', 1)
         //->where('movimiento.tiempo_fondo', null)
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'N')->orWhere('situacion2', 'like', 'F');

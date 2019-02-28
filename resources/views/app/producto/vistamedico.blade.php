@@ -510,6 +510,7 @@ $user = Auth::user();
 																<tbody id="detalle"></tbody>
 															</table>
 														</div>
+														
 													</div>
 
 													</div>
@@ -699,7 +700,7 @@ $user = Auth::user();
 	            </div>
 			</footer>
 	    </div>
-		{!! Form::hidden('actualizado', 'NO', array('id' => 'actualizado')) !!}
+	    {!! Form::hidden('actualizado', 'NO', array('id' => 'actualizado')) !!}
 	</form>
     <!-- ./wrapper -->
     <!-- jQuery 2.2.3 -->
@@ -1042,7 +1043,7 @@ $user = Auth::user();
 			, 1000);
 		}
 	}	
-    setInterval(buscar4, 2000);
+    setInterval(buscar4, 4000);
 	
 	function tablaAtendidos(){
 		$.ajax({
@@ -1165,102 +1166,90 @@ $user = Auth::user();
 
     $(document).on('click', '.btnLlamarPaciente', function(event) {
     	event.preventDefault();
+    	var paciente_id = $(this).data('paciente_id');
+    	var ticket_id = $(this).data('ticket_id');
+		var pantalla = $(this).data('pantalla');
 
-    	if($('#pestanaAtencion').css('display') !== 'none') {
-    		alert('Ya estás atendiendo a un paciente. No puedes atender 2 al mismo tiempo.');
-    		$('#pestanaAtencion').addClass('active');
-    		$('#pestanaPacienteCola').removeClass('active');
-        	$('#Farmacia').removeClass('in active');
-			$('#cie').removeClass('in active');
-			$('#cola').removeClass('in active');
-			$('#atencion').addClass('in active');
-    		return 0;    		
-    	} else {
-    		var paciente_id = $(this).data('paciente_id');
-	    	var ticket_id = $(this).data('ticket_id');
-			var pantalla = $(this).data('pantalla');
+		$('#pantalla').val(pantalla);
 
-			$('#pantalla').val(pantalla);
-
-			if(pantalla == "SI"){
-				$.ajax({
-					"method": "POST",
-					"url": "{{ url('/ventaadmision/colamedico') }}",
-					"data": {
-						"ticket_id" : ticket_id, 
-						"_token": "{{ csrf_token() }}",
-						}
-				});
-			}
-
-	    	$.ajax({
-		        type: "POST",
-		        url: "historiaclinica/nuevaHistoriaClinica/" + paciente_id + "/" + ticket_id,
-		        data: "_token=<?php echo csrf_token(); ?>",
-		        dataType: "json",
-		        success: function(a) {
-		        	$('#mensopera').html(a.mensaje);
-		        	$("li").removeClass('in active');
-		        	$('#Farmacia').removeClass('in active');
-					$('#cie').removeClass('in active');
-					$('#cola').removeClass('in active');
-					$('#atencion').addClass('in active');
-	  				$("#pestanaAtencion").css('display', '').addClass('active');
-	  				$("#pestanaPacienteCola").removeClass('active');	
-	  				$('#historia_id').val(a.historia_id);
-					tablaCita(a.historia_id);
-	  				$('#ticket_id').val(a.ticket_id);
-					$('#doctor_id').val(a.doctor_id);
-					$('#doctor').val(a.doctor);
-	  				$('#historia').val(a.numhistoria);
-	  				$('#paciente').val(a.paciente);
-					$('#numero').val(a.numero);
-					$('#cita_id').val(a.cita_id);
-					$('#citaproxima').val(a.citaproxima);
-					if(a.fondo == "SI"){
-						$('#fondo').prop('checked', false);
-						$('#fondo_si').val(a.fondo);
-						//$("#cie102").prop('readOnly', true);
-						//$("#citaproxima").prop('readOnly', true);
-						//$("#motivo").prop('readOnly', true);
-					}else{
-						$('#fondo').prop('checked', false);
-						$('#fondo_si').val(a.fondo);
-						//$("#cie102").prop('readOnly', false);
-						//$("#motivo").prop('readOnly', false);
+		if(pantalla == "SI"){
+			$.ajax({
+				"method": "POST",
+				"url": "{{ url('/ventaadmision/colamedico') }}",
+				"data": {
+					"ticket_id" : ticket_id, 
+					"_token": "{{ csrf_token() }}",
 					}
-					$('#cie102').val(a.cie10);
-					//$('#cie102_id').val(a.cie10id);
-					$('#citas').val(a.cantcitas);
-	  				$('#cie102').focus();
-					$('#motivo').val(a.motivo.replace(/<BR>/g,"\n"));
-					//ANTECEDENTES
-					$('#antecedentes').val(a.antecedentes.replace(/<BR>/g,"\n"));
-					//FIN ANTECEDENTES
-					$('#tratamiento').val(a.tratamiento.replace(/<BR>/g,"\n"));
-					$('#diagnostico').val(a.diagnostico.replace(/<BR>/g,"\n"));
-					$('#exploracion_fisica').val(a.exploracion_fisica.replace(/<BR>/g,"\n"));
-					//$('#examenes').val(a.examenes);
-					console.log(a.examenes);
-					var arr = a.examenes;
-					$.each(arr, function (index, value) {
-						var fila =  '<tr align="center" id="'+ value.servicio_id +'" ><td style="vertical-align: middle; text-align: left;">'+ value.nombre +'</td><td style="vertical-align: middle;"><a onclick="eliminarDetalle(this)" class="btn btn-xs btn-danger btnEliminar" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</a></td></tr>';
-						$("#detalle").append(fila);
-					});
+			});
+		}
 
-					console.log(a.cies);
-					var arrcies = a.cies;
-					$.each(arrcies, function (index, value) {
-						var fila =  '<tr align="center" id="'+ value.cie_id +'" ><td style="vertical-align: middle; text-align: left;">'+ value.descripcion +'</td><td style="vertical-align: middle;"><a onclick="eliminarDetalleCie(this)" class="btn btn-xs btn-danger btnEliminar" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</a></td></tr>';
-						$("#detallecie").append(fila);
-					});
-					$('#cantcie').val(a.cantcies);
-		        },
-				error: function() {
-			        alert('OCURRIÓ UN ERROR, VUELVA A INTENTAR...');
-			    }
-		    });
-    	}	    	
+    	$.ajax({
+	        type: "POST",
+	        url: "historiaclinica/nuevaHistoriaClinica/" + paciente_id + "/" + ticket_id,
+	        data: "_token=<?php echo csrf_token(); ?>",
+	        dataType: "json",
+	        success: function(a) {
+	        	$('#mensopera').html(a.mensaje);
+	        	$("li").removeClass('in active');
+	        	$('#Farmacia').removeClass('in active');
+				$('#cie').removeClass('in active');
+				$('#cola').removeClass('in active');
+				$('#atencion').addClass('in active');
+  				$("#pestanaAtencion").css('display', '').addClass('active');
+  				$("#pestanaPacienteCola").removeClass('active');	
+  				$('#historia_id').val(a.historia_id);
+				tablaCita(a.historia_id);
+  				$('#ticket_id').val(a.ticket_id);
+				$('#doctor_id').val(a.doctor_id);
+				$('#doctor').val(a.doctor);
+  				$('#historia').val(a.numhistoria);
+  				$('#paciente').val(a.paciente);
+				$('#numero').val(a.numero);
+				$('#cita_id').val(a.cita_id);
+				$('#citaproxima').val(a.citaproxima);
+				if(a.fondo == "SI"){
+					$('#fondo').prop('checked', false);
+					$('#fondo_si').val(a.fondo);
+					//$("#cie102").prop('readOnly', true);
+					//$("#citaproxima").prop('readOnly', true);
+					//$("#motivo").prop('readOnly', true);
+				}else{
+					$('#fondo').prop('checked', false);
+					$('#fondo_si').val(a.fondo);
+					//$("#cie102").prop('readOnly', false);
+					//$("#motivo").prop('readOnly', false);
+				}
+				$('#cie102').val(a.cie10);
+				//$('#cie102_id').val(a.cie10id);
+				$('#citas').val(a.cantcitas);
+  				$('#cie102').focus();
+				$('#motivo').val(a.motivo.replace(/<BR>/g,"\n"));
+				//ANTECEDENTES
+				$('#antecedentes').val(a.antecedentes.replace(/<BR>/g,"\n"));
+				//FIN ANTECEDENTES
+				$('#tratamiento').val(a.tratamiento.replace(/<BR>/g,"\n"));
+				$('#diagnostico').val(a.diagnostico.replace(/<BR>/g,"\n"));
+				$('#exploracion_fisica').val(a.exploracion_fisica.replace(/<BR>/g,"\n"));
+				//$('#examenes').val(a.examenes);
+				console.log(a.examenes);
+				var arr = a.examenes;
+				$.each(arr, function (index, value) {
+					var fila =  '<tr align="center" id="'+ value.servicio_id +'" ><td style="vertical-align: middle; text-align: left;">'+ value.nombre +'</td><td style="vertical-align: middle;"><a onclick="eliminarDetalle(this)" class="btn btn-xs btn-danger btnEliminar" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</a></td></tr>';
+					$("#detalle").append(fila);
+				});
+
+				console.log(a.cies);
+				var arrcies = a.cies;
+				$.each(arrcies, function (index, value) {
+					var fila =  '<tr align="center" id="'+ value.cie_id +'" ><td style="vertical-align: middle; text-align: left;">'+ value.descripcion +'</td><td style="vertical-align: middle;"><a onclick="eliminarDetalleCie(this)" class="btn btn-xs btn-danger btnEliminar" type="button"><div class="glyphicon glyphicon-remove"></div> Eliminar</a></td></tr>';
+					$("#detallecie").append(fila);
+				});
+				$('#cantcie').val(a.cantcies);
+	        },
+		error: function() {
+	        alert('OCURRIÓ UN ERROR, VUELVA A INTENTAR...');
+	    }
+	    });
     });
 
     function registrarHistoriaClinica(){

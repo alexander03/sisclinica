@@ -24,12 +24,14 @@
 							{!! Form::open(['route' => $ruta["search"], 'method' => 'POST' ,'onsubmit' => 'return false;', 'class' => 'form-inline', 'role' => 'form', 'autocomplete' => 'off', 'id' => 'formBusqueda'.$entidad]) !!}
 							{!! Form::hidden('page', 1, array('id' => 'page')) !!}
 							{!! Form::hidden('accion', 'listar', array('id' => 'accion')) !!}
-							<div class="form-group" style="display: none;">
+							@if($user->usertype_id == 1)
+							<div class="form-group">
 								{!! Form::label('almacen_id', 'Almacen :', array()) !!}
 								<div class='input-group input-group-xs'>
 								{!! Form::select('almacen_id', $cboAlmacen, null, array('class' => 'form-control input-xs', 'id' => 'almacen_id' , 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
 								</div>
 							</div>
+							@endif
 							<div class="form-group">
 								{!! Form::label('fechainicio', 'Fecha Inicio :', array()) !!}
 									<div class='input-group input-group-xs' id='divfechainicio'>
