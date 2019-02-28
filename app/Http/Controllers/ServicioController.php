@@ -13,6 +13,7 @@ use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Excel;
 
 class ServicioController extends Controller
@@ -46,11 +47,12 @@ class ServicioController extends Controller
      */
     public function buscar(Request $request)
     {
+        $sucursal_id      = Session::get('sucursal_id');
         $pagina           = $request->input('page');
         $filas            = $request->input('filas');
         $entidad          = 'Servicio';
         $nombre             = Libreria::getParam($request->input('nombre'));
-        $resultado        = Servicio::where('tipopago','LIKE','%'.$request->input('tipopago').'%');
+        $resultado        = Servicio::where('tipopago','LIKE','%'.$request->input('tipopago').'%')->where('sucursal_id', '=', $sucursal_id);
         if($request->input('tiposervicio')!="0"){
             $resultado = $resultado->where('tiposervicio_id','=',$request->input('tiposervicio'));
         }
@@ -177,7 +179,9 @@ class ServicioController extends Controller
             return $validacion->messages()->toJson();
         }
         $error = DB::transaction(function() use($request){
+            $sucursal_id      = Session::get('sucursal_id');
             $servicio       = new Servicio();
+            $servicio->sucursal_id = $sucursal_id;
             $servicio->nombre = strtoupper($request->input('nombre'));
             $servicio->tiposervicio_id = $request->input('tiposervicio');
             $servicio->tipopago = $request->input('tipopago');
@@ -265,7 +269,9 @@ class ServicioController extends Controller
             return $validacion->messages()->toJson();
         } 
         $error = DB::transaction(function() use($request, $id){
+            $sucursal_id      = Session::get('sucursal_id');
             $servicio       = Servicio::find($id);
+            $servicio->sucursal_id = $sucursal_id;
             $servicio->nombre = strtoupper($request->input('nombre'));
             $servicio->tiposervicio_id = $request->input('tiposervicio');
             $servicio->tipopago = $request->input('tipopago');
@@ -321,8 +327,9 @@ class ServicioController extends Controller
 
     public function excel(Request $request){
         setlocale(LC_TIME, 'spanish');
+        $sucursal_id      = Session::get('sucursal_id');
         $nombre             = Libreria::getParam($request->input('nombre'));
-        $resultado        = Servicio::where('tipopago','LIKE','%'.$request->input('tipopago').'%');
+        $resultado        = Servicio::where('tipopago','LIKE','%'.$request->input('tipopago').'%')->where('sucursal_id', '=', $sucursal_id);
         if($request->input('tiposervicio')!="0"){
             $resultado = $resultado->where('tiposervicio_id','=',$request->input('tiposervicio'));
         }

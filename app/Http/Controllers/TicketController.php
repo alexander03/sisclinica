@@ -1064,10 +1064,11 @@ class TicketController extends Controller
     
     public function buscarservicio(Request $request)
     {
+        $sucursal_id = Session::get('sucursal_id');
         $descripcion = $request->input("descripcion");
         $idtiposervicio = trim($request->input("idtiposervicio"));
         $tipopago = $request->input('tipopaciente');
-        $resultado = Servicio::leftjoin('tarifario','tarifario.id','=','servicio.tarifario_id');
+        $resultado = Servicio::leftjoin('tarifario','tarifario.id','=','servicio.tarifario_id')->where('sucursal_id', '=', $sucursal_id);
         if($tipopago=='Convenio'){
             $resultado = $resultado->where(DB::raw('trim(concat(servicio.nombre,\' \',tarifario.codigo,\' \',tarifario.nombre))'),'LIKE','%'.$descripcion.'%')->where('servicio.plan_id','=',$request->input('plan_id'));
         }else{
