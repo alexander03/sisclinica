@@ -827,7 +827,6 @@ class TicketController extends Controller
                     $movimiento->movimiento_id=$venta->id;
                     $movimiento->save();
                     $idref=$movimiento->id;
-
                 }
             }
                 

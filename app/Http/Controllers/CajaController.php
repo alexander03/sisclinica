@@ -9943,7 +9943,8 @@ class CajaController extends Controller
         }
         $ruta = $this->rutas;
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
-        ->where('movimiento.numero','LIKE','%'.$numero.'%')->where('movimiento.tipodocumento_id','=','1');
+        ->where('movimiento.numero','LIKE','%'.$numero.'%')->where('movimiento.tipodocumento_id','=','1')
+        ->where('movimiento.sucursal_id','=','1');
         if($fecha!=""){
             $resultado = $resultado->where('movimiento.fecha', '=', ''.$fecha.'');
         }
@@ -9987,7 +9988,7 @@ class CajaController extends Controller
         $cboTipoTarjeta2    = array("CREDITO" => "CREDITO", "DEBITO" => "DEBITO");
         $cboTipoDocumento     = array("Boleta" => "Boleta", "Factura" => "Factura", "Ticket" => "Ticket");
 
-        $detalles = Movimiento::select('detallemovcaja.id', 'movimiento.serie', 'movimiento.numero', 'cantidad', 'detallemovcaja.persona_id', 'descripcion', 'cantidad', 'detallemovcaja.precio', 'descuento', 'servicio.nombre')->join('detallemovcaja', 'movimiento.id', '=', 'detallemovcaja.movimiento_id')->join('servicio', 'servicio.id', '=', 'detallemovcaja.servicio_id')->where('movimiento.id', $id)->where('sucursal_id', 1)->where('detallemovcaja.deleted_at', '=', null)->get();
+        $detalles = Movimiento::select('detallemovcaja.id', 'movimiento.serie', 'movimiento.numero', 'cantidad', 'detallemovcaja.persona_id', 'descripcion', 'cantidad', 'detallemovcaja.precio', 'descuento', 'servicio.nombre')->join('detallemovcaja', 'movimiento.id', '=', 'detallemovcaja.movimiento_id')->join('servicio', 'servicio.id', '=', 'detallemovcaja.servicio_id')->where('movimiento.id', $id)->where('detallemovcaja.deleted_at', '=', null)->get();
 
         return view($this->folderview.'.cobrarticket')->with(compact('Caja', 'formData', 'entidad', 'boton', 'movimiento', 'cboFormaPago', 'cboTipoTarjeta', 'cboTipoTarjeta2', 'cboCaja', 'cboTipoDocumento', 'ruta', 'detalles', 'serie'));
     }
@@ -10260,7 +10261,8 @@ class CajaController extends Controller
                             ->leftjoin('movimiento as m2', 'movimiento.movimiento_id', '=', 'm2.id');
         if($fecha!=""){
             $resultado = $resultado->where('m2.fecha', '=', ''.$fecha.'')
-        ->where('movimiento.situacion','=','Z')->where('movimiento.comentario', 'TOTAL DE CUOTAS');
+        ->where('movimiento.situacion','=','Z')->where('movimiento.comentario', 'TOTAL DE CUOTAS')
+        ->where('movimiento.sucursal_id','=','1');
         }
         if($paciente!="0"){
             $resultado = $resultado->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'), 'LIKE', '%'.$paciente.'%');
@@ -10313,7 +10315,7 @@ class CajaController extends Controller
             ->join('servicio', 'servicio.id', '=', 'detallemovcaja.servicio_id')
             ->where('movimiento.id', $movimiento->id)
             ->where('detallemovcaja.deleted_at', '=', null)
-            ->where('sucursal_id', 1)
+            ->where('movimiento.sucursal_id', 1)
             ->get();
 
         return view($this->folderview.'.cobrarcuentapendiente')->with(compact('Caja', 'formData', 'entidad', 'boton', 'movimiento', 'cboFormaPago', 'cboTipoTarjeta', 'cboTipoTarjeta2', 'cboCaja', 'cboTipoDocumento', 'ruta', 'detalles', 'serie', 'cuotas', 'resumen'));
