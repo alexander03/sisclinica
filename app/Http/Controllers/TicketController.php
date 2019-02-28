@@ -464,7 +464,7 @@ class TicketController extends Controller
                     //guardo movimiento en caja
                     $movimiento        = new Movimiento();
                     $movimiento->fecha = date("Y-m-d");
-                    $movimiento->numero= Movimiento::NumeroSigue(2,2);
+                    $movimiento->numero= Movimiento::NumeroSigue(2,2,2,2);
                     $movimiento->responsable_id=$user->person_id;
                     $movimiento->persona_id=$request->input('person_id');
                     $movimiento->subtotal=0;
