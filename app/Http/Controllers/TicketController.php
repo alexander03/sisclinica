@@ -143,9 +143,10 @@ class TicketController extends Controller
         $titulo_ticketsreprogramados    = 'Tickets Reprogramados'; 
         $titulo_ticketsatendidos    = 'Tickets guardar Atendidos'; 
         $ruta             = $this->rutas;
+        $user = Auth::user();
         //sucursal_id
         $sucursal_id = Session::get('sucursal_id');
-        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'sucursal_id', 'titulo_registrar', 'titulo_ticketsreprogramados', 'titulo_ticketsreprogramar' , 'titulo_ticketsatendidos' , 'ruta'));
+        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'sucursal_id', 'titulo_registrar', 'titulo_ticketsreprogramados', 'titulo_ticketsreprogramar' , 'titulo_ticketsatendidos' , 'ruta', 'user'));
     }
 
     /**
@@ -2125,6 +2126,8 @@ class TicketController extends Controller
             $numero = '';
         }
         $ruta = $this->rutas;
+
+        $sucursal_id = Session::get('sucursal_id');
             
         //A -> LLAMANDO
         //B -> ATENDIENDO
@@ -2135,6 +2138,7 @@ class TicketController extends Controller
         
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
         ->where('movimiento.numero','LIKE','%'.$numero.'%')->where('movimiento.tipodocumento_id','=','1')
+        ->where('movimiento.sucursal_id','=',$sucursal_id)
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'N');
         })
@@ -2245,6 +2249,8 @@ class TicketController extends Controller
         }
         $ruta = $this->rutas;
 
+        $sucursal_id = Session::get('sucursal_id');
+
         $hoy = date("Y-m-d");
             
         //A -> LLAMANDO
@@ -2256,6 +2262,7 @@ class TicketController extends Controller
         
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
         ->where('movimiento.numero','LIKE','%'.$numero.'%')->where('movimiento.tipodocumento_id','=','1')
+        ->where('movimiento.sucursal_id','=',$sucursal_id)
         ->where(function($q) {            
             $q->where('situacion2', 'like', 'C')->orWhere('situacion2', 'like', 'N');
         })
