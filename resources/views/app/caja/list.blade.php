@@ -18,13 +18,13 @@
     {!! Form::button('<i class="glyphicon glyphicon-remove-circle"></i> Cierre', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnCerrar', 'onclick' => 'modalCaja (\''.URL::route($ruta["cierre"], array('listar'=>'SI')).'\', \''.$titulo_cierre.'\', this);')) !!}
 @endif
 <!--{! Form::button('<i class="glyphicon glyphicon-print"></i> Honorario', array('class' => 'btn btn-warning btn-xs', 'id' => 'btnHonorario', 'onclick' => 'imprimirHonorario();')) !!}-->
-@if($tipousuario!=11)
+@if(($tipousuario!=11&&$user->sucursal_id==1)||$user->usertype_id==1)
     {!! Form::button('<i class="glyphicon glyphicon-list"></i> Tickets Pendientes', array('class' => 'btn btn-primary btn-xs', 'id' => 'btnTicketsPendientes', 'onclick' => 'modalCaja (\''.URL::route($ruta["ticketspendientes"], array('listar'=>'SI')).'\', \''.$titulo_ticketspendientes.'\', this);')) !!}
     {!! Form::button('<i class="glyphicon glyphicon-tags"></i>&nbsp;&nbsp;Cuentas por Cobrar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnCuentasPendientes', 'onclick' => 'modalCaja (\''.URL::route($ruta["cuentaspendientes"], array('listar'=>'SI')).'\', \''.$titulo_cuentaspendientes.'\', this);')) !!}    
 @endif
 {!! Form::button('<i class="glyphicon glyphicon-print"></i> Exportar PDF', array('class' => 'btn btn-warning btn-xs', 'id' => 'btnDetalle', 'onclick' => 'imprimirDetalle();')) !!}
 {!! Form::button('<i class="glyphicon glyphicon-print"></i> Exportar Excel', array('class' => 'btn btn-success btn-xs', 'id' => 'btnDetalle', 'onclick' => 'imprimirDetalleExcel();')) !!}  
-@if($tipousuario!=11)
+@if(($tipousuario!=11&&$user->sucursal_id==1)||$user->usertype_id==1)
     {!! Form::button('<i class="glyphicon glyphicon-plus-sign"></i>&nbsp;&nbsp;Cirugías/Procedimientos', array('class' => 'btn btn-info btn-xs', 'id' => 'btncirupro', 'onclick' => 'modal("caja/cirupro", "Cirugías/Procedimientos");')) !!}
 @endif 
 <?php 
