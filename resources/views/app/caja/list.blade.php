@@ -27,6 +27,9 @@
 @if(($tipousuario!=11&&$user->sucursal_id==1)||$user->usertype_id==1)
     {!! Form::button('<i class="glyphicon glyphicon-plus-sign"></i>&nbsp;&nbsp;Cirugías/Procedimientos', array('class' => 'btn btn-info btn-xs', 'id' => 'btncirupro', 'onclick' => 'modal("caja/cirupro", "Cirugías/Procedimientos");')) !!}
 @endif 
+@if($user->sucursal_id==2||$user->usertype_id==1)
+    {!! Form::button('<i class="glyphicon glyphicon-link"></i>&nbsp;&nbsp;Pagos pendientes a doctores', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnpagodoc', 'onclick' => 'modal("", "Pagos pendientes a doctores");')) !!}
+@endif
 <?php 
 $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
 ?>
