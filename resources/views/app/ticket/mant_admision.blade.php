@@ -28,8 +28,8 @@ if(!is_null($ticket)){
     $deducible="";
     $historia_id="";
     $numero_historia="";
-    $referido_id=0;
-    $referido="";
+    $referido_id=9229;
+    $referido="SIN REFERIDO";
 }
 ?>
 <style>

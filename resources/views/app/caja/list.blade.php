@@ -118,7 +118,7 @@ $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
         ?>
 		<tr style="{{ $color }}" title="{{ $titulo }}">
             <td>{{ date('d/m/Y',strtotime($value->fecha)) }}</td>
-            <td>{{ $value->ventafarmacia }}</td>
+            <td>{{ $value->numero }}</td>
             <td>{{ $value->conceptopago->nombre }}</td>
             @if ($value->caja_id == 4)
                 <td>{{ $nombrepaciente}}</td>

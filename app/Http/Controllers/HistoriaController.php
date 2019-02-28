@@ -24,6 +24,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Elibyy\TCPDF\Facades\TCPDF;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 ini_set('memory_limit', '512M'); //Raise to 512 MB
 ini_set('max_execution_time', '60000'); //Raise to 512 MB 
@@ -52,6 +53,7 @@ class HistoriaController extends Controller
 
     public function buscar(Request $request)
     {
+        $sucursal_id      = Session::get('sucursal_id');
         $pagina           = $request->input('page');
         $filas            = $request->input('filas');
         $entidad          = 'Historia';
@@ -61,6 +63,7 @@ class HistoriaController extends Controller
         $tipopaciente             = Libreria::getParam($request->input('tipopaciente'));
         $resultado        = Historia::join('person', 'person.id', '=', 'historia.person_id')
                             ->leftjoin('convenio', 'convenio.id', '=', 'historia.convenio_id')
+                            ->where('historia.sucursal_id', '=', $sucursal_id)
                             ->where(DB::raw('concat(apellidopaterno,\' \',apellidomaterno,\' \',nombres)'), 'LIKE', '%'.strtoupper($nombre).'%')
                             ->where('person.dni', 'LIKE', '%'.strtoupper($dni).'%');
         if($tipopaciente!=""){
@@ -204,6 +207,7 @@ class HistoriaController extends Controller
         $dat=array();
         $user = Auth::user();
         $error = DB::transaction(function() use($request,$idpersona,$user,&$dat){
+            $sucursal_id      = Session::get('sucursal_id');
             $Historia       = new Historia();
             if($idpersona==0){
                 $person = new Person();
@@ -248,6 +252,7 @@ class HistoriaController extends Controller
                 $Historia->titular=$request->input('titular');
             }
             $Historia->numero = Historia::NumeroSigue();
+            $Historia->sucursal_id = $sucursal_id;
             $Historia->save();
             $RolPersona = new RolPersona();
             $RolPersona->rol_id = 3;
@@ -338,6 +343,7 @@ class HistoriaController extends Controller
             $idpersona=0;
         }    
         $error = DB::transaction(function() use($request, $id, $idpersona){
+            $sucursal_id      = Session::get('sucursal_id');
             $Historia = Historia::find($id);
             if($Historia->modo=="V" && $request->input('modo')=="F"){
                 $Historia->fechamodo=date("Y-m-d");
@@ -403,6 +409,7 @@ class HistoriaController extends Controller
                 $Historia->soat=$request->input('soat');
                 $Historia->titular=$request->input('titular');
             }
+            $Historia->sucursal_id = $sucursal_id;
             $Historia->save();
         });
         $dat=array();
@@ -480,10 +487,12 @@ class HistoriaController extends Controller
     
     public function personautocompletar($searching)
     {
-        $entidad    = 'Historia';        
+        $entidad    = 'Historia';    
+        $sucursal_id      = Session::get('sucursal_id');    
         $resultado = Historia::join('person', 'person.id', '=', 'historia.person_id')
                             ->leftjoin('convenio', 'convenio.id', '=', 'historia.convenio_id')
                             ->where(DB::raw('concat(person.dni,\' \',apellidopaterno,\' \',apellidomaterno,\' \',nombres)'), 'LIKE', '%'.strtoupper($searching).'%')
+                            ->where('historia.sucursal_id', '=', $sucursal_id)
                             ->select('historia.*','convenio.nombre as convenio2','convenio.plan_id');
         $list      = $resultado->get();
         $data = array();
@@ -537,11 +546,13 @@ class HistoriaController extends Controller
     
     public function historiaautocompletar($searching)
     {
-        $entidad    = 'Historia';        
+        $entidad    = 'Historia';   
+        $sucursal_id      = Session::get('sucursal_id');     
         $resultado = Historia::join('person', 'person.id', '=', 'historia.person_id')
                             ->leftjoin('convenio', 'convenio.id', '=', 'historia.convenio_id')
                             ->where('historia.numero', 'LIKE', '%'.strtoupper($searching).'%')
                             ->whereNull('person.deleted_at')
+                            ->where('historia.sucursal_id', '=', $sucursal_id)
                             ->select('historia.*','convenio.nombre as convenio2','convenio.plan_id');
         $list      = $resultado->get();
         $data = array();
