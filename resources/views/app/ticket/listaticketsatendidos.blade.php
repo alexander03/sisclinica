@@ -27,33 +27,60 @@
             	<font color="green">COBRADO</font>
             	@endif
 	            </td>
-	            <td style="color:blue;font-weight: bold;">
+	            <td style="color:black;font-weight: bold;">
 	            	<center>
-	            	@if($hoy == substr($value->fecha, 0, 10)) 
-		            	@if ($value->situacion == 'C')
-							{!! Form::button('<div class="glyphicon glyphicon-check"></div> Guardar Atendido', array('onclick' => 'modal (\''.URL::route($ruta["atendido"], array($value->id, 'listar'=>'SI')).'\', \'Guardar Atendido\', this);', 'class' => 'btn btn-xs btn-success', 'title' => 'Editar')) !!}
-		            	@else
-		            	-
-		            	@endif	
-		            @else
-		            -
-		            @endif	
+						<input id="{{ $value->id }}" class="atendido" checked="checked" name="atendido" type="checkbox"><a href="#" id="{{ $value->id }}" onclick="checkear({{ $value->id }});"> Atendido</a>
 	            	</center>
 	            </td>
 		</tr>
 		@endforeach
 	</tbody>
-	<tfoot>
-		<tr>
-			@foreach($cabecera as $key => $value)
-				<th @if((int)$value['numero'] > 1) colspan="{{ $value['numero'] }}" @endif>{!! $value['valor'] !!}</th>
-			@endforeach
-		</tr>
-	</tfoot>
 </table>
+<div style="text-align:right;">
+{!! Form::button('<i class="fa fa-check fa-lg"></i> Guardar atendidos', array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => 'guardarAtendidos();', 'style' => 'margin-top:20px;')) !!}
+</div>
 <script type="text/javascript">
 $(document).ready(function() {
 	configurarAnchoModal('900');
 }); 
+
+function checkear(id){
+	if( $("input[id=" + id + "]").prop('checked') == true ) {
+		$("input[id=" + id + "]").prop('checked',false);
+	}else{
+		$("input[id=" + id + "]").prop('checked',true);
+	}
+}
+
+function guardarAtendidos(){
+	var data = [];
+	$('.atendido:checked').each(
+		function() {
+			data.push(
+				{ "id": $(this).attr('id') }
+			);
+		}
+	);
+	var detalle = {"data": data};
+	var json = JSON.stringify(detalle);
+	console.log(json);
+
+
+	$.ajax({
+		type: "POST",
+		url: "ticket/guardarAtendidos",
+		data: {
+			"atendidos" : json, 
+			"_token": "{{ csrf_token() }}",
+			},
+		success: function(a) {
+			alert('GUARDADO CORRECTAMENTE...');
+			listaticketsatendidos();
+		},
+	error: function() {
+		alert('OCURRIÓ UN ERROR, VUELVA A INTENTAR...');
+	}
+	});
+}
 </script>
 @endif

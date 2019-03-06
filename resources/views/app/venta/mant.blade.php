@@ -955,12 +955,12 @@ function addpurchasecart(elemento){
             setTimeout(function () {
                 $('#precioventa').focus();
             },2000) 
-	}else if(price.trim() == 0){
+	}/*else if(price.trim() == 0){
 		bootbox.alert("el precio debe ser mayor a 0");
             setTimeout(function () {
                 $('#precioventa').focus();
             },2000) 
-	}else{
+	}*/else{
 		var idsesioncarrito = $("#idsesioncarrito").val();
 		var detalle = $('#detalle').val();
 		$('#detalle').val(true);
@@ -1176,7 +1176,7 @@ function declarar1(idventa,idtipodocumento,numero){
 	$.ajax({
         type: "GET",
         url: "../clifacturacion/controlador/contComprobante.php?funcion="+funcion,
-        data: "idventa="+idventa+"&_token="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="_token"]').val(),
+        data: "idventa="+idventa+"&empresa={{ ($sucursal_id==1?'2':'1') }}&_token="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="_token"]').val(),
         success: function(a) {
             console.log(a);
             imprimirVenta(numero);
@@ -1187,7 +1187,7 @@ function declarar1(idventa,idtipodocumento,numero){
 function imprimirVenta(numero){
 	$.ajax({
         type: "POST",
-        url: "http://localhost/clifacturacion/controlador/contImprimir.php?funcion=ImprimirVenta",
+        url: "http://localhost:81/clifacturacion/controlador/contImprimir.php?funcion=ImprimirVenta",
         data: "numero="+numero+"&_token="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="_token"]').val(),
         success: function(a) {
             console.log(a);

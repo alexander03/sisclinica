@@ -173,7 +173,7 @@ function excelVenta2(entidad){
 function imprimirTicket(id){
 	$.ajax({
         type: "POST",
-        url: "http://localhost/clifacturacion/controlador/contImprimir.php?funcion=ImprimirTicket",
+        url: "http://localhost{{ ($sucursal_id==1?'':':81') }}/clifacturacion/controlador/contImprimir.php?funcion=ImprimirTicket",
         data: "id="+id+"&_token="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="_token"]').val(),
         success: function(a) {
             console.log(a);
@@ -184,7 +184,7 @@ function imprimirTicket(id){
 function imprimirVenta(numero){
 	$.ajax({
         type: "POST",
-        url: "http://localhost/clifacturacion/controlador/contImprimir.php?funcion=ImprimirVenta",
+        url: "http://localhost{{ ($sucursal_id==1?'':':81') }}/clifacturacion/controlador/contImprimir.php?funcion=ImprimirVenta",
         data: "numero="+numero+"&_token="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="_token"]').val(),
         success: function(a) {
             console.log(a);
@@ -193,7 +193,7 @@ function imprimirVenta(numero){
 }
 
 function verPDF(numero){
-    window.open("../clifacturacion/controlador/contComprobante.php?funcion=generarPDF&numero="+numero+"&_token="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="_token"]').val(),"_blank");
+    window.open("../clifacturacion/controlador/contComprobante.php?funcion=generarPDF&numero="+numero+"&empresa={{ ($sucursal_id==1?'2':'1') }}&_token="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="_token"]').val(),"_blank");
 }
 
 function declarar2(idventa,idtipodocumento){
@@ -205,7 +205,7 @@ function declarar2(idventa,idtipodocumento){
 	$.ajax({
         type: "GET",
         url: "../clifacturacion/controlador/contComprobante.php?funcion="+funcion,
-        data: "idventa="+idventa+"&_token="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="_token"]').val(),
+        data: "idventa="+idventa+"&empresa={{ ($sucursal_id==1?'2':'1') }}&_token="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="_token"]').val(),
         success: function(a) {
             console.log(a);
 	    }

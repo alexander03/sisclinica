@@ -701,7 +701,7 @@ function guardarPago (entidad, idboton) {
         band = false;
         msg += " *Se debe ingresar una descripcion \n";    
     }
-    if($("#person_id").val()==""){
+     if($("#person_id").val()==""){
         band = false;
         msg += " *No se selecciono un paciente \n";    
     }
@@ -749,10 +749,10 @@ function guardarPago (entidad, idboton) {
         }
     }   
     if($("#tipodocumento").val()=="Factura"){
-        var ruc = $("#ruc").val();
-        ruc = ruc.replace("_"," ");
-        console.log(ruc);
-        if(ruc.trim().length<11){
+        var ruc = $("#ccruc").val();
+        //ruc = ruc.replace("_"," ");
+        console.log("ruc = " + ruc);
+        if(ruc.trim().length != 11){
             band = false;
             msg += " *Debe registrar un correcto RUC \n";   
         }
@@ -785,14 +785,28 @@ function guardarPago (entidad, idboton) {
     			if (resp === 'OK') {
     				cerrarModal();
                     buscarCompaginado('', 'Accion realizada correctamente', entidad, 'OK');
-                    if(dat[0].pagohospital!="0"){
+                    if(dat[0].tipodocumento_id=="12"){
+                        imprimirTicket(dat[0].venta_id);
+                    }else{
+                        tipo = $('#tipodocumento').val();
+                        if(tipo == 'Boleta') {
+                            tipo = 'B';
+                        } else {
+                            tipo = 'B';
+                        }
+                        serie = $('#serieventa').val();
+                        numero = $('#numeroventa').val();
+                        imprimirVenta(tipo + serie + '-' + numero);
+                        declarar1(dat[0].venta_id,dat[0].tipodocumento_id,dat[0].numero);
+                    }
+                    /*if(dat[0].pagohospital!="0"){
                         window.open('/juanpablo/ticket/pdfComprobante3?ticket_id='+dat[0].ticket_id,'_blank')
                     }else{
                         window.open('/juanpablo/ticket/pdfPrefactura?ticket_id='+dat[0].ticket_id,'_blank')
                     }
                     if(dat[0].notacredito_id!="0"){
                         window.open('/juanpablo/notacredito/pdfComprobante3?id='+dat[0].notacredito_id,'_blank');
-                    }
+                    }*/
     			} else if(resp === 'ERROR') {
     				alert(dat[0].msg);
     			} else {
@@ -803,6 +817,45 @@ function guardarPago (entidad, idboton) {
     }else{
         alert("Corregir los sgtes errores: \n"+msg);
     }
+}
+
+function declarar1(idventa,idtipodocumento,numero){
+    if(idtipodocumento==5){
+        var funcion="enviarBoleta";
+    }else{
+        var funcion="enviarFactura";
+    }
+    $.ajax({
+        type: "GET",
+        url: "../clifacturacion/controlador/contComprobante.php?funcion="+funcion,
+        data: "idventa="+idventa+"&empresa=1&_token="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="_token"]').val(),
+        success: function(a) {
+            console.log(a);
+            imprimirVenta(numero);
+        }
+    }); 
+}
+
+function imprimirTicket(id){
+    $.ajax({
+        type: "POST",
+        url: "http://localhost/clifacturacion/controlador/contImprimir.php?funcion=ImprimirTicket",
+        data: "id="+id+"&_token="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="_token"]').val(),
+        success: function(a) {
+            console.log(a);
+        }
+    });
+}
+
+function imprimirVenta(numero){
+    $.ajax({
+        type: "POST",
+        url: "http://localhost/clifacturacion/controlador/contImprimir.php?funcion=ImprimirVenta",
+        data: "numero="+numero+"&_token="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="_token"]').val(),
+        success: function(a) {
+            console.log(a);
+        }
+    });
 }
 
 function validarFormaPago(forma){

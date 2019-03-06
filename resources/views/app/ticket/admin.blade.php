@@ -55,7 +55,7 @@
 							{!! Form::button('<i class="glyphicon glyphicon-list"></i> Tickets para Reprogramar', array('class' => 'btn btn-primary btn-xs', 'id' => 'btnTicketsReprogramar', 'onclick' => 'modal(\''.URL::route($ruta["ticketreprogramar"], array('listar'=>'SI')).'\', \''.$titulo_ticketsreprogramar.'\', this);')) !!}
 							{!! Form::button('<i class="glyphicon glyphicon-list"></i> Tickets reprogramados', array('class' => 'btn btn-warning btn-xs', 'id' => 'btnTicketsReprogramados', 'onclick' => 'modal(\''.URL::route($ruta["ticketsreprogramados"], array('listar'=>'SI')).'\', \''.$titulo_ticketsreprogramados.'\', this);')) !!}
 							@endif
-							@if($sucursal_id == 2 || $user->usertype_id == 1)
+							@if($sucursal_id == 2)
 								{!! Form::button('<i class="glyphicon glyphicon-list"></i> Tickets guardar atendidos', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnTicketsAtendidos', 'onclick' => 'modal(\''.URL::route($ruta["ticketsatendidos"], array('listar'=>'SI')).'\', \''.$titulo_ticketsatendidos.'\', this);')) !!}
 							@endif
 							{!! Form::close() !!}

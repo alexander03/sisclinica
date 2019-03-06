@@ -142,7 +142,8 @@ class HistoriaController extends Controller
         $formData            = array('historia.store');
         $cboTipoPaciente     = array("Particular" => "Particular", "Convenio" => "Convenio", "Hospital" => "Hospital");
         $cboModo             = array("F" => "Fisico", "V" => "Registro Virtual");
-        $num = Historia::NumeroSigue();
+        $sucursal_id      = Session::get('sucursal_id');
+        $num = Historia::NumeroSigue($sucursal_id);
         $user = Auth::user();
         $formData            = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton               = 'Registrar'; 
@@ -193,9 +194,10 @@ class HistoriaController extends Controller
         $mdlPerson = new Person();
         $resultado = Person::where('dni','LIKE',$dni);
         $value     = $resultado->first();
+        $sucursal_id      = Session::get('sucursal_id');
         if(count($value)>0 && strlen(trim($dni))>0){
             $objHistoria = new Historia();
-            $list2       = Historia::where('person_id','=',$value->id)->first();
+            $list2       = Historia::where('person_id','=',$value->id)->where('historia.sucursal_id','=',$sucursal_id)->first();
             if(count($list2)>0){//SI TIENE HISTORIA
                 return $dat[0]=array("respuesta"=>"Ya tiene historia");
             }else{//NO TIENE HISTORIA PERO SI ESTA REGISTRADO LA PERSONA COMO PROVEEDOR O PERSONAL
@@ -251,7 +253,7 @@ class HistoriaController extends Controller
                 $Historia->soat=$request->input('soat');
                 $Historia->titular=$request->input('titular');
             }
-            $Historia->numero = Historia::NumeroSigue();
+            $Historia->numero = Historia::NumeroSigue($sucursal_id);
             $Historia->sucursal_id = $sucursal_id;
             $Historia->save();
             $RolPersona = new RolPersona();
@@ -308,6 +310,7 @@ class HistoriaController extends Controller
 
     public function update(Request $request, $id)
     {
+        $sucursal_id = Session::get('sucursal_id');
         $existe = Libreria::verificarExistencia($id, 'Historia');
         if ($existe !== true) {
             return $existe;
@@ -333,7 +336,7 @@ class HistoriaController extends Controller
         $value     = $resultado->first();
         if(count($value)>0 && strlen(trim($dni))>0){
             $objHistoria = new Historia();
-            $list2       = Historia::where('person_id','=',$value->id)->where('id','<>',$id)->first();
+            $list2       = Historia::where('person_id','=',$value->id)->where('historia.sucursal_id', $sucursal_id)->where('id','<>',$id)->first();
             if(count($list2)>0){//SI TIENE HISTORIA
                 return "Ya tiene otra historia";
             }else{//NO TIENE HISTORIA PERO SI ESTA REGISTRADO LA PERSONA COMO PROVEEDOR O PERSONAL
@@ -454,9 +457,10 @@ class HistoriaController extends Controller
         $mdlPerson = new Person();
         $resultado = Person::where('dni','LIKE',$dni);
         $value     = $resultado->first();
+        $sucursal_id = Session::get('sucursal_id');
         if(count($value)>0){
             $objHistoria = new Historia();
-            $list2       = Historia::where('person_id','=',$value->id)->first();
+            $list2       = Historia::where('person_id','=',$value->id)->where('historia.sucursal_id','=',$sucursal_id)->first();
             if(count($list2)>0){//SI TIENE HISTORIA
                 $data[] = array(
                             'apellidopaterno' => $value->apellidopaterno,
@@ -546,7 +550,7 @@ class HistoriaController extends Controller
     
     public function historiaautocompletar($searching)
     {
-        $entidad    = 'Historia';   
+        $entidad    = 'Historia';
         $sucursal_id      = Session::get('sucursal_id');     
         $resultado = Historia::join('person', 'person.id', '=', 'historia.person_id')
                             ->leftjoin('convenio', 'convenio.id', '=', 'historia.convenio_id')

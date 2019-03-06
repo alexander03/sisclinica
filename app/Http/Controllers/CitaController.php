@@ -62,7 +62,7 @@ class CitaController extends Controller
                             ->join('especialidad','especialidad.id','=','doctor.especialidad_id')
                             ->leftjoin('historia','historia.id','=','cita.historia_id')
                             ->where('cita.paciente', 'LIKE', '%'.strtoupper($paciente).'%')
-                            ->where('sucursal_id','=',$sucursal_id)
+                            ->where('historia.sucursal_id','=',$sucursal_id)
                             ->where(DB::raw('concat(doctor.apellidopaterno,\' \',doctor.apellidomaterno,\' \',doctor.nombres)'), 'LIKE', '%'.strtoupper($doctor).'%');
         if($fecha!=""){
             $resultado = $resultado->where('cita.fecha', '=', ''.$fecha.'');

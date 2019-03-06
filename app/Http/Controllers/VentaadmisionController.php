@@ -141,13 +141,14 @@ class VentaadmisionController extends Controller
         $titulo_registrar = $this->tituloRegistrar;
         $ruta             = $this->rutas;
         $user = Auth::user();
+        $sucursal_id           = Session::get('sucursal_id');
         $cboTipoDoc = array(''=>'Todos...');
         $rs = Tipodocumento::where('tipomovimiento_id','=','4')->orderBy('nombre','ASC')->get();
         foreach ($rs as $key => $value) {
             $cboTipoDoc = $cboTipoDoc + array($value->id => $value->nombre);
         }
         $cboSituacion = array(''=>'Todos...','U'=>'Anulado');
-        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta','cboTipoDoc', 'user','cboSituacion'));
+        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta','cboTipoDoc', 'user','cboSituacion', 'sucursal_id'));
     }
 
     /**

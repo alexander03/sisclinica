@@ -54,14 +54,19 @@ class ExcelController extends Controller
 			    $dat=array();
 				foreach ($data as $key => $value) {
                     $dni = trim($value->dni);
+                    $nom = explode(" ",trim($value->paciente));
+                    $value->apellidopaterno = $nom[0];
+                    $value->apellidomaterno = $nom[1];
+                    $value->nombres = substr(trim($value->paciente),strlen($nom[0]) + strlen($nom[1]) + 1 ,strlen(trim($value->paciente)));
+
                     $band=true;
-                    if($dni!="00000000" && strlen($dni)==8){
+                    if($dni!="" && strlen($dni)<=8 && strlen($dni)>=6){
                         $mdlPerson = new Person();
                         $resultado = Person::where('dni','LIKE',$dni);
                         $value2    = $resultado->first();
                         if(count($value2)>0 && strlen(trim($dni))>0){
                             $objHistoria = new Historia();
-                            $Historia    = Historia::where('person_id','=',$value2->id)->first();
+                            $Historia    = Historia::where('person_id','=',$value2->id)->where('sucursal_id','=',2)->first();
                             if(count($Historia)>0){//SI TIENE HISTORIA
                                 echo "Ya tiene historia ".$value->historia." -> ".$dni;
                                 $idpersona=0;
@@ -75,7 +80,7 @@ class ExcelController extends Controller
                             $value2     = $resultado->first();
                             if(count($value2)>0 && strlen(trim($dni))>0){
                                 $objHistoria = new Historia();
-                                $Historia       = Historia::where('person_id','=',$value2->id)->first();
+                                $Historia       = Historia::where('person_id','=',$value2->id)->where('sucursal_id','=',2)->first();
                                 if(count($Historia)>0){//SI TIENE HISTORIA
                                     echo "Ya tiene historia ".$value->historia." -> ".$dni;
                                     $idpersona=0;
@@ -94,7 +99,7 @@ class ExcelController extends Controller
                         $value2     = $resultado->first();
                         if(count($value2)>0){
                             $objHistoria = new Historia();
-                            $Historia       = Historia::where('person_id','=',$value2->id)->first();
+                            $Historia       = Historia::where('person_id','=',$value2->id)->where('sucursal_id','=',2)->first();
                             if(count($Historia)>0){//SI TIENE HISTORIA
                                 echo "Ya tiene historia ".$value->historia." -> ".$dni;
                                 $idpersona=0;
@@ -118,10 +123,10 @@ class ExcelController extends Controller
                                 $person->apellidopaterno=strtoupper(trim($value->apellidopaterno));
                                 $person->apellidomaterno=strtoupper(trim($value->apellidomaterno));
                                 $person->nombres=trim(strtoupper($value->nombres));
-                                $person->telefono=$value->telefono;
-                                $person->direccion=trim($value->direccion);
-                                $person->sexo=substr($value->sexo,0,1);
-                                $person->telefono=$value->telefono;
+                                $person->telefono='-';
+                                $person->direccion='-';
+                                $person->sexo='M';
+                                $person->telefono='-';
                                 //if($value->fechanacimiento!="")    $person->fechanacimiento=$value->fechanacimiento->format("Y-m-d");
                                 $person->save();
                                 $idpersona=$person->id;
@@ -131,48 +136,64 @@ class ExcelController extends Controller
                                 $person->apellidopaterno=strtoupper(trim($value->apellidopaterno));
                                 $person->apellidomaterno=strtoupper(trim($value->apellidomaterno));
                                 $person->nombres=trim(strtoupper($value->nombres));
-                                $person->direccion=trim($value->direccion);
-                                $person->sexo=substr($value->sexo,0,1);
-                                $person->telefono=$value->telefono;
+                                $person->telefono='-';
+                                $person->direccion='-';
+                                $person->sexo='M';
+                                $person->telefono='-';
                                 //if($value->fechanacimiento!="")    $person->fechanacimiento=$value->fechanacimiento->format("Y-m-d");
                                 $person->save();
                                 $idpersona=$person->id;
                             }
-                            $Historia->numero = Historia::NumeroSigue();
+                            $Historia->numero = str_pad($value->historia + 2,8,'0',STR_PAD_LEFT);
                             $Historia->person_id = $idpersona;
                             /*if(trim($value->tipo_paciente)=="HOSPITAL"){
                                 $tipopaciente="Hospital";
                             }elseif(trim($value->tipo_paciente)=="PARTICULAR"){*/
+                            if($value->convenio==""){
                                 $tipopaciente="Particular";
-                            /*}else{
+                            }else{
                                 $tipopaciente="Convenio";
-                            }*/
+                            }
                             $Historia->tipopaciente=$tipopaciente;
-                            $Historia->fecha="2019-02-10";
+                            $Historia->fecha="2019-02-28";
                             $Historia->modo="F";
                             $Historia->estadocivil='';
                             if($tipopaciente=="Convenio"){
-                                $Historia->empresa=$value->empresa;
+                                if($value->convenio=="ELECTRORIENTE"){
+                                    $Historia->convenio_id=30;
+                                }elseif($value->convenio=="FAP"){
+                                    $Historia->convenio_id=31;
+                                }elseif($value->convenio=="FEBAN"){
+                                    $Historia->convenio_id=16;
+                                }elseif($value->convenio=="GMMI"){
+                                    $Historia->convenio_id=28;
+                                }elseif($value->convenio=="PACIFICO"){
+                                    $Historia->convenio_id=17;
+                                }elseif($value->convenio=="SALUDPOL"){
+                                    $Historia->convenio_id=32;
+                                }
+                                /*$Historia->empresa=$value->empresa;
                                 $Historia->carnet=$value->carnet;
                                 $Historia->poliza=$value->poliza;
                                 $Historia->soat=$value->soat;
-                                $Historia->titular=$value->titular;
+                                $Historia->titular=$value->titular;*/
                             }
-                            $Historia->detallecategoria="Edad:".$value->edad;
+                            $Historia->detallecategoria='';
+                            $Historia->sucursal_id=2;
                             $Historia->save();
 
                             $dat[]=array("respuesta"=>"OK","id"=>$Historia->id,"paciente"=>$person->apellidopaterno.' '.$person->apellidomaterno.' '.$person->nombres,"historia"=>$Historia->numero,"person_id"=>$Historia->person_id);
                         }            
 
-                        $Historia->antecedentes = $value->antecedente;
+                        $Historia->antecedentes = '';
                         $Historia->save();
-                        $HistoriaClinica = new HistoriaClinica();
+                        /*$HistoriaClinica = new HistoriaClinica();
                         $HistoriaClinica->historia_id = $Historia->id;
                         $HistoriaClinica->fecha_atencion = "2019-10-02";
                         $HistoriaClinica->diagnostico = $value->diagnostico;
                         $HistoriaClinica->sintomas = $value->signo;
                         $HistoriaClinica->motivo = $value->fecha;
-                        $HistoriaClinica->save();
+                        $HistoriaClinica->save();*/
                     });
                     if(!is_null($error)){
                         print_r($error);die();
@@ -342,18 +363,14 @@ class ExcelController extends Controller
                 foreach ($data as $key => $value) {
                     $error = DB::transaction(function() use($value,&$dat){
                         $servicio = new Servicio();
-                        $servicio->nombre = strtoupper($value->descripcion);
-                        $tipo = Tiposervicio::where('nombre','like',trim($value->tiposervicio))->first();
-                        if(!is_null($tipo)){
-                            $servicio->tiposervicio_id = $tipo->id;
-                        }else{
-                            $servicio->tiposervicio_id = 1;
-                        }
+                        $servicio->nombre = strtoupper($value->servicio);
+                        $servicio->tiposervicio_id = $value->tiposervicio_id;
                         $servicio->tipopago = 'Particular';
                         $servicio->precio = str_replace(",","",$value->precio);
                         $servicio->modo = 'Monto';
                         $servicio->pagohospital = str_replace(",","",$value->precio);
                         $servicio->pagodoctor = 0;
+                        $servicio->sucursal_id = 2;
                         $servicio->save();
                         $dat[]=array("respuesta"=>"NUEVO","descripcion"=>$value->descripcion);
                     });
@@ -365,7 +382,6 @@ class ExcelController extends Controller
             }
         }
         return view('importHistoria');;
-
     }
 
     public function importProducto()
@@ -383,8 +399,8 @@ class ExcelController extends Controller
                 $movimientoalmacen = new Movimiento();
                 $movimientoalmacen->tipodocumento_id = 8;
                 $movimientoalmacen->tipomovimiento_id  = 5;
-                $movimientoalmacen->almacen_id  = 1;
-                $movimientoalmacen->sucursal_id  = 1;
+                $movimientoalmacen->almacen_id  = 3;
+                $movimientoalmacen->sucursal_id  = 2;
                 $movimientoalmacen->comentario   = 'Carga inicial de inventario';
                 $movimientoalmacen->numero = '00000001';
                 $movimientoalmacen->fecha  = date("Y-m-d");
@@ -411,7 +427,7 @@ class ExcelController extends Controller
                             $producto->codigo_producto    = '';
                             $producto->registro_sanitario = '';
                             $producto->precioxcaja    = 0;
-                            $producto->preciocompra   = $value->precio;
+                            $producto->preciocompra   = 0;
                             $producto->precioventa    = 0;
                             $producto->preciokayros   = 0; 
                             $producto->stockseguridad   = 0; 
@@ -444,9 +460,9 @@ class ExcelController extends Controller
                             $detalleVenta->movimiento_id = $movimientoalmacen->id;
                             $detalleVenta->producto_id = $producto->id;
                             $detalleVenta->save();
-                            $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $producto->id)->where('movimiento.almacen_id', '=',2)->orderBy('kardex.id', 'DESC')->first();
+                            $ultimokardex = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $producto->id)->where('movimiento.almacen_id', '=',3)->orderBy('kardex.id', 'DESC')->first();
 
-                            $stock = Stock::where('producto_id','=',$producto->id)->where('almacen_id','=',2)->first();
+                            $stock = Stock::where('producto_id','=',$producto->id)->where('almacen_id','=',3)->first();
                             // Creamos el lote para el producto
                             if(trim($value->fechavencimiento)!="-"){
                                 $lote = new Lote();
@@ -455,7 +471,7 @@ class ExcelController extends Controller
                                 $lote->cantidad = $cantidad;
                                 $lote->queda = $cantidad;
                                 $lote->producto_id = $producto->id;
-                                $lote->almacen_id = 1;
+                                $lote->almacen_id = 3;
                                 $lote->save();
 
                                 $detalleVenta->lote_id = $lote->id;
@@ -474,7 +490,7 @@ class ExcelController extends Controller
                                 $kardex->stockactual = $stockactual;
                                 $kardex->cantidad = $cantidad;
                                 $kardex->preciocompra = $precio;
-                                $kardex->almacen_id = 1;
+                                $kardex->almacen_id = 3;
                                 $kardex->detallemovimiento_id = $detalleVenta->id;
                                 if($value->fechavencimiento!="-"){
                                     $kardex->lote_id = $lote->id;
@@ -490,7 +506,7 @@ class ExcelController extends Controller
                                 $kardex->stockactual = $stockactual;
                                 $kardex->cantidad = $cantidad;
                                 $kardex->preciocompra = $precio;
-                                $kardex->almacen_id = 1;
+                                $kardex->almacen_id = 3;
                                 $kardex->detallemovimiento_id = $detalleVenta->id;
                                 if($value->fechavencimiento!="-"){
                                     $kardex->lote_id = $lote->id;
@@ -503,7 +519,7 @@ class ExcelController extends Controller
                                 $stock = new Stock();
                                 $stock->producto_id = $producto->id;
                                 $stock->cantidad = $stockactual;
-                                $stock->almacen_id = 1;
+                                $stock->almacen_id = 3;
                                 $stock->save();
                             }else{
                                 $stock->cantidad = $stock->cantidad + $cantidad;

@@ -939,8 +939,13 @@ class VentaController extends Controller
         $tipodoc = $request->input("tipodocumento_id");
         $sucursal_id = Session::get('sucursal_id');
         $caja_id = $request->input('caja_id');
+        $serie = 4;
+        $user = Auth::user();
+        if($user->usertype_id == 11) {
+            $serie = 2;
+        }
         //if($tipodoc!=15)
-            $numero  = Movimiento::NumeroSigue2($caja_id, $sucursal_id, 4,$tipodoc,4);
+            $numero  = Movimiento::NumeroSigue2($caja_id, $sucursal_id, 4,$tipodoc,$serie);
         /*else
             $numero  = Movimiento::NumeroSigue(4,$tipodoc,4);*/
         return $numero;
@@ -1256,7 +1261,7 @@ class VentaController extends Controller
         //$request->session()->forget('carritoventa');
         //$lista = array();
         //$request->session()->put('carritoventa', $lista);
-        return view($this->folderview.'.mant')->with(compact('venta', 'formData', 'entidad', 'boton', 'listar','cboDocumento','cboCredito','cboTipoventa','cboFormapago','cboTipoTarjeta','cboTipoTarjeta2','caja_id'));
+        return view($this->folderview.'.mant')->with(compact('venta', 'formData', 'entidad', 'boton', 'listar','cboDocumento','cboCredito','cboTipoventa','cboFormapago','cboTipoTarjeta','cboTipoTarjeta2','caja_id','sucursal_id'));
     }
 
     public function create2(Request $request)
@@ -2237,7 +2242,7 @@ class VentaController extends Controller
                 $total = str_replace(',', '', $request->input('totalventa'));
                 $venta                 = new Venta();
                 $venta->sucursal_id = $sucursal_id;
-                $venta->serie = '004';
+                $venta->serie = '002';
                 $venta->tipodocumento_id          = $request->input('documento');
                 if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
                     $venta->persona_id = $request->input('person_id');
