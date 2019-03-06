@@ -106,7 +106,6 @@ class TicketController extends Controller
         $cabecera[]       = array('valor' => 'Paciente', 'numero' => '1');
         if($sucursal_id == 1){
             $cabecera[]       = array('valor' => 'Tipo', 'numero' => '1');
-            $cabecera[]       = array('valor' => 'Turno', 'numero' => '1');
         }
         $cabecera[]       = array('valor' => 'Total', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Situacion', 'numero' => '1');
