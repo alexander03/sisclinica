@@ -33,7 +33,7 @@
                                     <td class="text-center"><input type="checkbox"></td>
                                     <td class="text-center">TAA0</td>
                                     <td>Tabla Agregada A - Reporte de Recursos de Salud</td>
-                                    <td class="text-center"><button class="btn btn-warning btn-xs" onclick='modal("caja/cirupro", "Establecer Datos de la Tabla TAA0");'><i class="fa fa-edit"></i> Establecer</button></td>
+                                    <td class="text-center"><button class="btn btn-primary btn-xs" onclick='modal("tramas2", "Establecer Datos de la Tabla TAA0");'><i class="fa fa-edit"></i> Establecer</button></td>
                                 </tr>
                                 <tr>
                                     <td class="text-center">2</td>
