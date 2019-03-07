@@ -40,8 +40,8 @@ class Historia extends Model
         return $this->belongsTo('App\Person', 'usuario_id');
     }
 
-    public function scopeNumeroSigue($query){
-        $rs=$query->select(DB::raw("max((CASE WHEN numero IS NULL THEN 0 ELSE numero END)*1) AS maximo"))->first();
+    public function scopeNumeroSigue($query,$sucursal_id){
+        $rs=$query->where('sucursal_id','=',$sucursal_id)->select(DB::raw("max((CASE WHEN numero IS NULL THEN 0 ELSE numero END)*1) AS maximo"))->first();
         return str_pad($rs->maximo+1,8,'0',STR_PAD_LEFT);    
     }
 

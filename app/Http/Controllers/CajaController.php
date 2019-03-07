@@ -89,7 +89,9 @@ class CajaController extends Controller
 
         $tipousuario = $user->usertype_id;
 
-        if($user->sucursal_id == 1){
+        $sucursal_id = Session::get('sucursal_id');
+
+        if($sucursal_id == 1){
             if($user->usertype_id==23){
                 $caja_id = 1;
             }
@@ -219,7 +221,7 @@ class CajaController extends Controller
             $request->replace(array('page' => $paginaactual));
             return view($this->folderview.'.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'conceptopago_id', 'titulo_registrar', 'titulo_apertura', 'titulo_cierre', 'titulo_ticketspendientes', 'titulo_cuentaspendientes', 'ingreso', 'egreso', 'titulo_anular', 'garantia', 'efectivo', 'visa', 'master', 'listapendiente', 'user', 'tipousuario', 'caja_id'));
         }
-        return view($this->folderview.'.list')->with(compact('lista', 'entidad', 'conceptopago_id', 'titulo_registrar', 'titulo_apertura', 'titulo_cierre', 'titulo_ticketspendientes', 'titulo_cuentaspendientes', 'ruta', 'ingreso', 'egreso','visa', 'master', 'tipousuario', 'caja_id'));
+        return view($this->folderview.'.list')->with(compact('lista', 'entidad', 'conceptopago_id', 'titulo_registrar', 'titulo_apertura', 'titulo_cierre', 'titulo_ticketspendientes', 'titulo_cuentaspendientes', 'ruta', 'ingreso', 'egreso','visa', 'master', 'tipousuario', 'caja_id', 'user'));
     }
 
     public function index(Request $request)
@@ -3511,7 +3513,8 @@ class CajaController extends Controller
                         if($detalle->servicio_id == 13) {
                             $nomdetalle .= '($) ';
                         }  
-                        $nomdetalle .= $detalle->servicio->nombre;
+                        $serv = Servicio::find($detalle->servicio_id);
+                        $nomdetalle .= $serv == null ? '-' : $serv->nombre;
                         $pdf::Cell(60,7,substr($nomdetalle,0,40) . '.',1,0,'L');
                         $pdf::Cell(14,7,number_format($detalle->precio,2,',',''),1,0,'R');                    
                         if($i == 0) {
@@ -4610,7 +4613,7 @@ class CajaController extends Controller
                             if($detalle->servicio_id == 13) {
                                 $nomdetalle .= '($) ';
                             }  
-                            $nomdetalle .= $detalle->servicio->nombre;                   
+                            $nomdetalle .= $detalle->servicio == NULL ? '-' : $detalle->servicio->nombre;                   
                             $pdf::Cell(60,7,substr($nomdetalle,0,40) . '.',1,0,'L');
                             $pdf::Cell(14,7,number_format($detalle->precio,2,',',''),1,0,'R');                    
                             if($i == 0) {
@@ -10150,7 +10153,7 @@ class CajaController extends Controller
                     $movimiento->movimiento_id=$venta->id;
                     $movimiento->save();
                     //
-                    $dat[0]=array("respuesta"=>"OK","venta_id"=>$venta->id,"tipodocumento_id"=>$venta->tipodocumento_id,'numero'=>substr($request->input('tipodocumento'),0,1).' '.$venta->serie.'-'.$venta->numero);
+                    $dat[0]=array("respuesta"=>"OK","venta_id"=>$venta->id,"tipodocumento_id"=>$venta->tipodocumento_id,'numero'=>substr($request->input('tipodocumento'),0,1).$venta->serie.'-'.$venta->numero);
                 }
             }
 
@@ -10349,6 +10352,9 @@ class CajaController extends Controller
 
             $caja = Caja::find($request->input('caja_id'));
 
+            $venta_id = 0;
+            $tipodocumentoventa_id = 0;
+            $numeroventa = "";
             //Solo si se genera un comprobante de pago
 
             if($request->input('quedan') == '0.000'){
@@ -10434,6 +10440,9 @@ class CajaController extends Controller
 
                     $venta->save();
                     $comentario = 'PAGO DE ÚLTIMA CUOTA PARCIAL DE CLIENTE - '.substr($request->input('tipodocumento'),0,1).' '.$venta->serie.'-'.$venta->numero;
+                    $venta_id = $venta->id;
+                    $tipodocumentoventa_id = $venta->tipodocumento_id;
+                    $numeroventa = substr($request->input('tipodocumento'),0,1).$venta->serie.'-'.$venta->numero;
                     //
                 }
             }
@@ -10523,10 +10532,13 @@ class CajaController extends Controller
             $movimiento->numeroserie2=$cuota->id;
             $movimiento->movimiento_id=$Ticket->id;
             $movimiento->save();
+
+            $dat[0]=array("respuesta"=>"OK","venta_id"=>$venta_id,"tipodocumento_id"=>$tipodocumentoventa_id,"numero"=>$numeroventa);
+
         });
 
         ///////////////////////////////
-        return is_null($error) ? "OK" : $error;
+        return is_null($error) ? json_encode($dat) : $error;
     }
 
     public function anularmovimiento($id) {
@@ -11207,7 +11219,7 @@ class CajaController extends Controller
                     } else {
                         $pdf::Cell(56,7,$row['paciente'],1,0,'L');
                     }                
-                    $pdf::Cell(8,7,$mov->tipodocumento->abreviatura,1,0,'C');
+                    $pdf::Cell(8,7,$mov==null?'G/R':$mov->tipodocumento->abreviatura,1,0,'C');
                     $pdf::Cell(12,7,utf8_decode($row['serie'] . '-' . $row['numero']),1,0,'C');
                     //$pdf::Cell(64,7,$mov->conceptopago->nombre.': '.$row['comentario'],1,0,'L'); 
                     $pdf::Cell(64,7,$producto,1,0,'L'); 
@@ -11223,15 +11235,15 @@ class CajaController extends Controller
                         $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
                         $valuet = number_format($row['total'],2,'.','');
                         $formapago = "";
-                        if($valuetp == 0){$valuetp='';}else{ $formapago .= " - E";}
-                        if($valuetpv == 0){$valuetpv='';}else{ $formapago .= " - V";}
-                        if($valuetpm == 0){$valuetpm='';}else{  $formapago .= " - M";}
+                        if($valuetp == 0){$valuetp='';}else{ $formapago .= " - EFTV";}
+                        if($valuetpv == 0){$valuetpv='';}else{ $formapago .= " - VISA";}
+                        if($valuetpm == 0){$valuetpm='';}else{  $formapago .= " - MAST";}
                         $pdf::Cell(25,7,$formapago,1,0,'L');                    
                         //$pdf::Cell(14,7,$valuetpv,1,0,'R');
                         //$pdf::Cell(14,7,$valuetpm,1,0,'R');
                         $pdf::Cell(20,7,$precio,1,0,'R');
                     } else {
-                        $pdf::Cell(42,7,'ANULADO',1,0,'C');
+                        $pdf::Cell(45,7,'ANULADO',1,0,'C');
                     } 
                     if($row['doctor_id'] != '') {
                         $pdf::Cell(31,7,$row->doctor->apellidopaterno,1,0,'C');

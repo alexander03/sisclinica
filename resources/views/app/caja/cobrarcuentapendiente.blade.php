@@ -485,7 +485,17 @@
 					beforeSend: function() {
 						$('#btnGuardar').html('Cargando...').attr('disabled', true);
 					},
-					success: function() {
+					success: function(respuesta) {
+						var dat = JSON.parse(respuesta);
+						if(dat[0].respuesta=="OK"){
+							if(dat[0].tipodocumento_id=="12"){
+								imprimirTicket(dat[0].venta_id);
+							}else{
+								if(dat[0].tipodocumento_id!="0"){
+									declarar1(dat[0].venta_id,dat[0].tipodocumento_id,dat[0].numero);
+								}
+							}
+						}
 						cerrarModal();
 						listacuentaspendientes();
 						buscar('Caja');
@@ -494,6 +504,46 @@
 			}				
 		}
 	}
+
+	function declarar1(idventa,idtipodocumento,numero){
+		if(idtipodocumento==5){
+			var funcion="enviarBoleta";
+		}else{
+			var funcion="enviarFactura";
+		}
+		$.ajax({
+	        type: "GET",
+	        url: "../clifacturacion/controlador/contComprobante.php?funcion="+funcion,
+	        data: "idventa="+idventa+"&_token="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="_token"]').val(),
+	        success: function(a) {
+	            console.log(a);
+	            imprimirVenta(numero);
+		    }
+	    });	
+	}
+
+	function imprimirTicket(id){
+		$.ajax({
+	        type: "POST",
+	        url: "http://localhost/clifacturacion/controlador/contImprimir.php?funcion=ImprimirTicket",
+	        data: "id="+id+"&_token="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="_token"]').val(),
+	        success: function(a) {
+	            console.log(a);
+		    }
+	    });
+	}
+
+	function imprimirVenta(numero){
+		$.ajax({
+	        type: "POST",
+	        url: "http://localhost/clifacturacion/controlador/contImprimir.php?funcion=ImprimirVenta",
+	        data: "numero="+numero+"&_token="+$(IDFORMBUSQUEDA + '{!! $entidad !!} :input[name="_token"]').val(),
+	        success: function(a) {
+	            console.log(a);
+		    }
+	    });
+	}
+
 
 	function filterFloat(evt,input){
 	    var key = window.Event ? evt.which : evt.keyCode;    

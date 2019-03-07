@@ -949,11 +949,11 @@ function guardarMovimiento (entidad, idboton) {
 		alert("Debe ingresar una fecha");
 		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="fecha"]').focus();
 		return false;
-	} else if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="totalmovimiento"]').val()==0){
+	}/* else if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="totalmovimiento"]').val()==0){
 		alert("Corrige los precios, no puedes registrar precio de compra, venta o kayros como 0");
 		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="nombreproducto"]').focus();
 		return false;
-	} else {
+	}*/ else {
 		var total = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="totalmovimiento"]').val();
 		var mensaje = '<h3 align = "center">Total = '+total+'</h3>';
 		/*if (typeof mensajepersonalizado != 'undefined' && mensajepersonalizado !== '') {

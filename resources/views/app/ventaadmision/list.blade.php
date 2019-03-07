@@ -47,6 +47,7 @@
             	<td align="center">PENDIENTE</td>
             @endif
             <td align="center">{{ $value->mensajesunat }}</td>
+            
             <td align="center" style="display:none">{!! Form::button('<div class="fa fa-gears"></div> ', array('onclick' => 'declarar2(\''.$value->id.'\',\''.$value->tipodocumento_id.'\')', 'class' => 'btn btn-xs btn-info')) !!}</td>
             @if($value->tipodocumento_id==12)
                   <td align="center">{!! Form::button('<div class="glyphicon glyphicon-print"></div> ', array('onclick' => 'imprimirTicket(\''.$value->id.'\')', 'class' => 'btn btn-xs btn-info', 'title' => 'Imprimir')) !!}</td>

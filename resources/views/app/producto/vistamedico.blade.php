@@ -1,10 +1,12 @@
 <?php
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 $entidad='Producto';
 use App\Tiposervicio;
 date_default_timezone_set('America/Lima');
 $fechahoy = date('j-m-Y');
 $user = Auth::user();
+Session::set('sucursal_id', 1);
 ?>
 @if($user != null)
 @if($user->usertype_id == 18 || $user->usertype_id == 1)
@@ -1411,6 +1413,9 @@ $user = Auth::user();
 	        type: "POST",
 	        url: "historiaclinica/registrarHistoriaClinica",
 	        data: $.param(dataform),
+	        beforeSend: function() {
+	        	$("#btnGuardar").prop('disabled', true).html('Cargando...');
+	        },
 	        success: function(a) {
 	        	if(a == 'El Código CIE no existe') {
 	        		$('#mensajeHistoriaClinica').html(a);

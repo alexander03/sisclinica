@@ -27,20 +27,21 @@ use App\Detallemovcaja;
 	            <td>{{ date('d/m/Y',strtotime($value->fecha)) }}</td>
 	            <td>{{ $value->numero }}</td>
 	            <td>{{ $value->paciente }}</td>
-				@if($value->clasificacionconsulta=='C')
-	            <td>CONSULTA</td>
-	            @elseif($value->clasificacionconsulta=='E')
-	            <td>EMERGENCIA</td>
-				@elseif($value->clasificacionconsulta=='L')
-	            <td>LECTURA</td>
-	            @elseif($value->clasificacionconsulta=='P')
-	            <td>PROCEDIMIENTO</td>
-	            @elseif($value->clasificacionconsulta=='X')
-	            <td>EXAMENES</td>
+	            @if($sucursal_id == 1)
+					@if($value->clasificacionconsulta=='C')
+		            <td>CONSULTA</td>
+		            @elseif($value->clasificacionconsulta=='E')
+		            <td>EMERGENCIA</td>
+					@elseif($value->clasificacionconsulta=='L')
+		            <td>LECTURA</td>
+		            @elseif($value->clasificacionconsulta=='P')
+		            <td>PROCEDIMIENTO</td>
+		            @elseif($value->clasificacionconsulta=='X')
+		            <td>EXAMENES</td>
+		            @endif
+		            <td>{{ $value->turno=='M'?'MAÑANA':'TARDE' }}</td>
 	            @endif
 
-	            </td>
-	            <td>{{ $value->turno=='M'?'MAÑANA':'TARDE' }}</td>
 	            <td align="center">{{ number_format($value->total,2,'.','') }}</td>
 	            
 	            
@@ -75,8 +76,8 @@ use App\Detallemovcaja;
 	  			<td>{{ $Detalle->persona->apellidopaterno . ' ' . explode(" ", $Detalle->persona->nombres)[0] }}</td>
 	            @if($value->situacion=='C')
 	            	@if($value->total>0)
-	                	<td align="center">{!! Form::button('<div class="glyphicon glyphicon-print"></div>', array('onclick' => 'window.open(\'ticket/pdfComprobante?ticket_id='.$value->id.'\',\'_blank\')', 'class' => 'btn btn-xs btn-info', 'title'=>'Comprobante A4')) !!}</td>
-	                	<td align="center">{!! Form::button('<div class="glyphicon glyphicon-print"></div>', array('onclick' => 'window.open(\'ticket/pdfComprobante3?ticket_id='.$value->id.'\',\'_blank\')', 'class' => 'btn btn-xs btn-info', 'title'=>'Comprobante Ticketera')) !!}</td>
+	                	<td align="center" style="display:none;">{!! Form::button('<div class="glyphicon glyphicon-print"></div>', array('onclick' => 'window.open(\'ticket/pdfComprobante?ticket_id='.$value->id.'\',\'_blank\')', 'class' => 'btn btn-xs btn-info', 'title'=>'Comprobante A4')) !!}</td>
+	                	<td align="center" style="display:none;">{!! Form::button('<div class="glyphicon glyphicon-print"></div>', array('onclick' => 'window.open(\'ticket/pdfComprobante3?ticket_id='.$value->id.'\',\'_blank\')', 'class' => 'btn btn-xs btn-info', 'title'=>'Comprobante Ticketera')) !!}</td>
 	                @else
 	                	<td align="center">{!! Form::button('<div class="glyphicon glyphicon-print"></div>', array('onclick' => 'window.open(\'ticket/pdfPrefactura?ticket_id='.$value->id.'\',\'_blank\')', 'class' => 'btn btn-xs btn-info', 'title' => 'Prefactura')) !!}</td>
 	                	<td align="center"> - </td>
