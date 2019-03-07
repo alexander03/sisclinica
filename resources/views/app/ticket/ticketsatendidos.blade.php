@@ -8,13 +8,14 @@
 						{!! Form::date('fecha', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fechareprogramar', 'onchange' => 'listaticketsatendidos();')) !!}
 					</div>
 					<div class="form-group">
-						{!! Form::label('numero', 'Nro:') !!}
-						{!! Form::text('numero', '', array('class' => 'form-control input-xs', 'id' => 'numero', 'onkeyup' => 'listaticketsatendidos();')) !!}
+						{!! Form::label('doctor_ticket', 'Doctor:') !!}
+						{!! Form::select('doctor_ticket', $cboDoctores, '', array('class' => 'form-control input-xs', 'id' => 'doctor_ticket', 'onchange' => 'listaticketsatendidos();')) !!}
 					</div>
 					<div class="form-group">
 						{!! Form::label('persona_ticket', 'Paciente:') !!}
 						{!! Form::text('persona_ticket', '', array('class' => 'form-control input-xs', 'id' => 'persona_ticket', 'onkeyup' => 'listaticketsatendidos();')) !!}
 					</div>
+					<br>
 					{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar', 'onclick' => 'listaticketsatendidos();')) !!}
 					{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-xs', 'id' => 'btnCerrarTicketsPendientes', 'onclick' => 'cerrarModal();')) !!}
 				{!! Form::close() !!}
@@ -33,14 +34,14 @@ $(document).ready(function() {
 	$('#persona_ticket').focus();
 }); 
 function listaticketsatendidos() {	
-	var numero = $('#numero').val();
 	var paciente = $('#persona_ticket').val();
-	if(numero == '') {
-		numero = '0';
+	var doctor = $('#doctor_ticket').val();
+	if(doctor == '') {
+		doctor = '0';
 	}
 	if(paciente == '') {
 		paciente = '0';
 	}
-	cargarRuta('{{ url('/ticket/listaticketsatendidos') }}' + '/' + numero + '/' + $('#fechareprogramar').val() + '/' + paciente, "listado{{ $entidad }}");	
+	cargarRuta('{{ url('/ticket/listaticketsatendidos') }}' + '/' + doctor +  '/' + $('#fechareprogramar').val() + '/' + paciente , "listado{{ $entidad }}");	
 }
 </script>

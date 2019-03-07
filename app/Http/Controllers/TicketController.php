@@ -2525,13 +2525,16 @@ class TicketController extends Controller
     public function ticketsatendidos(Request $request) {
         $entidad = 'ticket';
         $ruta = $this->rutas;
-        return view($this->folderview.'.ticketsatendidos')->with(compact('entidad', 'ruta'));
+        $cboDoctores = array(""=>"--Todos--");
+        $doctores = Person::where('workertype_id','=','1')->where('id','!=',9277)->where('id','!=',9278)->orderBy('apellidopaterno','ASC')->get();
+        //doctores ducplicados
+        foreach ($doctores as $key => $value) {
+            $cboDoctores = $cboDoctores + array($value->id =>$value->apellidopaterno . " " . $value->apellidomaterno . " " . $value->nombres );
+        }
+        return view($this->folderview.'.ticketsatendidos')->with(compact('entidad', 'ruta','cboDoctores'));
     }
 
-    public function listaticketsatendidos($numero, $fecha, $paciente) {
-        if($numero == '0') {
-            $numero = '';
-        }
+    public function listaticketsatendidos($doctor, $fecha, $paciente) {
         $ruta = $this->rutas;
 
         $hoy = date("Y-m-d");
@@ -2544,7 +2547,7 @@ class TicketController extends Controller
         //L -> LISTO
         
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
-        ->where('movimiento.numero','LIKE','%'.$numero.'%')
+        ->leftjoin('detallemovcaja as dm', 'movimiento.id', '=', 'dm.movimiento_id')
         ->where('movimiento.tipomovimiento_id','=','1') // ticket
         ->where('movimiento.sucursal_id', '=', '2') // especialidades
         ->where('movimiento.situacion', 'like', 'C') // cobrado
@@ -2552,10 +2555,15 @@ class TicketController extends Controller
         if($fecha!=""){
             $resultado = $resultado->where('movimiento.fecha', '=', ''.$fecha.'');
         }
+        if($doctor!="0"){
+            $resultado = $resultado->where('dm.persona_id', '=', $doctor);
+        }
         if($paciente!="0"){
             $resultado = $resultado->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'), 'LIKE', '%'.$paciente.'%');
+        }else{
+            $resultado = $resultado->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'), 'LIKE', '%%');
         }
-        $resultado        = $resultado->select('movimiento.*',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'))->orderBy('movimiento.id','DESC')->orderBy('movimiento.situacion','DESC');
+        $resultado        = $resultado->select('movimiento.*',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'))->orderBy('movimiento.id','DESC')->orderBy('movimiento.situacion','DESC')->groupBy('movimiento.id');
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => 'Fecha', 'numero' => '1');

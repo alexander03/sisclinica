@@ -7,14 +7,15 @@
 						{!! Form::label('fecha', 'Fecha:') !!}
 						{!! Form::date('fecha', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fechareprogramar', 'onchange' => 'listapagosdoctores();')) !!}
 					</div>
-					<div class="form-group" style ="display:none;">
-						{!! Form::label('numero', 'Nro:') !!}
-						{!! Form::text('numero', '', array('class' => 'form-control input-xs', 'id' => 'numero', 'onkeyup' => 'listapagosdoctores();')) !!}
+					<div class="form-group">
+						{!! Form::label('doctor_ticket', 'Doctor:') !!}
+						{!! Form::select('doctor_ticket', $cboDoctores, '', array('class' => 'form-control input-xs', 'id' => 'doctor_ticket', 'onchange' => 'listapagosdoctores();')) !!}
 					</div>
 					<div class="form-group">
 						{!! Form::label('persona_ticket', 'Paciente:') !!}
 						{!! Form::text('persona_ticket', '', array('class' => 'form-control input-xs', 'id' => 'persona_ticket', 'onkeyup' => 'listapagosdoctores();')) !!}
 					</div>
+					<br>
 					{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar', 'onclick' => 'listapagosdoctores();')) !!}
 					{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-xs', 'id' => 'btnCerrarTicketsPendientes', 'onclick' => 'cerrarModal();')) !!}
 				{!! Form::close() !!}
@@ -33,14 +34,14 @@ $(document).ready(function() {
 	$('#persona_ticket').focus();
 }); 
 function listapagosdoctores() {	
-	var numero = $('#numero').val();
 	var paciente = $('#persona_ticket').val();
-	if(numero == '') {
-		numero = '0';
+	var doctor = $('#doctor_ticket').val();
+	if(doctor == '') {
+		doctor = '0';
 	}
 	if(paciente == '') {
 		paciente = '0';
 	}
-	cargarRuta('{{ url('/caja/listapagosdoctores') }}' + '/' + numero + '/' + $('#fechareprogramar').val() + '/' + paciente, "listado{{ $entidad }}");	
+	cargarRuta('{{ url('/caja/listapagosdoctores') }}' + '/' + doctor + '/' + $('#fechareprogramar').val() + '/' + paciente, "listado{{ $entidad }}");	
 }
 </script>

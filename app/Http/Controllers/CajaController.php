@@ -11322,13 +11322,21 @@ class CajaController extends Controller
     public function pagosdoctores(Request $request) {
         $entidad = 'caja';
         $ruta = $this->rutas;
-        return view($this->folderview.'.pagosdoctores')->with(compact('entidad', 'ruta'));
+        $cboDoctores = array(""=>"--Todos--");
+        $doctores = Person::where('workertype_id','=','1')->where('id','!=',9277)->where('id','!=',9278)->orderBy('apellidopaterno','ASC')->get();
+        //doctores ducplicados
+        foreach ($doctores as $key => $value) {
+            $cboDoctores = $cboDoctores + array($value->id =>$value->apellidopaterno . " " . $value->apellidomaterno . " " . $value->nombres );
+        }
+        return view($this->folderview.'.pagosdoctores')->with(compact('entidad', 'ruta','cboDoctores'));
     }
 
-    public function listapagosdoctores($numero, $fecha, $paciente) {
+    public function listapagosdoctores($doctor, $fecha, $paciente) {
         $ruta = $this->rutas;
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->leftjoin('movimiento as m2', 'movimiento.movimiento_id', '=', 'm2.id')
+                            ->leftjoin('detallemovcaja as dm', 'movimiento.id', '=', 'dm.movimiento_id')
+                            ->where('movimiento.movimiento_id','=', null) // ticket
                             ->where('movimiento.tipomovimiento_id','=','1') // ticket
                             ->where('movimiento.sucursal_id', '=', '2') // especialidades
                             ->where('movimiento.situacion', 'like', 'C') // cobrado
@@ -11336,13 +11344,13 @@ class CajaController extends Controller
         if($fecha!=""){
             $resultado = $resultado->where('movimiento.fecha', '=', ''.$fecha.'');
         }
-        if($numero != 0){
-            $resultado = $resultado->where('movimiento.numero','LIKE','%'.$numero.'%');
+        if($doctor!="0"){
+            $resultado = $resultado->where('dm.persona_id', '=', $doctor);
         }
         if($paciente!="0"){
             $resultado = $resultado->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'), 'LIKE', '%'.$paciente.'%');
         }
-        $resultado        = $resultado->select('movimiento.*', 'm2.fecha as fecha2',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'), DB::raw('movimiento.total as pendiente'))->orderBy('movimiento.id','DESC')->orderBy('movimiento.situacion','DESC');
+        $resultado        = $resultado->select('movimiento.*', 'dm.*', 'm2.fecha as fecha2',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'), DB::raw('movimiento.total as pendiente'))->orderBy('movimiento.id','DESC')->orderBy('movimiento.situacion','DESC')->groupBy('movimiento.id');
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => 'Fecha', 'numero' => '1');
@@ -11358,6 +11366,46 @@ class CajaController extends Controller
             return view($this->folderview.'.listapagosdoctores')->with(compact('lista', 'cabecera', 'ruta'));
         }
         return view($this->folderview.'.listapagosdoctores')->with(compact('lista', 'ruta'));
+    }
+
+    public function guardarPagoDoctores(Request $request)
+    {
+        $pagados = json_decode($request->input('pagados'));
+        $error = null;
+        foreach ($pagados->{"data"} as $pagado) {
+            $error = DB::transaction(function() use($request, $pagado){
+
+                $Ticket = Movimiento::find($pagado->{"id"});
+
+                $egreso_id = 0;
+                $egreso = new Movimiento();
+                $egreso->sucursal_id = 2;
+                $egreso->fecha = date("Y-m-d H:i:s");
+                $numero = Movimiento::NumeroSigue(2,2,2,2);
+                $egreso->numero= $numero;
+                $user = Auth::user();
+                $egreso->responsable_id=$user->person_id;
+                $egreso->persona_id = $pagado->{"doctor"};//doctor
+                $egreso->subtotal=0;
+                $egreso->igv=0;
+                $egreso->total=str_replace(",","",  $pagado->{"pago"}  );
+                $egreso->totalpagado = $pagado->{"pago"};
+                $egreso->tipomovimiento_id=2;
+                $egreso->tipodocumento_id=3;//Egreso
+                $egreso->conceptopago_id=137; // pago a medico
+                $egreso->comentario="Paaciente atendido: ". $Ticket->persona->apellidopaterno . " " . $Ticket->persona->apellidomaterno ." ". $Ticket->persona->nombres;
+                $egreso->caja_id= 2 ;
+                $egreso->situacion='N';
+                $egreso->save(); 
+
+                $egreso_id = $egreso->id;
+
+                //crear egreso
+                $Ticket->movimiento_id = $egreso_id;
+                $Ticket->save();
+            });
+        }
+        return is_null($error) ? "OK" : $error;
     }
 
 }

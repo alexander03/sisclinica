@@ -434,7 +434,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::post('ticket/store2', 'TicketController@store2')->name('ticket.store2');
     Route::get('ticket/ticketsatendidos', 'TicketController@ticketsatendidos')->name('ticket.ticketsatendidos');
-    Route::get('ticket/listaticketsatendidos/{numero}/{fecha}/{paciente}', 'TicketController@listaticketsatendidos')->name('ticket.listaticketsatendidos');
+    Route::get('ticket/listaticketsatendidos/{doctor}/{fecha}/{paciente}', 'TicketController@listaticketsatendidos')->name('ticket.listaticketsatendidos');
     Route::post('ticket/guardarAtendidos', 'TicketController@guardarAtendidos')->name('ticket.guardarAtendidos');
 
     Route::get('ticket/buscarEmpresa', 'TicketController@buscarEmpresa')->name('ticket.buscarEmpresa');
@@ -591,7 +591,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('caja/pdfHonorario', 'CajaController@pdfHonorario')->name('caja.pdfHonorario');
     Route::get('caja/pdfHonorarioF', 'CajaController@pdfHonorarioF')->name('caja.pdfHonorarioF');
     Route::get('caja/pagosdoctores', 'CajaController@pagosdoctores')->name('caja.pagosdoctores');
-    Route::get('caja/listapagosdoctores/{numero}/{fecha}/{paciente}', 'CajaController@listapagosdoctores')->name('caja.listapagosdoctores');
+    Route::get('caja/listapagosdoctores/{doctor}/{fecha}/{paciente}', 'CajaController@listapagosdoctores')->name('caja.listapagosdoctores');
+    Route::post('caja/guardarPagoDoctores', 'CajaController@guardarPagoDoctores')->name('caja.guardarPagoDoctores');
     
     Route::get('caja/pdfDetalleCierre', 'CajaController@pdfDetalleCierre')->name('caja.pdfDetalleCierre');
     Route::get('caja/pdfDetalleCierreF', 'CajaController@pdfDetalleCierreF')->name('caja.pdfDetalleCierreF');

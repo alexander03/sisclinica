@@ -1,3 +1,7 @@
+<?php
+use App\Detallemovcaja;
+use App\Person;
+?>
 @if(count($lista) == 0)
 <h3 class="text-warning">No se encontraron resultados.</h3>
 @else
@@ -10,29 +14,38 @@
 		</tr>
 	</thead>
 	<tbody>
-		<?php
-		?>
 		@foreach ($lista as $key => $value)
-		<tr>
-			<td>{{ date('d/m/Y',strtotime($value->fecha)) }}</td>
-	            <td>{{ $value->numero }}</td>
-	            <td>{{ $value->paciente }}</td>
-	            <td align="center">{{ number_format($value->total,2,'.','') }}</td>
-	            <td style="color:blue;font-weight: bold;">
-            	@if ($value->situacion == 'P')
-            	<font color="orange">PENDIENTE</font>
-            	@elseif($value->situacion == 'D')
-            	<font color="red">DEBE</font>
-            	@else
-            	<font color="green">COBRADO</font>
-            	@endif
-	            </td>
-	            <td style="color:black;font-weight: bold;">
-	            	<center>
+			<?php
+				//doctor
+				$movimiento_id = $value->id;
+				$detalle = Detallemovcaja::where('movimiento_id','=', $movimiento_id)->first();
+				$doctor = Person::find($detalle->persona_id);
+				$doctor_nombre = $doctor->apellidopaterno . " " .$doctor->apellidomaterno .' ' . $doctor->nombres;
+				//pagodoctor
+				$sumapago = Detallemovcaja::where('movimiento_id','=', $movimiento_id)->sum('pagodoctor');
+			?>
+		@if($sumapago != 0)
+			<tr>
+				<td>{{ date('d/m/Y',strtotime($value->fecha)) }}</td>
+				<td>{{ $value->numero }}</td>
+				<td>{{ $value->paciente }}</td>
+				<td align="center">{{ number_format($value->total,2,'.','') }}</td>
+				<td style="color:blue;font-weight: bold;">
+				@if ($value->situacion == 'P')
+				<font color="orange">PENDIENTE</font>
+				@elseif($value->situacion == 'D')
+				<font color="red">DEBE</font>
+				@else
+				<font color="green">COBRADO</font>
+				@endif
+				</td>
+				<td style="color:black;font-weight: bold;">
+					<center>
 						<input id="{{ $value->id }}" class="atendido" checked="checked" name="atendido" type="checkbox"><a href="#" id="{{ $value->id }}" onclick="checkear({{ $value->id }});"> Atendido</a>
-	            	</center>
-	            </td>
-		</tr>
+					</center>
+				</td>
+			</tr>
+		@endif
 		@endforeach
 	</tbody>
 </table>
