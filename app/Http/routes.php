@@ -1090,6 +1090,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('importCie', 'ExcelController@importCie');
     Route::post('importServicio', 'ExcelController@importServicio');
     Route::post('importProducto', 'ExcelController@importProducto');
+
+    //Reportes Tramas
+    Route::get('/tramas', function(){
+        return View::make('app.trama2.tramas');
+    });
     
     Route::get('/empresa', function(){
         return View::make('dashboard.empresa.admin');
