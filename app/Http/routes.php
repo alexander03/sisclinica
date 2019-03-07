@@ -1102,6 +1102,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/tramas2', function(){
         return View::make('app.trama2.t00a');
     });
+
+    Route::get('trama2/registrardatos', 'Trama2Controller@registrardatos');
     
     Route::get('/empresa', function(){
         return View::make('dashboard.empresa.admin');
