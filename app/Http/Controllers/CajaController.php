@@ -11307,4 +11307,45 @@ class CajaController extends Controller
         $docventa->save();
     }
 
+    public function pagosdoctores(Request $request) {
+        $entidad = 'caja';
+        $ruta = $this->rutas;
+        return view($this->folderview.'.pagosdoctores')->with(compact('entidad', 'ruta'));
+    }
+
+    public function listapagosdoctores($numero, $fecha, $paciente) {
+        $ruta = $this->rutas;
+        $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+                            ->leftjoin('movimiento as m2', 'movimiento.movimiento_id', '=', 'm2.id')
+                            ->where('movimiento.tipomovimiento_id','=','1') // ticket
+                            ->where('movimiento.sucursal_id', '=', '2') // especialidades
+                            ->where('movimiento.situacion', 'like', 'C') // cobrado
+                            ->where('movimiento.situacion2', 'like', 'L'); // que no esté atendido
+        if($fecha!=""){
+            $resultado = $resultado->where('movimiento.fecha', '=', ''.$fecha.'');
+        }
+        if($numero != 0){
+            $resultado = $resultado->where('movimiento.numero','LIKE','%'.$numero.'%');
+        }
+        if($paciente!="0"){
+            $resultado = $resultado->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'), 'LIKE', '%'.$paciente.'%');
+        }
+        $resultado        = $resultado->select('movimiento.*', 'm2.fecha as fecha2',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'), DB::raw('movimiento.total as pendiente'))->orderBy('movimiento.id','DESC')->orderBy('movimiento.situacion','DESC');
+        $lista            = $resultado->get();
+        $cabecera         = array();
+        $cabecera[]       = array('valor' => 'Fecha', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Nro', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Paciente', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Doctor', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Especialidad', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Pago Pendiente', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Operacion', 'numero' => '1');
+        
+        //$conf = DB::connection('sqlsrv')->table('BL_CONFIGURATION')->get();
+        if (count($lista) > 0) {
+            return view($this->folderview.'.listapagosdoctores')->with(compact('lista', 'cabecera', 'ruta'));
+        }
+        return view($this->folderview.'.listapagosdoctores')->with(compact('lista', 'ruta'));
+    }
+
 }
