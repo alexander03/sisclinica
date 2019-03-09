@@ -1400,14 +1400,33 @@ class VentaController extends Controller
                         $venta->nombrepaciente = $request->input('nombrepersona');
                     }
                     $abreviatura="G"; 
+                    $p_id = null;
                     if ($request->input('documento') == '5' || $request->input('documento') == '14' ) {
                         $codigo="03";
                         $abreviatura="B";                    
                     } else if ($request->input('documento') == '4'){
                         $codigo="01";
                         $abreviatura="F";
-                        $venta->empresa_id = $request->input('empresa_id');
+
+                        $emp = Person::where('ruc', $request->input('ruc2'))->first();
+                        if($emp !== NULL) {
+                            $emp->direccion = $request->input('direccion2');
+                            $emp->save();
+                            $p_id = $emp->id;
+                        } else {
+                            $empr = new Person();
+                            $empr->ruc = $request->input('ruc2');
+                            $empr->direccion = $request->input('direccion2');
+                            $empr->bussinesname = $request->input('nombreempresa2');
+                            $empr->save();
+                            $rolemp = new Rolpersona();
+                            $rolemp->rol_id = 2;
+                            $rolemp->person_id = $empr->id;
+                            $rolemp->save();
+                            $p_id = $empr->id;
+                        }                        
                     }
+                    $venta->empresa_id = $p_id;
                     $venta->tipomovimiento_id = 4;
                     $venta->almacen_id = $almacen_id;
                     
@@ -1581,7 +1600,25 @@ class VentaController extends Controller
                                 }
                                 
                             }else{
-                                $movimiento->empresa_id = $request->input('empresa_id');
+                                $p_id = null;
+                                $emp = Person::where('ruc', $request->input('ruc2'))->first();
+                                if($emp !== NULL) {
+                                    $emp->direccion = $request->input('direccion2');
+                                    $emp->save();
+                                    $p_id = $emp->id;
+                                } else {
+                                    $empr = new Person();
+                                    $empr->ruc = $request->input('ruc2');
+                                    $empr->direccion = $request->input('direccion2');
+                                    $empr->bussinesname = $request->input('nombreempresa2');
+                                    $empr->save();
+                                    $rolemp = new Rolpersona();
+                                    $rolemp->rol_id = 2;
+                                    $rolemp->person_id = $empr->id;
+                                    $rolemp->save();
+                                    $p_id = $empr->id;
+                                } 
+                                $movimiento->empresa_id = $p_id;
                             }
                             $movimiento->tipomovimiento_id = 2;
                             $movimiento->serie = '002';
@@ -1617,7 +1654,7 @@ class VentaController extends Controller
                             $venta->movimiento_id = $movimiento->id;
                             $venta->save();
 
-
+                            $p_id = null;
                             $movimientocaja = new Detallemovcaja();
                             if ($request->input('documento') == '5') {
                                 if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
@@ -1627,8 +1664,30 @@ class VentaController extends Controller
                                 }
                                 
                             }else{
-                                $movimientocaja->empresa_id = $request->input('empresa_id');
+                                if ($request->input('documento') == '4'){
+                                    $codigo="01";
+                                    $abreviatura="F";
+
+                                    $emp = Person::where('ruc', $request->input('ruc2'))->first();
+                                    if($emp !== NULL) {
+                                        $emp->direccion = $request->input('direccion2');
+                                        $emp->save();
+                                        $p_id = $emp->id;
+                                    } else {
+                                        $empr = new Person();
+                                        $empr->ruc = $request->input('ruc2');
+                                        $empr->direccion = $request->input('direccion2');
+                                        $empr->bussinesname = $request->input('nombreempresa2');
+                                        $empr->save();
+                                        $rolemp = new Rolpersona();
+                                        $rolemp->rol_id = 2;
+                                        $rolemp->person_id = $empr->id;
+                                        $rolemp->save();
+                                        $p_id = $empr->id;
+                                    }                        
+                                }                                
                             }
+                            $venta->empresa_id = $p_id;
                             //$movimientocaja->persona_id = $request->input('persona_id');
                             $movimientocaja->movimiento_id = $movimiento->id;
                             //$aperturacierrecaja = Aperturacierrecaja::where('estado','=','A')->first();
@@ -1660,7 +1719,25 @@ class VentaController extends Controller
                         }else if($request->input('documento') == '4'){
                             $codigo="01";
                             $abreviatura="F";
-                            $venta->empresa_id = $request->input('empresa_id');
+                            $p_id = null;
+                            $emp = Person::where('ruc', $request->input('ruc2'))->first();
+                            if($emp !== NULL) {
+                                $emp->direccion = $request->input('direccion2');
+                                $emp->save();
+                                $p_id = $emp->id;
+                            } else {
+                                $empr = new Person();
+                                $empr->ruc = $request->input('ruc2');
+                                $empr->direccion = $request->input('direccion2');
+                                $empr->bussinesname = $request->input('nombreempresa2');
+                                $empr->save();
+                                $rolemp = new Rolpersona();
+                                $rolemp->rol_id = 2;
+                                $rolemp->person_id = $empr->id;
+                                $rolemp->save();
+                                $p_id = $empr->id;
+                            } 
+                            $venta->empresa_id = $p_id;
                         }
 
                         if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
@@ -1894,7 +1971,25 @@ class VentaController extends Controller
                     }else if($request->input('documento') == '4'){
                         $codigo="01";
                         $abreviatura="F";
-                        $venta2->empresa_id = $request->input('empresa_id');
+                        $p_id = null;
+                        $emp = Person::where('ruc', $request->input('ruc2'))->first();
+                        if($emp !== NULL) {
+                            $emp->direccion = $request->input('direccion2');
+                            $emp->save();
+                            $p_id = $emp->id;
+                        } else {
+                            $empr = new Person();
+                            $empr->ruc = $request->input('ruc2');
+                            $empr->direccion = $request->input('direccion2');
+                            $empr->bussinesname = $request->input('nombreempresa2');
+                            $empr->save();
+                            $rolemp = new Rolpersona();
+                            $rolemp->rol_id = 2;
+                            $rolemp->person_id = $empr->id;
+                            $rolemp->save();
+                            $p_id = $empr->id;
+                        } 
+                        $venta2->empresa_id = $p_id;
                     }
 
                     if ($request->input('person_id') !== '' && $request->input('person_id') !== NULL) {
@@ -2060,7 +2155,25 @@ class VentaController extends Controller
                                     }
                                     
                                 }else{
-                                    $movimiento->empresa_id = $request->input('empresa_id');
+                                    $p_id = null;
+                                    $emp = Person::where('ruc', $request->input('ruc2'))->first();
+                                    if($emp !== NULL) {
+                                        $emp->direccion = $request->input('direccion2');
+                                        $emp->save();
+                                        $p_id = $emp->id;
+                                    } else {
+                                        $empr = new Person();
+                                        $empr->ruc = $request->input('ruc2');
+                                        $empr->direccion = $request->input('direccion2');
+                                        $empr->bussinesname = $request->input('nombreempresa2');
+                                        $empr->save();
+                                        $rolemp = new Rolpersona();
+                                        $rolemp->rol_id = 2;
+                                        $rolemp->person_id = $empr->id;
+                                        $rolemp->save();
+                                        $p_id = $empr->id;
+                                    } 
+                                    $movimiento->empresa_id = $p_id;
                                 }
                                 $movimiento->tipomovimiento_id          = 2;
                                 
@@ -2108,7 +2221,25 @@ class VentaController extends Controller
                                     }
                                     
                                 }else{
-                                    $movimientocaja->empresa_id = $request->input('empresa_id');
+                                    $p_id = null;
+                                    $emp = Person::where('ruc', $request->input('ruc2'))->first();
+                                    if($emp !== NULL) {
+                                        $emp->direccion = $request->input('direccion2');
+                                        $emp->save();
+                                        $p_id = $emp->id;
+                                    } else {
+                                        $empr = new Person();
+                                        $empr->ruc = $request->input('ruc2');
+                                        $empr->direccion = $request->input('direccion2');
+                                        $empr->bussinesname = $request->input('nombreempresa2');
+                                        $empr->save();
+                                        $rolemp = new Rolpersona();
+                                        $rolemp->rol_id = 2;
+                                        $rolemp->person_id = $empr->id;
+                                        $rolemp->save();
+                                        $p_id = $empr->id;
+                                    } 
+                                    $movimientocaja->empresa_id = $p_id;
                                 }
                                 //$movimientocaja->persona_id = $request->input('persona_id');
                                 $movimientocaja->movimiento_id = $movimiento->id;

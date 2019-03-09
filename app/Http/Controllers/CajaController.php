@@ -3661,7 +3661,7 @@ class CajaController extends Controller
                     $pdf::Cell(8,7,$mov === NULL ? '-' : $mov->tipodocumento->abreviatura,1,0,'C');
                     $pdf::Cell(12,7,utf8_decode($row['serie'] . '-' . $row['numero']),1,0,'C');
                     if($mov !== NULL && $mov->empresa_id != '') {
-                        $pdf::Cell(40,7,$mov->empresa->bussinesname,1,0,'L');                    
+                        $pdf::Cell(40,7,$mov->empresa->bussinesname,1,0,'L');
                     } else {
                         $pdf::Cell(40,7,'-',1,0,'C');
                     }    

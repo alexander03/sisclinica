@@ -32,12 +32,26 @@
 			</div>
 
 		</div>
-		<div class="form-group" id="opcEmpresa" style="height: 12px; display: none;">
-			{!! Form::label('nombreempresa', 'Empresa:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
-			{!! Form::hidden('empresa_id', null, array('id' => 'empresa_id')) !!}
-			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::text('nombreempresa', null, array('style' => 'background-color: #FFEEC5;' ,'class' => 'form-control input-xs', 'id' => 'nombreempresa', 'placeholder' => 'Seleccione Empresa')) !!}
-				
+		<div id="opcEmpresa" style="display: none;">
+			<div class="form-group" style="height: 12px;">
+				{!! Form::label('ruc2', 'RUC:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
+				{!! Form::hidden('empresa_id', null, array('id' => 'empresa_id')) !!}
+				<div class="col-lg-7 col-md-7 col-sm-7">
+					{!! Form::text('nombreempresa', null, array('style' => 'background-color: #FFEEC5;' ,'class' => 'form-control input-xs', 'id' => 'nombreempresa', 'placeholder' => 'Seleccione Empresa', 'style'=>'display:none')) !!}
+					{!! Form::text('ruc2', null, array('style' => 'background-color: #FFEEC5;' ,'class' => 'form-control input-xs', 'id' => 'ruc2', 'placeholder' => 'Digite RUC')) !!}
+				</div>			
+			</div>
+			<div class="form-group" style="height: 12px;">
+				{!! Form::label('nombreempresa2', 'Empresa:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
+				<div class="col-lg-7 col-md-7 col-sm-7">
+					{!! Form::text('nombreempresa2', null, array('style' => 'background-color: #FFEEC5;' ,'class' => 'form-control input-xs', 'id' => 'nombreempresa2', 'readonly' => 'readonly')) !!}
+				</div>
+			</div>
+			<div class="form-group" style="height: 12px;">
+				{!! Form::label('direccion2', 'Direccion:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
+				<div class="col-lg-7 col-md-7 col-sm-7">
+					{!! Form::text('direccion2', null, array('style' => 'background-color: #FFEEC5;' ,'class' => 'form-control input-xs', 'id' => 'direccion2', 'placeholder' => 'Digite Direccion')) !!}				
+				</div>
 			</div>
 		</div>
 		<div class="form-group" style="height: 12px;">
@@ -1079,11 +1093,11 @@ function guardarVenta (entidad, idboton) {
 		modal('{{URL::route('venta.busquedacliente')}}', '');
 		return false;
 	}
-	if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="documento"]').val()=="4" && $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="empresa_id"]').val()==""){
+	/*if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="documento"]').val()=="4" && $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="empresa_id"]').val()==""){
 		bootbox.alert("Debe seleccionar una empresa para la factura");
-		modal('{{URL::route('venta.busquedaempresa')}}', '');
+		modal('{URL::route('venta.busquedaempresa')}}', '');
 		return false;
-	}
+	}*/
 	if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="formapago"]').val()=="T" && $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="nroref"]').val()==""){
 		bootbox.alert("Debe agregar el nro de operacion de la tarjeta");
 		return false;
@@ -1347,6 +1361,12 @@ function camposNoVacios() {
 }	
 
 function enviar() {
+	if ($('#documento').val() == '4') {
+		if($('#ruc2').val().length != 11 || $('#nombreempresa2').val() == '' || $('#direccion2').val() == '') {
+			alert('No olvide digitar un RUC válido.');
+			return false;
+		}
+	}
 	form = $('#formMantenimientoVenta');
 	if(!camposNoVacios()) {
 		return false;
@@ -1365,5 +1385,58 @@ $(document).on('click', '.escogerFila', function(){
 	$('.escogerFila').css('background-color', 'white');
 	$(this).css('background-color', 'yellow');
 });
+
+$(document).on('keyup', '#ruc2', function(e) {
+	e.preventDefault();
+	e.stopImmediatePropagation();
+	if ($(this).val().length == 11) {
+		buscarEmpresa();
+	}
+});
+
+function buscarEmpresa() {
+	ruc = $("#ruc2").val();     
+    $.ajax({
+        type: 'GET',
+        url: "ticket/buscarEmpresa",
+        data: "ruc="+ruc,
+        beforeSend(){
+            $("#ruc2").val('Comprobando...');
+        },
+        success: function (a) {
+            if(a == '')  {
+        		buscarEmpresa2(ruc);
+        	} else {
+        		var e = a.split(';;');
+        		$("#ruc2").val(ruc);
+        		$('#nombreempresa2').val(e[0]);
+        		$('#direccion2').val(e[1]);
+        	}
+        }
+    });
+}
+
+function buscarEmpresa2(ruc){  
+    $.ajax({
+        type: 'GET',
+        url: "SunatPHP/demo.php",
+        data: "ruc="+ruc,
+        beforeSend(){
+            $("#ruc2").val('Comprobando...');
+        },
+        success: function (data, textStatus, jqXHR) {
+            if(data.RazonSocial == null) {
+                alert('El RUC ingresado no existe... Digite uno válido.');
+        		$("#ruc2").val('').focus();
+                $("#nombreempresa2").val('');
+                $("#direccion2").val('');
+            } else {
+                $("#ruc2").val(ruc);
+                $("#nombreempresa2").val(data.RazonSocial);
+                $("#direccion2").val('-');
+            }
+        }
+    });
+}
 
 </script>
