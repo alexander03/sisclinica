@@ -7,7 +7,7 @@
 <section class="content-header">
 	<h1>
 		{{ $title }}
-		{{-- <small>Descripción</small> --}}
+		{{-- <small>Descripciï¿½n</small> --}}
 	</h1>
 </section>
 <!-- Main content -->
@@ -53,9 +53,9 @@
 								{!! Form::label('filas', 'Filas a mostrar:')!!}
 								{!! Form::selectRange('filas', 20, 50, 50, array('class' => 'form-control input-xs', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
 							</div>
-							{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-info btn-xs', 'id' => 'btnBuscar', 'onclick' => 'buscar(\''.$entidad.'\')')) !!}
+							{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-info btn-xs', 'id' => 'btnBuscar', 'style' => 'display:none;' , 'onclick' => 'buscar(\''.$entidad.'\')')) !!}
 							@if($user->usertype_id==1 || $user->usertype_id==2 || $user->usertype_id==23)
-							{!! Form::button('<i class="glyphicon glyphicon-file"></i> Excel', array('class' => 'btn btn-success btn-xs', 'id' => 'btnExcel','onclick' => 'excel();')) !!}
+							{!! Form::button('<i class="glyphicon glyphicon-file"></i> Excel Pagos', array('class' => 'btn btn-success btn-xs', 'id' => 'btnExcel','onclick' => 'excel();')) !!}
 							@endif
 							@if($user->usertype_id==1 || $user->usertype_id==2)
 							{!! Form::button('<i class="glyphicon glyphicon-file"></i> Excel Marcado', array('class' => 'btn btn-success btn-xs', 'id' => 'btnExcel','onclick' => 'excelMarcado();')) !!}

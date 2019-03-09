@@ -8,11 +8,14 @@ use Validator;
 use App\Http\Requests;
 use App\Conceptopago;
 use App\Movimiento;
+use App\Person;
+use App\Servicio;
 use App\Detallemovcaja;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Excel;
 
 class ReporteconsultaController extends Controller
@@ -506,6 +509,10 @@ class ReporteconsultaController extends Controller
         $fechafinal       = Libreria::getParam($request->input('fechafinal'));
         $situacion        = Libreria::getParam($request->input('situacion'));
         $uci        = Libreria::getParam($request->input('uci'));
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $pago        = Movimiento::join('detallemovcaja as dmc','dmc.movimiento_id','=','movimiento.id')
                             ->join('person as medico','medico.id','=','dmc.persona_id')
                             ->join('person as paciente','paciente.id','=','movimiento.persona_id')
@@ -520,7 +527,8 @@ class ReporteconsultaController extends Controller
                             ->where('movimiento.tipomovimiento_id','=',1)
                             ->whereNull('dmc.deleted_at')
                             ->where('movimiento.situacion','<>','U')
-                            ->where('dmc.situacionentrega','like','E');
+                            ->where('dmc.situacionentrega','like','E')
+                            ->where('movimiento.sucursal_id','=', $sucursal_id);
         if($fechainicial!=""){
             $pago = $pago->where('dmc.fechaentrega','>=',$fechainicial);
         }
@@ -547,7 +555,8 @@ class ReporteconsultaController extends Controller
                             ->where('movimiento.tipomovimiento_id', '=', '4')
                             ->where('movimiento.ventafarmacia', '=', 'S')
                             ->where(DB::raw('case when movimiento.persona_id>0 then concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) else movimiento.nombrepaciente end'),'like','%'.$paciente.'%')
-                            ->whereIn('movimiento.tipodocumento_id',['4','5','15']);
+                            ->whereIn('movimiento.tipodocumento_id',['4','5','15'])
+                            ->where('movimiento.sucursal_id','=', $sucursal_id);
         if($fechainicial!=""){
             $first = $first->where('movimiento.fecha','>=',$fechainicial);
         }
@@ -569,7 +578,8 @@ class ReporteconsultaController extends Controller
                             ->where('movimiento.tipomovimiento_id', '=', '4')
                             ->where('movimiento.ventafarmacia', '=', 'S')
                             ->where(DB::raw('case when movimiento.persona_id>0 then concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) else movimiento.nombrepaciente end'),'like','%'.$paciente.'%')
-                            ->whereIn('movimiento.tipodocumento_id',['4','5','15']);
+                            ->whereIn('movimiento.tipodocumento_id',['4','5','15'])
+                            ->where('movimiento.sucursal_id','=', $sucursal_id);
         if($fechainicial!=""){
             $first1 = $first1->where('movimiento.fecha','>=',$fechainicial);
         }
@@ -600,6 +610,11 @@ class ReporteconsultaController extends Controller
                             ->where('movimiento.tipomovimiento_id','=',1)
                             ->whereNull('dmc.deleted_at')
                             ->where('movimiento.situacion','<>','U')
+                            ->where(function($q) {            
+                                $q->where('s.tiposervicio_id','=',1)->orWhere('s.tiposervicio_id','=',21);
+                            })
+                            //->where('s.tiposervicio_id','=',1)->orWhere('s.tiposervicio_id','=',21)
+                            ->where('movimiento.sucursal_id','=', $sucursal_id)
                             ->whereNotIn('dmc.situacionentrega',['A'])
                             ->where(function($query){
                                 $query->whereNull('dmc.situaciontarjeta')
@@ -639,9 +654,9 @@ class ReporteconsultaController extends Controller
             $resultado = DB::table(DB::raw("($querySql) as a order by fecha desc"))->addBinding($binding);
         }
         $resultado = $resultado->get();
-        Excel::create('ExcelReporteConsulta', function($excel) use($resultado,$request) {
+        Excel::create('ExcelReporteConsulta', function($excel) use($resultado,$request,$doctor) {
  
-            $excel->sheet('ConsultaPagos', function($sheet) use($resultado,$request) {
+            $excel->sheet('ConsultaPagos', function($sheet) use($resultado,$request,$doctor) {
  
                 $array = array();
                 $cabecera = array();
@@ -666,42 +681,71 @@ class ReporteconsultaController extends Controller
                 $array[] = $cabecera;
                 $c=3;$d=3;$band=true;
 
+                $totalsuma = 0;
+                $totalsumaconsulta = 0;
+                $totalsumaexamenes = 0;
 
                 foreach ($resultado as $key => $value){
-                    $detalle = array();
-                    $detalle[] = $value->tipopaciente;
-                    $detalle[] = $value->historia;
-                    $detalle[] = $value->paciente2;
-                    $detalle[] = $value->plan2;
-                    $detalle[] = date('d/m/Y',strtotime($value->fecha));
-                    if ($value->fechaentrega != "0000-00-00") {
-                        $detalle[] = date('d/m/Y',strtotime($value->fechaentrega));
-                    } else {
-                        $detalle[] = "";
-                    }
-                    $detalle[] = $value->recibo;
-                    $detalle[] = $value->medico;
-                    $detalle[] = number_format($value->cantidad,0,'.','');
-                    if($value->servicio_id>0)
-                        $detalle[] = $value->servicio;
-                    else
-                        $detalle[] = $value->servicio2;
-                    $detalle[] = number_format($value->pagodoctor*$value->cantidad,2,'.','');
-                    $detalle[] = number_format($value->pagohospital*$value->cantidad,2,'.','');
-                    if($value->referido_id>0)
-                        $detalle[] = $value->referido;
-                    else
-                        $detalle[] = "NO REFERIDO";
-                    if($value->total>0)
-                        $detalle[] = ($value->tipodocumento_id==4?"F":"B").$value->serie.'-'.$value->numero;
-                    else
-                        $detalle[] = 'PREF. '.$value->numero2;
-                    $detalle[] = $value->situacion=='C'?($value->tarjeta!=''?($value->tarjeta.' / '.$value->tipotarjeta.'-'.$value->voucher):'CONTADO'):'-';
-                    $detalle[] = ($value->situacion=='C'?'Pagado':'Pendiente');
-                    $detalle[] = $value->soat;
-                    $detalle[] = $value->responsable;
-                    $array[] = $detalle;                    
+                    if($value->situacion == 'C'){
+                        $detalle = array();
+                        $detalle[] = $value->tipopaciente;
+                        $detalle[] = $value->historia;
+                        $detalle[] = $value->paciente2;
+                        $detalle[] = $value->plan2;
+                        $detalle[] = date('d/m/Y',strtotime($value->fecha));
+                        if ($value->fechaentrega != "0000-00-00") {
+                            $detalle[] = date('d/m/Y',strtotime($value->fechaentrega));
+                        } else {
+                            $detalle[] = "";
+                        }
+                        $detalle[] = $value->recibo;
+                        $detalle[] = $value->medico;
+                        $detalle[] = number_format($value->cantidad,0,'.','');
+                        if($value->servicio_id>0)
+                            $detalle[] = $value->servicio;
+                        else
+                            $detalle[] = $value->servicio2;
+                            $detalle[] = number_format($value->pagodoctor*$value->cantidad,2,'.','');
+                            $detalle[] = number_format($value->pagohospital*$value->cantidad,2,'.','');
+                            $servicio = Servicio::find($value->servicio_id);
+                            if($servicio->tiposervicio_id = 1){
+                                $totalsumaconsulta =  $totalsumaconsulta + $value->pagohospital*$value->cantidad;
+                                $totalsuma = $totalsuma + $value->pagohospital*$value->cantidad;
+                            }else if($servicio->tiposervicio_id = 21){
+                                $totalsumaexamenes =  $totalsumaexamenes + $value->pagohospital*$value->cantidad;
+                                $totalsuma = $totalsuma + $value->pagohospital*$value->cantidad;
+                            }
+                        if($value->referido_id>0)
+                            $detalle[] = $value->referido;
+                        else
+                            $detalle[] = "NO REFERIDO";
+                        if($value->total>0)
+                            $detalle[] = ($value->tipodocumento_id==4?"F":"B").$value->serie.'-'.$value->numero;
+                        else
+                            $detalle[] = 'PREF. '.$value->numero2;
+                        $detalle[] = $value->situacion=='C'?($value->tarjeta!=''?($value->tarjeta.' / '.$value->tipotarjeta.'-'.$value->voucher):'CONTADO'):'-';
+                        $detalle[] = ($value->situacion=='C'?'Pagado':'Pendiente');
+                        $detalle[] = $value->soat;
+                        $detalle[] = $value->responsable;
+                        $array[] = $detalle;   
+                    }                 
                 }
+
+                $total = array();
+                $total[] = "TOTAL";
+                $total[] = number_format($totalsuma,2,'.','');
+                $array[] = $total;  
+
+                $pago = array();
+                $pago[] = "PAGO";
+                //( monto/ 1.18*0.25)
+                $doctorpago = Person::where(DB::raw('concat(apellidopaterno,\' \',apellidomaterno,\' \',nombres)'),'like','%'.$doctor.'%')->first();
+                if($doctorpago->id == 3){
+                    $pago[] = number_format( ($totalsumaconsulta * 0.58 ) + ( $totalsumaexamenes / 1.18 *0.25)  ,2,'.','');
+                }else{
+                    $pago[] = number_format( ($totalsumaconsulta + $totalsumaexamenes) / 1.18 * 0.25 ,2,'.','');
+                }
+                $array[] = $pago;  
 
                 $sheet->fromArray($array);
             });
