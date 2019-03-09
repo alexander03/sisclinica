@@ -1104,6 +1104,7 @@ Route::group(['middleware' => 'auth'], function () {
     });
 
     Route::get('trama2/registrardatos', 'Trama2Controller@registrardatos');
+    Route::get('trama2/descargarZipTramas', 'Trama2Controller@descargarZipTramas');
     
     Route::get('/empresa', function(){
         return View::make('dashboard.empresa.admin');

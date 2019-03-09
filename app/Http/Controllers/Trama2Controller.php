@@ -9,9 +9,11 @@ use App\Http\Requests;
 use App\HistoriaClinica;
 use App\Historia;
 use App\Trama2;
+use App\Movimiento;
 use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use ZipArchive;
 
 class Trama2Controller extends Controller
 {
@@ -50,22 +52,103 @@ class Trama2Controller extends Controller
         $Trama->save();
     }
 
-    public function descargarZip(Request $request) {
-        $za = new ZipArchive();
+    public function descargarZipTramas(Request $request) {
 
-        $za->open('test_with_comment.zip');
-        print_r($za);
-        var_dump($za);
-        echo "numFicheros: " . $za->numFiles . "\n";
-        echo "estado: " . $za->status  . "\n";
-        echo "estadosSis: " . $za->statusSys . "\n";
-        echo "nombreFichero: " . $za->filename . "\n";
-        echo "comentario: " . $za->comment . "\n";
+        $anno   = substr($request->input('fecha_trama'), 0, 4);
+        $mes    = substr($request->input('fecha_trama'), 5, 7);
+        $fechai = $request->input('fecha_trama') . '-01';
+        $fechaf = $request->input('fecha_trama') . '-31';
+        $fechatrama = str_replace('-', '', $request->input('fecha_trama'));
 
-        for ($i=0; $i<$za->numFiles;$i++) {
-            echo "index: $i\n";
-            print_r($za->statIndex($i));
+        $trama = $request->input('trama');
+
+        $datos = Trama2::find(1);
+
+        if($trama == 'TAA0') {
+            $elementos = Trama2::get();
         }
-        echo "numFichero:" . $za->numFiles . "\n";
+        if($trama == 'TAB1') {
+            $elementos = Movimiento::where('clasificacionconsulta', 'C')
+                        ->where('sucursal_id', 1)
+                        ->whereBetween('fecha_atencion', [$fechai, $fechaf])
+                        ->join('historiaclinica', 'ticket_id', '=', 'movimiento.id')
+                        ->join('person', 'movimiento.persona_id', '=', 'person.id')
+                        ->orderBy('person.sexo', 'DESC')
+                        ->orderBy(DB::raw('YEAR(CURDATE())-YEAR(person.fechanacimiento)'), 'ASC')
+                        ->groupBy(DB::raw('YEAR(CURDATE())-YEAR(person.fechanacimiento)'))
+                        ->select(DB::raw('YEAR(CURDATE())-YEAR(person.fechanacimiento) AS edad'), 'person.sexo', DB::raw('COUNT(movimiento.id) AS totalatenciones'))
+                        ->get();
+        }
+        if($trama == 'TAB2') {
+            //$elementos = Movimiento::where('clasificacionconsulta', 'C')
+                        ->where('sucursal_id', 1)
+                        ->whereBetween('fecha_atencion', [$fechai, $fechaf])
+                        ->join('historiaclinica', 'ticket_i', '=', 'movimiento.id')
+                        ->join('person', 'movimiento.person_id', '=', 'person.id')
+                        ->orderBy('person.sexo')
+                        ->groupBy('person.sexo')
+                        ->select(DB::raw('YEAR(CURDATE())-YEAR(person.fechanacimiento) AS edad'), 'person.sexo', DB::raw('COUNT(movimiento.id) AS totalatenciones'))
+                        ->get();
+        }
+        if($trama == 'TAC1') {
+            $elementos = Movimiento::where('clasificacionconsulta', 'E')
+                        ->where('sucursal_id', 1)
+                        ->whereBetween('fecha_atencion', [$fechai, $fechaf])
+                        ->join('historiaclinica', 'ticket_id', '=', 'movimiento.id')
+                        ->join('person', 'movimiento.persona_id', '=', 'person.id')
+                        ->orderBy('person.sexo', 'DESC')
+                        ->orderBy(DB::raw('YEAR(CURDATE())-YEAR(person.fechanacimiento)'), 'ASC')
+                        ->groupBy(DB::raw('YEAR(CURDATE())-YEAR(person.fechanacimiento)'))
+                        ->select(DB::raw('YEAR(CURDATE())-YEAR(person.fechanacimiento) AS edad'), 'person.sexo', DB::raw('COUNT(movimiento.id) AS totalatenciones'))
+                        ->get();
+        }
+        if($trama == 'TAC2') {
+            //$elementos = Movimiento::where('clasificacionconsulta', 'E')
+                        ->where('sucursal_id', 1)
+                        ->whereBetween('fecha_atencion', [$fechai, $fechaf])
+                        ->join('historiaclinica', 'ticket_i', '=', 'movimiento.id')
+                        ->join('person', 'movimiento.person_id', '=', 'person.id')
+                        ->orderBy('person.sexo')
+                        ->groupBy('person.sexo')
+                        ->select(DB::raw('YEAR(CURDATE())-YEAR(person.fechanacimiento) AS edad'), 'person.sexo', DB::raw('COUNT(movimiento.id) AS totalatenciones'))
+                        ->get();
+        }
+        if($trama == 'TAD1') {
+            $elementos = '';
+        }
+        if($trama == 'TAD2') {
+            $elementos = '';
+        }
+        if($trama == 'TAE0') {
+            $elementos = '';
+        }
+        if($trama == 'TAF0') {
+
+        }
+        if($trama == 'TAG0') {
+
+        }
+        if($trama == 'TAH0') {
+
+        }
+        if($trama == 'TAI0') {
+
+        }
+        if($trama == 'TAJ0') {
+
+        }
+
+        $content = \View::make('app.trama2.reporte')->with('trama', $trama)->with('elementos', $elementos)->with('fechatrama', $fechatrama)->with('datos', $datos);
+
+        // Set the name of the text file
+        $filename = $datos->codigo1 . '_' . $anno . '_' . $mes . '_' . $trama . '.txt';
+
+        // Set headers necessary to initiate a download of the textfile, with the specified name
+        $headers = array(
+            'Content-Type' => 'plain/txt',
+            'Content-Disposition' => sprintf('attachment; filename="%s"', $filename),
+        );
+
+        return \Response::make($content, 200, $headers);
     }
 }
