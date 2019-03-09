@@ -108,6 +108,7 @@ class VentaadmisionController extends Controller
         $cabecera[]       = array('valor' => 'Situacion', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Estado Sunat', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Msg. Sunat', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Usuario', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '3');
         
         $user = Auth::user();

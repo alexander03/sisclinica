@@ -1,3 +1,6 @@
+<?php
+      use Illuminate\Support\Facades\Auth;
+?>
 @if(count($lista) == 0)
 <h3 class="text-warning">No se encontraron resultados.</h3>
 @else
@@ -47,6 +50,7 @@
             	<td align="center">PENDIENTE</td>
             @endif
             <td align="center">{{ $value->mensajesunat }}</td>
+            <td align="center">{{ $value->responsable->nombres }}</td>
             
             <td align="center" style="display:none">{!! Form::button('<div class="fa fa-gears"></div> ', array('onclick' => 'declarar2(\''.$value->id.'\',\''.$value->tipodocumento_id.'\')', 'class' => 'btn btn-xs btn-info')) !!}</td>
             @if($value->tipodocumento_id==12)
