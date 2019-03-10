@@ -67,6 +67,25 @@ class Trama2Controller extends Controller
         if($trama == 'TAA0') {
             $elementos = Trama2::get();
         }
+        /*
+        (CASE 
+            WHEN YEAR(CURDATE())-YEAR(person.fechanacimiento) < 1 THEN 1 
+            WHEN YEAR(CURDATE())-YEAR(person.fechanacimiento) >=1 AND YEAR(CURDATE())-YEAR(person.fechanacimiento) <= 4 THEN 2
+            WHEN YEAR(CURDATE())-YEAR(person.fechanacimiento) >=5 AND YEAR(CURDATE())-YEAR(person.fechanacimiento) <= 9 THEN 3
+            WHEN YEAR(CURDATE())-YEAR(person.fechanacimiento) >=10 AND YEAR(CURDATE())-YEAR(person.fechanacimiento) <= 14 THEN 4
+            WHEN YEAR(CURDATE())-YEAR(person.fechanacimiento) >=15 AND YEAR(CURDATE())-YEAR(person.fechanacimiento) <= 19 THEN 5
+            WHEN YEAR(CURDATE())-YEAR(person.fechanacimiento) >=20 AND YEAR(CURDATE())-YEAR(person.fechanacimiento) <= 24 THEN 6
+            WHEN YEAR(CURDATE())-YEAR(person.fechanacimiento) >=25 AND YEAR(CURDATE())-YEAR(person.fechanacimiento) <= 29 THEN 7
+            WHEN YEAR(CURDATE())-YEAR(person.fechanacimiento) >=30 AND YEAR(CURDATE())-YEAR(person.fechanacimiento) <= 34 THEN 8
+            WHEN YEAR(CURDATE())-YEAR(person.fechanacimiento) >=35 AND YEAR(CURDATE())-YEAR(person.fechanacimiento) <= 39 THEN 9
+            WHEN YEAR(CURDATE())-YEAR(person.fechanacimiento) >=40 AND YEAR(CURDATE())-YEAR(person.fechanacimiento) <= 44 THEN 10
+            WHEN YEAR(CURDATE())-YEAR(person.fechanacimiento) >=45 AND YEAR(CURDATE())-YEAR(person.fechanacimiento) <= 49 THEN 11
+            WHEN YEAR(CURDATE())-YEAR(person.fechanacimiento) >=50 AND YEAR(CURDATE())-YEAR(person.fechanacimiento) <= 54 THEN 12
+            WHEN YEAR(CURDATE())-YEAR(person.fechanacimiento) >=55 AND YEAR(CURDATE())-YEAR(person.fechanacimiento) <= 59 THEN 13
+            WHEN YEAR(CURDATE())-YEAR(person.fechanacimiento) >=60 AND YEAR(CURDATE())-YEAR(person.fechanacimiento) <= 64 THEN 14
+            WHEN YEAR(CURDATE())-YEAR(person.fechanacimiento) > 64 THEN 15        
+        END) AS edad
+        */
         if($trama == 'TAB1') {
             $elementos = Movimiento::where('clasificacionconsulta', 'C')
                         ->where('situacion', 'C')

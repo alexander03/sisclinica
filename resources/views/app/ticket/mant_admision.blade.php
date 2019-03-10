@@ -39,6 +39,10 @@ if(!is_null($ticket)){
 .form-group{
     margin-bottom: 8px !important;
 }
+.modal-body {
+    height: 500px;
+    overflow-y: auto;
+}
 </style>
 <div id="divMensajeError{!! $entidad !!}"></div>
 {!! Form::model($ticket, $formData) !!}	
