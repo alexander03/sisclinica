@@ -604,6 +604,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('caja/pdfRecibo', 'CajaController@pdfRecibo')->name('caja.pdfRecibo');
     Route::get('caja/pdfDetallePorProducto', 'CajaController@pdfDetallePorProducto')->name('caja.pdfDetallePorProducto');
+    Route::get('caja/pdfDetallePorProductoAgrupado', 'CajaController@pdfDetallePorProductoAgrupado')->name('caja.pdfDetallePorProductoAgrupado');
     Route::get('caja/pdfReciboCuota', 'CajaController@pdfReciboCuota')->name('caja.pdfReciboCuota');
     Route::post('caja/venta', 'CajaController@venta')->name('caja.venta');
     Route::post('caja/ventapago', 'CajaController@ventapago')->name('caja.ventapago');

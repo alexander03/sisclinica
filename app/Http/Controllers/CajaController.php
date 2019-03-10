@@ -11307,6 +11307,76 @@ class CajaController extends Controller
         $pdf::Output('ListaCaja.pdf');
     }
 
+    public function pdfDetallePorProductoAgrupado(Request $request){
+        
+        $caja    = Caja::find($request->input('caja_id'));
+        $caja_id = Libreria::getParam($request->input('caja_id'),'1');
+
+        $fi = Libreria::getParam($request->input('fi'),'1');
+        $ff = Libreria::getParam($request->input('ff'),'1');
+
+        $user=Auth::user();
+        $responsable = $user->login;
+        $responsable_nombre = $user->person->apellidos . " " . $user->person->nombres;
+
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+        $nomcierre = '';
+        $nomcierre = 'Clínica Especialidades'; 
+        if($sucursal_id == 1) {
+            $nomcierre = 'BM Clínica de Ojos';
+        }  
+        if($caja->nombre == 'FARMACIA') {
+            $nomcierre = ' Farmacia - ' . $nomcierre;
+        }     
+        $pdf = new TCPDF();
+        //$pdf::SetIma�
+        $pdf::SetTitle('Cantidad de productos vendidos '.$nomcierre);
+        $pdf::AddPage();
+        $pdf::SetFont('helvetica','B',12);
+        $pdf::Cell(0,10,"Cantidad de productos vendidos ".$nomcierre,0,0,'C');
+        $pdf::Ln(15);
+        $pdf::SetFont('helvetica','',9);
+        $pdf::Cell(120,7,('RANGO DE FECHAS: ' . date('d/m/Y', strtotime($fi)) . ' AL ' . date('d/m/Y', strtotime($ff))),0,0,'L');
+        $pdf::Ln(10);
+        $pdf::SetFont('helvetica','B',9);
+        $pdf::Cell(20,7,utf8_decode("FECHA"),1,0,'C');
+        $pdf::Cell(150,7,utf8_decode("PRODUCTO"),1,0,'C');
+        $pdf::Cell(20,7,utf8_decode("CANTIDAD"),1,0,'C');
+        $pdf::Ln();
+
+        //Solo para ventas de farmacia
+        
+        $listaventasfarmacia = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
+                ->leftjoin('detallemovimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')
+                ->leftjoin('producto','producto.id','=','detallemovimiento.producto_id')
+                ->where('movimiento.sucursal_id', '=', $sucursal_id)
+                ->where('movimiento.caja_id', '=', $caja_id)
+                ->whereBetween('movimiento.fecha', [$fi, $ff])
+                ->where('movimiento.ventafarmacia', '=', 'S')
+                ->where('movimiento.situacion', '=', 'N')
+                ->orderBy(DB::raw('SUM(detallemovimiento.cantidad)'), 'DESC')
+                ->groupBy('producto.id');
+        $listaventasfarmacia = $listaventasfarmacia->select('movimiento.fecha','producto.nombre', DB::raw('SUM(detallemovimiento.cantidad) AS cant'));
+        
+        $listaventasfarmacia = $listaventasfarmacia->get();
+
+        if(count($listaventasfarmacia)>0){
+            foreach ($listaventasfarmacia as $key => $row) {
+                $pdf::SetFont('helvetica','',8);                   
+                $pdf::Cell(20,7,utf8_decode(date('d/m/Y', strtotime($row['fecha']))),1,0,'C');
+                $pdf::Cell(150,7,utf8_decode($row['nombre']),1,0,'L');
+                $pdf::Cell(20,7,utf8_decode($row['cant']),1,0,'C');
+                $pdf::Ln(); 
+            }                                
+        }
+
+        $pdf::SetFont('helvetica','',9);
+        $pdf::Ln();
+        $pdf::Cell(120,7,('RESPONSABLE: '.$responsable_nombre),0,0,'L');
+        $pdf::Output('PorProductoAgrupado.pdf');
+    }
+
     public function cambiartipocons($tipo, $id) {
         $tk = Movimiento::find($id);
         $tk->clasificacionconsulta = $tipo;

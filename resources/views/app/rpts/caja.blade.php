@@ -44,7 +44,8 @@
 								{!! Form::button('<i class="glyphicon glyphicon-file"></i> Detalle de Egresos', array('class' => 'btn btn-info btn-xs','onclick' => 'pdfDetalleEgresos()')) !!}
 							@endif
 							@if($user->usertype_id==1 || $user->usertype_id==11 )
-								{!! Form::button('<i class="glyphicon glyphicon-print"></i> Por Producto', array('class' => 'btn btn-primary btn-xs', 'id' => 'btnBuscar', 'onclick' => 'detallePorProducto();')) !!}
+								{!! Form::button('<i class="glyphicon glyphicon-print"></i> Por Producto Individual', array('class' => 'btn btn-primary btn-xs', 'id' => 'btnBuscar', 'onclick' => 'detallePorProducto();')) !!}
+								{!! Form::button('<i class="glyphicon glyphicon-print"></i> Por Producto Agrupado', array('class' => 'btn btn-info btn-xs', 'id' => 'btnBuscar', 'onclick' => 'detallePorProductoAgrupado();')) !!}
 							@endif
 							<!--
 							{! Form::button('<i class="glyphicon glyphicon-file"></i> Exportar Excel', array('class' => 'btn btn-success btn-xs','onclick' => 'pdfDetalleCierreExcelF()')) !!}
@@ -97,6 +98,12 @@
 		var fi = $('#fechainicial').val();
 		var ff = $('#fechafinal').val();
 		window.open('caja/pdfDetallePorProducto?caja_id='+$('#Medico').val()+'&fi='+fi+'&ff='+ff,"_blank");
+	}
+
+	function detallePorProductoAgrupado(){
+		var fi = $('#fechainicial').val();
+		var ff = $('#fechafinal').val();
+		window.open('caja/pdfDetallePorProductoAgrupado?caja_id='+$('#Medico').val()+'&fi='+fi+'&ff='+ff,"_blank");
 	}
 
 	@endif
