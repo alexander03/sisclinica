@@ -5,11 +5,11 @@
     }
 </style>
 @if($conceptopago_id==1)
-	{!! Form::button('<i class="glyphicon glyphicon-plus"></i> Apertura', array('class' => 'btn btn-info btn-xs', 'disabled' => 'true', 'id' => 'btnApertura', 'onclick' => 'modalCaja (\''.URL::route($ruta["apertura"], array('listar'=>'SI')).'\', \''.$titulo_apertura.'\', this);')) !!}
+	{!! Form::button('<i class="glyphicon glyphicon-plus"></i> Apertura', array('class' => 'btn btn-info btn-xs', 'disabled' => 'true', 'id' => 'btnApertura')) !!}
     {!! Form::button('<i class="glyphicon glyphicon-usd"></i> Nuevo', array('class' => 'btn btn-success btn-xs', 'id' => 'btnCerrar', 'onclick' => 'modalCaja (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
     {!! Form::button('<i class="glyphicon glyphicon-remove-circle"></i> Cierre', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnCerrar', 'onclick' => 'modalCaja (\''.URL::route($ruta["cierre"], array('listar'=>'SI')).'\', \''.$titulo_cierre.'\', this);')) !!}    
 @elseif($conceptopago_id==2)
-    {!! Form::button('<i class="glyphicon glyphicon-plus"></i> Apertura', array('class' => 'btn btn-info btn-xs', 'id' => 'btnApertura', 'onclick' => 'modalCaja (\''.URL::route($ruta["apertura"], array('listar'=>'SI')).'\', \''.$titulo_apertura.'\', this);')) !!}
+    {!! Form::button('<i class="glyphicon glyphicon-plus"></i> Apertura', array('class' => 'btn btn-info btn-xs', 'id' => 'btnApertura')) !!}
     {!! Form::button('<i class="glyphicon glyphicon-usd"></i> Nuevo', array('class' => 'btn btn-success btn-xs', 'disabled' => 'true', 'id' => 'btnCerrar', 'onclick' => 'modalCaja (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
     {!! Form::button('<i class="glyphicon glyphicon-remove-circle"></i> Cierre', array('class' => 'btn btn-danger btn-xs' , 'disabled' => 'true', 'id' => 'btnCerrar', 'onclick' => 'modalCaja (\''.URL::route($ruta["cierre"], array('listar'=>'SI')).'\', \''.$titulo_cierre.'\', this);')) !!}
 @else
@@ -286,7 +286,7 @@ $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
         </tr>
         <tr>
             <th>CAJA (S/.)</th>
-            <th class="text-right">{{ number_format($efectivo-$visa2-$master2-$totaldolares-($egreso),2,'.','') }}</th>
+            <th class="text-right" id="efectivocajaanterior">{{ number_format($efectivo-$visa2-$master2-$totaldolares-($egreso),2,'.','') }}</th>
         </tr>
         <tr style="display:none;">
             <th>Garantia</th>
@@ -296,3 +296,10 @@ $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
 </table>
 </div>
 @endif
+<script>
+    $(document).on('click', '#btnApertura', function(e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        modalCaja ("{{ URL::route($ruta["apertura"], array('listar'=>'SI')) }}&efectivocajaanterior=" + $("#efectivocajaanterior").html(), "{{$titulo_apertura}}", this);
+    })
+</script>

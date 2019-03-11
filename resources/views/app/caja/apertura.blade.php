@@ -20,6 +20,14 @@
 			{!! Form::text('concepto', 'Apertura de Caja', array('class' => 'form-control input-xs', 'id' => 'concepto', 'readonly' => 'true')) !!}
 		</div>
 	</div>
+	@if($monto != null)
+	<div class="form-group">
+		{!! Form::label('monto', 'Monto:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
+		<div class="col-lg-8 col-md-8 col-sm-8">
+			{!! Form::text('monto', $monto, array('class' => 'form-control input-xs', 'id' => 'monto', 'readonly' => 'true')) !!}
+		</div>
+	</div>
+	@endif
     <div class="form-group">
 		{!! Form::label('comentario', 'Comentario:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 		<div class="col-lg-8 col-md-8 col-sm-8">

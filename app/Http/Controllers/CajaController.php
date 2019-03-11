@@ -8271,10 +8271,15 @@ class CajaController extends Controller
         $caja                = Caja::find($request->input('caja_id'));
         //sucursal_id
         $sucursal_id = Session::get('sucursal_id');
+        $usertype_id         = Auth::user()->usertype_id;
+        $monto               = null;
+        if(($sucursal_id == 2 && $usertype_id == 25) || $usertype_id == 1) {
+            $monto           = $request->input('efectivocajaanterior');
+        }        
         $numero              = Movimiento::NumeroSigue($caja->id,$sucursal_id,2,2);//movimiento caja y documento ingreso
         $formData            = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton               = 'Aperturar '.$caja->nombre;
-        return view($this->folderview.'.apertura')->with(compact('caja', 'formData', 'entidad', 'boton', 'listar', 'numero'));
+        return view($this->folderview.'.apertura')->with(compact('caja', 'formData', 'entidad', 'boton', 'listar', 'numero', 'monto'));
     }
     
     public function aperturar(Request $request)
@@ -8313,7 +8318,13 @@ class CajaController extends Controller
             //         $movimiento->total=0;    
             //     }
             // }else{
-                $movimiento->total=0;     
+            $sucursal_id = Session::get('sucursal_id');
+            $usertype_id = Auth::user()->usertype_id;
+            $monto = 0;
+            if($sucursal_id == 2 && $usertype_id == 25) {
+                $monto = $request->input('monto');
+            }
+            $movimiento->total=$monto;     
             //}
             $movimiento->tipomovimiento_id=2;
             $movimiento->tipodocumento_id=2;
