@@ -12,9 +12,9 @@
 		<div class="col-xs-12">
 			<div class="box">
 				<div class="box-header">
-					<div class="row">
+					{!! Form::open(['method' => 'POST' ,'onsubmit' => 'return false;', 'class' => 'form-inline', 'role' => 'form', 'autocomplete' => 'off', 'id' => 'formBusqueda'.$entidad]) !!}
+					<div class="row">						
 						<div class="col-xs-12">
-							{!! Form::open(['method' => 'POST' ,'onsubmit' => 'return false;', 'class' => 'form-inline', 'role' => 'form', 'autocomplete' => 'off', 'id' => 'formBusqueda'.$entidad]) !!}
 							{!! Form::hidden('page', 1, array('id' => 'page')) !!}
 							{!! Form::hidden('accion', 'listar', array('id' => 'accion')) !!}
 						    
@@ -45,15 +45,33 @@
 							@endif
 							@if($user->usertype_id==1 || $user->usertype_id==11 )
 								{!! Form::button('<i class="glyphicon glyphicon-print"></i> Por Producto Individual', array('class' => 'btn btn-primary btn-xs', 'id' => 'btnBuscar', 'onclick' => 'detallePorProducto();')) !!}
-								{!! Form::button('<i class="glyphicon glyphicon-print"></i> Por Producto Agrupado', array('class' => 'btn btn-info btn-xs', 'id' => 'btnBuscar', 'onclick' => 'detallePorProductoAgrupado();')) !!}
-								{!! Form::button('<i class="glyphicon glyphicon-print"></i> Por Lote, Stock, F.Vencimiento', array('class' => 'btn btn-warning btn-xs', 'id' => 'btnBuscar', 'onclick' => 'pdfDetallePorLoteStockFV();')) !!}
+								{!! Form::button('<i class="glyphicon glyphicon-print"></i> Por Producto Agrupado', array('class' => 'btn btn-info btn-xs', 'id' => 'btnBuscar', 'onclick' => 'detallePorProductoAgrupado();')) !!}				
 							@endif
 							<!--
 							{! Form::button('<i class="glyphicon glyphicon-file"></i> Exportar Excel', array('class' => 'btn btn-success btn-xs','onclick' => 'pdfDetalleCierreExcelF()')) !!}
-							-->
-							{!! Form::close() !!}
+							-->							
 						</div>
 					</div>
+					@if($user->usertype_id==1 || $user->usertype_id==11 )
+					<hr>
+					<div class="col-xs-12">		
+						<div class="form-group">
+							{!! Form::label('prodcto', 'Producto:') !!}
+						</div>	
+						<div class="form-group">
+							<select name="prodcto" id="prodcto" class='form-control input-xs'>
+								<option value="">------------Todos------------</option>
+								@if(count($productos)>0)
+									@foreach($productos as $key => $producto)
+										<option value="{{ $producto->id }}">{{ $producto->nombre }}</option>
+									@endforeach
+								@endif
+							</select>
+						</div>					
+						{!! Form::button('<i class="glyphicon glyphicon-print"></i> Por Lote, Stock, F.Vencimiento', array('class' => 'btn btn-warning btn-xs', 'id' => 'btnBuscar', 'onclick' => 'pdfDetallePorLoteStockFV();')) !!}
+					</div>
+					@endif
+					{!! Form::close() !!}
 				</div>
 				<!-- /.box-header -->
 				<div class="box-body" id="listado{{ $entidad }}">
@@ -68,6 +86,11 @@
 </section>
 <!-- /.content -->	
 <script>
+	$(document).ready(function($) {
+		$('#prodcto').chosen({
+			width: '100%'
+		});
+	});
 	function cajas(){
 		$.ajax({
 			type:'GET',
@@ -110,7 +133,8 @@
 	function pdfDetallePorLoteStockFV(){
 		var fi = $('#fechainicial').val();
 		var ff = $('#fechafinal').val();
-		window.open('caja/pdfDetallePorLoteStockFV?caja_id='+$('#Medico').val()+'&fi='+fi+'&ff='+ff,"_blank");
+		var producto_id = $('#prodcto').val();
+		window.open('caja/pdfDetallePorLoteStockFV?caja_id='+$('#Medico').val()+'&fi='+fi+'&ff='+ff+'&producto_id='+producto_id,"_blank");
 	}
 
 	@endif

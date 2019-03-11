@@ -14,6 +14,7 @@ use App\Kardex;
 use App\Lote;
 use App\Stock;
 use App\Venta;
+use App\Producto;
 use App\Movimiento;
 use App\Servicio;
 use App\Tipodocumento;
@@ -11382,8 +11383,13 @@ class CajaController extends Controller
         $caja    = Caja::find($request->input('caja_id'));
         $caja_id = Libreria::getParam($request->input('caja_id'),'1');
 
-        $fi = Libreria::getParam($request->input('fi'),'1');
-        $ff = Libreria::getParam($request->input('ff'),'1');
+        $sucursal_id = Session::get('sucursal_id');
+        $almacen_id = 1;
+        if($sucursal_id ==  2) {
+            $almacen_id = 3;
+        }
+
+        $producto_id = $request->input('producto_id');
 
         $user=Auth::user();
         $responsable = $user->login;
@@ -11401,42 +11407,60 @@ class CajaController extends Controller
         }     
         $pdf = new TCPDF();
         //$pdf::SetIma�
-        $pdf::SetTitle('Cantidad de productos vendidos '.$nomcierre);
+        $pdf::SetTitle('Productos por Stock, Lote, Fecha Vencimiento '.$nomcierre);
         $pdf::AddPage();
         $pdf::SetFont('helvetica','B',12);
-        $pdf::Cell(0,10,"Cantidad de productos vendidos ".$nomcierre,0,0,'C');
-        $pdf::Ln(15);
-        $pdf::SetFont('helvetica','',9);
-        $pdf::Cell(120,7,('RANGO DE FECHAS: ' . date('d/m/Y', strtotime($fi)) . ' AL ' . date('d/m/Y', strtotime($ff))),0,0,'L');
-        $pdf::Ln(10);
-        $pdf::SetFont('helvetica','B',9);
-        $pdf::Cell(20,7,utf8_decode("FECHA"),1,0,'C');
-        $pdf::Cell(150,7,utf8_decode("PRODUCTO"),1,0,'C');
-        $pdf::Cell(20,7,utf8_decode("CANTIDAD"),1,0,'C');
-        $pdf::Ln();
+        $pdf::Cell(0,10,"Productos por Stock, Lote, Fecha Vencimiento ".$nomcierre,0,0,'C');
 
         //Solo para ventas de farmacia
         
-        $listaventasfarmacia = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
-                ->leftjoin('detallemovimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')
-                ->leftjoin('producto','producto.id','=','detallemovimiento.producto_id')
-                ->where('movimiento.sucursal_id', '=', $sucursal_id)
-                ->where('movimiento.caja_id', '=', $caja_id)
-                ->whereBetween('movimiento.fecha', [$fi, $ff])
-                ->where('movimiento.ventafarmacia', '=', 'S')
-                ->where('movimiento.situacion', '=', 'N')
-                ->orderBy(DB::raw('SUM(detallemovimiento.cantidad)'), 'DESC')
-                ->groupBy('producto.id');
-        $listaventasfarmacia = $listaventasfarmacia->select('movimiento.fecha','producto.nombre', DB::raw('SUM(detallemovimiento.cantidad) AS cant'));
-        
-        $listaventasfarmacia = $listaventasfarmacia->get();
+        $productos = Producto::select('nombre', 'producto.presentacion_id', 'producto.id', DB::raw('SUM(cantidad) as cant'), 'producto.lote')
+            ->orderBy('nombre')
+            ->join('stock', 'stock.producto_id', '=', 'producto.id')
+            ->where('stock.almacen_id', $almacen_id)
+            ->having(DB::raw('SUM(cantidad)'), '>', 0)
+            ->groupBy('stock.producto_id')
+            ->orderBy('producto.nombre')
+            ->get();
 
-        if(count($listaventasfarmacia)>0){
-            foreach ($listaventasfarmacia as $key => $row) {
-                $pdf::SetFont('helvetica','',8);                   
-                $pdf::Cell(20,7,utf8_decode(date('d/m/Y', strtotime($row['fecha']))),1,0,'C');
-                $pdf::Cell(150,7,utf8_decode($row['nombre']),1,0,'L');
-                $pdf::Cell(20,7,utf8_decode($row['cant']),1,0,'C');
+        if(count($productos)>0){
+            foreach ($productos as $key => $row) {
+                $pdf::Ln();
+                $pdf::SetFont('helvetica','',9);
+                $pdf::Cell(175,7,('PRODUCTO: ' . $row['nombre']), 0, 0, 'L');
+                $pdf::Cell(5,7,('LOTE: ' . $row['lote']), 0, 0, 'L');
+                $pdf::Ln(10);
+                
+                $pdf::SetFont('helvetica','B',9);
+                $pdf::Cell(30,7,"NÚMERO LOTE",1,0,'C');                
+                $pdf::Cell(30,7,utf8_decode("PRESENTACIÓN"),1,0,'C');
+                $pdf::Cell(30,7,utf8_decode("FECHA VENC."),1,0,'C');
+                $pdf::Cell(35,7,'DÍAS RESTANTES',1,0,'C');
+                $pdf::Cell(25,7,'ESTADO',1,0,'C');
+                $pdf::Cell(40,7,utf8_decode("CANTIDAD"),1,0,'C');
+                $pdf::Ln();
+
+                $lotes = Lote::select('nombre', 'fechavencimiento', 'queda', DB::raw('TIMESTAMPDIFF(DAY, NOW(), fechavencimiento) as diferencia'))
+                                ->where('producto_id', $row['id'])
+                                ->where('almacen_id', $almacen_id)
+                                ->where('lote.cantidad', '>', 0)
+                                ->orderBy('fechavencimiento', 'ASC')
+                                ->get();
+
+                foreach ($lotes as $key => $lote) {
+                    $pdf::SetFont('helvetica','',8); 
+                    $pdf::Cell(30,7,$lote['nombre'],1,0,'C');                    
+                    $pdf::Cell(30,7,$row->presentacion->nombre,1,0,'C');
+                    $pdf::Cell(30,7,date('d/m/Y', strtotime($lote['fechavencimiento'])),1,0,'C');
+                    $pdf::Cell(35,7,$lote['diferencia'],1,0,'C');
+                    $pdf::Cell(25,7,$lote['direfencia'] > 0 ? 'NO VENCIDO': 'VENCIDO',1,0,'C');
+                    $pdf::Cell(40,7,$lote['queda'],1,0,'C');
+                    $pdf::Ln();
+                }
+
+                $pdf::SetFont('helvetica','B',9);  
+                $pdf::Cell(150,7,'TOTAL',1,0,'R');
+                $pdf::Cell(40,7,$row['cant'],1,0,'C');
                 $pdf::Ln(); 
             }                                
         }

@@ -505,7 +505,20 @@ class repsController extends Controller
         $entidad          = 'reporte';
         $title            = 'Caja Diaria';
         $user = Auth::user();
-        return view($this->folderview.'.caja')->with(compact('entidad', 'title','user'));
+        $sucursal_id = Session::get('sucursal_id');
+        $almacen_id = 1;
+        if($sucursal_id ==  2) {
+            $almacen_id = 3;
+        }
+        $productos = Producto::select('nombre', 'producto.id', DB::raw('SUM(cantidad) as cant'))
+                                ->orderBy('nombre')
+                                ->join('stock', 'stock.producto_id', '=', 'producto.id')
+                                ->where('almacen_id', $almacen_id)
+                                ->having(DB::raw('SUM(cantidad)'), '>', 0)
+                                ->groupBy('stock.producto_id')
+                                ->orderBy('producto.nombre')
+                                ->get();
+        return view($this->folderview.'.caja')->with(compact('entidad', 'title','user', 'productos'));
     }
 
 	public function hosp(){
