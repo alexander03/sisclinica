@@ -11343,18 +11343,20 @@ class CajaController extends Controller
         }     
         $pdf = new TCPDF();
         //$pdf::SetIma�
-        $pdf::SetTitle('Cantidad de productos vendidos '.$nomcierre);
+        $pdf::SetTitle('Cantidad de productos vendidos Convenios/Particulares'.$nomcierre);
         $pdf::AddPage();
         $pdf::SetFont('helvetica','B',12);
-        $pdf::Cell(0,10,"Cantidad de productos vendidos ".$nomcierre,0,0,'C');
+        $pdf::Cell(0,10,"Cantidad de productos vendidos Convenios/Particulares".$nomcierre,0,0,'C');
         $pdf::Ln(15);
         $pdf::SetFont('helvetica','',9);
         $pdf::Cell(120,7,('RANGO DE FECHAS: ' . date('d/m/Y', strtotime($fi)) . ' AL ' . date('d/m/Y', strtotime($ff))),0,0,'L');
         $pdf::Ln(10);
         $pdf::SetFont('helvetica','B',9);
         $pdf::Cell(20,7,utf8_decode("FECHA"),1,0,'C');
-        $pdf::Cell(150,7,utf8_decode("PRODUCTO"),1,0,'C');
-        $pdf::Cell(20,7,utf8_decode("CANTIDAD"),1,0,'C');
+        $pdf::Cell(125,7,utf8_decode("PRODUCTO"),1,0,'C');
+        $pdf::Cell(15,7,utf8_decode("CANT."),1,0,'C');
+        $pdf::Cell(15,7,utf8_decode("CONV."),1,0,'C');
+        $pdf::Cell(15,7,utf8_decode("PART."),1,0,'C');
         $pdf::Ln();
 
         //Solo para ventas de farmacia
@@ -11369,7 +11371,7 @@ class CajaController extends Controller
                 ->where('movimiento.situacion', '=', 'N')
                 ->orderBy(DB::raw('SUM(detallemovimiento.cantidad)'), 'DESC')
                 ->groupBy('producto.id');
-        $listaventasfarmacia = $listaventasfarmacia->select('movimiento.fecha','producto.nombre', DB::raw('SUM(detallemovimiento.cantidad) AS cant'));
+        $listaventasfarmacia = $listaventasfarmacia->select('movimiento.fecha','producto.nombre', 'producto.id', DB::raw('SUM(detallemovimiento.cantidad) AS cant'));
         
         $listaventasfarmacia = $listaventasfarmacia->get();
 
@@ -11377,8 +11379,37 @@ class CajaController extends Controller
             foreach ($listaventasfarmacia as $key => $row) {
                 $pdf::SetFont('helvetica','',8);                   
                 $pdf::Cell(20,7,utf8_decode(date('d/m/Y', strtotime($row['fecha']))),1,0,'C');
-                $pdf::Cell(150,7,utf8_decode($row['nombre']),1,0,'L');
-                $pdf::Cell(20,7,utf8_decode($row['cant']),1,0,'C');
+                $pdf::Cell(125,7,utf8_decode($row['nombre']),1,0,'L');
+                $pdf::Cell(15,7,number_format($row['cant'], 0),1,0,'C');
+
+                $tipoventa = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
+                        ->leftjoin('detallemovimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')
+                        ->leftjoin('producto','producto.id','=','detallemovimiento.producto_id')
+                        ->where('movimiento.sucursal_id', '=', $sucursal_id)
+                        ->where('movimiento.caja_id', '=', $caja_id)
+                        ->whereBetween('movimiento.fecha', [$fi, $ff])
+                        ->where('movimiento.ventafarmacia', '=', 'S')
+                        ->where('movimiento.situacion', '=', 'N')
+                        ->where('producto.id', '=', $row['id'])
+                        ->orderBy(DB::raw('SUM(detallemovimiento.cantidad)'), 'DESC')
+                        ->groupBy('movimiento.tipoventa');
+                $tipoventa = $tipoventa->select('movimiento.tipoventa',DB::raw('SUM(detallemovimiento.cantidad) AS cant'));                
+                $tipoventa = $tipoventa->get();
+
+                $convenio = 0;
+                $particular = 0;
+
+                foreach ($tipoventa as $key => $tv) {
+                    if($tv['tipoventa'] == 'C') {
+                        $convenio += $tv['cant'];
+                    } else {
+                        $particular += $tv['cant'];
+                    }
+                }
+
+                $pdf::Cell(15,7,number_format($convenio,0),1,0,'C');
+                $pdf::Cell(15,7,number_format($particular,0),1,0,'C');
+
                 $pdf::Ln(); 
             }                                
         }

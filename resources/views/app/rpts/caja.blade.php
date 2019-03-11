@@ -44,8 +44,8 @@
 								{!! Form::button('<i class="glyphicon glyphicon-file"></i> Detalle de Egresos', array('class' => 'btn btn-info btn-xs','onclick' => 'pdfDetalleEgresos()')) !!}
 							@endif
 							@if($user->usertype_id==1 || $user->usertype_id==11 )
-								{!! Form::button('<i class="glyphicon glyphicon-print"></i> Por Producto Individual', array('class' => 'btn btn-primary btn-xs', 'id' => 'btnBuscar', 'onclick' => 'detallePorProducto();')) !!}
-								{!! Form::button('<i class="glyphicon glyphicon-print"></i> Por Producto Agrupado', array('class' => 'btn btn-info btn-xs', 'id' => 'btnBuscar', 'onclick' => 'detallePorProductoAgrupado();')) !!}				
+								{!! Form::button('<i class="glyphicon glyphicon-print"></i> Ventas Por Producto Individual', array('class' => 'btn btn-primary btn-xs', 'id' => 'btnBuscar', 'onclick' => 'detallePorProducto();')) !!}
+								{!! Form::button('<i class="glyphicon glyphicon-print"></i> Ventas Por Producto Agrupado, Convenio y Particular', array('class' => 'btn btn-info btn-xs', 'id' => 'btnBuscar', 'onclick' => 'detallePorProductoAgrupado();')) !!}				
 							@endif
 							<!--
 							{! Form::button('<i class="glyphicon glyphicon-file"></i> Exportar Excel', array('class' => 'btn btn-success btn-xs','onclick' => 'pdfDetalleCierreExcelF()')) !!}
