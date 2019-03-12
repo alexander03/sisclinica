@@ -233,7 +233,7 @@
 				</div>	
 			</div>						
 		</div>	
-		<hr>
+		<br>		
 		<div class="row">
 			<div class="col-lg-12 col-md-12 col-sm-12">	    	
 			    <div class="input-group">
@@ -245,6 +245,19 @@
 			    <b id="mensajeMontos" style="color: green;">Los montos coindicen.</b>
 			</div>
 		</div>	
+		<br>
+		<div class="row">	
+			<div class="col-lg-12 col-md-12 col-sm-12">
+			    <div class="input-group">
+			    	<span class="input-group-addon input-xs">DINERO</span>
+					<input onkeypress="return filterFloat(event,this);" onkeyup="calcularVuelto();" name="dinero" id="dinero" type="text" class="form-control input-xs">
+				</div>	
+				<div class="input-group">
+			    	<span class="input-group-addon input-xs">VUELTO</span>
+					<input name="vuelto" id="vuelto" type="text" readonly="readonly" class="form-control input-xs" value="0.00">
+				</div>
+			</div>
+		</div>
 		<br>
 		<div class="form-group">
 			<div class="col-lg-12 col-md-12 col-sm-12 text-right">
@@ -1332,7 +1345,18 @@ function calcularTotalPago() {
 	total = parseFloat(efectivo) + parseFloat(visa) + parseFloat(master);
 	$('#total2').val(total.toFixed(2));
 
-	coincidenciasMontos();		
+	coincidenciasMontos();	
+	calcularVuelto();	
+}
+
+function calcularVuelto() {
+	var total = $('#total2').val();
+	var dinero = $('#dinero').val();
+	var vuelto = parseFloat(dinero) - parseFloat(total);
+	if(dinero == '') {
+		vuelto = 0.00;
+	}	
+	$('#vuelto').val(vuelto.toFixed(2));
 }
 
 function camposNoVacios() {	
