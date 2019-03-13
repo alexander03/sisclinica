@@ -83,12 +83,12 @@
 							@endif
 							<td align="center">-</td>
 						@else
-							<td align="center">{!! Form::button('<div class="glyphicon glyphicon-print"></div> Comprob.', array('onclick' => 'window.open(\'venta/pdfComprobante?venta_id='.$value->id.'&guia=NO\',\'_blank\'); imprimirRecibo ('.$value->id.');', 'class' => 'btn btn-xs btn-info')) !!}</td>
+							<td align="center">{!! Form::button('<div class="glyphicon glyphicon-print"></div> Comprob.', array('onclick' => 'window.open(\'venta/pdfComprobante?venta_id='.$value->id.'&guia=NO\',\'_blank\'); imprimirRecibo ('.$value->id.');', 'class' => 'btn btn-xs btn-info', 'style'=>'display:none;')) !!}</td>
 							<td align="center">{!! Form::button('<div class="glyphicon glyphicon-print"></div> Ticket', array('onclick' => 'window.open(\'venta/pdfComprobante2?venta_id='.$value->id.'&guia=NO\',\'_blank\')', 'class' => 'btn btn-xs btn-info')) !!}</td>
 							<td align="center">{!! Form::button('<div class="glyphicon glyphicon-print"></div> Guia', array('onclick' => 'window.open(\'venta/pdfComprobante?venta_id='.$value->id.'&guia=SI\',\'_blank\')', 'class' => 'btn btn-xs btn-info')) !!}</td>
 						@endif
 					@else
-						<td align="center">{!! Form::button('<div class="glyphicon glyphicon-print"></div> Comprob.', array('onclick' => 'window.open(\'venta/pdfComprobante?venta_id='.$value->id.'&guia=NO\',\'_blank\'); imprimirRecibo ('.$value->id.');', 'class' => 'btn btn-xs btn-info')) !!}</td>
+						<td align="center">{!! Form::button('<div class="glyphicon glyphicon-print"></div> Comprob.', array('onclick' => 'window.open(\'venta/pdfComprobante?venta_id='.$value->id.'&guia=NO\',\'_blank\'); imprimirRecibo ('.$value->id.');', 'class' => 'btn btn-xs btn-info', 'style'=>'display:none;')) !!}</td>
 						<td align="center">{!! Form::button('<div class="glyphicon glyphicon-print"></div> Ticket', array('onclick' => 'window.open(\'venta/pdfComprobante2?venta_id='.$value->id.'&guia=NO\',\'_blank\')', 'class' => 'btn btn-xs btn-info')) !!}</td>
 						<td align="center">-</td>
 					@endif

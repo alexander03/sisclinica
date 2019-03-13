@@ -554,7 +554,7 @@ class CajaController extends Controller
     }
     
 
-   	public function pdfCierre(Request $request){
+    public function pdfCierre(Request $request){
         $caja                = Caja::find($request->input('caja_id'));
         $caja_id          = Libreria::getParam($request->input('caja_id'),'1');
         //sucursal_id
@@ -8869,7 +8869,7 @@ class CajaController extends Controller
         return is_null($error) ? "OK" : $error;
     }
     
-	public function pdfRecibo(Request $request){
+    public function pdfRecibo(Request $request){
         $lista = Movimiento::where('id','=',$request->input('id'))->first();
                     
         $pdf = new TCPDF();

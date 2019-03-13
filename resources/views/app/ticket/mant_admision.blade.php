@@ -794,14 +794,14 @@ function guardarPago (entidad, idboton) {
                     }else{
                         tipo = $('#tipodocumento').val();
                         if(tipo == 'Boleta') {
-                            tipo = 'B';
+                            tipo2 = 'B';
                         } else {
-                            tipo = 'B';
+                            tipo2 = 'F';
                         }
                         serie = $('#serieventa').val();
-                        numero = $('#numeroventa').val();
-                        imprimirVenta(tipo + serie + '-' + numero);
+                        numero = $('#numeroventa').val();                        
                         declarar1(dat[0].venta_id,dat[0].tipodocumento_id,dat[0].numero);
+                        imprimirVenta(tipo2 + serie + '-' + numero);
                     }
                     /*if(dat[0].pagohospital!="0"){
                         window.open('/juanpablo/ticket/pdfComprobante3?ticket_id='+dat[0].ticket_id,'_blank')

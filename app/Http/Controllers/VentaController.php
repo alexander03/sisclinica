@@ -4003,8 +4003,9 @@ class VentaController extends Controller
                     $pdf::AddPage();
                     $pdf::SetFont('helvetica','B',10);
                     $pdf::Cell(50,5.5,utf8_encode($abreviatura.str_pad($value->serie,3,'0',STR_PAD_LEFT).'-'.str_pad($value->numero,8,'0',STR_PAD_LEFT)),0,0,'C');
+                    $conveniofarmacia = Conveniofarmacia::find($value->conveniofarmacia_id);
                     $pdf::Cell(70,5.5,'Usuario: '.$value->responsable->nombres,0,0,'R');
-                    $pdf::Cell(60,5.5,'Convenio: '.$value->conveniofarmacia->nombre,0,0,'R');
+                    $pdf::Cell(60,5.5,'Convenio: '.($conveniofarmacia===NULL?'-':$conveniofarmacia->nombre),0,0,'R');
                     $pdf::Ln();
                     $pdf::Ln();
                     if ($value->persona_id !== NULL) {
