@@ -112,6 +112,10 @@ if(!is_null($ticket)){
                             <option selected value="X">EXAMENES</option>
                             @else
                             <option value="X">EXAMENES</option>
+                            @if($ticket->clasificacionconsulta == 'O')
+                            <option selected value="O">CIRUGÍA</option>
+                            @else
+                            <option value="O">CIRUGÍA</option>
                             @endif
                         @else
                         <option value="C">CONSULTA</option>
@@ -119,6 +123,7 @@ if(!is_null($ticket)){
                         <option value="L">LECT. RESULTADOS</option>
                         <option value="P">PROCEDIMIENTO</option>
                         <option value="X">EXAMENES</option>
+                        <option value="O">CIRUGÍA</option>
                         @endif
                     </select>
                 </div>

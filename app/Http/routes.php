@@ -526,6 +526,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('facturacion/agregardetalle', 'FacturacionController@agregardetalle')->name('facturacion.agregardetalle');
     Route::get('facturacion/pdfComprobante', 'FacturacionController@pdfComprobante')->name('facturacion.pdfComprobante');*/
 
+    /* COTIZACIONES */
+    Route::post('cotizacion/buscar', 'CotizacionController@buscar')->name('cotizacion.buscar');
+    Route::get('cotizacion/excel', 'CotizacionController@excel')->name('cotizacion.excel');
+    Route::get('cotizacion/eliminar/{id}/{listarluego}', 'CotizacionController@eliminar')->name('cotizacion.eliminar');
+    Route::resource('cotizacion', 'CotizacionController', array('except' => array('show')));
+    Route::post('cotizacion/buscarservicio', 'CotizacionController@buscarservicio')->name('cotizacion.buscarsetvicio');
+    Route::post('cotizacion/seleccionarservicio', 'CotizacionController@seleccionarservicio')->name('cotizacion.seleccionarsetvicio');
+
     /* PREFACTURA */
     Route::post('prefactura/buscar', 'PrefacturaController@buscar')->name('prefactura.buscar');
     Route::get('prefactura/eliminar/{id}/{listarluego}', 'PrefacturaController@eliminar')->name('prefactura.eliminar');
