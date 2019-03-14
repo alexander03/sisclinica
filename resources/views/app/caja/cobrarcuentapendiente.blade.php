@@ -125,6 +125,7 @@
                 <option value="L">LECT. RESULTADOS</option>
                 <option value="P">PROCEDIMIENTO</option>
                 <option value="X">EXAMENES</option>
+                <option value="O">CIRUGÍA</option>
             </select>
 			<!--
 			@if($movimiento->clasificacionconsulta == 'C')

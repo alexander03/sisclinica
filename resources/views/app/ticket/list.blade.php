@@ -38,6 +38,8 @@ use App\Detallemovcaja;
 		            <td>PROCEDIMIENTO</td>
 		            @elseif($value->clasificacionconsulta=='X')
 		            <td>EXAMENES</td>
+		            @elseif($value->clasificacionconsulta=='O')
+		            <td>CIRUGÍA</td>
 		            @endif
 		            <td>{{ $value->turno=='M'?'MAÑANA':'TARDE' }}</td>
 	            @endif
