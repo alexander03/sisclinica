@@ -76,6 +76,26 @@ if($cita!=null){
         		</div>
         	</div>
         	<div class="form-group">
+                {!! Form::label('turno', 'Turno:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
+        		<div class="col-lg-3 col-md-3 col-sm-3"">
+                    <select class="form-control input-xs" name="turno" id="turno">
+                        @if($cita != null)
+                            @if($cita->turno == "M")
+                                <option selected id="manana" value="M">MAÑANA</option>
+                            @else
+                                <option id="manana" value="M">MAÑANA</option>
+                            @endif
+                            @if($cita->turno == "T")
+                                <option selected id="tarde" value="T">TARDE</option>
+                            @else
+                                <option id="tarde" value="T">TARDE</option>
+                            @endif
+                        @else
+                            <option id="manana" value="M">MAÑANA</option>
+                            <option id="tarde" value="T">TARDE</option>
+                        @endif
+                    </select>
+        		</div>
         		{!! Form::label('horainicio', 'Inicio:', array('class' => 'col-lg-3 col-md-3 col-sm-3 control-label')) !!}
         		<div class="col-lg-3 col-md-3 col-sm-3">
         			{!! Form::time('horainicio', $inicio, array('class' => 'form-control input-xs', 'id' => 'horainicio')) !!}
@@ -189,6 +209,24 @@ $(document).ready(function() {
         cargarHorario(datum.id);
         cargarCitas(datum.id);
     }); 
+
+    var dt = new Date();
+    var hora = dt.getHours();
+
+    console.log(hora);
+
+     
+    <?php
+    if($cita == null){
+        echo "
+        if(hora < 14){
+            $('#turno').val('M');
+        }else{
+            $('#turno').val('T');
+        }";
+    }
+    ?>
+
 }); 
 
 function seleccionarMedico(idmedico){

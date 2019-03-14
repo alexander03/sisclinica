@@ -37,6 +37,16 @@
             <td style='font-size:12px'>{{ $value->paciente }}</td>
             <td style='font-size:12px'>{{ $value->telefono }}</td>
             <td style='font-size:12px'>{{ $value->historia }}</td>
+			<?php
+			if($value->turno == "M"){
+				$turno = "MAÑANA";
+			}else if($value->turno == "T"){
+				$turno = "TARDE";
+			}else{
+				$turno = "-";
+			}
+			?>
+			<td style='font-size:12px'>{{ $turno }}</td>
             <td style='font-size:12px'>{{ substr($value->horainicio,0,5) }}</td>
             <!--td style='font-size:12px'>{{ substr($value->horafin,0,5) }}</td-->
             <td style='font-size:12px'>{{ $value->comentario }}</td>
