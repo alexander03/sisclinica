@@ -6,7 +6,8 @@ use Illuminate\Http\Request;
 
 use Validator;
 use App\Http\Requests;
-use App\Historia;
+use App\Cotizacion;
+
 use App\Convenio;
 use App\Movimiento;
 use App\Detallemovcaja;
@@ -16,6 +17,7 @@ use App\Tiposervicio;
 use App\Servicio;
 use App\Plan;
 use App\Detalleplan;
+
 use App\Librerias\Libreria;
 use App\Librerias\EnLetras;
 use App\Http\Controllers\Controller;
@@ -47,131 +49,45 @@ class CotizacionController extends Controller
         $this->middleware('auth');
     }
 
-    public function excel(Request $request){
-        $paciente         = Libreria::getParam($request->input('paciente'),'');
-        $numero           = Libreria::getParam($request->input('numero'),'');
-        $fecha            = Libreria::getParam($request->input('fechainicial'));
-        $fecha2           = Libreria::getParam($request->input('fechafinal'));
-        $user = Auth::user();
-        if($request->input('usuario')=="Todos"){
-            $responsable_id=0;
-        }else{
-            $responsable_id=$user->person_id;
-        }
-        $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
-                            ->leftjoin('person as responsable','responsable.id','=','movimiento.responsable_id')
-                            ->leftjoin('cie','movimiento.cie_id','=','cie.id')
-                            ->join('plan','plan.id','=','movimiento.plan_id')
-                            ->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'), 'LIKE', '%'.strtoupper($paciente).'%')
-                            ->where(DB::raw('concat(movimiento.serie,\'-\',movimiento.numero)'),'LIKE','%'.$numero.'%')->where('movimiento.tipodocumento_id','=','17')
-                            ->where('movimiento.manual','like','N');
-        if($fecha!=""){
-            $resultado = $resultado->where('movimiento.fecha', '>=', ''.$fecha.'');
-        }
-        if($fecha2!=""){
-            $resultado = $resultado->where('movimiento.fecha', '<=', ''.$fecha2.'');
-        }
-        if($responsable_id>0){
-            $resultado = $resultado->where('movimiento.responsable_id', '=', $responsable_id);   
-        }
-        $resultado        = $resultado->select('movimiento.*','cie.codigo as cie10',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'),'responsable.nombres as responsable',DB::raw('plan.razonsocial as empresa'))->orderBy('movimiento.fecha', 'ASC')->orderBy('movimiento.numero','ASC');
-        $lista            = $resultado->get();
-
-        Excel::create('ExcelFacturacion', function($excel) use($lista,$request) {
- 
-            $excel->sheet('Facturacion', function($sheet) use($lista,$request) {
-
-                $array = array();
-                $cabecera = array();
-
-                $cabecera[] = "Fecha";
-                $cabecera[] = "Fecha Atencion";
-                $cabecera[] = "Nro";
-                $cabecera[] = "Paciente";
-                $cabecera[] = "Empresa";
-                $cabecera[] = "CIE";
-                $cabecera[] = "UCI";
-                $cabecera[] = "Total";
-                $cabecera[] = "Situacion";
-                $cabecera[] = "Usuario";
-                $cabecera[] = "Estado Bz";
-                $cabecera[] = "Mensaje Sunat";
-                $array[] = $cabecera;
-                $c=3;$d=3;$band=true;
-
-                foreach ($lista as $key => $value2){
-                    $detalle = array();
-                    $detalle[] = date('d/m/Y',strtotime($value2->fecha));
-                    $detalle[] = date('d/m/Y',strtotime($value2->fechaingreso));
-                    $detalle[] = $value2->serie.'-'.$value2->numero;
-                    $detalle[] = $value2->paciente;
-                    $detalle[] = $value2->empresa;
-                    $detalle[] = $value2->cie10;
-                    $detalle[] = $value2->uci;
-                    $detalle[] = number_format($value2->total);
-                    $detalle[] = $value2->situacion;
-                    $detalle[] = $value2->responsable;
-                    $detalle[] = $value2->situacionbz;
-                    $detalle[] = $value2->mensajesunat;
-                    $array[] = $detalle;          
-                }
-
-                $sheet->fromArray($array);
-            });
-        })->export('xls');
-
-    }
-
     public function buscar(Request $request)
     {
         $pagina           = $request->input('page');
         $filas            = $request->input('filas');
         $entidad          = 'Facturacion';
         $paciente         = Libreria::getParam($request->input('paciente'),'');
-        $numero           = Libreria::getParam($request->input('numero'),'');
+        $codigo           = Libreria::getParam($request->input('codigo'),'');
         $fecha            = Libreria::getParam($request->input('fechainicial'));
-        $fecha2            = Libreria::getParam($request->input('fechafinal'));
+        $fecha2           = Libreria::getParam($request->input('fechafinal'));
+        $tipo             = Libreria::getParam($request->input('tipo'));
+        $situacion        = Libreria::getParam($request->input('situacion'));
         $user = Auth::user();
-        if($request->input('usuario')=="Todos"){
-            $responsable_id=0;
-        }else{
-            $responsable_id=$user->person_id;
-        }
-        $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
-                            ->leftjoin('person as responsable','responsable.id','=','movimiento.responsable_id')
-                            ->leftjoin('cie','movimiento.cie_id','=','cie.id')
-                            ->join('plan','plan.id','=','movimiento.plan_id')
+        $resultado        = Cotizacion::leftjoin('person as paciente', 'paciente.id', '=', 'cotizacion.paciente_id')
+                            ->leftjoin('person as responsable','responsable.id','=','cotizacion.responsable_id')
                             ->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'), 'LIKE', '%'.strtoupper($paciente).'%')
-                            ->where(DB::raw('concat(movimiento.serie,\'-\',movimiento.numero)'),'LIKE','%'.$numero.'%')->where('movimiento.tipodocumento_id','=','17')
-                            ->where('movimiento.manual','like','N');
+                            ->where('cotizacion.codigo','LIKE','%'.$codigo.'%');
         if($fecha!=""){
-            $resultado = $resultado->where('movimiento.fecha', '>=', ''.$fecha.'');
+            $resultado = $resultado->where('cotizacion.fecha', '>=', ''.$fecha.'');
         }
         if($fecha2!=""){
-            $resultado = $resultado->where('movimiento.fecha', '<=', ''.$fecha2.'');
+            $resultado = $resultado->where('cotizacion.fecha', '<=', ''.$fecha2.'');
         }
-        if($responsable_id>0){
-            $resultado = $resultado->where('movimiento.responsable_id', '=', $responsable_id);   
+        if($tipo!=""){
+            $resultado = $resultado->where('cotizacion.tipo', 'LIKE', '%'.$tipo.'%');
         }
-        $resultado        = $resultado->select('movimiento.*','cie.codigo as cie10',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'),'responsable.nombres as responsable',DB::raw('plan.razonsocial as empresa'))->orderBy('movimiento.fecha', 'ASC')->orderBy('movimiento.numero','ASC');
+        if($situacion!=""){
+            $resultado = $resultado->where('cotizacion.situacion', 'LIKE', '%'.$situacion.'%');
+        }
+        $resultado        = $resultado->select('cotizacion.*',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'))->orderBy('cotizacion.fecha', 'ASC');
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Fecha', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Fecha Atencion', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Nro', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Código', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Paciente', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Empresa', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Siniestro', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'CIE', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'UCI', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Total', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Situacion', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Usuario', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Estado Bz', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Estado Sunat', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Mensaje Sunat', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '4');
+        $cabecera[]       = array('valor' => 'Tipo', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Situación', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Responsable', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '2');
         
         $titulo_modificar = $this->tituloModificar;
         $titulo_eliminar  = $this->tituloEliminar;
@@ -191,9 +107,9 @@ class CotizacionController extends Controller
             $paginaactual    = $paramPaginacion['nuevapagina'];
             $lista           = $resultado->paginate($filas);
             $request->replace(array('page' => $paginaactual));
-            return view($this->folderview.'.list')->with(compact('lista', 'totalfac', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'conf'));
+            return view($this->folderview.'.list')->with(compact('lista', 'totalfac', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta'));
         }
-        return view($this->folderview.'.list')->with(compact('lista', 'entidad','conf'));
+        return view($this->folderview.'.list')->with(compact('lista', 'entidad'));
     }
 
     public function index()

@@ -22,46 +22,28 @@
 			<tr>
 				<td>{{ $contador }}</td>
 	            <td>{{ date('d/m/Y',strtotime($value->fecha)) }}</td>
-	            <td>{{ date('d/m/Y',strtotime($value->fechaingreso)) }}</td>
-	            <td>{{ $value->serie.'-'.$value->numero }}</td>
+	            <td>{{ $value->codigo }}</td>
 	            <td>{{ $value->paciente }}</td>
-	            <td>{{ $value->empresa }}</td>
-	            <td>{{ $value->comentario }}</td>
-	            <td>{{ $value->cie10 }}</td>
-	            <td>{{ $value->uci }}</td>
-	            <td align="center">{{ number_format($value->total,2,'.','') }}</td>
-	            @if($value->situacion=='P' || $value->situacion=='B')
-	            <td>PENDIENTE</td>
-	            @elseif($value->situacion=='C')
-	            <td>COBRADO</td>
+	            @if($value->tipo=='A')
+	            <td>AMBULATORIO</td>
+	            @elseif($value->tipo=='H')
+	            <td>HOSPITALARIO</td>
+	            @endif
+	            @if($value->situacion=='E')
+	            <td>ENVIADA</td>
 	            @elseif($value->situacion=='A')
-	            <td>NOTA CREDITO</td>
-	            @elseif($value->situacion=='U')
-	            <td>ANULADA</td>
+	            <td>ACEPTADA</td>
+	            @elseif($value->situacion=='O')
+	            <td>OBSERVADA</td>
+	            @elseif($value->situacion=='R')
+	            <td>RECHAZADA</td>
 	            @endif
 	  			<td>{{ $value->responsable }}</td>
-	  			@if($value->situacionbz=='L')
-					<td align="center">LEIDO</td>
-				@elseif($value->situacionbz=='E')
-					<td align="center">ERROR</td>
-	            @else
-	            	<td align="center">PENDIENTE</td>
-	            @endif
-	            @if($value->situacionsunat=='L')
-	            	<td align="center">PENDIENTE RESPUESTA</td>
-	            @elseif($value->situacionsunat=='E')
-					<td align="center">ERROR</td>
-	            @elseif($value->situacionsunat=='R')
-					<td align="center">RECHAZADO</td>
-	            @elseif($value->situacionsunat=='P')
-					<td align="center">ACEPTADO</td>
-	            @else
-	            	<td align="center">PENDIENTE</td>
-	            @endif
-	            <td align="center">{{ $value->mensajesunat }}</td>
-	            <td align="center">{!! Form::button('<div class="glyphicon glyphicon-print"></div>', array('onclick' => 'window.open(\'facturacion/pdfComprobante?id='.$value->id.'\',\'_blank\')', 'class' => 'btn btn-xs btn-info', 'title'=>'Comprobante')) !!}</td>
-	            <td align="center">{!! Form::button('<div class="glyphicon glyphicon-print"></div>', array('onclick' => 'window.open(\'facturacion/pdfLiquidacion?id='.$value->id.'\',\'_blank\')', 'class' => 'btn btn-xs btn-info', 'title'=>'Liquidacion')) !!}</td>
-	             <td>{!! Form::button('<div class="glyphicon glyphicon-pencil"></div> Editar', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning')) !!}</td>
+	            <td>{!! Form::button('<div class="glyphicon glyphicon-pencil"></div> Ver', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-info')) !!}</td>
+				<td align="center"> - </td>
+				<td>{!! Form::button('<div class="glyphicon glyphicon-eye-open"></div> Editar', array('onclick' => '#', 'class' => 'btn btn-xs btn-warning')) !!}</td>
+				<td align="center"> - </td>
+				<td>{!! Form::button('<div class="glyphicon glyphicon-remove"></div> Anular', array('onclick' => '#', 'class' => 'btn btn-xs btn-danger')) !!}</td>
 				<td align="center"> - </td>
 			</tr>
 			<?php
@@ -71,5 +53,4 @@
 		</tbody>
 	</table>
 </div>
-<div style="position: absolute; right: 20px; top: 80px; color: red; font-weight: bold;">Total Facturado: {{ $totalfac }} </div>
 @endif
