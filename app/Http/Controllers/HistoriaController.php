@@ -511,13 +511,14 @@ class HistoriaController extends Controller
                 $razonsocial=$pl->razonsocial;
                 $tipo=$pl->tipo;
             }else{
-                $plan='';
-                $coa=0;
-                $deducible=0;
-                $ruc='';
-                $direccion='';
-                $razonsocial='';
-                $tipo='';
+                $pl = Plan::find(6);
+                $plan=$pl->nombre;
+                $coa=$pl->coaseguro;
+                $deducible=$pl->deducible;
+                $ruc=$pl->ruc;
+                $direccion=$pl->direccion;
+                $razonsocial=$pl->razonsocial;
+                $tipo=$pl->tipo;
             }
             $data[] = array(
                             'label' => $value->persona->dni.' '.$value->persona->apellidopaterno.' '.$value->persona->apellidomaterno.' '.$value->persona->nombres,
@@ -532,7 +533,7 @@ class HistoriaController extends Controller
                             'fallecido' => $value->fallecido,
                             'placa' => $value->poliza,
                             'convenio' => $value->convenio2,
-                            'plan_id' => $value->plan_id,
+                            'plan_id' => $pl->id,
                             'plan' => $plan,
                             'coa' => $coa,
                             'deducible' => $deducible,

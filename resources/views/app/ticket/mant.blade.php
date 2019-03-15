@@ -112,6 +112,7 @@ if(!is_null($ticket)){
                             <option selected value="X">EXAMENES</option>
                             @else
                             <option value="X">EXAMENES</option>
+                            @endif
                             @if($ticket->clasificacionconsulta == 'O')
                             <option selected value="O">CIRUGÍA</option>
                             @else
@@ -430,6 +431,10 @@ $(document).ready(function() {
                         dni:movie.dni,
                         fallecido:movie.fallecido,
                         examenes:movie.examenes,
+                        plan:movie.plan,
+                        plan_id:movie.plan_id,
+                        coa:movie.coa,
+                        deducible:movie.deducible,
 					};
 				});
 			}
@@ -448,6 +453,10 @@ $(document).ready(function() {
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="numero_historia"]').val(datum.historia);
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="paciente"]').val(datum.value);
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="dni"]').val(datum.dni);
+            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="plan"]').val(datum.plan);
+            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="plan_id"]').val(datum.plan_id);
+            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="coa"]').val(datum.coa);
+            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="deducible"]').val(datum.deducible);
             if(datum.tipopaciente=="Hospital"){
                 $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tipopaciente"]').val("Particular");
             }else{
