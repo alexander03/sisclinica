@@ -87,7 +87,7 @@ class CotizacionController extends Controller
         $cabecera[]       = array('valor' => 'Tipo', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Situación', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Responsable', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '2');
+        $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '3');
         
         $titulo_modificar = $this->tituloModificar;
         $titulo_eliminar  = $this->tituloEliminar;
@@ -147,11 +147,13 @@ class CotizacionController extends Controller
                 'fecharegistro' => 'required',
                 'paciente'      => 'required',
                 'total'         => 'required',
+                'codigoregistro'        => 'required',
                 );
         $mensajes = array(
             'fecharegistro.required' => 'Debe seleccionar una fecha',
             'paciente.required'      => 'Debe seleccionar un paciente',
-            'total.required'         => 'Debe agregar detalle a la factura',
+            'total.required'         => 'Debe agregar detalle a la cotización',
+            'codigoregistro.required'        => 'Debe agregar un código',
             );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
@@ -171,6 +173,7 @@ class CotizacionController extends Controller
             $cotizacion->paciente_id = $request->input('person_id');
             $cotizacion->total=$request->input('total');  
             $cotizacion->tipo=$request->input('tiporegistro');  
+            $cotizacion->codigo=$request->input('codigoregistro');  
             $cotizacion->save();
 
             $pagohospital=0;

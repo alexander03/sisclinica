@@ -38,13 +38,10 @@
 	            @elseif($value->situacion=='R')
 	            <td>RECHAZADA</td>
 	            @endif
-	  			<td>{{ $value->responsable }}</td>
+	  			<td>{{ $value->responsable->nombres }}</td>
 	            <td>{!! Form::button('<div class="glyphicon glyphicon-pencil"></div> Ver', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-info')) !!}</td>
-				<td align="center"> - </td>
 				<td>{!! Form::button('<div class="glyphicon glyphicon-eye-open"></div> Editar', array('onclick' => '#', 'class' => 'btn btn-xs btn-warning')) !!}</td>
-				<td align="center"> - </td>
 				<td>{!! Form::button('<div class="glyphicon glyphicon-remove"></div> Anular', array('onclick' => '#', 'class' => 'btn btn-xs btn-danger')) !!}</td>
-				<td align="center"> - </td>
 			</tr>
 			<?php
 			$contador = $contador + 1;

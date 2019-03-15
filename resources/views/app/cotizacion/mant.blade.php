@@ -13,16 +13,20 @@
     <div class="row">
         <div class="col-lg-6 col-md-6 col-sm-6">
             <div class="form-group">
-                {!! Form::label('fecharegistro', 'Fecha:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+                {!! Form::label('fecharegistro', 'Fecha:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
                 <div class="col-lg-3 col-md-3 col-sm-3">
                     {!! Form::date('fecharegistro', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fecharegistro')) !!}
                 </div>
-                {!! Form::label('tipo', 'Tipo:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+                {!! Form::label('tiporegistro', 'Tipo:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
                 <div class="col-lg-3 col-md-3 col-sm-3">
-                    <select name="tiporegistro" class='form-control input-xs' id='tipo'>
+                    <select name="tiporegistro" class='form-control input-xs' id='tiporegistro'>
                         <option value="A">AMBULATORIO</option>
                         <option value="H">HOSPITALARIO</option>
                     </select>
+                </div>
+                {!! Form::label('codigoregistro', 'Código:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    {!! Form::text('codigoregistro', '', array('class' => 'form-control input-xs', 'id' => 'codigoregistro')) !!}
                 </div>
             </div>
             <div class="form-group">
