@@ -21,4 +21,14 @@ class Cotizacion extends Model
     {
         return $this->belongsTo('App\Person', 'responsable_id');
     }
+
+    public function scopeNumeroSigue($query){
+        $rs=$query->get();
+        return str_pad(count($rs)+1,8,'0',STR_PAD_LEFT);    
+    }
+
+    public function plan()
+    {
+        return $this->belongsTo('App\Plan', 'plan_id');
+    }
 }

@@ -10,7 +10,7 @@ use App\Cotizacion;
 
 use App\Convenio;
 use App\Movimiento;
-use App\Detallemovcaja;
+use App\Detallecotizacion;
 use App\Person;
 use App\Cie;
 use App\Tiposervicio;
@@ -53,7 +53,7 @@ class CotizacionController extends Controller
     {
         $pagina           = $request->input('page');
         $filas            = $request->input('filas');
-        $entidad          = 'Facturacion';
+        $entidad          = 'Cotizacion';
         $paciente         = Libreria::getParam($request->input('paciente'),'');
         $codigo           = Libreria::getParam($request->input('codigo'),'');
         $fecha            = Libreria::getParam($request->input('fechainicial'));
@@ -114,7 +114,7 @@ class CotizacionController extends Controller
 
     public function index()
     {
-        $entidad          = 'Facturacion';
+        $entidad          = 'Cotizacion';
         $title            = $this->tituloAdmin;
         $titulo_registrar = $this->tituloRegistrar;
         $ruta             = $this->rutas;
@@ -125,47 +125,32 @@ class CotizacionController extends Controller
     public function create(Request $request)
     {
         $listar              = Libreria::getParam($request->input('listar'), 'NO');
-        $entidad             = 'Facturacion';
-        $facturacion = null;
-        $cboConvenio = array();
-        $convenios = Convenio::where(DB::raw('1'),'=','1')->orderBy('nombre','ASC')->get();
-        foreach ($convenios as $key => $value) {
-            $cboConvenio = $cboConvenio + array($value->id => $value->nombre);
-        }
+        $entidad             = 'Cotizacion';
+        $cotizacion = null;
         $cboTipoServicio = array(""=>"--Todos--");
         $tiposervicio = Tiposervicio::where(DB::raw('1'),'=','1')->orderBy('nombre','ASC')->get();
         foreach ($tiposervicio as $key => $value) {
             $cboTipoServicio = $cboTipoServicio + array($value->id => $value->nombre);
         }
-        $formData            = array('facturacion.store');
-        $cboSerie     = array("002" => "002", "008" => "008");
+        $formData            = array('cotizacion.store');
         $user = Auth::user();
-        if($user->id==41){
-            $numeroventa = Movimiento::NumeroSigue2(9,17,8,'N');    
-        }else{
-            $numeroventa = Movimiento::NumeroSigue(9,17,2,'N');
-        }
         
         $formData            = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton               = 'Registrar'; 
-        return view($this->folderview.'.mant')->with(compact('facturacion', 'formData', 'entidad', 'boton', 'listar', 'cboConvenio', 'cboSerie', 'numeroventa', 'cboTipoServicio', 'user'));
+        return view($this->folderview.'.mant')->with(compact('cotizacion', 'formData', 'entidad', 'boton', 'listar', 'cboTipoServicio', 'user'));
     }
 
     public function store(Request $request)
     {
         $listar     = Libreria::getParam($request->input('listar'), 'NO');
         $reglas     = array(
-                'fecha'                  => 'required',
-                'numeroventa'          => 'required',
-                'paciente'          => 'required',
+                'fecharegistro' => 'required',
+                'paciente'      => 'required',
                 'total'         => 'required',
-                'plan'          => 'required',
                 );
         $mensajes = array(
-            'fecha.required'         => 'Debe seleccionar una fecha',
-            'numeroventa.required'         => 'La factura debe tener un numero',
-            'paciente.required'         => 'Debe seleccionar un paciente',
-            'plan.required'         => 'Debe seleccionar un plan',
+            'fecharegistro.required' => 'Debe seleccionar una fecha',
+            'paciente.required'      => 'Debe seleccionar un paciente',
             'total.required'         => 'Debe agregar detalle a la factura',
             );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
@@ -175,265 +160,39 @@ class CotizacionController extends Controller
         
         $user = Auth::user();
         $dat=array();
-        $serie=($request->input('serieventa') + 0);
-        if($serie==8){
-            $numeroventa = Movimiento::NumeroSigue2(9,17,$serie,'N');
-        }else{
-            $numeroventa = Movimiento::NumeroSigue(9,17,$serie,'N');
-        }
-        $numero="F".str_pad($request->input('serieventa'),3,'0',STR_PAD_LEFT).'-'.$numeroventa;
-        $error = DB::transaction(function() use($request,$user,$numeroventa,$numero,&$dat){
-            $venta        = new Movimiento();
-            $venta->fecha = $request->input('fecha');
-            $venta->fechaingreso = $request->input('fechaingreso');
-            $venta->fechaalta = $request->input('fechasalida');
-            $venta->numero= $numeroventa;
-            $venta->serie = $request->input('serieventa');
-            $venta->responsable_id=$user->person_id;
-            $venta->cie_id=$request->input('cie_id');
-            $venta->comentario=$request->input('siniestro');
-            $venta->soat = $request->input('soat');
-            $venta->uci = $request->input('uci');
-            $venta->plan_id = $request->input('plan_id');
-            $venta->persona_id = $request->input('person_id');
-            $paciente = Person::find($request->input('person_id'));
-            $person=Person::where('ruc','LIKE',$request->input('ruc'))->limit(1)->first();
-            if(count($person)==0){
-                $person = new Person();
-                $person->bussinesname = $request->input('plan');
-                $person->ruc = $request->input('ruc');
-                $person->direccion = $request->input('direccion');
-                $person->save();
-                $venta->empresa_id=$person->id;
-            }else{
-                $venta->empresa_id=$person->id;
-            }
-            if($request->input('igv')=="N"){
-                $venta->subtotal=number_format($request->input('total'),2,'.','');
-                $venta->igv=number_format(0,2,'.','');
-                $venta->total=$request->input('total');     
-            }else{
-                $venta->subtotal=number_format($request->input('total'),2,'.','');
-                $venta->igv=number_format($request->input('total')*0.18,2,'.','');
-                $venta->total=number_format($venta->subtotal + $venta->igv,2,'.','');                    
-            }
-            $venta->tipomovimiento_id=9;
-            $venta->tipodocumento_id=17;
-            $venta->situacion='P';//Pendiente 
-            $venta->ventafarmacia='N';
-            $venta->manual='N';
-            $venta->copago=$request->input('copago');
-            $venta->montoinicial=$request->input('coaseguro');
-            $venta->save();
+        $numerocotizacion = Cotizacion::NumeroSigue();
+        $error = DB::transaction(function() use($request,$user,$numerocotizacion,&$dat){
+            $cotizacion        = new Cotizacion();
+            $cotizacion->fecha = $request->input('fecharegistro');
+            $cotizacion->numero= $numerocotizacion;
+            $cotizacion->situacion='E';//ENVIADA
+            $cotizacion->responsable_id=$user->person_id;
+            $cotizacion->plan_id = 5; //SALUDPOL
+            $cotizacion->paciente_id = $request->input('person_id');
+            $cotizacion->total=$request->input('total');  
+            $cotizacion->tipo=$request->input('tiporegistro');  
+            $cotizacion->save();
 
             $pagohospital=0;
             $arr=explode(",",$request->input('listServicio'));
             for($c=0;$c<count($arr);$c++){
-                $Detalle = new Detallemovcaja();
-                $Detalle->movimiento_id=$venta->id;
+                $Detalle = new Detallecotizacion();
+                $Detalle->cotizacion_id=$cotizacion->id;
                 if($request->input('txtIdTipoServicio'.$arr[$c])!="0"){
-                    //$Detalle->servicio_id=null;
                     $Detalle->servicio_id=$request->input('txtIdServicio'.$arr[$c]);
                     $Detalle->descripcion=trim($request->input('txtServicio'.$arr[$c]));
                 }else{
                     $Detalle->servicio_id=null;
                     $Detalle->descripcion=trim($request->input('txtServicio'.$arr[$c]));
                 }
-                $Detalle->persona_id=$request->input('txtIdMedico'.$arr[$c]);
+                $Detalle->doctor_id=$request->input('txtIdMedico'.$arr[$c]);
                 $Detalle->cantidad=$request->input('txtCantidad'.$arr[$c]);
-                if($request->input('igv')=="N"){
-                    $Detalle->precio=round($request->input('txtPrecio'.$arr[$c]),2);
-                }else{
-                    $Detalle->precio=round($request->input('txtPrecio'.$arr[$c])*1.18,2);
-                }
-                $Detalle->pagodoctor=$request->input('txtPrecioMedico'.$arr[$c]);
-                $Detalle->pagohospital=0;
-                $Detalle->descuento=$request->input('txtDias'.$arr[$c]);
+                $Detalle->precio=round($request->input('txtPrecio'.$arr[$c]),2);
                 $Detalle->save();
-
-                if(!is_null($request->input('txtIdDetalle'.$arr[$c]))){
-                    $Detalle2 = Detallemovcaja::find($request->input('txtIdDetalle'.$arr[$c]));
-                    $Detalle2->movimientodescargo_id=$Detalle->id;
-                    $Detalle2->save();
-                }
             }
             
-            //Genero F.E.
-            $codigo="01";
-            $abreviatura="F";
-            
-            //Array Insert facturacion
-            $person = Person::find($venta->persona_id);
-            $columna1=6;
-            $columna2="20480082673";//RUC HOSPITAL
-            $columna3="HOSPITAL PRIVADO JUAN PABLO II SOCIEDAD ANONIMA CERRADA";//Razon social Hospital                
-            $columna4=$codigo;
-            $columna5=$abreviatura.str_pad($venta->serie,3,'0',STR_PAD_LEFT).'-'.$venta->numero;
-            $columna6=date('Y-m-d');
-            $columna7="sistemas@hospitaljuanpablo.pe";
-            $columna8=6;//Tipo Doc. Persona->Paciente DNI // DNI=1  RUC=6  Ninguno=0
-            $columna9=$request->input('ruc');
-            $columna10=trim($request->input('plan'));//Razon social
-            $columna101=trim($request->input('direccion'));
-            //if(trim($person->email)!="" && trim($person->email)!="."){
-            //    $columna11=$person->email;
-            //}else{
-                $columna11="-";    
-            //}
-            $columna12="PEN";
-            if($request->input('igv')=="S"){
-                $columna13=number_format($venta->subtotal,2,'.','');
-                $columna14='0.00';
-                $columna15='0.00';
-            }else{
-                $columna13='0.00';
-                $columna14=number_format($venta->subtotal,2,'.','');
-                $columna15='0.00';
-            }
-            $columna16="";
-            $columna17=number_format($venta->igv,2,'.','');
-            $columna18='0.00';
-            $columna19='0.00';
-            $columna20=number_format($venta->total,2,'.','');
-            $columna21=1000;
-            $letras = new EnLetras();
-            $columna22=trim($letras->ValorEnLetras($columna20, "SOLES" ));//letras
-            $columna23='9670';
-            $columna24=substr("CONVENIO: ".$request->input('plan'),0,100);
-            $columna25='9199';
-            $columna26=substr(trim($paciente->apellidopaterno." ".$paciente->apellidomaterno." ".$paciente->nombres),0,100);
-            $columna27='9671';
-            $columna28='HISTORIA CLINICA: '.$request->input('numero_historia');
-            $columna29='9672';
-            $columna30='DNI: '.$request->input('dni');
-            $columna31='8161';
-            $columna32=($venta->montoinicial==''?'0':$venta->montoinicial);
-            $columna33='8163';
-            $columna34=($venta->copago==''?'0':$venta->copago);
-            DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER (
-                tipoDocumentoEmisor,
-                numeroDocumentoEmisor,
-                razonSocialEmisor,
-                tipoDocumento,
-                serieNumero,
-                fechaEmision,
-                correoEmisor,
-                tipoDocumentoAdquiriente,
-                numeroDocumentoAdquiriente,
-                razonSocialAdquiriente,
-                correoAdquiriente,
-                tipoMoneda,
-                totalValorVentaNetoOpGravadas,
-                totalValorVentaNetoOpNoGravada,
-                totalValorVentaNetoOpExonerada,
-                totalIgv,
-                totalVenta,
-                codigoLeyenda_1,
-                textoLeyenda_1,
-                codigoAuxiliar100_1,
-                textoAuxiliar100_1,
-                codigoAuxiliar100_2,
-                textoAuxiliar100_2,
-                codigoAuxiliar100_3,
-                textoAuxiliar100_3,
-                codigoAuxiliar100_4,
-                textoAuxiliar100_4,
-                codigoAuxiliar100_5,
-                textoAuxiliar100_5,
-                codigoAuxiliar100_6,
-                textoAuxiliar100_6
-                ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ? ,?, ? ,?, ?, ?, ?, ?)', 
-                [$columna1, $columna2, $columna3, $columna4, $columna5, $columna6, $columna7, $columna8, $columna9, $columna10, $columna11, $columna12, $columna13, $columna14, $columna15, $columna17, $columna20, $columna21, $columna22, $columna23, $columna24, $columna25, $columna26, $columna27, $columna28, $columna29, $columna30, $columna31, $columna32, $columna33, $columna34]);
-
-            if($abreviatura=="F"){
-                DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
-                    tipoDocumentoEmisor,
-                    numeroDocumentoEmisor,
-                    serieNumero,
-                    tipoDocumento,
-                    clave,
-                    valor) 
-                    values (?, ?, ?, ?, ?, ?)',
-                    [$columna1, $columna2, $columna5, $columna4, 'direccionAdquiriente', $columna101]);
-            }else{
-                DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEHEADER_ADD(
-                    tipoDocumentoEmisor,
-                    numeroDocumentoEmisor,
-                    serieNumero,
-                    tipoDocumento,
-                    clave,
-                    valor) 
-                    values (?, ?, ?, ?, ?, ?)',
-                    [$columna1, $columna2, $columna5, $columna4, 'lugarDestino', $columna101]);
-            }
-            //---
-            
-            //Array Insert Detalle Facturacion
-            for($c=0;$c<count($arr);$c++){
-                $columnad1=$c+1;
-                $servicio = Servicio::find($request->input('txtIdServicio'.$arr[$c]));
-                if(!is_null($servicio) && $servicio->tipopago=="Convenio"){
-                    $columnad2=$servicio->tarifario->codigo;
-                    $columnad3=trim($request->input('txtServicio'.$arr[$c]));    
-                }else{
-                    $columnad2="-";
-                    if($request->input('txtIdTipoServicio'.$arr[$c])!="0"){
-                        $columnad3=$servicio->nombre;
-                    }else{
-                        $columnad3=trim($request->input('txtServicio'.$arr[$c]));
-                    }
-                }
-                $columnad4=$request->input('txtCantidad'.$arr[$c]);
-                $columnad5="ZZ";
-                $columnad6=$request->input('txtPrecio'.$arr[$c]);
-                if($request->input('igv')=='S'){
-                    $columnad7=round($request->input('txtPrecio'.$arr[$c])*1.18,2);
-                }else{
-                    $columnad7=$request->input('txtPrecio'.$arr[$c]);
-                }
-                $columnad8="01";
-                $columnad9=round($columnad4*$columnad6,2);
-                if($request->input('igv')=="S"){
-                    $columnad10="10";
-                    $columnad11=round($columnad9*0.18,2);
-                }else{
-                    $columnad10="30";
-                    $columnad11='0.00';
-                }
-                $columnad12='0.00';
-                $columnad13='0.00';
-                DB::connection('sqlsrv')->insert('insert into SPE_EINVOICEDETAIL(
-                tipoDocumentoEmisor,
-                numeroDocumentoEmisor,
-                tipoDocumento,
-                serieNumero,
-                numeroOrdenItem,
-                codigoProducto,
-                descripcion,
-                cantidad,
-                unidadMedida,
-                importeUnitarioSinImpuesto,
-                importeUnitarioConImpuesto,
-                codigoImporteUnitarioConImpues,
-                importeTotalSinImpuesto,
-                codigoRazonExoneracion,
-                importeIgv
-                )
-                values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                [$columna1, $columna2, $columna4, $columna5, $columnad1, $columnad2, $columnad3, $columnad4, $columnad5, $columnad6, $columnad7, $columnad8, $columnad9, $columnad10, $columnad11]);
-            }
-            DB::connection('sqlsrv')->update('update SPE_EINVOICEHEADER set bl_estadoRegistro = ? where serieNumero  = ?',
-                ['A',$columna5]);
-                
-            //--
-            
-            $dat[0]=array("respuesta"=>"OK","id"=>$venta->id);
+            $dat[0]=array("respuesta"=>"OK","id"=>$cotizacion->id);
         });
-        /*if (!is_null($error)) {
-            DB::connection('sqlsrv')->delete('delete from SPE_EINVOICEHEADER where serieNumero="'.$numero.'"');
-            DB::connection('sqlsrv')->delete('delete from SPE_EINVOICEDETAIL where serieNumero="'.$numero.'"');
-            DB::connection('sqlsrv')->delete('delete from SPE_EINVOICEHEADER_ADD where serieNumero="'.$numero.'"');
-        }*/
         return is_null($error) ? json_encode($dat) : $error;
     }
 
@@ -506,5 +265,112 @@ class CotizacionController extends Controller
             $numeroventa = Movimiento::NumeroSigue(9,17,$serie,'N');
         }
         echo $numeroventa;
+    }
+
+    public function buscarservicio(Request $request)
+    {
+        $descripcion = $request->input("descripcion");
+        $idtiposervicio = trim($request->input("idtiposervicio"));
+        $tipopago = 'Convenio';
+        $resultado = Servicio::leftjoin('tarifario','tarifario.id','=','servicio.tarifario_id');
+        $resultado = $resultado->where(DB::raw('trim(concat(tarifario.codigo,\' \',servicio.nombre,\' \',tarifario.nombre))'),'LIKE','%'.$descripcion.'%');
+        if(trim($idtiposervicio)!=""){
+            $resultado = $resultado->where('tiposervicio_id','=',$idtiposervicio);
+        }
+        $resultado    = $resultado->where('tipopago','LIKE',''.strtoupper($tipopago).'')->select('servicio.*','tarifario.nombre as tarifario','tarifario.codigo')->get();
+        if(count($resultado)>0){
+            $c=0;
+            foreach ($resultado as $key => $value){
+                if(strpos($value->nombre, 'CONS ') !== false){
+                    $otro = '390101';
+                } else {
+                    $otro = '-';
+                }
+                $data[$c] = array(
+                            'servicio' => ($value->tipopago=='Convenio')?$value->tarifario:$value->nombre,
+                            'codigo' => ($value->tipopago=='Convenio')?$value->codigo:$otro,
+                            'tiposervicio' => $value->tiposervicio->nombre,
+                            'precio' => $value->precio,
+                            'idservicio' => $value->id,
+                        );
+                        $c++;                
+            } 
+        }else{
+            if($tipopago=='Convenio' && ($idtiposervicio=='' || $idtiposervicio==1)){//buscar consultas con precio de convenio
+                $resultado = Servicio::where(DB::raw('trim(servicio.nombre)'),'LIKE','%'.$descripcion.'%')
+                            ->where('tipopago','LIKE','Particular')
+                            ->where('tiposervicio_id','=','1')->get();
+                if(count($resultado)>0){
+                    $c=0;
+                    foreach ($resultado as $key => $value){
+                        if(strpos($value->nombre, 'CONS ') !== false){
+                            $otro = '390101';
+                        } else {
+                            $otro = '-';
+                        }
+                        //COSTO DE CONSULTA
+                        //SALUDPOL 5
+                        //$plan = Plan::find($request->input('plan_id'));
+                        $plan = Plan::find(5);
+                        $data[$c] = array(
+                                    'servicio' => ($value->tipopago=='Convenio')?$value->tarifario:$value->nombre,
+                                    'codigo' => ($value->tipopago=='Convenio')?$value->codigo:$otro,
+                                    'tiposervicio' => $value->tiposervicio->nombre,
+                                    'precio' => $plan->consulta,
+                                    'idservicio' => $value->id,
+                                );
+                                $c++;                
+                    }            
+                }else{
+                    $data = array();    
+                }
+            }else{
+                $data = array();
+            }
+        }
+        return json_encode($data);
+    }
+
+    public function seleccionarservicio(Request $request)
+    {
+        $resultado = Servicio::find($request->input('idservicio'));
+        if($resultado->modo=="Monto"){
+            $pagohospital=$resultado->pagohospital;
+            $pagomedico=$resultado->pagodoctor;
+        }else{
+            $pagohospital=number_format($resultado->pagohospital*$resultado->precio/100,2,'.','');
+            $pagomedico=number_format($resultado->pagodoctor*$resultado->precio/100,2,'.','');
+        }
+        if($request->input('plan_id')>0){
+            $plan = Plan::find($request->input('plan_id'));
+            if($resultado->tiposervicio_id==1){//CONSULTA
+                $data[0] = array(
+                    'servicio' => ($resultado->tipopago=='Convenio')?$resultado->tarifario->nombre:$resultado->nombre,
+                    'codigo' => '',
+                    'tiposervicio' => $resultado->tiposervicio->nombre,
+                    'precio' => $plan->consulta,
+                    'id' => $resultado->id,
+                    'idservicio' => "20".rand(0,1000).$resultado->id,
+                    'preciohospital' => $plan->consulta,
+                    'preciomedico' => 0,
+                    'modo' => $resultado->modo,
+                    'idtiposervicio' => $resultado->tiposervicio_id,
+                );
+            }else{
+                $data[0] = array(
+                    'servicio' => ($resultado->tipopago=='Convenio')?$resultado->tarifario->nombre:$resultado->nombre,
+                    'tiposervicio' => $resultado->tiposervicio->nombre,
+                    'codigo' => $resultado->tarifario->codigo,
+                    'precio' => round($resultado->precio/1.18,2),
+                    'id' => $resultado->id,
+                    'idservicio' => "20".rand(0,1000).$resultado->id,
+                    'preciohospital' => round($resultado->precio/1.18,2),
+                    'preciomedico' => 0,
+                    'modo' => $resultado->modo,
+                    'idtiposervicio' => $resultado->tiposervicio_id,
+                );
+            }
+        }
+        return json_encode($data);
     }
 }

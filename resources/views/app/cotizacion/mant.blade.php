@@ -1,10 +1,3 @@
-<?php
-if($user->id==41)
-    $serie='008';
-else
-    $serie='002';
-?>
-
 <style>
 .tr_hover{
     color:red;
@@ -14,7 +7,7 @@ else
 }
 </style>
 <div id="divMensajeError{!! $entidad !!}"></div>
-{!! Form::model($facturacion, $formData) !!}    
+{!! Form::model($cotizacion, $formData) !!}    
     {!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
     {!! Form::hidden('listServicio', null, array('id' => 'listServicio')) !!}
     <div class="row">
@@ -240,34 +233,6 @@ $(document).ready(function() {
 
     });
 
-    var cie = new Bloodhound({
-        datumTokenizer: function (d) {
-            return Bloodhound.tokenizers.whitespace(d.value);
-        },
-        limit: 10,
-        queryTokenizer: Bloodhound.tokenizers.whitespace,
-        remote: {
-            url: 'facturacion/cieautocompletar/%QUERY',
-            filter: function (planes) {
-                return $.map(planes, function (movie) {
-                    return {
-                        value: movie.value,
-                        id: movie.id,
-                    };
-                });
-            }
-        }
-    });
-    cie.initialize();
-    $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="cie"]').typeahead(null,{
-        displayKey: 'value',
-        source: cie.ttAdapter()
-    }).on('typeahead:selected', function (object, datum) {
-        $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="cie"]').val(datum.value);
-        $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="cie_id"]').val(datum.id);
-
-    });
-
     $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="paciente"]').focus();
 
     $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="descripcion"]').on( 'keydown', function () {
@@ -354,10 +319,6 @@ function guardarPago (entidad, idboton) {
         band = false;
         msg += " *No se selecciono un paciente \n";    
     }
-    if($("#plan_id").val()==""){
-        band = false;
-        msg += " *No se selecciono un plan \n";    
-    }
     for(c=0; c < carro.length; c++){
         if($("#txtIdMedico"+carro[c]).val()==0){
             band = false;
@@ -389,7 +350,6 @@ function guardarPago (entidad, idboton) {
                 if (resp === 'OK') {
                     cerrarModal();
                     buscarCompaginado('', 'Accion realizada correctamente', entidad, 'OK');
-                    window.open('/juanpablo/facturacion/pdfComprobante?id='+dat[0].id,'_blank')
                 } else if(resp === 'ERROR') {
                     alert(dat[0].msg);
                 } else {
@@ -406,7 +366,7 @@ var valorinicial="";
 function buscarServicio(valor){
     $.ajax({
         type: "POST",
-        url: "facturacion/buscarservicio",
+        url: "cotizacion/buscarservicio",
         data: "idtiposervicio="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tiposervicio"]').val()+"&descripcion="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="descripcion"]').val()+"&plan_id="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="plan_id"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
         success: function(a) {
             datos=JSON.parse(a);
@@ -431,25 +391,17 @@ function buscarServicio(valor){
     });
 }
 
-function copiarFecha(fecha){
-    $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="fechasalida"]').val(fecha);
-}
-
 var carro = new Array();
 var carroDoc = new Array();
 var copia = new Array();
 function seleccionarServicio(idservicio){
     var band=true;
-    /*for(c=0; c < carro.length; c++){
-        if(carro[c]==idservicio){
-            band=false;
-        }      
-    }*/
     if(band){
         $.ajax({
             type: "POST",
-            url: "facturacion/seleccionarservicio",
-            data: "idservicio="+idservicio+"&plan_id="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="plan_id"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
+            url: "cotizacion/seleccionarservicio",
+            //data: "idservicio="+idservicio+"&plan_id="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="plan_id"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
+            data: "idservicio="+idservicio+"&plan_id=5&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
             success: function(a) {
                 datos=JSON.parse(a);
                 var c=0;
