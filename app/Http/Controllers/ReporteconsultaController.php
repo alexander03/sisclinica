@@ -166,7 +166,7 @@ class ReporteconsultaController extends Controller
                             ->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'),'like','%'.$paciente.'%')
                             ->where('movimiento.tipomovimiento_id','=',1)
                             ->whereNull('dmc.deleted_at')
-                            ->where('movimiento.situacion','<>','U')
+                            ->where('movimiento.situacion','<>','C')
                             ->where('dmc.situacionentrega','like','E');
         if($fechainicial!=""){
             $pago = $pago->where('dmc.fechaentrega','>=',$fechainicial);

@@ -10804,7 +10804,10 @@ class CajaController extends Controller
                 //->where('movimiento.situacion','=','N')
                 ->where('movimiento.sucursal_id', '=', $sucursal_id)
                 ->where('movimiento.fecha', '=', $fecha1)
-                ->where('movimiento.clasificacionconsulta','like','P');
+                //->where('movimiento.clasificacionconsulta','like','P')
+                ->where(function($q) {            
+                    $q->where('movimiento.clasificacionconsulta', 'like', 'P')->orWhere('movimiento.clasificacionconsulta', 'like', 'O');
+                });
         
         $listaventas = $resultadoventas->get();
 
@@ -10934,7 +10937,10 @@ class CajaController extends Controller
 
          $rs = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
                         ->where('m2.fecha', $fecha1)
-                        ->where('m2.clasificacionconsulta','like','P')
+                        //->where('m2.clasificacionconsulta','like','P')
+                        ->where(function($q) {            
+                            $q->where('m2.clasificacionconsulta', 'like', 'P')->orWhere('m2.clasificacionconsulta', 'like', 'O');
+                        })
                         ->where(function($q) {            
                             $q->where('m2.situacion', 'like', 'C')->orWhere('m2.situacion', 'like', 'D')->orWhere('m2.situacion', 'like', 'R');
                         })

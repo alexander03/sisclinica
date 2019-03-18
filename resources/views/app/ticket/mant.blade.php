@@ -108,23 +108,23 @@ if(!is_null($ticket)){
                             @else
                             <option value="P">PROCEDIMIENTO</option>
                             @endif
-                            @if($ticket->clasificacionconsulta == 'X')
-                            <option selected value="X">EXAMENES</option>
-                            @else
-                            <option value="X">EXAMENES</option>
-                            @endif
                             @if($ticket->clasificacionconsulta == 'O')
                             <option selected value="O">CIRUGÍA</option>
                             @else
                             <option value="O">CIRUGÍA</option>
+                            @endif
+                            @if($ticket->clasificacionconsulta == 'X')
+                            <option selected value="X">EXAMENES</option>
+                            @else
+                            <option value="X">EXAMENES</option>
                             @endif
                         @else
                         <option value="C">CONSULTA</option>
                         <option value="E">EMERGENCIA</option>
                         <option value="L">LECT. RESULTADOS</option>
                         <option value="P">PROCEDIMIENTO</option>
-                        <option value="X">EXAMENES</option>
                         <option value="O">CIRUGÍA</option>
+                        <option value="X">EXAMENES</option>
                         @endif
                     </select>
                 </div>
