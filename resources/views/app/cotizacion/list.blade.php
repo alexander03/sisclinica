@@ -23,7 +23,7 @@
 				<td>{{ $contador }}</td>
 	            <td>{{ date('d/m/Y',strtotime($value->fecha)) }}</td>
 	            <td>{{ $value->codigo }}</td>
-	            <td>{{ $value->paciente }}</td>
+	            <td>{{ $value->paciente == null ? '-' : ($value->paciente->apellidopaterno . ' ' . $value->paciente->apellidomaterno . ' ' . $value->paciente->nombres) }}</td>
 	            @if($value->tipo=='A')
 	            <td>AMBULATORIO</td>
 	            @elseif($value->tipo=='H')
@@ -38,9 +38,10 @@
 	            @elseif($value->situacion=='R')
 	            <td>RECHAZADA</td>
 	            @endif
+	  			<td>{{ $value->total }}</td>
 	  			<td>{{ $value->responsable->nombres }}</td>
-	            <td>{!! Form::button('<div class="glyphicon glyphicon-pencil"></div> Ver', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-info')) !!}</td>
-				<td>{!! Form::button('<div class="glyphicon glyphicon-eye-open"></div> Editar', array('onclick' => '#', 'class' => 'btn btn-xs btn-warning')) !!}</td>
+	            <td>{!! Form::button('<div class="glyphicon glyphicon-pencil"></div> Ver', array('onclick' => 'modal (\''.URL::route($ruta["ver"], $value->id).'\', \''.$titulo_ver.'\', this);', 'class' => 'btn btn-xs btn-info')) !!}</td>
+	            <td>{!! Form::button('<div class="glyphicon glyphicon-eye-open"></div> Editar', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning')) !!}</td>
 				<td>{!! Form::button('<div class="glyphicon glyphicon-remove"></div> Anular', array('onclick' => '#', 'class' => 'btn btn-xs btn-danger')) !!}</td>
 			</tr>
 			<?php

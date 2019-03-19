@@ -11,25 +11,28 @@
     {!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
     {!! Form::hidden('listServicio', null, array('id' => 'listServicio')) !!}
     <div class="row">
-        <div class="col-lg-6 col-md-6 col-sm-6">
+        {{--<div class="col-lg-6 col-md-6 col-sm-6">--}}
+        <div class="col-lg-12 col-md-12 col-sm-12">
             <div class="form-group">
-                {!! Form::label('fecharegistro', 'Fecha:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-                <div class="col-lg-3 col-md-3 col-sm-3">
+                {!! Form::label('fecharegistro', 'Fecha:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+                <div class="col-lg-4 col-md-4 col-sm-4">
                     {!! Form::date('fecharegistro', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fecharegistro')) !!}
                 </div>
-                {!! Form::label('tiporegistro', 'Tipo:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-                <div class="col-lg-3 col-md-3 col-sm-3">
+                {!! Form::label('tiporegistro', 'Tipo:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+                <div class="col-lg-4 col-md-4 col-sm-4">
                     <select name="tiporegistro" class='form-control input-xs' id='tiporegistro'>
                         <option value="A">AMBULATORIO</option>
                         <option value="H">HOSPITALARIO</option>
                     </select>
                 </div>
+            </div>
+            <div class="form-group">
                 {!! Form::label('codigoregistro', 'Código:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-                <div class="col-lg-2 col-md-2 col-sm-2">
+                <div class="col-lg-10 col-md-10 col-sm-10">
                     {!! Form::text('codigoregistro', '', array('class' => 'form-control input-xs', 'id' => 'codigoregistro')) !!}
                 </div>
             </div>
-            <div class="form-group">
+            {{--<div class="form-group">
                 {!! Form::label('paciente', 'Paciente:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
                 <div class="col-lg-6 col-md-6 col-sm-6">
                 {!! Form::hidden('person_id', null, array('id' => 'person_id')) !!}
@@ -41,15 +44,15 @@
                     {!! Form::hidden('historia_id', null, array('id' => 'historia_id')) !!}
                     {!! Form::text('numero_historia', null, array('class' => 'form-control input-xs', 'id' => 'numero_historia', 'readonly' => 'readonly')) !!}
                 </div>
-            </div>
+            </div>--}}
             <div class="form-group">
-                <div class="col-lg-6 col-md-6 col-sm-6 text-right">
+                <div class="col-lg-12 col-md-12 col-sm-12 text-right">
                     {!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => '$(\'#listServicio\').val(carro);$(\'#movimiento_id\').val(carroDoc);guardarPago(\''.$entidad.'\', this);')) !!}
                     {!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
                 </div>
             </div>
          </div>
-         <div class="col-lg-6 col-md-6 col-sm-6">
+         {{--<div class="col-lg-6 col-md-6 col-sm-6">
             <div class="form-group">
                 {!! Form::label('tiposervicio', 'Tipo:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
                 <div class="col-lg-3 col-md-3 col-sm-3">
@@ -62,30 +65,30 @@
             </div>
             <div class="form-group col-lg-12 col-md-12 col-sm-12" id="divBusqueda">
             </div>
-         </div>     
+         </div> --}}    
      </div>
      <div class="box">
         <div class="box-header">
             <h2 class="box-title col-lg-4 col-md-4 col-sm-4">Detalle <button type="button" class="btn btn-xs btn-info" title="Agregar Detalle" onclick="seleccionarServicioOtro();"><i class="fa fa-plus"></i></button></h2>
         </div>
-        <div class="box-body" style="max-height: 400px;overflow: auto;">
+        <div class="box-body" style="max-height: 300px;overflow: auto;">
             <table class="table table-condensed table-border" id="tbDetalle">
                 <thead>
-                    <th class="text-center">Cant.</th>
-                    <th class="text-center" colspan="2">Medico</th>
-                    <th class="text-center">Rubro</th>
-                    <th class="text-center">Codigo</th>
-                    <th class="text-center">Descripcion</th>
-                    <th class="text-center">Precio</th>
-                    <th class="text-center">Dias</th>
-                    <th class="text-center" colspan="2">Pago Medico</th>
-                    <th class="text-center">Subtotal</th>
+                    {{--<th class="text-center">Cant.</th>--}}
+                    {{--<th class="text-center" colspan="2">Medico</th>--}}
+                    {{--<th class="text-center">Rubro</th>--}}
+                    {{--<th class="text-center">Codigo</th>--}}
+                    <th class="text-center" colspan="2">Descripcion</th>
+                    {{--<th class="text-center">Precio</th>--}}
+                    {{--<th class="text-center">Dias</th>--}}
+                    {{--<th class="text-center" colspan="2">Pago Medico</th>--}}
+                    {{--<th class="text-center">Subtotal</th>--}}
                 </thead>
                 <tbody>
                 </tbody>
                 <tfoot>
-                    <th class="text-right" colspan="9">Total</th>
-                    <th>{!! Form::text('total', null, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'readonly' => 'true', 'style' => 'width: 60px;')) !!}</th>
+                    <th width="80%" class="text-right">Total</th>
+                    <th width="20%">{!! Form::text('total', null, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'style' => 'width: 100%;')) !!}</th>
                 </tfoot>
             </table>
         </div>
@@ -94,7 +97,7 @@
 <script type="text/javascript">
 var valorbusqueda="";
 $(document).ready(function() {
-    configurarAnchoModal('1300');
+    configurarAnchoModal('500');
     init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'B', '{!! $entidad !!}');
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="totalboleta"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
@@ -305,18 +308,24 @@ $(document).ready(function() {
 function guardarPago (entidad, idboton) {
     var band=true;
     var msg="";
-    var total2=0;var cant=0;var pv=0;var total=0;
-    for(c=0; c < carro.length; c++){
+    //var total2=0;var cant=0;var pv=0;var total=0;
+    /*for(c=0; c < carro.length; c++){
         cant=parseFloat($("#txtCantidad"+carro[c]).val());
         pv=parseFloat($("#txtPrecio"+carro[c]).val());
         total=Math.round((pv*cant) * 100) / 100;
         $("#txtTotal"+carro[c]).val(total);   
         total2=Math.round((total2+total) * 100) / 100;        
+    }*/
+    if(carro.length==0){
+        band = false;
+        msg += " *Debes escribir al menos un detalle \n";    
     }
-    $("#total").val(total2);
+
+    //$("#total").val(total2);
     if($(".txtareaa").val()==""){
         band = false;
-        msg += " *Se debe agregar una descripcion \n";    
+        msg += " *Se debe agregar una descripcion \n"; 
+        $(this).focus();   
     }
 
     if($("#person_id").val()==""){
@@ -459,7 +468,7 @@ function seleccionarServicio(idservicio){
     }
 }
 
-function seleccionarServicioOtro(){
+{{--function seleccionarServicioOtro(){
     var idservicio = "10"+Math.round(Math.random()*10000);
     $("#tbDetalle").append("<tr id='tr"+idservicio+"'><td><input type='hidden' id='txtIdTipoServicio"+idservicio+"' name='txtIdTipoServicio"+idservicio+"' value='0' /><input type='text' data='numero' class='form-control input-xs' id='txtCantidad"+idservicio+"' name='txtCantidad"+idservicio+"' style='width: 40px;' value='1' size='3' onkeydown=\"if(event.keyCode==13){calcularTotal()}\" onblur=\"calcularTotalItem2('"+idservicio+"')\" /></td>"+
         "<td><input type='checkbox' id='chkCopiar"+idservicio+"' onclick=\"checkMedico(this.checked,'"+idservicio+"')\" /></td>"+
@@ -501,41 +510,49 @@ function seleccionarServicioOtro(){
         "copiarMedico('"+idservicio+"');"+
     "});");
     $("#txtMedico"+idservicio).focus();             
+}--}}
+
+function seleccionarServicioOtro(){
+    var idservicio = "10"+Math.round(Math.random()*10000);
+    $("#tbDetalle").append("<tr id='tr"+idservicio+"'><td><input type='hidden' id='txtIdTipoServicio"+idservicio+"' name='txtIdTipoServicio"+idservicio+"' value='0' /><input type='text' class='form-control input-xs txtareaa' id='txtServicio"+idservicio+"' name='txtServicio"+idservicio+"' /></td>" + 
+        "<td><a href='#' onclick=\"quitarServicio('"+idservicio+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>");
+    carro.push(idservicio);
+    $("#txtServicio"+idservicio).focus();             
 }
 
 function calcularTotal(){
-    var total2=0;
+    /*var total2=0;
     for(c=0; c < carro.length; c++){
         var tot=parseFloat($("#txtTotal"+carro[c]).val());
         total2=Math.round((total2+tot) * 100) / 100;        
     }
-    $("#total").val(total2);
+    $("#total").val(total2);*/
 }
 
 function calcularTotalItem(id){
-    var cant=parseFloat($("#txtCantidad"+id).val());
+    /*var cant=parseFloat($("#txtCantidad"+id).val());
     var pv=parseFloat($("#txtPrecio"+id).val());
     var total=Math.round((pv*cant) * 100) / 100;
 
     $("#txtTotal"+id).val(total);   
-    calcularTotal();
+    calcularTotal();*/
 }
 
 function calcularPorcentajeMedico(id){
-    var e = window.event; 
+    /*var e = window.event; 
     var keyc = e.keyCode || e.which;
     if(keyc==13){
         var pago = Math.round((parseFloat($("#txtCantidad"+id).val())*parseFloat($("#txtPorcentajeMedico"+id).val())*parseFloat($("#txtPrecio"+id).val())/100)*100)/100;
         $("#txtPrecioMedico"+id).val(pago);
-    }
+    }*/
 }
 
 function calcularTotalItem2(id){
-    var cant=parseFloat($("#txtCantidad"+id).val());
+    /*var cant=parseFloat($("#txtCantidad"+id).val());
     var pv=parseFloat($("#txtPrecio"+id).val());
     var total=Math.round((pv*cant) * 100) / 100;
     $("#txtTotal"+id).val(total);   
-    calcularTotal();
+    calcularTotal();*/
 }
 
 function quitarServicio(id){
@@ -609,7 +626,7 @@ function copiarMedico(idservicio){
 }
 
 function calcularCoaseguro(value){
-    var e = window.event; 
+    /*var e = window.event; 
     var keyc = e.keyCode || e.which;
     if(keyc==13){
         if($("#coaseguro").val()!="0" && $("#coaseguro").val()!=""){
@@ -623,7 +640,7 @@ function calcularCoaseguro(value){
                 }
             }
         }
-    }
+    }*/
 }
 
 function agregarDetallePrefactura(idpersona){

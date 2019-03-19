@@ -31,4 +31,9 @@ class Cotizacion extends Model
     {
         return $this->belongsTo('App\Plan', 'plan_id');
     }
+
+    public function detalles()
+    {
+        return $this->hasMany('App\Detallecotizacion');
+    }
 }

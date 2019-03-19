@@ -34,14 +34,16 @@ class CotizacionController extends Controller
 {
     protected $folderview      = 'app.cotizacion';
     protected $tituloAdmin     = 'Cotizacion';
-    protected $tituloRegistrar = 'Registrar Cotizacion';
-    protected $tituloModificar = 'Modificar Cotizacion';
-    protected $tituloEliminar  = 'Eliminar Cotizacion';
+    protected $tituloRegistrar = 'Registrar Cotización';
+    protected $tituloModificar = 'Modificar Cotización';
+    protected $tituloVer       = 'Ver Detalles de Cotización';
+    protected $tituloEliminar  = 'Eliminar Cotización';
     protected $rutas           = array('create' => 'cotizacion.create', 
             'edit'   => 'cotizacion.edit', 
             'delete' => 'cotizacion.eliminar',
             'search' => 'cotizacion.buscar',
-            'index'  => 'cotizacion.index'
+            'index'  => 'cotizacion.index',
+            'ver'    => 'cotizacion.ver'
         );
 
     public function __construct()
@@ -61,10 +63,10 @@ class CotizacionController extends Controller
         $tipo             = Libreria::getParam($request->input('tipo'));
         $situacion        = Libreria::getParam($request->input('situacion'));
         $user = Auth::user();
-        $resultado        = Cotizacion::leftjoin('person as paciente', 'paciente.id', '=', 'cotizacion.paciente_id')
+        $resultado        = Cotizacion::/*leftjoin('person as paciente', 'paciente.id', '=', 'cotizacion.paciente_id')
                             ->leftjoin('person as responsable','responsable.id','=','cotizacion.responsable_id')
                             ->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'), 'LIKE', '%'.strtoupper($paciente).'%')
-                            ->where('cotizacion.codigo','LIKE','%'.$codigo.'%');
+                            ->*/where('cotizacion.codigo','LIKE','%'.$codigo.'%');
         if($fecha!=""){
             $resultado = $resultado->where('cotizacion.fecha', '>=', ''.$fecha.'');
         }
@@ -77,7 +79,7 @@ class CotizacionController extends Controller
         if($situacion!=""){
             $resultado = $resultado->where('cotizacion.situacion', 'LIKE', '%'.$situacion.'%');
         }
-        $resultado        = $resultado->select('cotizacion.*',DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente'))->orderBy('cotizacion.fecha', 'ASC');
+        $resultado        = $resultado->select('cotizacion.*'/*,DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente')*/)->orderBy('cotizacion.fecha', 'ASC');
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
@@ -86,11 +88,13 @@ class CotizacionController extends Controller
         $cabecera[]       = array('valor' => 'Paciente', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Tipo', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Situación', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Responsable', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Total', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Respon.', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '3');
         
         $titulo_modificar = $this->tituloModificar;
         $titulo_eliminar  = $this->tituloEliminar;
+        $titulo_ver       = $this->tituloVer;
         $ruta             = $this->rutas;
         $totalfac = 0;
 
@@ -107,7 +111,7 @@ class CotizacionController extends Controller
             $paginaactual    = $paramPaginacion['nuevapagina'];
             $lista           = $resultado->paginate($filas);
             $request->replace(array('page' => $paginaactual));
-            return view($this->folderview.'.list')->with(compact('lista', 'totalfac', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta'));
+            return view($this->folderview.'.list')->with(compact('lista', 'totalfac', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'titulo_ver'));
         }
         return view($this->folderview.'.list')->with(compact('lista', 'entidad'));
     }
@@ -145,21 +149,20 @@ class CotizacionController extends Controller
         $listar     = Libreria::getParam($request->input('listar'), 'NO');
         $reglas     = array(
                 'fecharegistro' => 'required',
-                'paciente'      => 'required',
+                //'paciente'      => 'required',
                 'total'         => 'required',
                 'codigoregistro'        => 'required',
                 );
         $mensajes = array(
             'fecharegistro.required' => 'Debe seleccionar una fecha',
-            'paciente.required'      => 'Debe seleccionar un paciente',
-            'total.required'         => 'Debe agregar detalle a la cotización',
+            //'paciente.required'      => 'Debe seleccionar un paciente',
+            'total.required'         => 'Debe agregar un monto a la cotización',
             'codigoregistro.required'        => 'Debe agregar un código',
             );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
             return $validacion->messages()->toJson();
         }       
-        
         $user = Auth::user();
         $dat=array();
         $numerocotizacion = Cotizacion::NumeroSigue();
@@ -170,7 +173,7 @@ class CotizacionController extends Controller
             $cotizacion->situacion='E';//ENVIADA
             $cotizacion->responsable_id=$user->person_id;
             $cotizacion->plan_id = 5; //SALUDPOL
-            $cotizacion->paciente_id = $request->input('person_id');
+            //$cotizacion->paciente_id = $request->input('person_id');
             $cotizacion->total=$request->input('total');  
             $cotizacion->tipo=$request->input('tiporegistro');  
             $cotizacion->codigo=$request->input('codigoregistro');  
@@ -188,9 +191,9 @@ class CotizacionController extends Controller
                     $Detalle->servicio_id=null;
                     $Detalle->descripcion=trim($request->input('txtServicio'.$arr[$c]));
                 }
-                $Detalle->doctor_id=$request->input('txtIdMedico'.$arr[$c]);
-                $Detalle->cantidad=$request->input('txtCantidad'.$arr[$c]);
-                $Detalle->precio=round($request->input('txtPrecio'.$arr[$c]),2);
+                //$Detalle->doctor_id=$request->input('txtIdMedico'.$arr[$c]);
+                //$Detalle->cantidad=$request->input('txtCantidad'.$arr[$c]);
+                //$Detalle->precio=round($request->input('txtPrecio'.$arr[$c]),2);
                 $Detalle->save();
             }
             
@@ -332,6 +335,17 @@ class CotizacionController extends Controller
             }
         }
         return json_encode($data);
+    }
+
+    public function ver($id) {
+        $entidad = "Cotizacion";
+        $existe = Libreria::verificarExistencia($id, 'cotizacion');
+        if ($existe !== true) {
+            return $existe;
+        }
+        $cotizacion = Cotizacion::find($id);
+        $formData  = array('class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        return view($this->folderview.'.ver')->with(compact('entidad', 'cotizacion', 'formData'));
     }
 
     public function seleccionarservicio(Request $request)

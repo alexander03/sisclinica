@@ -531,8 +531,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('cotizacion/excel', 'CotizacionController@excel')->name('cotizacion.excel');
     Route::get('cotizacion/eliminar/{id}/{listarluego}', 'CotizacionController@eliminar')->name('cotizacion.eliminar');
     Route::resource('cotizacion', 'CotizacionController', array('except' => array('show')));
-    Route::post('cotizacion/buscarservicio', 'CotizacionController@buscarservicio')->name('cotizacion.buscarsetvicio');
+    Route::post('cotizacion/buscarservicio', 'CotizacionController@buscarservicio')->name('cotizacion.buscarservicio');
     Route::post('cotizacion/seleccionarservicio', 'CotizacionController@seleccionarservicio')->name('cotizacion.seleccionarsetvicio');
+    Route::get('cotizacion/ver/{id}', 'CotizacionController@ver')->name('cotizacion.ver');
 
     /* PREFACTURA */
     Route::post('prefactura/buscar', 'PrefacturaController@buscar')->name('prefactura.buscar');
