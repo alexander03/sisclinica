@@ -153,6 +153,9 @@ class ReporteconsultaController extends Controller
         $fechafinal       = Libreria::getParam($request->input('fechafinal'));
         $situacion        = Libreria::getParam($request->input('situacion'));
 
+        //sucursal_id
+        $sucursal_id = Session::get('sucursal_id');
+
         $pago        = Movimiento::join('detallemovcaja as dmc','dmc.movimiento_id','=','movimiento.id')
                             ->join('person as medico','medico.id','=','dmc.persona_id')
                             ->join('person as paciente','paciente.id','=','movimiento.persona_id')
@@ -165,8 +168,9 @@ class ReporteconsultaController extends Controller
                             ->where(DB::raw('concat(medico.apellidopaterno,\' \',medico.apellidomaterno,\' \',medico.nombres)'),'like','%'.$doctor.'%')
                             ->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'),'like','%'.$paciente.'%')
                             ->where('movimiento.tipomovimiento_id','=',1)
+                            ->where('movimiento.sucursal_id','=', $sucursal_id)
                             ->whereNull('dmc.deleted_at')
-                            ->where('movimiento.situacion','<>','C')
+                            ->where('movimiento.situacion','<>','U')
                             ->where('dmc.situacionentrega','like','E');
         if($fechainicial!=""){
             $pago = $pago->where('dmc.fechaentrega','>=',$fechainicial);
@@ -195,6 +199,7 @@ class ReporteconsultaController extends Controller
                             ->where(DB::raw('concat(medico.apellidopaterno,\' \',medico.apellidomaterno,\' \',medico.nombres)'),'like','%'.$doctor.'%')
                             ->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'),'like','%'.$paciente.'%')
                             ->where('movimiento.tipomovimiento_id','=',1)
+                            ->where('movimiento.sucursal_id','=', $sucursal_id)
                             ->whereNull('dmc.deleted_at')
                             ->where('movimiento.situacion','<>','U')
                             ->where('dmc.situacionsocio','like','E');
@@ -225,6 +230,7 @@ class ReporteconsultaController extends Controller
                             ->where(DB::raw('concat(medico.apellidopaterno,\' \',medico.apellidomaterno,\' \',medico.nombres)'),'like','%'.$doctor.'%')
                             ->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'),'like','%'.$paciente.'%')
                             ->where('movimiento.tipomovimiento_id','=',1)
+                            ->where('movimiento.sucursal_id','=', $sucursal_id)
                             ->whereNull('dmc.deleted_at')
                             ->where('movimiento.situacion','<>','U')
                             ->where('dmc.situaciontarjeta','like','E');
@@ -251,6 +257,7 @@ class ReporteconsultaController extends Controller
                             ->leftjoin('conveniofarmacia','conveniofarmacia.id','=','movimiento.conveniofarmacia_id')
                             ->leftjoin('person as referido','referido.id','=','movimiento.doctor_id')
                             ->join('person as responsable','responsable.id','=','movimiento.responsable_id')
+                            ->where('movimiento.sucursal_id','=', $sucursal_id)
                             ->whereIn('movimiento.situacion',['N'])
                             ->where('movimiento.tipomovimiento_id', '=', '4')
                             ->where('movimiento.ventafarmacia', '=', 'S')
@@ -273,6 +280,7 @@ class ReporteconsultaController extends Controller
                             ->leftjoin('conveniofarmacia','conveniofarmacia.id','=','movimiento.conveniofarmacia_id')
                             ->leftjoin('person as referido','referido.id','=','movimiento.doctor_id')
                             ->join('person as responsable','responsable.id','=','movimiento.responsable_id')
+                            ->where('movimiento.sucursal_id','=', $sucursal_id)
                             ->whereIn('movimiento.situacion',['N'])
                             ->where('movimiento.tipomovimiento_id', '=', '4')
                             ->where('movimiento.ventafarmacia', '=', 'S')
@@ -307,8 +315,9 @@ class ReporteconsultaController extends Controller
                             ->where(DB::raw('concat(medico.apellidopaterno,\' \',medico.apellidomaterno,\' \',medico.nombres)'),'like','%'.$doctor.'%')
                             ->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'),'like','%'.$paciente.'%')
                             ->where('movimiento.tipomovimiento_id','=',1)
+                            ->where('movimiento.sucursal_id','=', $sucursal_id)
                             ->whereNull('dmc.deleted_at')
-                            ->where('movimiento.situacion','<>','U')
+                            ->where('movimiento.situacion','like','C')
                             ->whereNotIn('dmc.situacionentrega',['A'])
                             ->where(function($query){
                                 $query->whereNull('dmc.situaciontarjeta')
@@ -329,7 +338,7 @@ class ReporteconsultaController extends Controller
             $resultado = $resultado->where(DB::raw('concat(case when dmc.servicio_id>0 then s.nombre else \' \'end,\' \',dmc.descripcion)'),'LIKE','%'.$servicio.'%');   
         }
         $resultado        = $resultado->orderBy(DB::raw('case when mref.id>0 then mref.fecha else movimiento.fecha end'), 'desc')->orderBy('mref.serie', 'ASC')->orderBy('mref.numero', 'ASC')
-                            ->select('mref.total','plan.nombre as plan2','mref.tipodocumento_id','mref.serie','mref.numero',DB::raw('case when mref.id>0 then (case when mref.fecha=movimiento.fecha then mref.fecha else movimiento.fecha end) else movimiento.fecha end as fecha'),'movimiento.doctor_id as referido_id','historia.tipopaciente','dmc.servicio_id','dmc.descripcion as servicio2','movimiento.tarjeta','movimiento.tipotarjeta','movimiento.voucher','mref.situacion','historia.numero as historia','dmc.recibo','dmc.id as iddetalle',DB::raw('case when s.tarifario_id>0 then (select concat(codigo,\' \',nombre) from tarifario where id=s.tarifario_id) else s.nombre end as servicio'),'dmc.pagohospital','dmc.cantidad','dmc.pagodoctor',DB::raw('concat(medico.apellidopaterno,\' \',medico.apellidomaterno,\' \',medico.nombres) as medico'),DB::raw('concat(referido.apellidopaterno,\' \',referido.apellidomaterno,\' \',referido.nombres) as referido'),DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente2'),DB::raw('responsable.nombres as responsable'),DB::raw('movimiento.numero as numero2'),'mref.ventafarmacia','mref.estadopago','mref.formapago','movimiento.nombrepaciente','movimiento.copago','dmc.id as dmc_id','dmc.marcado','movimiento.id','mref.id as venta_id');
+                            ->select('mref.total','plan.nombre as plan2','mref.tipodocumento_id','mref.serie','mref.numero',DB::raw('case when mref.id>0 then (case when mref.fecha=movimiento.fecha then mref.fecha else movimiento.fecha end) else movimiento.fecha end as fecha'),'movimiento.doctor_id as referido_id','historia.tipopaciente','dmc.servicio_id','dmc.descripcion as servicio2','movimiento.tarjeta','movimiento.tipotarjeta','movimiento.voucher','mref.situacion','historia.numero as historia','dmc.recibo','dmc.id as iddetalle',DB::raw('case when s.tarifario_id>0 then (select concat(codigo,\' \',nombre) from tarifario where id=s.tarifario_id) else s.nombre end as servicio'),'dmc.pagohospital','dmc.cantidad','dmc.pagodoctor',DB::raw('concat(medico.apellidopaterno,\' \',medico.apellidomaterno,\' \',medico.nombres) as medico'),DB::raw('concat(referido.apellidopaterno,\' \',referido.apellidomaterno,\' \',referido.nombres) as referido'),DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente2'),DB::raw('responsable.nombres as responsable'),DB::raw('movimiento.numero as numero2'),'mref.ventafarmacia','mref.estadopago','mref.formapago','movimiento.nombrepaciente','movimiento.copago','dmc.id as dmc_id','dmc.marcado','movimiento.id','mref.id as venta_id')->groupBy('dmc.id');
         if($request->input('farmacia')=="D"){
             $querySql = $resultado->unionAll($first)->toSql();
             $binding  = $resultado->getBindings();

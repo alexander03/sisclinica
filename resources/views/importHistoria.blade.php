@@ -55,10 +55,30 @@
 			<button class="btn btn-primary">Import File Servicio</button>
 		</form-->
 
-		<form style="border: 4px solid #a1a1a1;margin-top: 15px;padding: 10px;" action="{{ URL::to('importProducto') }}" class="form-horizontal" method="post" enctype="multipart/form-data">
+		<!--form style="border: 4px solid #a1a1a1;margin-top: 15px;padding: 10px;" action="{{ URL::to('importProducto') }}" class="form-horizontal" method="post" enctype="multipart/form-data">
 			<input type="file" name="import_file" />
 			<button class="btn btn-primary">Import File Producto</button>
-		</form>
+		</form-->
+
+			<button class="btn btn-primary" onclick="historiasConvenio();">historiasConvenio</button>
 	</div>
+	  <!-- jQuery 2.2.3 -->
+	  {!! Html::script('plugins/jQuery/jquery-2.2.3.min.js') !!}
+	  <script>
+
+function historiasConvenio(){
+		$.ajax({
+			"method": "POST",
+			"url": "{{ url('/historiasConvenio') }}",
+			"data": {
+				"_token": "{{ csrf_token() }}",
+				}
+		}).done(function(info){
+			console.log(info);
+		});
+	}
+</script>
 </body>
+
+
 </html>

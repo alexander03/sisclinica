@@ -81,7 +81,7 @@ if(!is_null($ticket)){
                 <div class="col-lg-3 col-md-3 col-sm-3">
                     <select disabled class="form-control input-xs" name="clasificacionconsulta" id="clasificacionconsulta" onchange="lectRes();">
                         @if($ticket != null)
-                        @if($ticket->clasificacionconsulta == 'C')
+                            @if($ticket->clasificacionconsulta == 'C')
                             <option selected value="C">CONSULTA</option>
                             @else
                             <option value="C">CONSULTA</option>

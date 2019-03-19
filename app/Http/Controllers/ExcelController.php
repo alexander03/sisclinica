@@ -539,4 +539,61 @@ class ExcelController extends Controller
         return view('importHistoria');;
 
     }
+
+    public function historiasConvenio(){
+
+        $nombre           = "(SALUDPOL)";
+
+        $resultado        = Historia::join('person', 'person.id', '=', 'historia.person_id')
+       // ->where('historia.sucursal_id', '=', 1)
+        ->where(DB::raw('concat(apellidopaterno,\' \',apellidomaterno,\' \',nombres)'), 'LIKE', '%'.strtoupper($nombre).'%');
+
+        $resultado        = $resultado->select('historia.*')->orderBy('historia.numero', 'ASC');
+        
+        $lista            = $resultado->get();
+
+        $error = null;
+
+        foreach ($lista as $key => $value) {
+            $error = DB::transaction(function() use($nombre, $value){
+                $persona = Person::find($value->person_id);
+                $sinSaludpol = str_replace($nombre, "", $persona->nombres);     //nombres //apellido materno // apellido paterno
+                $persona->nombres = $sinSaludpol;
+                $persona->save();
+
+                $historia = Historia::find($value->id);
+                $historia->tipopaciente = "Convenio";
+                $historia->convenio_id = 32; //SALUDPOL = 32  // FEBAN = 16 // FAP = 31 // PACIFICO = 11
+                $historia->save();
+            });
+        }
+
+        return is_null($error) ? count($lista) : $error;
+
+    }
 }
+
+/* 
+    (SALUDPOL)
+    (SALUDPOLL)
+    /SALUDPOLL
+    (/SALUDPOL)
+    /SALUDPOL
+    (SALUD POL)
+    /SALUD POL
+    / SALUDPOL
+    SALUDPOL
+    /SALUD POL
+    (SALUD POL)
+    (SALUDPOD)
+
+    (FEBAN)
+    /FEBAN
+
+    (FAP)
+
+    (PACIFICO)
+    ( PACIFICO)
+    / PACIFICO
+*/
+

@@ -1104,6 +1104,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('importCie', 'ExcelController@importCie');
     Route::post('importServicio', 'ExcelController@importServicio');
     Route::post('importProducto', 'ExcelController@importProducto');
+    Route::post('historiasConvenio', 'ExcelController@historiasConvenio');
 
     //Reportes Tramas
     Route::get('/tramas', function(){
