@@ -37,7 +37,7 @@ class CotizacionController extends Controller
     protected $tituloRegistrar = 'Registrar Cotización';
     protected $tituloModificar = 'Modificar Cotización';
     protected $tituloVer       = 'Ver Detalles de Cotización';
-    protected $tituloEliminar  = 'Eliminar Cotización';
+    protected $tituloAnular    = 'Anular Cotización';
     protected $rutas           = array('create' => 'cotizacion.create', 
             'edit'   => 'cotizacion.edit', 
             'delete' => 'cotizacion.eliminar',
@@ -93,7 +93,7 @@ class CotizacionController extends Controller
         $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '3');
         
         $titulo_modificar = $this->tituloModificar;
-        $titulo_eliminar  = $this->tituloEliminar;
+        $titulo_anular  = $this->tituloAnular;
         $titulo_ver       = $this->tituloVer;
         $ruta             = $this->rutas;
         $totalfac = 0;
@@ -111,7 +111,7 @@ class CotizacionController extends Controller
             $paginaactual    = $paramPaginacion['nuevapagina'];
             $lista           = $resultado->paginate($filas);
             $request->replace(array('page' => $paginaactual));
-            return view($this->folderview.'.list')->with(compact('lista', 'totalfac', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'titulo_ver'));
+            return view($this->folderview.'.list')->with(compact('lista', 'totalfac', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_anular', 'ruta', 'titulo_ver'));
         }
         return view($this->folderview.'.list')->with(compact('lista', 'entidad'));
     }
@@ -123,7 +123,8 @@ class CotizacionController extends Controller
         $titulo_registrar = $this->tituloRegistrar;
         $ruta             = $this->rutas;
         $user = Auth::user();
-        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta', 'user'));
+        $cotizacion       = null;
+        return view($this->folderview.'.admin')->with(compact('entidad', 'title', 'titulo_registrar', 'ruta', 'user', 'cotizacion'));
     }
 
     public function create(Request $request)
@@ -204,51 +205,99 @@ class CotizacionController extends Controller
 
     public function edit($id, Request $request)
     {
-        $existe = Libreria::verificarExistencia($id, 'movimiento');
+        $existe = Libreria::verificarExistencia($id, 'cotizacion');
         if ($existe !== true) {
             return $existe;
         }
-        $listar              = Libreria::getParam($request->input('listar'), 'NO');
-        $movimiento          = Movimiento::find($id);
-        $cie10               = Cie::find($movimiento->cie_id);
-        $entidad             = 'Facturacion';
-        $formData            = array('facturacion.update', $id);
+        $listar           = Libreria::getParam($request->input('listar'), 'NO');
+        $entidad          = 'Cotizacion';
+        $cotizacion       = Cotizacion::find($id);
+        $cboTipoServicio  = array(""=>"--Todos--");
+        $tiposervicio     = Tiposervicio::where(DB::raw('1'),'=','1')->orderBy('nombre','ASC')->get();
+        foreach ($tiposervicio as $key => $value) {
+            $cboTipoServicio = $cboTipoServicio + array($value->id => $value->nombre);
+        }
+        $user = Auth::user();
+        $formData            = array('cotizacion.update', $id);
         $formData            = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        $boton               = 'Modificar';
-        return view($this->folderview.'.siniestro')->with(compact('movimiento', 'cie10', 'formData', 'entidad', 'boton', 'listar'));
+        $boton               = 'Modificar'; 
+        return view($this->folderview.'.mant')->with(compact('cotizacion', 'formData', 'entidad', 'boton', 'listar', 'cboTipoServicio', 'user'));        
     }
 
     public function update(Request $request, $id)
     {
-        $existe = Libreria::verificarExistencia($id, 'movimiento');
+        $existe = Libreria::verificarExistencia($id, 'cotizacion');
         if ($existe !== true) {
             return $existe;
         }
-        $error = DB::transaction(function() use($request, $id){
-            $movimiento        = Movimiento::find($id);
-            $movimiento->comentario = $request->input('siniestro');
-            $movimiento->cie_id = $request->input('cie_id');
-            $movimiento->save();
+        $listar = Libreria::getParam($request->input('listar'), 'NO');
+        $reglas = array(
+                'fecharegistro' => 'required',
+                //'paciente'      => 'required',
+                'total'         => 'required',
+                'codigoregistro'        => 'required',
+                );
+        $mensajes = array(
+            'fecharegistro.required' => 'Debe seleccionar una fecha',
+            //'paciente.required'      => 'Debe seleccionar un paciente',
+            'total.required'         => 'Debe agregar un monto a la cotización',
+            'codigoregistro.required'        => 'Debe agregar un código',
+            );
+        $validacion = Validator::make($request->all(), $reglas, $mensajes);
+        if ($validacion->fails()) {
+            return $validacion->messages()->toJson();
+        }       
+        $user = Auth::user();
+        $dat=array();
+        $error = DB::transaction(function() use($request,$user,$id,&$dat){
+            $cotizacion        = Cotizacion::find($id);
+            $cotizacion->fecha = $request->input('fecharegistro');
+            $cotizacion->situacion='E';//ENVIADA
+            $cotizacion->responsable_id=$user->person_id;
+            $cotizacion->plan_id = 5; //SALUDPOL
+            //$cotizacion->paciente_id = $request->input('person_id');
+            $cotizacion->total=$request->input('total');  
+            $cotizacion->tipo=$request->input('tiporegistro');  
+            $cotizacion->codigo=$request->input('codigoregistro');  
+            $cotizacion->save();
+
+            $pagohospital=0;
+            foreach ($cotizacion->detalles as $key => $value) {
+                $value->delete();
+            }
+            $arr=explode(",",$request->input('listServicio'));
+            for($c=0;$c<count($arr);$c++){                
+                $Detalle = new Detallecotizacion();
+                $Detalle->cotizacion_id=$cotizacion->id;
+                $Detalle->descripcion=trim($request->input('txtServicio'.$arr[$c]));
+                //$Detalle->doctor_id=$request->input('txtIdMedico'.$arr[$c]);
+                //$Detalle->cantidad=$request->input('txtCantidad'.$arr[$c]);
+                //$Detalle->precio=round($request->input('txtPrecio'.$arr[$c]),2);
+                $Detalle->save();
+            }
+            
+            $dat[0]=array("respuesta"=>"OK","id"=>$cotizacion->id);
         });
-        return is_null($error) ? "OK" : $error;
+        return is_null($error) ? json_encode($dat) : $error;
     }
 
     public function destroy($id)
     {
-        $existe = Libreria::verificarExistencia($id, 'movimiento');
+        $existe = Libreria::verificarExistencia($id, 'cotizacion');
         if ($existe !== true) {
             return $existe;
         }
         $error = DB::transaction(function() use($id){
-            $Ticket = Movimiento::find($id);
-            $Ticket->delete();
+            $cotizacion = Cotizacion::find($id);
+            $cotizacion->situacion = 'U';
+            $cotizacion->save();
         });
         return is_null($error) ? "OK" : $error;
     }
 
     public function eliminar($id, $listarLuego)
     {
-        $existe = Libreria::verificarExistencia($id, 'movimiento');
+        $existe = Libreria::verificarExistencia($id, 'cotizacion');
         if ($existe !== true) {
             return $existe;
         }
@@ -256,10 +305,10 @@ class CotizacionController extends Controller
         if (!is_null(Libreria::obtenerParametro($listarLuego))) {
             $listar = $listarLuego;
         }
-        $modelo   = Movimiento::find($id);
-        $entidad  = 'Ticket';
-        $formData = array('route' => array('ticket.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        $boton    = 'Eliminar';
+        $modelo   = Cotizacion::find($id);
+        $entidad  = 'Cotizacion';
+        $formData = array('route' => array('cotizacion.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $boton    = 'Anular';
         return view('app.confirmarEliminar')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar'));
     }
 
@@ -342,10 +391,12 @@ class CotizacionController extends Controller
         $existe = Libreria::verificarExistencia($id, 'cotizacion');
         if ($existe !== true) {
             return $existe;
-        }
+        }        
         $cotizacion = Cotizacion::find($id);
+        if($cotizacion->tipo=='A') {$tipo = 'AMBULATORIO';}elseif($cotizacion->tipo=='H') {$tipo = 'HOSPITALARIO';}
+        if($cotizacion->situacion=='E') {$situacion = 'ENVIADA';}elseif($cotizacion->situacion=='A') {$situacion = 'ACEPTADA';}elseif($cotizacion->situacion=='O') {$situacion = 'OBSERVADA';}elseif($cotizacion->situacion=='R') {$situacion = 'RECHAZADA';} 
         $formData  = array('class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        return view($this->folderview.'.ver')->with(compact('entidad', 'cotizacion', 'formData'));
+        return view($this->folderview.'.ver')->with(compact('entidad', 'cotizacion', 'formData', 'tipo', 'situacion'));
     }
 
     public function seleccionarservicio(Request $request)

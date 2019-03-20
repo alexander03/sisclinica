@@ -1,3 +1,16 @@
+<?php 
+if($cotizacion == null) {
+    $fecha = date('Y-m-d');
+    $tipo = '';
+    $codigo = '';
+    $total = '';
+} else {
+    $fecha = $cotizacion->fecha;
+    $tipo = $cotizacion->tipo;
+    $codigo = $cotizacion->codigo;
+    $total = number_format($cotizacion->total, 2);
+}
+?>
 <style>
 .tr_hover{
     color:red;
@@ -16,7 +29,7 @@
             <div class="form-group">
                 {!! Form::label('fecharegistro', 'Fecha:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
                 <div class="col-lg-4 col-md-4 col-sm-4">
-                    {!! Form::date('fecharegistro', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fecharegistro')) !!}
+                    {!! Form::date('fecharegistro', $fecha, array('class' => 'form-control input-xs', 'id' => 'fecharegistro')) !!}
                 </div>
                 {!! Form::label('tiporegistro', 'Tipo:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
                 <div class="col-lg-4 col-md-4 col-sm-4">
@@ -29,7 +42,7 @@
             <div class="form-group">
                 {!! Form::label('codigoregistro', 'Código:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
                 <div class="col-lg-10 col-md-10 col-sm-10">
-                    {!! Form::text('codigoregistro', '', array('class' => 'form-control input-xs', 'id' => 'codigoregistro')) !!}
+                    {!! Form::text('codigoregistro', $codigo, array('class' => 'form-control input-xs', 'id' => 'codigoregistro')) !!}
                 </div>
             </div>
             {{--<div class="form-group">
@@ -85,10 +98,23 @@
                     {{--<th class="text-center">Subtotal</th>--}}
                 </thead>
                 <tbody>
+                @if($cotizacion !== NULL) 
+                    @foreach($cotizacion->detalles as $detalle)
+                        <tr id='tr{{ $detalle->id }}'>
+                            <td>
+                                <input type='hidden' id='txtIdTipoServicio{{ $detalle->id }}' name='txtIdTipoServicio{{ $detalle->id }}' value='0' />
+                                <input type='text' class='form-control input-xs txtareaa' id='txtServicio{{ $detalle->id }}' name='txtServicio{{ $detalle->id }}' value="{{ $detalle->descripcion }}" />
+                            </td>
+                            <td>
+                                <a href='#' onclick="quitarServicio('{{ $detalle->id }}')"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i>
+                            </td>
+                        </tr>
+                    @endforeach
+                @endif
                 </tbody>
                 <tfoot>
                     <th width="80%" class="text-right">Total</th>
-                    <th width="20%">{!! Form::text('total', null, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'style' => 'width: 100%;')) !!}</th>
+                    <th width="20%">{!! Form::text('total', $total, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'style' => 'width: 100%;')) !!}</th>
                 </tfoot>
             </table>
         </div>
@@ -105,6 +131,7 @@ $(document).ready(function() {
     $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="numeroventa"]').inputmask("99999999");
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="deducible"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="coa"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
+    $('#tiporegistro').val('{{ $tipo }}');
     var personas = new Bloodhound({
         datumTokenizer: function (d) {
             return Bloodhound.tokenizers.whitespace(d.value);
@@ -696,4 +723,14 @@ function agregarDetallePrefactura(idpersona){
         }
     });
 }
+
+@if($cotizacion !== NULL) 
+function cargarCarro() {
+    @foreach($cotizacion->detalles as $detalle)
+        carro.push({{ $detalle->id }});
+    @endforeach
+}
+
+cargarCarro();
+@endif
 </script>

@@ -24,13 +24,13 @@
 		<div class="form-group">
 			{!! Form::label('tipo', 'Tipo:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::text('tipo', $cotizacion->tipo, array('class' => 'form-control input-xs', 'id' => 'tipo', 'readonly' => 'readonly')) !!}
+				{!! Form::text('tipo', $tipo, array('class' => 'form-control input-xs', 'id' => 'tipo', 'readonly' => 'readonly')) !!}
 			</div>
 		</div>
 		<div class="form-group">
 			{!! Form::label('total', 'Monto:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::text('total', number_format($cotizacion->total, 2, ',', '.'), array('class' => 'form-control input-xs', 'id' => 'total', 'readonly' => 'readonly')) !!}
+				{!! Form::text('total', number_format($cotizacion->total, 2), array('class' => 'form-control input-xs', 'id' => 'total', 'readonly' => 'readonly')) !!}
 			</div>
 		</div>
 		<div class="form-group">
@@ -42,7 +42,7 @@
 		<div class="form-group">
 			{!! Form::label('situacion', 'Situación:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::text('situacion', $cotizacion->situacion, array('class' => 'form-control input-xs', 'id' => 'situacion', 'readonly' => 'readonly')) !!}
+				{!! Form::text('situacion', $situacion, array('class' => 'form-control input-xs', 'id' => 'situacion', 'readonly' => 'readonly')) !!}
 			</div>
 		</div>		
 	</div>

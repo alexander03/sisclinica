@@ -19,7 +19,7 @@
 			$contador = $inicio + 1;
 			?>
 			@foreach ($lista as $key => $value)
-			<tr>
+			<tr @if($value->situacion=='U') style="background-color:#F08080" @endif>
 				<td>{{ $contador }}</td>
 	            <td>{{ date('d/m/Y',strtotime($value->fecha)) }}</td>
 	            <td>{{ $value->codigo }}</td>
@@ -37,12 +37,20 @@
 	            <td>OBSERVADA</td>
 	            @elseif($value->situacion=='R')
 	            <td>RECHAZADA</td>
+	            @elseif($value->situacion=='U')
+	            <td>ANULADA</td>
 	            @endif
-	  			<td>{{ $value->total }}</td>
-	  			<td>{{ $value->responsable->nombres }}</td>
-	            <td>{!! Form::button('<div class="glyphicon glyphicon-pencil"></div> Ver', array('onclick' => 'modal (\''.URL::route($ruta["ver"], $value->id).'\', \''.$titulo_ver.'\', this);', 'class' => 'btn btn-xs btn-info')) !!}</td>
-	            <td>{!! Form::button('<div class="glyphicon glyphicon-eye-open"></div> Editar', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning')) !!}</td>
-				<td>{!! Form::button('<div class="glyphicon glyphicon-remove"></div> Anular', array('onclick' => '#', 'class' => 'btn btn-xs btn-danger')) !!}</td>
+	  			<td>{{ number_format($value->total, 2) }}</td>
+	  			<td>{{ $value->responsable->nombres }}</td>	  			
+	  			@if($value->situacion != 'U')	
+	  			<td>{!! Form::button('<div class="glyphicon glyphicon-eye-open"></div> Ver', array('onclick' => 'modal (\''.URL::route($ruta["ver"], $value->id).'\', \''.$titulo_ver.'\', this);', 'class' => 'btn btn-xs btn-info')) !!}</td>            
+	            <td>{!! Form::button('<div class="glyphicon glyphicon-pencil"></div> Editar', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning')) !!}</td>
+				<td>{!! Form::button('<div class="glyphicon glyphicon-remove"></div> Anular', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_anular.'\', this);', 'class' => 'btn btn-xs btn-danger')) !!}</td>
+				@else
+	            <td>-</td>
+	            <td>-</td>
+				<td>-</td>
+				@endif
 			</tr>
 			<?php
 			$contador = $contador + 1;
