@@ -19,10 +19,11 @@
 			$contador = $inicio + 1;
 			?>
 			@foreach ($lista as $key => $value)
-			<tr @if($value->situacion=='U') style="background-color:#F08080" @endif>
+			<tr @if($value->situacion=='U') style="background-color:#F08080" @elseif($value->situacion=='A') style="background-color:#C9FAEE" @endif>
 				<td>{{ $contador }}</td>
 	            <td>{{ date('d/m/Y',strtotime($value->fecha)) }}</td>
 	            <td>{{ $value->codigo }}</td>
+	            <td>{{ $value->plan->nombre }}</td>
 	            <td>{{ $value->paciente == null ? '-' : ($value->paciente->apellidopaterno . ' ' . $value->paciente->apellidomaterno . ' ' . $value->paciente->nombres) }}</td>
 	            @if($value->tipo=='A')
 	            <td>AMBULATORIO</td>
@@ -43,9 +44,14 @@
 	  			<td>{{ number_format($value->total, 2) }}</td>
 	  			<td>{{ $value->responsable->nombres }}</td>	  			
 	  			@if($value->situacion != 'U')	
-	  			<td>{!! Form::button('<div class="glyphicon glyphicon-eye-open"></div> Ver', array('onclick' => 'modal (\''.URL::route($ruta["ver"], $value->id).'\', \''.$titulo_ver.'\', this);', 'class' => 'btn btn-xs btn-info')) !!}</td>            
-	            <td>{!! Form::button('<div class="glyphicon glyphicon-pencil"></div> Editar', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning')) !!}</td>
-				<td>{!! Form::button('<div class="glyphicon glyphicon-remove"></div> Anular', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_anular.'\', this);', 'class' => 'btn btn-xs btn-danger')) !!}</td>
+	  			<td>{!! Form::button('<div class="glyphicon glyphicon-eye-open"></div> Ver', array('onclick' => 'modal (\''.URL::route($ruta["ver"], $value->id).'\', \''.$titulo_ver.'\', this);', 'class' => 'btn btn-xs btn-info')) !!}</td>
+		  			@if($value->situacion!='A') 
+		  				<td>{!! Form::button('<div class="glyphicon glyphicon-pencil"></div> Editar', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning')) !!}</td>
+						<td>{!! Form::button('<div class="glyphicon glyphicon-remove"></div> Anular', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_anular.'\', this);', 'class' => 'btn btn-xs btn-danger')) !!}</td>
+		  			@else
+		  				<td>-</td>
+		            	<td>-</td>
+		  			@endif
 				@else
 	            <td>-</td>
 	            <td>-</td>

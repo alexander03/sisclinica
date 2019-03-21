@@ -503,6 +503,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('cartasgarantia', 'CartasgarantiaController', array('except' => array('show')));
     Route::get('cartasgarantia/eliminar/{plan_id}/{numero}/{listarluego}', 'CartasgarantiaController@eliminar')->name('cartasgarantia.eliminar');
 
+    /* CARTAS DE GARANTIA - NESTOR*/
+    Route::post('cartagarantia/buscar', 'CartagarantiaController@buscar')->name('cartagarantia.buscar');
+    Route::post('cartagarantia/buscarcarta', 'CartagarantiaController@buscarcarta')->name('cartagarantia.buscarcarta');
+    Route::resource('cartagarantia', 'CartagarantiaController', array('except' => array('show')));
+    Route::get('cartagarantia/eliminar/{plan_id}/{numero}/{listarluego}', 'CartagarantiaController@eliminar')->name('cartagarantia.eliminar');
+    Route::get('cartagarantia/lista', 'CartagarantiaController@lista')->name('cartagarantia.lista');
+    Route::get('cartagarantia/personaautocompletar/{searching}', 'CartagarantiaController@personaautocompletar')->name('cartagarantia.personaautocompletar');
+    Route::get('cartagarantia/buscarcotizacion/{searching}', 'CartagarantiaController@buscarcotizacion')->name('cartagarantia.buscarcotizacion');
 
     /* FACTURACION PASADA*/
     Route::post('facturacionpasada/buscar', 'FacturacionpasadaController@buscar')->name('facturacionpasada.buscar');

@@ -2,7 +2,7 @@
 <section class="content-header">
 	<h1>
 		{{ $title }}
-		{{-- <small>DescripciÃ³n</small> --}}
+		{{-- <small>Descripción</small> --}}
 	</h1>
 	{{--
 	<ol class="breadcrumb">
@@ -41,7 +41,7 @@
 								{!! Form::text('plan', '', array('class' => 'form-control input-xs', 'id' => 'plan', 'size' => '30')) !!}
 							</div>
 							<div class="form-group">
-								{!! Form::label('codigo', 'CÃ³digo:') !!}								
+								{!! Form::label('codigo', 'Codigo:') !!}								
 								{!! Form::text('codigo', '', array('class' => 'form-control input-xs', 'id' => 'codigo')) !!}
 							</div>
 							<div class="form-group">
@@ -53,7 +53,7 @@
 								</select>
 							</div>
 							<div class="form-group">
-								{!! Form::label('situacion', 'SituaciÃ³n:') !!}
+								{!! Form::label('situacion', 'Situación:') !!}
 								<select name="situacion" id="situacion" class='form-control input-xs'>
 									<option value="">Todos</option>
 									<option value="E">Enviada</option>
@@ -69,8 +69,7 @@
 							{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar', 'onclick' => 'buscar(\''.$entidad.'\')')) !!}
 							{{--{!! Form::button('<i class="glyphicon glyphicon-search"></i> Excel', array('class' => 'btn btn-success btn-xs', 'id' => 'btnExcel', 'onclick' => 'excel(\''.$entidad.'\')')) !!} --}}
 							{!! Form::button('<i class="glyphicon glyphicon-plus"></i> Nuevo', array('class' => 'btn btn-info btn-xs', 'id' => 'btnNuevo', 'onclick' => 'modal (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
-							@if($user->usertype_id==8 || $user->usertype_id==1)
-							@endif
+							{!! Form::button('<i class="glyphicon glyphicon-file"></i> Cartas', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnNuevo1', 'onclick' => 'modal (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_lista.'\', this);')) !!}
 							{!! Form::close() !!}
 						</div>
 					</div>

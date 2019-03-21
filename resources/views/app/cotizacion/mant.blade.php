@@ -1,12 +1,16 @@
 <?php 
 if($cotizacion == null) {
     $fecha = date('Y-m-d');
-    $tipo = '';
+    $tipo = 'A';
+    $plan = '';
+    $plan_id = '';
     $codigo = '';
     $total = '';
 } else {
     $fecha = $cotizacion->fecha;
     $tipo = $cotizacion->tipo;
+    $plan = $cotizacion->plan->nombre;
+    $plan_id = $cotizacion->plan->id;
     $codigo = $cotizacion->codigo;
     $total = number_format($cotizacion->total, 2);
 }
@@ -43,6 +47,13 @@ if($cotizacion == null) {
                 {!! Form::label('codigoregistro', 'Código:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
                 <div class="col-lg-10 col-md-10 col-sm-10">
                     {!! Form::text('codigoregistro', $codigo, array('class' => 'form-control input-xs', 'id' => 'codigoregistro')) !!}
+                </div>
+            </div>
+            <div class="form-group">
+                {!! Form::label('plan', 'Plan:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+                <div class="col-lg-10 col-md-10 col-sm-10">
+                    {!! Form::text('plan', $plan, array('class' => 'form-control input-xs', 'id' => 'plan')) !!}
+                    {!! Form::hidden('plan_id', $plan_id, array('id' => 'plan_id')) !!}
                 </div>
             </div>
             {{--<div class="form-group">
@@ -346,6 +357,11 @@ function guardarPago (entidad, idboton) {
     if(carro.length==0){
         band = false;
         msg += " *Debes escribir al menos un detalle \n";    
+    }
+
+    if($('#plan_id').val()==""){
+        band = false;
+        msg += " *Debes Seleccionar un Plan \n";    
     }
 
     //$("#total").val(total2);

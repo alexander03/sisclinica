@@ -62,13 +62,18 @@ class CotizacionController extends Controller
         $fecha2           = Libreria::getParam($request->input('fechafinal'));
         $tipo             = Libreria::getParam($request->input('tipo'));
         $situacion        = Libreria::getParam($request->input('situacion'));
+        $plan             = Libreria::getParam($request->input('plan'));
         $user = Auth::user();
         $resultado        = Cotizacion::/*leftjoin('person as paciente', 'paciente.id', '=', 'cotizacion.paciente_id')
                             ->leftjoin('person as responsable','responsable.id','=','cotizacion.responsable_id')
                             ->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'), 'LIKE', '%'.strtoupper($paciente).'%')
-                            ->*/where('cotizacion.codigo','LIKE','%'.$codigo.'%');
+                            ->*/where('cotizacion.codigo','LIKE','%'.$codigo.'%')
+                            ->join('plan','plan.id','=','cotizacion.plan_id');
         if($fecha!=""){
             $resultado = $resultado->where('cotizacion.fecha', '>=', ''.$fecha.'');
+        }
+        if($plan!="") {
+            $resultado = $resultado->where('plan.razonsocial','like','%'.$plan.'%');
         }
         if($fecha2!=""){
             $resultado = $resultado->where('cotizacion.fecha', '<=', ''.$fecha2.'');
@@ -85,6 +90,7 @@ class CotizacionController extends Controller
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Fecha', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Código', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Plan', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Paciente', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Tipo', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Situación', 'numero' => '1');
@@ -149,16 +155,18 @@ class CotizacionController extends Controller
     {
         $listar     = Libreria::getParam($request->input('listar'), 'NO');
         $reglas     = array(
-                'fecharegistro' => 'required',
-                //'paciente'      => 'required',
-                'total'         => 'required',
-                'codigoregistro'        => 'required',
+                'fecharegistro'  => 'required',
+                //'paciente'     => 'required',
+                'total'          => 'required',
+                'codigoregistro' => 'required',
+                'plan_id'        => 'required',
                 );
         $mensajes = array(
             'fecharegistro.required' => 'Debe seleccionar una fecha',
             //'paciente.required'      => 'Debe seleccionar un paciente',
             'total.required'         => 'Debe agregar un monto a la cotización',
             'codigoregistro.required'        => 'Debe agregar un código',
+            'plan_id.required'        => 'Debe seleccionar un plan',
             );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
@@ -173,7 +181,7 @@ class CotizacionController extends Controller
             $cotizacion->numero= $numerocotizacion;
             $cotizacion->situacion='E';//ENVIADA
             $cotizacion->responsable_id=$user->person_id;
-            $cotizacion->plan_id = 5; //SALUDPOL
+            $cotizacion->plan_id = $request->input('plan_id');
             //$cotizacion->paciente_id = $request->input('person_id');
             $cotizacion->total=$request->input('total');  
             $cotizacion->tipo=$request->input('tiporegistro');  
@@ -236,12 +244,14 @@ class CotizacionController extends Controller
                 //'paciente'      => 'required',
                 'total'         => 'required',
                 'codigoregistro'        => 'required',
+                'plan_id'        => 'required',
                 );
         $mensajes = array(
             'fecharegistro.required' => 'Debe seleccionar una fecha',
             //'paciente.required'      => 'Debe seleccionar un paciente',
             'total.required'         => 'Debe agregar un monto a la cotización',
             'codigoregistro.required'        => 'Debe agregar un código',
+            'plan_id.required'        => 'Debe agregar un Plan',
             );
         $validacion = Validator::make($request->all(), $reglas, $mensajes);
         if ($validacion->fails()) {
@@ -254,7 +264,7 @@ class CotizacionController extends Controller
             $cotizacion->fecha = $request->input('fecharegistro');
             $cotizacion->situacion='E';//ENVIADA
             $cotizacion->responsable_id=$user->person_id;
-            $cotizacion->plan_id = 5; //SALUDPOL
+            $cotizacion->plan_id = $request->input('plan_id');
             //$cotizacion->paciente_id = $request->input('person_id');
             $cotizacion->total=$request->input('total');  
             $cotizacion->tipo=$request->input('tiporegistro');  
