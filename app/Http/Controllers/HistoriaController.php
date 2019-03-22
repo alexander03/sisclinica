@@ -11,6 +11,7 @@ use App\HistoriaClinica;
 use App\Movimiento;
 use App\Seguimiento;
 use App\Convenio;
+use App\Cita;
 use App\Departamento;
 use App\Provincia;
 use App\Distrito;
@@ -63,7 +64,7 @@ class HistoriaController extends Controller
         $tipopaciente             = Libreria::getParam($request->input('tipopaciente'));
         $resultado        = Historia::join('person', 'person.id', '=', 'historia.person_id')
                             ->leftjoin('convenio', 'convenio.id', '=', 'historia.convenio_id')
-                            ->where('historia.sucursal_id', '=', $sucursal_id)
+                            //->where('historia.sucursal_id', '=', $sucursal_id)
                             ->where(DB::raw('concat(apellidopaterno,\' \',apellidomaterno,\' \',nombres)'), 'LIKE', '%'.strtoupper($nombre).'%')
                             ->where('person.dni', 'LIKE', '%'.strtoupper($dni).'%');
         if($tipopaciente!=""){
@@ -77,6 +78,7 @@ class HistoriaController extends Controller
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Nro Historia', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Nro Historia2', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Paciente', 'numero' => '1');
         $cabecera[]       = array('valor' => 'DNI', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Tipo Paciente', 'numero' => '1');
@@ -142,7 +144,7 @@ class HistoriaController extends Controller
         $formData            = array('historia.store');
         $cboTipoPaciente     = array("Particular" => "Particular", "Convenio" => "Convenio", "Hospital" => "Hospital");
         $cboModo             = array("F" => "Fisico", "V" => "Registro Virtual");
-        $sucursal_id      = Session::get('sucursal_id');
+        $sucursal_id         = Session::get('sucursal_id');
         $num = Historia::NumeroSigue($sucursal_id);
         $user = Auth::user();
         $formData            = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
@@ -197,7 +199,8 @@ class HistoriaController extends Controller
         $sucursal_id      = Session::get('sucursal_id');
         if(count($value)>0 && strlen(trim($dni))>0){
             $objHistoria = new Historia();
-            $list2       = Historia::where('person_id','=',$value->id)->where('historia.sucursal_id','=',$sucursal_id)->first();
+            //$list2       = Historia::where('person_id','=',$value->id)->where('historia.sucursal_id','=',$sucursal_id)->first();
+            $list2       = Historia::where('person_id','=',$value->id)->first();
             if(count($list2)>0){//SI TIENE HISTORIA
                 return $dat[0]=array("respuesta"=>"Ya tiene historia");
             }else{//NO TIENE HISTORIA PERO SI ESTA REGISTRADO LA PERSONA COMO PROVEEDOR O PERSONAL
@@ -254,7 +257,7 @@ class HistoriaController extends Controller
                 $Historia->titular=$request->input('titular');
             }
             $Historia->numero = Historia::NumeroSigue($sucursal_id);
-            $Historia->sucursal_id = $sucursal_id;
+            //$Historia->sucursal_id = $sucursal_id;
             $Historia->save();
             $RolPersona = new RolPersona();
             $RolPersona->rol_id = 3;
@@ -412,7 +415,7 @@ class HistoriaController extends Controller
                 $Historia->soat=$request->input('soat');
                 $Historia->titular=$request->input('titular');
             }
-            $Historia->sucursal_id = $sucursal_id;
+            //$Historia->sucursal_id = $sucursal_id;
             $Historia->save();
         });
         $dat=array();
@@ -460,7 +463,8 @@ class HistoriaController extends Controller
         $sucursal_id = Session::get('sucursal_id');
         if(count($value)>0){
             $objHistoria = new Historia();
-            $list2       = Historia::where('person_id','=',$value->id)->where('historia.sucursal_id','=',$sucursal_id)->first();
+            //$list2       = Historia::where('person_id','=',$value->id)->where('historia.sucursal_id','=',$sucursal_id)->first();
+            $list2       = Historia::where('person_id','=',$value->id)->first();
             if(count($list2)>0){//SI TIENE HISTORIA
                 $data[] = array(
                             'apellidopaterno' => $value->apellidopaterno,
@@ -496,7 +500,7 @@ class HistoriaController extends Controller
         $resultado = Historia::join('person', 'person.id', '=', 'historia.person_id')
                             ->leftjoin('convenio', 'convenio.id', '=', 'historia.convenio_id')
                             ->where(DB::raw('concat(person.dni,\' \',apellidopaterno,\' \',apellidomaterno,\' \',nombres)'), 'LIKE', '%'.strtoupper($searching).'%')
-                            ->where('historia.sucursal_id', '=', $sucursal_id)
+                            //->where('historia.sucursal_id', '=', $sucursal_id)
                             ->select('historia.*','convenio.nombre as convenio2','convenio.plan_id');
         $list      = $resultado->get();
         $data = array();
@@ -557,7 +561,7 @@ class HistoriaController extends Controller
                             ->leftjoin('convenio', 'convenio.id', '=', 'historia.convenio_id')
                             ->where('historia.numero', 'LIKE', '%'.strtoupper($searching).'%')
                             ->whereNull('person.deleted_at')
-                            ->where('historia.sucursal_id', '=', $sucursal_id)
+                            //->where('historia.sucursal_id', '=', $sucursal_id)
                             ->select('historia.*','convenio.nombre as convenio2','convenio.plan_id');
         $list      = $resultado->get();
         $data = array();
@@ -1130,5 +1134,87 @@ class HistoriaController extends Controller
             $pdf::Multicell(120,8,$cita->comentario== null ?'-':$cita->comentario,0,'L');
         }
         $pdf::Output('HistorialCitas.pdf');
+    }
+
+    public function unirHistorias(Request $request) {
+        /*$historias = Person::select('h1.id as i1', 'h2.id as i2', 'h1.numero as n1', 'h1.sucursal_id as s1', 'h2.numero as n2', 'h2.sucursal_id as s2', 'h1.person_id as p1', 'h2.person_id as p2', 'person.id')
+                            ->leftjoin('historia as h1', 'h1.person_id', '=', 'person.id')
+                            ->leftjoin('historia as h2', 'h2.person_id', '=', 'person.id')                            
+                            ->where('h1.sucursal_id', '=', 1)
+                            ->where('h2.sucursal_id', '=', 2)
+                            ->whereRaw('h1.person_id = h2.person_id') 
+                            ->orderBy('h1.numero')
+                            ->orderBy('h2.numero')
+                            ->get();*/
+
+        /*select `h1`.`numero` as `n1`, `h1`.`sucursal_id` as `s1`, `h2`.`numero` as `n2`, `h2`.`sucursal_id` as `s2`, `h1`.`person_id` as `p1`, `h2`.`person_id` as `p2`, `person`.`id` 
+        from `person` 
+        inner join `historia` as `h1` on `h1`.`person_id` = `person`.`id` 
+        inner join `historia` as `h2` on `h2`.`person_id` = `person`.`id` 
+        where `person`.`deleted_at` is null 
+        and `h1`.`person_id` = h2.person_id 
+        and h1.sucursal_id = 1 
+        and h2.sucursal_id = 2 
+        order by `h1`.`numero` asc, `h2`.`numero` asc*/
+
+        /*$mensaje = '';
+
+        foreach ($historias as $value) {
+            //Eliminar la Historia con sucursal_id = 1, rescatar su numero de historia
+
+            //Pasar ese id a id_alternativo y buscar historiasclinicas, actualizar la referencia con el nuevo id
+        }
+
+        echo $mensaje;*/
+
+        $personas = Person::select('id')->get();
+        foreach ($personas as $value) {
+            $historia1 = Historia::where('person_id', '=', $value->id)->where('sucursal_id', '=', 1)->first(); 
+            $historia2 = Historia::where('person_id', '=', $value->id)->where('sucursal_id', '=', 2)->first(); 
+            //Solo si hay dos historias (ojos y esp)
+            if($historia1 !== NULL && $historia2 !== NULL) {
+                //busco las historiasclinicas que tienen id de historia de ojos
+                $historiasclinicas = HistoriaClinica::where('historia_id', '=', $historia1->id)->get();
+                if(count($historiasclinicas) > 0) {
+                    foreach ($historiasclinicas as $hc) {
+                        //Actualizo la historia_id a la de la sucursal 2 (esp)
+                        $hc->historia_id = $historia2->id;
+                        $hc->save();
+                    }
+                }
+                //busco las citas que tienen id de historia de ojos
+                $citas = Cita::where('historia_id', '=', $historia1->id)->get();
+                if(count($citas) > 0) {
+                    foreach ($citas as $cita) {
+                        //Actualizo la historia_id a la de la sucursal 2 (esp)
+                        $cita->historia_id = $historia2->id;
+                        $cita->save();
+                    }
+                }
+                //Elimino sucursal en Historia2
+                //$historia2->sucursal_id=null;
+                //$historia2->save();
+                //Elimino historia con sucursal 1
+                $historia1->delete();
+            }
+        }
+        //Reestructurar números de historia
+        $historias = Historia::orderBy('id', 'ASC')->get();
+        echo count($historias);
+        $i = 1;
+        foreach ($historias as $historia) {
+            $numero2 = $historia->numero;
+            $numero1 = str_pad($i,8,'0',STR_PAD_LEFT);
+            if($historia->sucursal_id == 1) {
+                $historia->numero2 = NULL;
+            } else {
+                $historia->numero2 = $numero2;
+            }
+            $historia->sucursal_id = NULL;
+            $historia->numero = $numero1;       
+            $historia->save();
+            echo $historia->sucursal_id;
+            $i++;
+        }
     }
 }

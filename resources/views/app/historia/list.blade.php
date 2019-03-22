@@ -106,6 +106,7 @@
 		<tr style="{{ $color }}" title="{{ $title }}">
 			<td>{{ $contador }}</td>
 			<td>{{ $value->numero }}</td>
+			<td>{{ $value->numero2 }}</td>
             <td>{{ $value->persona->apellidopaterno.' '.$value->persona->apellidomaterno.' '.$value->persona->nombres }}</td>
             <td>{{ $value->persona->dni }}</td>
             <td align="center">{{ $value->tipopaciente }}</td>

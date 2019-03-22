@@ -1103,6 +1103,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('historiaclinica/cie10autocompletar/{searching}', 'HistoriaClinicaController@cie10autocompletar')->name('historiaclinica.cie10autocompletar');
     Route::get('historiaclinica/examenesAutocompletar/{searching}', 'HistoriaClinicaController@examenesAutocompletar')->name('historiaclinica.examenesAutocompletar');
 
+    //UNIR HC
+    Route::get('historia/unirHistorias', 'HistoriaController@unirHistorias')->name('historia.unirHistorias');
 
       /* MIGRAR EXCEL*/
     Route::get('importHistoria', 'ExcelController@importHistoria');
