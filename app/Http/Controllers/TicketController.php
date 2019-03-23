@@ -2027,7 +2027,11 @@ class TicketController extends Controller
     }
 
     public function generarNumero(Request $request){
-        $sucursal_id = Session::get('sucursal_id');
+        if($request->input('facturacion') == null){
+            $sucursal_id = Session::get('sucursal_id');
+        }else{
+            $sucursal_id = $request->input('facturacion');
+        }
         $caja = Caja::find($request->input('caja_id'));
         if($request->input('tipodocumento')=="Boleta"){
             $tipodocumento_id=5;

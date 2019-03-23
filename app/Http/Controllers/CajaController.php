@@ -10005,7 +10005,10 @@ class CajaController extends Controller
 
         $detalles = Movimiento::select('detallemovcaja.id', 'movimiento.serie', 'movimiento.numero', 'cantidad', 'detallemovcaja.persona_id', 'descripcion', 'cantidad', 'detallemovcaja.precio', 'descuento', 'servicio.nombre')->join('detallemovcaja', 'movimiento.id', '=', 'detallemovcaja.movimiento_id')->join('servicio', 'servicio.id', '=', 'detallemovcaja.servicio_id')->where('movimiento.id', $id)->where('detallemovcaja.deleted_at', '=', null)->get();
 
-        return view($this->folderview.'.cobrarticket')->with(compact('Caja', 'formData', 'entidad', 'boton', 'movimiento', 'cboFormaPago', 'cboTipoTarjeta', 'cboTipoTarjeta2', 'cboCaja', 'cboTipoDocumento', 'ruta', 'detalles', 'serie'));
+
+        $cboFacturar = array("1"=>"CLINICA DE OJOS", "2" => "CLINICA DE ESPECIALIDADES");
+
+        return view($this->folderview.'.cobrarticket')->with(compact('Caja', 'formData', 'entidad', 'boton', 'movimiento', 'cboFormaPago', 'cboTipoTarjeta', 'cboTipoTarjeta2', 'cboCaja', 'cboFacturar', 'cboTipoDocumento', 'ruta', 'detalles', 'serie'));
     }
 
     public function cobrarticket2(Request $request)
@@ -10100,7 +10103,7 @@ class CajaController extends Controller
                     //Genero venta como nuevo movimiento
 
                     $venta        = new Movimiento();
-                    $venta->sucursal_id = $sucursal_id;
+                    $venta->sucursal_id = $request->input('facturacion');
                     $venta->fecha = date("Y-m-d");
 
                     //Puede ser manual o no
@@ -10333,7 +10336,9 @@ class CajaController extends Controller
             ->where('movimiento.sucursal_id', 1)
             ->get();
 
-        return view($this->folderview.'.cobrarcuentapendiente')->with(compact('Caja', 'formData', 'entidad', 'boton', 'movimiento', 'cboFormaPago', 'cboTipoTarjeta', 'cboTipoTarjeta2', 'cboCaja', 'cboTipoDocumento', 'ruta', 'detalles', 'serie', 'cuotas', 'resumen'));
+        $cboFacturar = array("1"=>"CLINICA DE OJOS", "2" => "CLINICA DE ESPECIALIDADES");
+
+        return view($this->folderview.'.cobrarcuentapendiente')->with(compact('Caja', 'formData', 'entidad', 'boton', 'movimiento', 'cboFormaPago', 'cboTipoTarjeta', 'cboTipoTarjeta2', 'cboCaja', 'cboTipoDocumento', 'cboFacturar','ruta', 'detalles', 'serie', 'cuotas', 'resumen'));
     }
 
     public function cobrarcuentapendiente2(Request $request) {
@@ -10410,7 +10415,7 @@ class CajaController extends Controller
                     //Genero venta como nuevo movimiento
 
                     $venta        = new Movimiento();
-                    $venta->sucursal_id = $sucursal_id;
+                    $venta->sucursal_id = $request->input('facturacion');
                     $venta->fecha = date("Y-m-d");
 
                     //Puede ser manual o no
@@ -11540,19 +11545,33 @@ class CajaController extends Controller
         foreach ($doctores as $key => $value) {
             $cboDoctores = $cboDoctores + array($value->id =>$value->apellidopaterno . " " . $value->apellidomaterno . " " . $value->nombres );
         }
-        return view($this->folderview.'.pagosdoctores')->with(compact('entidad', 'ruta','cboDoctores'));
+        $cboTipoPaciente = array("P"=>"Particular", "C" => "Convenio");
+        return view($this->folderview.'.pagosdoctores')->with(compact('entidad', 'ruta','cboDoctores','cboTipoPaciente'));
     }
 
-    public function listapagosdoctores($doctor, $fecha, $paciente) {
+    public function listapagosdoctores($doctor, $fecha, $paciente,$tipo) {
         $ruta = $this->rutas;
+        if($tipo == "P"){
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->leftjoin('movimiento as m2', 'movimiento.movimiento_id', '=', 'm2.id')
                             ->leftjoin('detallemovcaja as dm', 'movimiento.id', '=', 'dm.movimiento_id')
                             ->where('movimiento.movimiento_id','=', null) // ticket
                             ->where('movimiento.tipomovimiento_id','=','1') // ticket
+                            ->where('movimiento.plan_id', '=', '6') // particular
                             ->where('movimiento.sucursal_id', '=', '2') // especialidades
                             ->where('movimiento.situacion', 'like', 'C') // cobrado
                             ->where('movimiento.situacion2', 'like', 'L'); // que no esté atendido
+        }else{
+        $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+                            ->leftjoin('movimiento as m2', 'movimiento.movimiento_id', '=', 'm2.id')
+                            ->leftjoin('detallemovcaja as dm', 'movimiento.id', '=', 'dm.movimiento_id')
+                            ->where('movimiento.movimiento_id','=', null) // ticket
+                            ->where('movimiento.tipomovimiento_id','=','1') // ticket
+                            ->where('movimiento.plan_id', '!=', '6') // convenios
+                            ->where('movimiento.sucursal_id', '=', '2') // especialidades
+                            ->where('movimiento.situacion', 'like', 'C') // cobrado
+                            ->where('movimiento.situacion2', 'like', 'L'); // que no esté atendido
+        }
         if($fecha!=""){
             $resultado = $resultado->where('movimiento.fecha', '=', ''.$fecha.'');
         }
@@ -11570,12 +11589,12 @@ class CajaController extends Controller
         $cabecera[]       = array('valor' => 'Paciente', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Doctor', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Especialidad', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Pago Pendiente', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Monto Pendiente', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Operacion', 'numero' => '1');
         
         //$conf = DB::connection('sqlsrv')->table('BL_CONFIGURATION')->get();
         if (count($lista) > 0) {
-            return view($this->folderview.'.listapagosdoctores')->with(compact('lista', 'cabecera', 'ruta'));
+            return view($this->folderview.'.listapagosdoctores')->with(compact('lista', 'cabecera', 'ruta','tipo'));
         }
         return view($this->folderview.'.listapagosdoctores')->with(compact('lista', 'ruta'));
     }
@@ -11585,7 +11604,7 @@ class CajaController extends Controller
         $pagados = json_decode($request->input('pagados'));
         $error = null;
         foreach ($pagados->{"data"} as $pagado) {
-            $error = DB::transaction(function() use($request, $pagado){
+          //  $error = DB::transaction(function() use($request, $pagado){
 
                 $Ticket = Movimiento::find($pagado->{"id"});
 
@@ -11593,19 +11612,20 @@ class CajaController extends Controller
                 $egreso = new Movimiento();
                 $egreso->sucursal_id = 2;
                 $egreso->fecha = date("Y-m-d H:i:s");
-                $numero = Movimiento::NumeroSigue(2,2,2,2);
+                $numero = Movimiento::NumeroSigue(2,2,2,3);
                 $egreso->numero= $numero;
                 $user = Auth::user();
                 $egreso->responsable_id=$user->person_id;
                 $egreso->persona_id = $pagado->{"doctor"};//doctor
                 $egreso->subtotal=0;
                 $egreso->igv=0;
+                $egreso->plan_id = $Ticket->plan_id;
                 $egreso->total=str_replace(",","",  $pagado->{"pago"}  );
                 $egreso->totalpagado = $pagado->{"pago"};
                 $egreso->tipomovimiento_id=2;
                 $egreso->tipodocumento_id=3;//Egreso
                 $egreso->conceptopago_id=137; // pago a medico
-                $egreso->comentario="Paaciente atendido: ". $Ticket->persona->apellidopaterno . " " . $Ticket->persona->apellidomaterno ." ". $Ticket->persona->nombres;
+                $egreso->comentario="Paciente atendido: ". $Ticket->persona->apellidopaterno . " " . $Ticket->persona->apellidomaterno ." ". $Ticket->persona->nombres;
                 $egreso->caja_id= 2 ;
                 $egreso->situacion='N';
                 $egreso->save(); 
@@ -11615,7 +11635,7 @@ class CajaController extends Controller
                 //crear egreso
                 $Ticket->movimiento_id = $egreso_id;
                 $Ticket->save();
-            });
+          //  });
         }
         return is_null($error) ? "OK" : $error;
     }
