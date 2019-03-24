@@ -387,11 +387,14 @@ Session::set('sucursal_id', 1);
 														</div>
 														<div class="form-group">
 															{!! Form::label('paciente', 'Paciente:', array('class' => 'col-sm-2 control-label')) !!}
-															<div class="col-sm-8" style="margin-top:7px;">
+															<div class="col-sm-7" style="margin-top:7px;">
 																{!! Form::text('paciente', '', array('class' => 'form-control input-xs', 'id' => 'paciente', 'readonly' => 'readonly', 'style' => 'font-size: 13px;')) !!}
 															</div>
-															<div class="col-sm-2" style="margin-top:7px;">
+															<div class="col-sm-1" style="margin-top:7px;">
 																<button title="Información del Paciente" onclick="" id="btnInfoPaciente" data-toggle='modal' data-target='#exampleModal3' class="btn btn-xs btn-primary" type="button"><div class="glyphicon glyphicon-eye-open"></div></button>
+															</div>
+															<div class="col-sm-1" style="margin-top:7px;">
+																<button title="Antecedentes Anteriores" onclick="" id="btnInfoAntecedentes" data-toggle='modal' data-target='#exampleModal4' class="btn btn-xs btn-success" type="button"><div class="glyphicon glyphicon-eye-open"></div></button>
 															</div>
 														</div>
 														<div class="form-group">
@@ -691,6 +694,20 @@ Session::set('sucursal_id', 1);
 				    </div>
 				</div>
 			</div>
+			<!-- Modal -->
+			<div class="modal fade" id="exampleModal4" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+				<div class="modal-dialog" role="document">
+				    <div class="modal-content">
+					    <div class="modal-body">
+					    	<h3 class="text-center" id="tituloantecedentes" style="color: green; font-weight: bold;"></h3>
+					    	<textarea placeholder="Pega los antecedentes del anterior sistema." class="form-control" name="infoAntecedentes" id="infoAntecedentes" cols="30" rows="20"></textarea>
+					    </div>
+				        <div class="modal-footer">
+				            <button type="button" class="btn btn-warning" data-dismiss="modal">Cerrar</button>
+				        </div>
+				    </div>
+				</div>
+			</div>
 	        <!-- /.content-wrapper -->
 	        <footer class="navbar-default navbar-fixed-bottom" style="display: none; padding-left: 20px !important; padding-bottom: 20px; padding-top: 20px; padding-right: 20px;">
 	            <div class="container-fluid">
@@ -956,6 +973,9 @@ Session::set('sucursal_id', 1);
 	        type: "POST",
 	        url: "producto/vistamedico",
 	        data: "producto="+$("#nombrep").val()+"&_token=<?php echo csrf_token(); ?>",
+	        beforeSend: function() {
+	        	$("#listado{{ $entidad }}").html('Buscando...');
+	        },
 	        success: function(a) {
 	        	$("#listado{{ $entidad }}").html(a);
 	        }
@@ -976,6 +996,9 @@ Session::set('sucursal_id', 1);
 	        type: "POST",
 	        url: "producto/cie10",
 	        data: "cie="+$("#cie10").val()+"&_token=<?php echo csrf_token(); ?>",
+	        beforeSend: function() {
+	        	$("#listado3{{ $entidad }}").html('Buscando...');
+	        },
 	        success: function(a) {
 	        	$("#listado3{{ $entidad }}").html(a);
 	        }
@@ -1073,6 +1096,9 @@ Session::set('sucursal_id', 1);
 	        type: "POST",
 	        url: "servicio/buscar",
 	        data: "nombre=" + $("#nombre_servicio").val() + "&tipopago=" + $("#tipopago").val() + "&page=" + $("#page").val() + "&filas=" + $("#filas").val() + "&vistamedico=" + "SI" + "&tiposervicio=" + $("#tiposervicio").val() + "&_token=<?php echo csrf_token(); ?>",
+	        beforeSend: function(a) {
+	        	$("#listado2{{ $entidad }}").html('Buscando...');
+	        },
 	        success: function(a) {
 	        	$("#listado2{{ $entidad }}").html(a);
 	        }
@@ -1084,6 +1110,9 @@ Session::set('sucursal_id', 1);
 	        type: "POST",
 	        url: "historia/buscar",
 	        data: "nombre=" + $("#nombreh").val() + "&dni=" + $("#dni").val() + "&numero=" + $("#numeroh").val() + "&page=" + $("#pageh").val() + "&filas=" + $("#filash").val() + "&vistamedico=" + "SI" + "&tipopaciente=" + $("#tipopaciente").val() + "&_token=<?php echo csrf_token(); ?>",
+	        beforeSend: function() {
+	        	$("#listadoh{{ $entidad }}").html('Buscando...');
+	        },
 	        success: function(a) {
 	        	$("#listadoh{{ $entidad }}").html(a);
 	        }
@@ -1155,7 +1184,10 @@ Session::set('sucursal_id', 1);
 				"data": {
 					"paciente" : paciente, 
 					"_token": "{{ csrf_token() }}",
-					}
+				},
+				beforeSend:function() {
+					$('#resultadoBusquedaPaciente').html('Buscando...');
+				},
 			}).done(function(info){
 				$('#resultadoBusquedaPaciente').html(info);
 			});
@@ -1181,7 +1213,15 @@ Session::set('sucursal_id', 1);
 				"data": {
 					"ticket_id" : ticket_id, 
 					"_token": "{{ csrf_token() }}",
-					}
+				},
+				beforeSend: function() {
+					$(this).html('Cargando');
+					$('.btnLlamarPaciente').attr('disabled', 'disabled');
+				},
+				success: function() {
+					$(this).html('<i class="fa fa-check fa-lg"></i>Llamar Paciente');
+					$('.btnLlamarPaciente').removeAttr('disabled');
+				}
 			});
 		}
 
@@ -1190,6 +1230,10 @@ Session::set('sucursal_id', 1);
 	        url: "historiaclinica/nuevaHistoriaClinica/" + paciente_id + "/" + ticket_id,
 	        data: "_token=<?php echo csrf_token(); ?>",
 	        dataType: "json",
+	        beforeSend: function() {
+				$(this).html('Cargando');
+				$('.btnLlamarPaciente').attr('disabled', 'disabled');
+			},
 	        success: function(a) {
 	        	$('#mensopera').html(a.mensaje);
 	        	$("li").removeClass('in active');
@@ -1206,6 +1250,7 @@ Session::set('sucursal_id', 1);
 				$('#doctor').val(a.doctor);
   				$('#historia').val(a.numhistoria);
   				$('#paciente').val(a.paciente);
+  				$('#tituloantecedentes').html('Antecedentes de '+a.paciente);
 				$('#numero').val(a.numero);
 				$('#cita_id').val(a.cita_id);
 				$('#citaproxima').val(a.citaproxima);
@@ -1247,6 +1292,8 @@ Session::set('sucursal_id', 1);
 					$("#detallecie").append(fila);
 				});
 				$('#cantcie').val(a.cantcies);
+				$(this).html('<i class="fa fa-check fa-lg"></i>Llamar Paciente');
+				$('.btnLlamarPaciente').removeAttr('disabled');
 	        },
 		error: function() {
 	        alert('OCURRIÓ UN ERROR, VUELVA A INTENTAR...');
@@ -1745,8 +1792,34 @@ Session::set('sucursal_id', 1);
 		}).done(function(info){
 			$('#infoPaciente').html(info);
 		});
+	});
 
+	$(document).on('click', '#btnInfoAntecedentes', function(event) {
+		var historia = $('#historia').val();
+		$.ajax({
+			"method": "POST",
+			"url": "{{ url('/historiaclinica/infoAntecedentes') }}",
+			"data": {
+				"historia" : historia, 
+				"_token": "{{ csrf_token() }}",
+				}
+		}).done(function(info){
+			$('#infoAntecedentes').html(info).focus();
+		});
+	});
 
+	$(document).on('keyup', '#infoAntecedentes', function(event) {
+		var historia = $('#historia').val();
+		var antecedentes = $(this).val();
+		$.ajax({
+			"method": "POST",
+			"url": "{{ url('/historiaclinica/actualizarAntecedentes') }}",
+			"data": {
+				"historia" : historia, 
+				"_token": "{{ csrf_token() }}",
+				"antecedentes": antecedentes,
+				}
+		});
 	});
 </script>
 @endif

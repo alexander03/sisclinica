@@ -1,3 +1,4 @@
+
 <?php
 if(!is_null($ticket)){
     $plan=$ticket->plan->nombre;
@@ -216,9 +217,12 @@ if(!is_null($ticket)){
                     {!! Form::hidden('descuentopersonal', 'N', array('id' => 'descuentopersonal')) !!}
                     <input type="checkbox" class="descuento" style="display: none;" onclick="editarDescuentoPersonal(this.checked)" />
                 </div>
-        		<div class="col-lg-6 col-md-6 col-sm-6 text-right">
-        			{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => '$(\'#listServicio\').val(carro);$(\'#movimiento_id\').val(carroDoc);guardarPago(\''.$entidad.'\', this);')) !!}
-        			{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
+        		<div class="col-lg-12 col-md-12 col-sm-12 text-right">        			
+                    {!! Form::button('<i class="fa fa-save fa-lg"></i> Guardado Temporal', array('class' => 'btn btn-info btn-sm', 'onclick' => 'guardarTemporal();')) !!}
+                    {!! Form::button('<i class="fa fa-eye fa-lg"></i> Mostrar Temporal', array('class' => 'btn btn-primary btn-sm', 'onclick' => 'mostrarTemporal();')) !!}
+                    {!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => '$(\'#listServicio\').val(carro);$(\'#movimiento_id\').val(carroDoc);guardarPago(\''.$entidad.'\', this);')) !!}
+                    {!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}   			
+                    
         		</div>
         	</div>
             <div class="form-group descuentopersonal" style="display: none">
@@ -233,7 +237,7 @@ if(!is_null($ticket)){
             <div class="form-group datocaja">
                 {!! Form::label('tipodocumento', 'Tipo Doc.:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
         		<div class="col-lg-3 col-md-3 col-sm-3">
-        			{!! Form::select('tipodocumento', $cboTipoDocumento + array('Ticket' => 'Ticket'), 'Ticket', array('class' => 'form-control input-xs', 'id' => 'tipodocumento', 'onchange' => 'generarNumero()')) !!}
+        			{!! Form::select('tipodocumento', $cboTipoDocumento + array('Ticket' => 'Ticket'), 'Ticket', array('class' => 'xyz form-control input-xs', 'id' => 'tipodocumento', 'onchange' => 'generarNumero()')) !!}
         		</div>
                 {!! Form::label('numeroventa', 'Nro.:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
         		<div class="col-lg-2 col-md-2 col-sm-2">
@@ -267,12 +271,12 @@ if(!is_null($ticket)){
         			{!! Form::text('razon', null, array('class' => 'form-control input-xs datocaja', 'id' => 'razon', 'style' => 'display:none;')) !!}
         		</div>
             </div>
-            <div class="form-group datocaja datofactura" style="display: none;">
+            {{--<div class="form-group datocaja datofactura" style="display: none;">
                 {!! Form::label('direccion', 'Direccion:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
         		<div class="col-lg-10 col-md-10 col-sm-10">
         			{!! Form::text('direccion', null, array('class' => 'form-control input-xs', 'id' => 'direccion')) !!}
         		</div>
-        	</div>
+        	</div>--}}
             <div class="form-group">
                 {!! Form::label('referido', 'Referido:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
                 <div class="col-lg-10 col-md-10 col-sm-10">
@@ -297,6 +301,7 @@ if(!is_null($ticket)){
      <div class="box">
         <div class="box-header">
             <h2 class="box-title col-lg-5 col-md-5 col-sm-5">Detalle <button type="button" class="btn btn-xs btn-info" title="Agregar Detalle" onclick="seleccionarServicioOtro();" ><i class="fa fa-plus"></i></button>&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-xs btn-danger" title="Agregar Hoja Costo" onclick="agregarHojaCosto($('#historia_id').val());">Hoja de Costo<i class="fa fa-file"></i></button></h2>
+
             <div class="text-right col-lg-7 col-md-7 col-sm-7">
                 <div class="col-lg-1 col-md-1 col-sm-1" style="display: none;">
                     {!! Form::hidden('movimientoref', 'N', array('id' => 'movimientoref')) !!}
@@ -327,7 +332,7 @@ if(!is_null($ticket)){
                 </div>
             </div>
         </div>
-        <div class="box-body">
+        <div class="box-body" id="tablaDetallesTemporal">
             <table class="table table-condensed table-border" id="tbDetalle">
                 <thead>
                     <th class="text-center">Cant.</th>
@@ -336,7 +341,7 @@ if(!is_null($ticket)){
                     <th class="text-center">Descripcion</th>
                     <th class="text-center">Precio</th>
                     <th class="text-center">
-                        <select id='cboDescuento' name='cboDescuento' class="input-xs" style='width: 60px;'>
+                        <select id='cboDescuento' name='cboDescuento' class="xyz input-xs" style='width: 60px;'>
                             <option value='P'>%</option>
                             <option value='M'>Monto</option>
                         </select><br />&nbsp;Desc.
@@ -349,9 +354,9 @@ if(!is_null($ticket)){
                 </tbody>
                 <tfoot>
                     <th class="text-right" colspan="7">Comprobante</th>
-                    <th>{!! Form::text('totalboleta', null, array('class' => 'form-control input-xs', 'id' => 'totalboleta', 'size' => 3, 'readonly' => 'true', 'style' => 'width: 60px;')) !!}</th>
+                    <th>{!! Form::text('totalboleta', null, array('class' => 'xyz form-control input-xs', 'id' => 'totalboleta', 'size' => 3, 'readonly' => 'true', 'style' => 'width: 60px;')) !!}</th>
                     <th class="text-right">Pago</th>
-                    <th>{!! Form::text('total', null, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'readonly' => 'true', 'style' => 'width: 60px;')) !!}</th>
+                    <th>{!! Form::text('total', null, array('class' => 'xyz form-control input-xs', 'id' => 'total', 'size' => 3, 'readonly' => 'true', 'style' => 'width: 60px;')) !!}</th>
                 </tfoot>
             </table>
         </div>
@@ -359,6 +364,14 @@ if(!is_null($ticket)){
 {!! Form::close() !!}
 <script type="text/javascript">
 var valorbusqueda="";
+function cambiartipodoc() {
+    if ($('#tipodocumento').val() == 'Factura') {
+        $('#opcEmpresa').css('display', '');
+        $('#ccruc').focus();
+    } else {
+        $('#opcEmpresa').css('display', 'none');
+    }
+}
 $(document).ready(function() {
     $(document).on('change', '#tipodocumento', function(e) {
         e.preventDefault();
@@ -686,7 +699,9 @@ function guardarHistoria (entidad, idboton) {
 }
 
 var contador=0;
-function guardarPago (entidad, idboton) {
+function guardarPago (entidad, idboton) {    
+    //alert($('#listServicio').val());
+    //return false;
     if ($('#tipodocumento').val() == 'Factura') {
         if($('#ccruc').val().length != 11 || $('#ccrazon').val() == '' || $('#ccdireccion').val() == '') {
             alert('No olvide digitar un RUC válido.');
@@ -708,7 +723,6 @@ function guardarPago (entidad, idboton) {
     }
     var band=true;
     var msg="";
-    calcularTotal();
     if($(".txtareaa").val()==""){
         band = false;
         msg += " *Se debe ingresar una descripcion \n";    
@@ -926,17 +940,17 @@ function seleccionarServicio(idservicio){
                 var c=0;
                 var inpu = datos[c].servicio;
                 if(datos[c].idservicio == 30938){
-                    inpu = "<textarea class='form-control input-xs txtareaa' id='txtServicio"+datos[c].idservicio+"' name='txtServicio"+datos[c].idservicio+"' >"+datos[c].servicio+"</textarea>";
+                    inpu = "<textarea class='xyz form-control input-xs txtareaa' id='txtServicio"+datos[c].idservicio+"' name='txtServicio"+datos[c].idservicio+"' >"+datos[c].servicio+"</textarea>";
                 }
-                $("#tbDetalle").append("<tr id='tr"+datos[c].idservicio+"'><td><input type='hidden' id='txtIdTipoServicio"+datos[c].idservicio+"' name='txtIdTipoServicio"+datos[c].idservicio+"' value='"+datos[c].idtiposervicio+"' /><input type='hidden' id='txtIdServicio"+datos[c].idservicio+"' name='txtIdServicio"+datos[c].idservicio+"' value='"+datos[c].idservicio+"' /><input type='text' data='numero' style='width: 40px;' class='form-control input-xs' id='txtCantidad"+datos[c].idservicio+"' name='txtCantidad"+datos[c].idservicio+"' value='1' size='3' onkeydown=\"if(event.keyCode==13){calcularTotal()}\" onblur=\"calcularTotalItem("+datos[c].idservicio+")\" /></td>"+
+                $("#tbDetalle").append("<tr id='tr"+datos[c].idservicio+"'><td><input type='hidden' id='txtIdTipoServicio"+datos[c].idservicio+"' name='txtIdTipoServicio"+datos[c].idservicio+"' value='"+datos[c].idtiposervicio+"' /><input type='hidden' id='txtIdServicio"+datos[c].idservicio+"' name='txtIdServicio"+datos[c].idservicio+"' value='"+datos[c].idservicio+"' /><input type='text' data='numero' style='width: 40px;' class='xyz form-control input-xs' id='txtCantidad"+datos[c].idservicio+"' name='txtCantidad"+datos[c].idservicio+"' value='1' size='3' onkeydown=\"if(event.keyCode==13){calcularTotal()}\" onblur=\"calcularTotalItem("+datos[c].idservicio+")\" /></td>"+
                     "<td><input type='checkbox' id='chkCopiar"+datos[c].idservicio+"' onclick='checkMedico(this.checked,"+datos[c].idservicio+")' /></td>"+
-                    "<td><input type='text' class='form-control input-xs' id='txtMedico"+datos[c].idservicio+"' name='txtMedico"+datos[c].idservicio+"' /><input type='hidden' id='txtIdMedico"+datos[c].idservicio+"' name='txtIdMedico"+datos[c].idservicio+"' value='0' /></td>"+
+                    "<td><input type='text' class='xyz form-control input-xs' id='txtMedico"+datos[c].idservicio+"' name='txtMedico"+datos[c].idservicio+"' /><input type='hidden' id='txtIdMedico"+datos[c].idservicio+"' name='txtIdMedico"+datos[c].idservicio+"' value='0' /></td>"+
                     "<td align='left'>"+datos[c].tiposervicio+"</td><td>"+inpu+"</td>"+
-                    "<td><input type='hidden' id='txtPrecio2"+datos[c].idservicio+"' name='txtPrecio2"+datos[c].idservicio+"' value='"+datos[c].precio+"' /><input type='text' size='5' class='form-control input-xs' data='numero' id='txtPrecio"+datos[c].idservicio+"' style='width: 60px;' name='txtPrecio"+datos[c].idservicio+"' value='"+datos[c].precio+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+datos[c].idservicio+")}\" onblur=\"calcularTotalItem("+datos[c].idservicio+")\" /></td>"+
-                    "<td><input type='text' size='5' class='form-control input-xs' data='numero' id='txtDescuento"+datos[c].idservicio+"' style='width: 60px;' name='txtDescuento"+datos[c].idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+datos[c].idservicio+")}\" onblur=\"calcularTotalItem("+datos[c].idservicio+")\" style='width:50%' /></td>"+
-                    "<td><input type='hidden' id='txtPrecioHospital2"+datos[c].idservicio+"' name='txtPrecioHospital2"+datos[c].idservicio+"' value='"+datos[c].preciohospital+"' /><input type='text' readonly='' size='5' class='form-control input-xs' style='width: 60px;' data='numero'  id='txtPrecioHospital"+datos[c].idservicio+"' name='txtPrecioHospital"+datos[c].idservicio+"' value='"+datos[c].preciohospital+"' onblur=\"calcularTotalItem("+datos[c].idservicio+")\" /></td>"+
-                    "<td><input type='hidden' id='txtPrecioMedico2"+datos[c].idservicio+"' name='txtPrecioMedico2"+datos[c].idservicio+"' value='"+datos[c].preciomedico+"' /><input type='text' readonly='' size='5' class='form-control input-xs' data='numero' style='width: 60px;' id='txtPrecioMedico"+datos[c].idservicio+"' name='txtPrecioMedico"+datos[c].idservicio+"' value='"+datos[c].preciomedico+"' onblur=\"calcularTotalItem("+datos[c].idservicio+")\" /></td>"+
-                    "<td><input type='text' readonly='' data='numero' class='form-control input-xs' size='5' name='txtTotal"+datos[c].idservicio+"' style='width: 60px;' id='txtTotal"+datos[c].idservicio+"' value='"+datos[c].precio+"' /></td>"+
+                    "<td><input type='hidden' id='txtPrecio2"+datos[c].idservicio+"' name='txtPrecio2"+datos[c].idservicio+"' value='"+datos[c].precio+"' /><input type='text' size='5' class='xyz form-control input-xs' data='numero' id='txtPrecio"+datos[c].idservicio+"' style='width: 60px;' name='txtPrecio"+datos[c].idservicio+"' value='"+datos[c].precio+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+datos[c].idservicio+")}\" onblur=\"calcularTotalItem("+datos[c].idservicio+")\" /></td>"+
+                    "<td><input type='text' size='5' class='xyz form-control input-xs' data='numero' id='txtDescuento"+datos[c].idservicio+"' style='width: 60px;' name='txtDescuento"+datos[c].idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+datos[c].idservicio+")}\" onblur=\"calcularTotalItem("+datos[c].idservicio+")\" style='width:50%' /></td>"+
+                    "<td><input type='hidden' id='txtPrecioHospital2"+datos[c].idservicio+"' name='txtPrecioHospital2"+datos[c].idservicio+"' value='"+datos[c].preciohospital+"' /><input type='text' readonly='' size='5' class='xyz form-control input-xs' style='width: 60px;' data='numero'  id='txtPrecioHospital"+datos[c].idservicio+"' name='txtPrecioHospital"+datos[c].idservicio+"' value='"+datos[c].preciohospital+"' onblur=\"calcularTotalItem("+datos[c].idservicio+")\" /></td>"+
+                    "<td><input type='hidden' id='txtPrecioMedico2"+datos[c].idservicio+"' name='txtPrecioMedico2"+datos[c].idservicio+"' value='"+datos[c].preciomedico+"' /><input type='text' readonly='' size='5' class='xyz form-control input-xs' data='numero' style='width: 60px;' id='txtPrecioMedico"+datos[c].idservicio+"' name='txtPrecioMedico"+datos[c].idservicio+"' value='"+datos[c].preciomedico+"' onblur=\"calcularTotalItem("+datos[c].idservicio+")\" /></td>"+
+                    "<td><input type='text' readonly='' data='numero' class='xyz form-control input-xs' size='5' name='txtTotal"+datos[c].idservicio+"' style='width: 60px;' id='txtTotal"+datos[c].idservicio+"' value='"+datos[c].precio+"' /></td>"+
                     "<td><a href='#' onclick=\"quitarServicio('"+datos[c].idservicio+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>");
                 carro.push(idservicio);
                 $(':input[data="numero"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
@@ -983,15 +997,15 @@ function seleccionarServicio(idservicio){
 
 function seleccionarServicioOtro(){
     var idservicio = "0"+Math.round(Math.random()*100);
-    $("#tbDetalle").append("<tr id='tr"+idservicio+"'><td><input type='hidden' id='txtIdTipoServicio"+idservicio+"' name='txtIdTipoServicio"+idservicio+"' value='0' /><input type='text' data='numero' class='form-control input-xs' id='txtCantidad"+idservicio+"' name='txtCantidad"+idservicio+"' style='width: 40px;' value='1' size='3' onkeydown=\"if(event.keyCode==13){calcularTotal()}\" onblur=\"calcularTotalItem2('"+idservicio+"')\" /></td>"+
+    $("#tbDetalle").append("<tr id='tr"+idservicio+"'><td><input type='hidden' id='txtIdTipoServicio"+idservicio+"' name='txtIdTipoServicio"+idservicio+"' value='0' /><input type='text' data='numero' class='xyz form-control input-xs' id='txtCantidad"+idservicio+"' name='txtCantidad"+idservicio+"' style='width: 40px;' value='1' size='3' onkeydown=\"if(event.keyCode==13){calcularTotal()}\" onblur=\"calcularTotalItem2('"+idservicio+"')\" /></td>"+
         "<td><input type='checkbox' id='chkCopiar"+idservicio+"' onclick=\"checkMedico(this.checked,'"+idservicio+"')\" /></td>"+
-        "<td><input type='text' class='form-control input-xs' id='txtMedico"+idservicio+"' name='txtMedico"+idservicio+"' /><input type='hidden' id='txtIdMedico"+idservicio+"' name='txtIdMedico"+idservicio+"' value='0' /></td>"+
-        "<td align='left'><select class='form-control input-xs' id='cboTipoServicio"+idservicio+"' name='cboTipoServicio"+idservicio+"'><option value='0' selected=''>OTROS</option>"+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tiposervicio"]').html()+"</select></td><td><textarea class='form-control input-xs txtareaa' id='txtServicio"+idservicio+"' name='txtServicio"+idservicio+"' /></td>"+
-        "<td><input type='hidden' id='txtPrecio2"+idservicio+"' name='txtPrecio2"+idservicio+"' value='0' /><input type='text' size='5' class='form-control input-xs' style='width: 60px;' data='numero' id='txtPrecio"+idservicio+"' name='txtPrecio"+idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+idservicio+"')}\" onblur=\"calcularTotalItem2('"+idservicio+"')\" /></td>"+
-        "<td><input type='text' size='5' style='width: 60px;' class='form-control input-xs' data='numero' id='txtDescuento"+idservicio+"' name='txtDescuento"+idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+idservicio+"')}\" onblur=\"calcularTotalItem2('"+idservicio+"')\" style='width:50%' /></td>"+
-        "<td><input type='hidden' id='txtPrecioHospital2"+idservicio+"' name='txtPrecioHospital2"+idservicio+"' value='0' /><input type='text' size='5' style='width: 60px;' class='form-control input-xs' data='numero'  id='txtPrecioHospital"+idservicio+"' name='txtPrecioHospital"+idservicio+"' value='0' onblur=\"calcularTotalItem2("+idservicio+")\" /></td>"+
-        "<td><input type='hidden' id='txtPrecioMedico2"+idservicio+"' name='txtPrecioMedico2"+idservicio+"' value='0' /><input type='text' size='5' class='form-control input-xs' data='numero'  id='txtPrecioMedico"+idservicio+"' name='txtPrecioMedico"+idservicio+"' value='0' style='width: 60px;' /></td>"+
-        "<td><input type='text' style='width: 60px;' readonly='' data='numero' class='form-control input-xs' size='5' name='txtTotal"+idservicio+"' id='txtTotal"+idservicio+"' value=0' /></td>"+
+        "<td><input type='text' class='xyz form-control input-xs' id='txtMedico"+idservicio+"' name='txtMedico"+idservicio+"' /><input type='hidden' id='txtIdMedico"+idservicio+"' name='txtIdMedico"+idservicio+"' value='0' /></td>"+
+        "<td align='left'><select class='xyz form-control input-xs' id='cboTipoServicio"+idservicio+"' name='cboTipoServicio"+idservicio+"'><option value='0' selected=''>OTROS</option>"+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tiposervicio"]').html()+"</select></td><td><textarea class='xyz form-control input-xs txtareaa' id='txtServicio"+idservicio+"' name='txtServicio"+idservicio+"' /></td>"+
+        "<td><input type='hidden' id='txtPrecio2"+idservicio+"' name='txtPrecio2"+idservicio+"' value='0' /><input type='text' size='5' class='xyz form-control input-xs' style='width: 60px;' data='numero' id='txtPrecio"+idservicio+"' name='txtPrecio"+idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+idservicio+"')}\" onblur=\"calcularTotalItem2('"+idservicio+"')\" /></td>"+
+        "<td><input type='text' size='5' style='width: 60px;' class='xyz form-control input-xs' data='numero' id='txtDescuento"+idservicio+"' name='txtDescuento"+idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+idservicio+"')}\" onblur=\"calcularTotalItem2('"+idservicio+"')\" style='width:50%' /></td>"+
+        "<td><input type='hidden' id='txtPrecioHospital2"+idservicio+"' name='txtPrecioHospital2"+idservicio+"' value='0' /><input type='text' size='5' style='width: 60px;' class='xyz form-control input-xs' data='numero'  id='txtPrecioHospital"+idservicio+"' name='txtPrecioHospital"+idservicio+"' value='0' onblur=\"calcularTotalItem2("+idservicio+")\" /></td>"+
+        "<td><input type='hidden' id='txtPrecioMedico2"+idservicio+"' name='txtPrecioMedico2"+idservicio+"' value='0' /><input type='text' size='5' class='xyz form-control input-xs' data='numero'  id='txtPrecioMedico"+idservicio+"' name='txtPrecioMedico"+idservicio+"' value='0' style='width: 60px;' /></td>"+
+        "<td><input type='text' style='width: 60px;' readonly='' data='numero' class='xyz form-control input-xs' size='5' name='txtTotal"+idservicio+"' id='txtTotal"+idservicio+"' value=0' /></td>"+
         "<td><a href='#' onclick=\"quitarServicio('"+idservicio+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>");
     carro.push(idservicio);
     $('#cboTipoServicio'+idservicio+' option[value=""]').remove();
@@ -1023,14 +1037,14 @@ function seleccionarServicioOtro(){
         "$('#txtIdMedico"+idservicio+"').val(datum.id);"+
         "copiarMedico('"+idservicio+"');"+
 	"});");
-    $("#txtMedico"+idservicio).focus();             
+    $("#txtMedico"+idservicio).focus();
 }
 
 function calcularTotal(){
     var total2=0;
     for(c=0; c < carro.length; c++){
         var tot=Math.round(parseFloat($("#txtTotal"+carro[c]).val())*100)/100;
-        total2=Math.round((total2+tot) * 100) / 100;        
+        total2=Math.round((total2+tot) * 100) / 100;
     }
     $("#total").val(total2);
     var total2=0;
@@ -1465,15 +1479,15 @@ function agregarDetalle(id){
                 }
                 //console.log(datos[d].idservicio);
                 datos[d].idservicio="01"+Math.round(Math.random()*100)+datos[d].idservicio;
-                $("#tbDetalle").append("<tr id='tr"+datos[d].idservicio+"'><td><input type='hidden' id='txtIdTipoServicio"+datos[d].idservicio+"' name='txtIdTipoServicio"+datos[d].idservicio+"' value='"+datos[d].idtiposervicio+"' /><input type='hidden' id='txtIdServicio"+datos[d].idservicio+"' name='txtIdServicio"+datos[d].idservicio+"' value='"+datos[d].id+"' /><input type='text' data='numero' style='width: 40px;' class='form-control input-xs' id='txtCantidad"+datos[d].idservicio+"' name='txtCantidad"+datos[d].idservicio+"' value='"+datos[d].cantidad+"' size='3' onkeydown=\"if(event.keyCode==13){calcularTotal()}\" onblur=\"calcularTotalItem('"+datos[d].idservicio+"')\" /></td>"+
+                $("#tbDetalle").append("<tr id='tr"+datos[d].idservicio+"'><td><input type='hidden' id='txtIdTipoServicio"+datos[d].idservicio+"' name='txtIdTipoServicio"+datos[d].idservicio+"' value='"+datos[d].idtiposervicio+"' /><input type='hidden' id='txtIdServicio"+datos[d].idservicio+"' name='txtIdServicio"+datos[d].idservicio+"' value='"+datos[d].id+"' /><input type='text' data='numero' style='width: 40px;' class='xyz form-control input-xs' id='txtCantidad"+datos[d].idservicio+"' name='txtCantidad"+datos[d].idservicio+"' value='"+datos[d].cantidad+"' size='3' onkeydown=\"if(event.keyCode==13){calcularTotal()}\" onblur=\"calcularTotalItem('"+datos[d].idservicio+"')\" /></td>"+
                     "<td><input type='checkbox' id='chkCopiar"+datos[d].idservicio+"' onclick=\"checkMedico(this.checked,'"+datos[d].idservicio+"')\" /></td>"+
-                    "<td><input type='text' class='form-control input-xs' id='txtMedico"+datos[d].idservicio+"' name='txtMedico"+datos[d].idservicio+"' value='"+datos[d].medico+"' /><input type='hidden' id='txtIdMedico"+datos[d].idservicio+"' name='txtIdMedico"+datos[d].idservicio+"' value='"+datos[d].idmedico+"' /></td>"+
+                    "<td><input type='text' class='xyz form-control input-xs' id='txtMedico"+datos[d].idservicio+"' name='txtMedico"+datos[d].idservicio+"' value='"+datos[d].medico+"' /><input type='hidden' id='txtIdMedico"+datos[d].idservicio+"' name='txtIdMedico"+datos[d].idservicio+"' value='"+datos[d].idmedico+"' /></td>"+
                     "<td align='left'>"+datos[d].tiposervicio+"</td><td>"+datos[d].servicio+"</td>"+
-                    "<td><input type='hidden' id='txtPrecio2"+datos[d].idservicio+"' name='txtPrecio2"+datos[d].idservicio+"' value='0' /><input type='text' size='5' class='form-control input-xs' style='width: 60px;' data='numero' id='txtPrecio"+datos[d].idservicio+"' name='txtPrecio"+datos[d].idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+datos[d].idservicio+"')}\" onblur=\"calcularTotalItem2('"+datos[d].idservicio+"')\" /></td>"+
-                    "<td><input type='text' size='5' style='width: 60px;' class='form-control input-xs' data='numero' id='txtDescuento"+datos[d].idservicio+"' name='txtDescuento"+datos[d].idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+datos[d].idservicio+"')}\" onblur=\"calcularTotalItem2('"+datos[d].idservicio+"')\" style='width:50%' /></td>"+
-                    "<td><input type='hidden' id='txtPrecioHospital2"+datos[d].idservicio+"' name='txtPrecioHospital2"+datos[d].idservicio+"' value='0' /><input type='text' size='5' style='width: 60px;' class='form-control input-xs' data='numero'  id='txtPrecioHospital"+datos[d].idservicio+"' name='txtPrecioHospital"+datos[d].idservicio+"' value='0' onblur=\"calcularTotalItem2("+datos[d].idservicio+")\" /></td>"+
-                    "<td><input type='hidden' id='txtPrecioMedico2"+datos[d].idservicio+"' name='txtPrecioMedico2"+datos[d].idservicio+"' value='0' /><input type='text' size='5' class='form-control input-xs' data='numero'  id='txtPrecioMedico"+datos[d].idservicio+"' name='txtPrecioMedico"+datos[d].idservicio+"' value='0' style='width: 60px;' /></td>"+
-                    "<td><input type='text' style='width: 60px;' readonly='' data='numero' class='form-control input-xs' size='5' name='txtTotal"+datos[d].idservicio+"' id='txtTotal"+datos[d].idservicio+"' value=0' /></td>"+
+                    "<td><input type='hidden' id='txtPrecio2"+datos[d].idservicio+"' name='txtPrecio2"+datos[d].idservicio+"' value='0' /><input type='text' size='5' class='xyz form-control input-xs' style='width: 60px;' data='numero' id='txtPrecio"+datos[d].idservicio+"' name='txtPrecio"+datos[d].idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+datos[d].idservicio+"')}\" onblur=\"calcularTotalItem2('"+datos[d].idservicio+"')\" /></td>"+
+                    "<td><input type='text' size='5' style='width: 60px;' class='xyz form-control input-xs' data='numero' id='txtDescuento"+datos[d].idservicio+"' name='txtDescuento"+datos[d].idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+datos[d].idservicio+"')}\" onblur=\"calcularTotalItem2('"+datos[d].idservicio+"')\" style='width:50%' /></td>"+
+                    "<td><input type='hidden' id='txtPrecioHospital2"+datos[d].idservicio+"' name='txtPrecioHospital2"+datos[d].idservicio+"' value='0' /><input type='text' size='5' style='width: 60px;' class='xyz form-control input-xs' data='numero'  id='txtPrecioHospital"+datos[d].idservicio+"' name='txtPrecioHospital"+datos[d].idservicio+"' value='0' onblur=\"calcularTotalItem2("+datos[d].idservicio+")\" /></td>"+
+                    "<td><input type='hidden' id='txtPrecioMedico2"+datos[d].idservicio+"' name='txtPrecioMedico2"+datos[d].idservicio+"' value='0' /><input type='text' size='5' class='xyz form-control input-xs' data='numero'  id='txtPrecioMedico"+datos[d].idservicio+"' name='txtPrecioMedico"+datos[d].idservicio+"' value='0' style='width: 60px;' /></td>"+
+                    "<td><input type='text' style='width: 60px;' readonly='' data='numero' class='xyz form-control input-xs' size='5' name='txtTotal"+datos[d].idservicio+"' id='txtTotal"+datos[d].idservicio+"' value=0' /></td>"+
                     "<td><a href='#' id='Quitar"+datos[d].idservicio+"' onclick=\"quitarServicio('"+datos[d].idservicio+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>");
                 if(datos[d].situacionentrega!="A"){
                     carro.push(datos[d].idservicio);
@@ -1754,6 +1768,151 @@ function camposNoVacios() {
         }
         return true;
     }       
+}
+
+function guardarTemporal() { 
+    $('.xyz').each(function() {
+        var input = $(this).val();
+        $(this).attr('value', input);
+        $(this).find("option[value='" + input + "']").attr("selected", true);
+    });
+
+    var tabladetallestemporal = $("#tablaDetallesTemporal").html();
+    var person_id = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="person_id"]').val();
+    var tipodocumento = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tipodocumento"]').val();
+    var plan_id = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="plan_id"]').val();
+    var deducible = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="deducible"]').val();
+    var coa = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="coa"]').val();
+    var tipopaciente = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tipopaciente"]').val();
+    var ruc = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="ccruc"]').val();
+    var referido_id = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="referido_id"]').val();
+    $.ajax({
+        url: 'ticket/guardarTemporal',
+        type: 'POST',
+        data: {
+            "tabladetallestemporal": tabladetallestemporal,
+            "person_id": person_id,
+            "tipodocumento": tipodocumento,
+            "plan_id": plan_id,
+            "deducible": deducible,
+            "coa": coa,
+            "tipopaciente": tipopaciente,
+            "ruc": ruc,
+            "referido_id": referido_id,
+            "_token": "{{ csrf_token() }}",
+        },
+    }).done(function(e) {
+        if(e === "OK") {
+            alert('Plantilla Guardada Correctamente');
+        } else {
+            alert('No se pudo Guardar');
+        }        
+    }).fail(function(){
+        alert('No se pudo Guardar');
+    });
+}
+
+function mostrarTemporal() {
+    $.ajax({
+        url: 'ticket/mostrarTemporal',
+        type: 'POST',
+        data: {
+            "_token": "{{ csrf_token() }}",
+        },
+        dataType: 'JSON',
+        success: function(e){
+            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="person_id"]').val(e['person_id']);
+            $("#tablaDetallesTemporal").html(e['tabla']);
+            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tipodocumento"]').val(e['tipodocumento']);            
+            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="historia_id"]').val(e['historia_id']);
+            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="numero_historia"]').val(e['numero_historia']);
+            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="paciente"]').val(e['paciente']);
+            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="dni"]').val(e['dni']);
+            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="plan"]').val(e['plan']);
+            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="plan_id"]').val(e['plan_id']);
+            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="coa"]').val(parseFloat(e['coa']).toFixed(2));
+            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="deducible"]').val(parseFloat(e['deducible']).toFixed(2));            
+            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tipopaciente"]').val(e['tipopaciente']);
+            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="referido_id"]').val(e['referido_id']);
+            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="referido"]').val(e['nombre_referido']);
+            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="ccruc"]').val(e['ruc']);
+
+            var tt = 0;
+            if($('#total').val() !== '') {
+                tt = $('#total').val();
+            }
+
+            $('#efectivo').val(parseFloat(tt).toFixed(2));
+            $('#visa').val('');
+            $('#master').val('');
+
+            calcularTotalPago();
+            generarNumero();  
+            cambiartipodoc();
+            
+            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="person_id"]').val(e['person_id']);
+
+            $('.txtareaa').each(function() {
+                var value = $(this).attr('value');
+                //alert(value);
+                $(this).html(value);
+                
+            });
+
+            if(e['ruc'].length == 11) {
+                buscarEmpresa();
+            }
+
+            //vacio carro y seteo el carro nuevamente con los datos nuevos obviamente :v
+            carro.length = 0;
+            var listilla = '';
+            $('#cuerpoTabla tr').each(function(index, el) {
+                if($(this).attr('id')) {
+                    var id = $(this).attr('id');
+                    listilla+=','+id.substring(2,id.lenght);
+                    carro.push(id.substring(2,id.lenght));
+                    ////
+
+                    $(':input[data="numero"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
+
+                    eval("var planes"+id.substring(2,id.lenght)+" = new Bloodhound({"+
+                        "datumTokenizer: function (d) {"+
+                            "return Bloodhound.tokenizers.whitespace(d.value);"+
+                        "},"+
+                        "limit: 10,"+
+                        "queryTokenizer: Bloodhound.tokenizers.whitespace,"+
+                        "remote: {"+
+                            "url: 'medico/medicoautocompletar/%QUERY',"+
+                            "filter: function (planes"+id.substring(2,id.lenght)+") {"+
+                                "return $.map(planes"+id.substring(2,id.lenght)+", function (movie) {"+
+                                    "return {"+
+                                        "value: movie.value,"+
+                                        "id: movie.id,"+
+                                    "};"+
+                                "});"+
+                            "}"+
+                        "}"+
+                    "});"+
+                    "planes"+id.substring(2,id.lenght)+".initialize();"+
+                    "$('#txtMedico"+id.substring(2,id.lenght)+"').typeahead(null,{"+
+                        "displayKey: 'value',"+
+                        "source: planes"+id.substring(2,id.lenght)+".ttAdapter()"+
+                    "}).on('typeahead:selected', function (object, datum) {"+
+                        "$('#txtMedico"+id.substring(2,id.lenght)+"').val(datum.value);"+
+                        "$('#txtIdMedico"+id.substring(2,id.lenght)+"').val(datum.id);"+
+                        "copiarMedico("+id.substring(2,id.lenght)+");"+
+                    "});");
+
+                    ////
+                }
+            });
+            listilla=listilla.substring(1, listilla.lenght);
+            $('#listServicio').val(listilla);
+            //seleccionarServicioOtro();
+        },
+    }).fail(function(){
+        alert('Ocurrió un error');
+    });
 }
 
 <?php

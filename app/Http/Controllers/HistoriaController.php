@@ -74,6 +74,10 @@ class HistoriaController extends Controller
             $resultado = $resultado->where('historia.numero', 'LIKE', '%'.strtoupper($numero).'%');   
         }
         $resultado        = $resultado->select('historia.*')->orderBy('historia.numero', 'ASC');
+        $vistamedico           = $request->input('vistamedico');
+        if($vistamedico != "SI"){ 
+            $resultado = $resultado->limit(20);
+        }
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
@@ -86,8 +90,6 @@ class HistoriaController extends Controller
         //$cabecera[]       = array('valor' => 'Fecha Nacimiento', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Direccion', 'numero' => '1');
 
-        $vistamedico           = $request->input('vistamedico');
-        
         if($vistamedico != "SI"){
             $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '7');
         }else{
@@ -1216,5 +1218,15 @@ class HistoriaController extends Controller
             echo $historia->sucursal_id;
             $i++;
         }
+    }
+
+    //Eliminar Historias Clinicas con número = 0
+
+    public function unirHistorias2(Request $request) {
+        $historiasclinicas = HistoriaClinica::where('numero', '=', '0')->get();
+        foreach ($historiasclinicas as $hc) {
+            $hc->delete();
+        }
+        echo count($historiasclinicas) . ' HISTORIAS CLÍNICAS ELIMINADAS';
     }
 }

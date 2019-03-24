@@ -1113,4 +1113,19 @@ class HistoriaClinicaController extends Controller
         return $error == null ? '1' : $error;
     }
 
+    public function infoAntecedentes(Request $request){       
+        $numhistoria = $request->input('historia');
+        $historia = Historia::where('numero','=', $numhistoria)->first();
+        $texto = $historia->antecedentes2;
+        return $texto;
+    }
+
+    public function actualizarAntecedentes(Request $request){       
+        $numhistoria = $request->input('historia');
+        $antecedentes = $request->input('antecedentes');
+        $historia = Historia::where('numero','=', $numhistoria)->first();
+        $historia->antecedentes2 = $antecedentes;
+        $historia->save();
+    }
+
 }

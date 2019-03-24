@@ -496,10 +496,13 @@ class ProductoController extends Controller
                                 });
                             })
                             ->orderBy('nombre', 'ASC');
-        $lista            = $resultado->get();
-        $registro="<table class='table table-bordered table-striped table-condensed table-hover'>
+        $lista            = $resultado->limit(20)->get();
+        $registro = '';
+        if(count($lista) > 0) {
+            $registro.="<table class='table table-bordered table-striped table-condensed table-hover'>
                     <thead>
                         <tr>
+                            <th class='text-center'>#</th>
                             <th class='text-center'>Producto</th>
                             <th class='text-center'>Presentacion</th>
                             <th class='text-center'>Origen</th>
@@ -510,50 +513,57 @@ class ProductoController extends Controller
                         </tr>
                     </thead>
                     <tbody>";
-        foreach ($lista as $key => $value) {
-            $registro.="<tr>";
-            $registro.="<td>".$value->nombre."</td>";
-            if($value->presentacion_id>0 && !is_null($value->presentacion)){
-                $registro.="<td align='center'>".$value->presentacion->nombre."</td>";
-            }else{
-                $registro.="<td align='center'> - </td>";
-            }
-            if($value->origen_id>0){
-                $registro.="<td align='center'>".$value->origen->nombre."</td>";
-            }else{
-                $registro.="<td align='center'> - </td>";
-            }
-            $currentstock = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $value->id)->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
-            $stock = 0;
-            if ($currentstock !== null) {
-                $stock=$currentstock->stockactual;
-            }
-            $registro.="<td align='center'>".number_format($stock,0,'.','')."</td>";
-            $listado = Productoprincipio::where('producto_id','=',$value->id)->get();
-            $i = 0;
-            $principio = '';
-            foreach ($listado as $key2 => $value2) {
-                if ($i == 0) {
-                   if ($value2->principioactivo !== null) {
-                        $principio = $principio.$value2->principioactivo->nombre;
-                    }
+            $q = 1;
+            foreach ($lista as $key => $value) {
+                $registro.="<tr>";
+                $registro.="<td>".$q."</td>";
+                $registro.="<td>".$value->nombre."</td>";
+                if($value->presentacion_id>0 && !is_null($value->presentacion)){
+                    $registro.="<td align='center'>".$value->presentacion->nombre."</td>";
                 }else{
-                    if ($value2->principioactivo !== null) {
-                        $principio = $principio.'+'.$value2->principioactivo->nombre;
-                    }
+                    $registro.="<td align='center'> - </td>";
                 }
-                $i++;
+                if($value->origen_id>0){
+                    $registro.="<td align='center'>".$value->origen->nombre."</td>";
+                }else{
+                    $registro.="<td align='center'> - </td>";
+                }
+                $currentstock = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $value->id)->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
+                $stock = 0;
+                if ($currentstock !== null) {
+                    $stock=$currentstock->stockactual;
+                }
+                $registro.="<td align='center'>".number_format($stock,0,'.','')."</td>";
+                $listado = Productoprincipio::where('producto_id','=',$value->id)->get();
+                $i = 0;
+                $principio = '';
+                foreach ($listado as $key2 => $value2) {
+                    if ($i == 0) {
+                       if ($value2->principioactivo !== null) {
+                            $principio = $principio.$value2->principioactivo->nombre;
+                        }
+                    }else{
+                        if ($value2->principioactivo !== null) {
+                            $principio = $principio.'+'.$value2->principioactivo->nombre;
+                        }
+                    }
+                    $i++;
+                }
+                $registro.="<td align='center'>".$principio."</td>";
+                if($value->laboratorio_id>0 && !is_null($value->laboratorio)){
+                    $registro.="<td align='center'>".$value->laboratorio->nombre."</td>";
+                }else{
+                    $registro.="<td align='center'> - </td>";
+                }
+                $registro.="<td align='center'>".$value->precioventa."</td>";
+                $registro.="</tr>";
+                $q++;
             }
-            $registro.="<td align='center'>".$principio."</td>";
-            if($value->laboratorio_id>0 && !is_null($value->laboratorio)){
-                $registro.="<td align='center'>".$value->laboratorio->nombre."</td>";
-            }else{
-                $registro.="<td align='center'> - </td>";
-            }
-            $registro.="<td align='center'>".$value->precioventa."</td>";
-            $registro.="</tr>";
+            $registro.="</tbody></table>";
+        
+        } else {
+            $registro ='<h3 class="text-warning">No se encontraron resultados.</h3>';
         }
-        $registro.="</tbody></table>";
         return $registro;
     }
 
@@ -562,22 +572,30 @@ class ProductoController extends Controller
         $nombre = $request->input('cie');
         $resultado        = Cie::where(DB::raw('concat(codigo,\' \',descripcion)'), 'LIKE', '%'.strtoupper($nombre).'%')
                             ->orderBy('descripcion', 'ASC');
-        $lista            = $resultado->get();
-        $registro="<table class='table table-bordered table-striped table-condensed table-hover'>
-                    <thead>
-                        <tr>
-                            <th class='text-center'>Codigo</th>
-                            <th class='text-center'>Nombre</th>
-                        </tr>
-                    </thead>
-                    <tbody>";
-        foreach ($lista as $key => $value) {
-            $registro.="<tr>";
-            $registro.="<td>".$value->codigo."</td>";
-            $registro.="<td>".$value->descripcion."</td>";
-            $registro.="</tr>";
+        $lista            = $resultado->limit(20)->get();
+        if(count($lista)>0) {
+            $registro="<table class='table table-bordered table-striped table-condensed table-hover'>
+                        <thead>
+                            <tr>
+                                <th class='text-center'>#</th>
+                                <th class='text-center'>Codigo</th>
+                                <th class='text-center'>Nombre</th>
+                            </tr>
+                        </thead>
+                        <tbody>";
+            $i = 1;
+            foreach ($lista as $key => $value) {
+                $registro.="<tr>";
+                $registro.="<td>".$i."</td>";
+                $registro.="<td>".$value->codigo."</td>";
+                $registro.="<td>".$value->descripcion."</td>";
+                $registro.="</tr>";
+                $i++;
+            }
+            $registro.="</tbody></table>";            
+        } else {
+            $registro ='<h3 class="text-warning">No se encontraron resultados.</h3>';
         }
-        $registro.="</tbody></table>";
         return $registro;
     }
 

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Http\Requests;
 use App\Historia;
+use App\Save;
 use App\Convenio;
 use App\Movimiento;
 use App\Detallemovcaja;
@@ -654,7 +655,7 @@ class TicketController extends Controller
             $Ticket->subtotal = $request->input('coa');//COASEGURO
             $Ticket->sucursal_id = $sucursal_id;//SUCURSAL
             $Ticket->igv = $request->input('deducible');//DEDUCIBLE
-            $Ticket->total = $request->input('total');
+            $Ticket->total = (float)$request->input('total');
             $Ticket->tipomovimiento_id=1;//TICKET
             $Ticket->tipodocumento_id=1;//TICKET
             $Ticket->persona_id = $request->input('person_id');
@@ -691,7 +692,7 @@ class TicketController extends Controller
             for($c=0;$c<count($arr);$c++){
                 $Detalle = new Detallemovcaja();
                 $Detalle->movimiento_id=$Ticket->id;
-                if($request->input('txtIdTipoServicio'.$arr[$c])!="0"){
+                if(((int)($request->input('txtIdTipoServicio'.$arr[$c])))!=0){
                     $Detalle->servicio_id=$request->input('txtIdServicio'.$arr[$c]);
                     $Detalle->descripcion="";
                     $servicio = Servicio::find($Detalle->servicio_id);
@@ -721,8 +722,11 @@ class TicketController extends Controller
 
             //Solo si se genera un comprobante de pago
 
-            if($request->input('total') == $request->input('total2')){
-                if($pagohospital>0){//Puse con pago hospital por generar F.E.            
+            $tot1 = (float)($request->input('total'));
+            $tot2 = (float)($request->input('total2'));
+
+            if($tot1 == $tot2) {
+                if($tot1>0.00){//Puse con pago hospital por generar F.E.            
                     //Genero Documento de Venta
                     //Boleta
                     if($request->input('tipodocumento')=="Boleta"){
@@ -2594,4 +2598,70 @@ class TicketController extends Controller
         return is_null($error) ? "OK" : $error;
     }
 
+    public function guardarTemporal(Request $request)
+    {
+        $error = DB::transaction(function() use($request){
+            $save = $request->input('tabladetallestemporal');
+            $person_id = $request->input('person_id');
+            $tipodocumento = $request->input('tipodocumento');
+            $plan_id = $request->input("plan_id");
+            $deducible = $request->input("deducible");
+            $coa = $request->input("coa");
+            $tipopaciente = $request->input("tipopaciente");
+            $ruc = $request->input("ruc");
+            $referido_id = $request->input("referido_id");
+            $model = Save::find(1);
+            if ($model === NULL) {
+                $model = new Save();
+            }
+            $model->texto = $save;
+            $model->person_id = $person_id;
+            $model->tipodocumento = $tipodocumento;
+            $model->plan_id = $plan_id;
+            $model->deducible = $deducible;
+            $model->coa = $coa;
+            $model->tipopaciente = $tipopaciente;
+            $model->ruc = $ruc;
+            $model->referido_id = $referido_id;
+            $model->save();
+        });
+        return is_null($error) ? "OK" : $error;
+    }
+
+    public function mostrarTemporal(Request $request)
+    {   
+        $save = [];
+        $model = Save::find(1);
+        if ($model !== NULL) {
+            $save['tabla'] = $model->texto;
+            $save['person_id'] = $model->person_id;
+            $save['tipodocumento'] = $model->tipodocumento;
+            $save['coa'] = $model->coa;
+            $save['deducible'] = $model->deducible;
+            $save['tipopaciente'] = $model->tipopaciente;
+            $save['ruc'] = $model->ruc;
+
+            $resultado = Historia::join('person', 'person.id', '=', 'historia.person_id')
+                ->leftjoin('convenio', 'convenio.id', '=', 'historia.convenio_id')
+                ->where('person.id', '=', $model->person_id)
+                ->select('historia.id as ih', 'historia.numero as nh','convenio.nombre as convenio2','convenio.plan_id', DB::raw('concat(person.dni,\' \',apellidopaterno,\' \',apellidomaterno,\' \',nombres) as paciente'), 'person.dni');
+            $list      = $resultado->get();
+            foreach ($list as $p) {
+                $plan = Plan::find($model->plan_id);
+                $save['historia_id'] = $p->ih;
+                $save['numero_historia'] = $p->nh;
+                $save['paciente'] = $p->paciente;
+                $save['dni'] = $p->dni;
+                $save['plan'] = $plan->nombre;
+                $save['plan_id'] = $plan->id;                
+            }
+
+            if($model->referido_id !== '') {
+                $pe = Person::find($model->referido_id);
+                $save['referido_id'] = $pe->id;
+                $save['nombre_referido'] = $pe->apellidopaterno . ' ' . $pe->apellidomaterno . ' ' . $pe->nombres;
+            }
+        }         
+        return json_encode($save);
+    }
 }

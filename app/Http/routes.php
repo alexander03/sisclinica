@@ -1103,10 +1103,18 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('historiaclinica/cie10autocompletar/{searching}', 'HistoriaClinicaController@cie10autocompletar')->name('historiaclinica.cie10autocompletar');
     Route::get('historiaclinica/examenesAutocompletar/{searching}', 'HistoriaClinicaController@examenesAutocompletar')->name('historiaclinica.examenesAutocompletar');
 
+    Route::post('historiaclinica/infoAntecedentes', 'HistoriaClinicaController@infoAntecedentes');
+    Route::post('historiaclinica/actualizarAntecedentes', 'HistoriaClinicaController@actualizarAntecedentes');
+
     //UNIR HC
     Route::get('historia/unirHistorias', 'HistoriaController@unirHistorias')->name('historia.unirHistorias');
+    Route::get('historia/unirHistorias2', 'HistoriaController@unirHistorias2')->name('historia.unirHistorias2');
 
-      /* MIGRAR EXCEL*/
+    //GUARDAR TEMPORAL
+    Route::post('ticket/guardarTemporal', 'TicketController@guardarTemporal');
+    Route::post('ticket/mostrarTemporal', 'TicketController@mostrarTemporal');
+
+    /* MIGRAR EXCEL*/
     Route::get('importHistoria', 'ExcelController@importHistoria');
     Route::get('downloadExcel/{type}', 'ExcelController@downloadExcel');
     Route::post('importHistoriaExcel', 'ExcelController@importHistoriaExcel');
