@@ -31,11 +31,23 @@ use App\Person;
 					<td>{{ $value->paciente }}</td>
 					<td>{{ $doctor_nombre }}</td>
 					<td>{{ $doctor->especialidad->nombre }}</td>
-					<td align="center">{{ number_format($sumapago,2,'.','') }}</td>
-					
+					@if($tipo == "P")
+						<td align="center">{{ number_format($sumapago,2,'.','') }}</td>
+					@else
+						<td align="center">
+							<input type="text" class="input-xs form-control" id="monto{{ $value->movimiento->id }}" disabled>
+						</td>
+					@endif
 					<td style="color:black;font-weight: bold;">
 						<center>
-							<input id="{{ $value->movimiento->id }}" doctor="{{ $doctor->id }}" pago="{{ number_format($sumapago,2,'.','') }}" class="pagar" checked="checked" name="pagar" type="checkbox"><a href="#" id="{{ $value->movimiento->id }}" onclick="checkear({{ $value->movimiento->id }});"> Pagar</a>
+							@if($tipo == "P")
+								<input id="{{ $value->movimiento->id }}" doctor="{{ $doctor->id }}" pago="{{ number_format($sumapago,2,'.','') }}" class="pagar" checked="checked" name="pagar" type="checkbox"><a href="#" id="{{ $value->movimiento->id }}" onclick="checkear({{ $value->movimiento->id }});"> Pagar</a>
+							@else
+							<a href="#" id="{{ $value->movimiento->id }}" onclick="checkear({{ $value->movimiento->id }});">
+								<input id="{{ $value->movimiento->id }}" doctor="{{ $doctor->id }}" pago="{{ number_format($sumapago,2,'.','') }}" class="pagar" name="pagar" type="checkbox" onclick="checkear({{ $value->movimiento->id }});">
+						 		Pagar
+							</a>
+							@endif
 						</center>
 					</td>
 				</tr>
@@ -54,29 +66,45 @@ $(document).ready(function() {
 function checkear(id){
 	if( $("input[id=" + id + "]").prop('checked') == true ) {
 		$("input[id=" + id + "]").prop('checked',false);
+		$("input[id=monto" + id + "]").prop('disabled',true);
 	}else{
 		$("input[id=" + id + "]").prop('checked',true);
+		$("input[id=monto" + id + "]").prop('disabled',false);
 	}
 }
 
 
 function guardarPagoDoctores(){
 	var data = [];
-	$('.pagar:checked').each(
-		function() {
-			data.push(
-				{ 
-					"id": $(this).attr('id') ,
-					"doctor": $(this).attr('doctor') ,
-					"pago": $(this).attr('pago') ,
-				}
-			);
-		}
-	);
+	var tipopaciente = $('#tipopaciente').val();
+	if(tipopaciente == "P"){
+		$('.pagar:checked').each(
+			function() {
+				data.push(
+					{ 
+						"id": $(this).attr('id') ,
+						"doctor": $(this).attr('doctor') ,
+						"pago": $(this).attr('pago') ,
+					}
+				);
+			}
+		);
+	}else if(tipopaciente == "C"){
+		$('.pagar:checked').each(
+			function() {
+				data.push(
+					{ 
+						"id": $(this).attr('id') ,
+						"doctor": $(this).attr('doctor') ,
+						"pago": $("input[id=monto" + $(this).attr('id') + "]").val() ,
+					}
+				);
+			}
+		);
+	}
 	var detalle = {"data": data};
 	var json = JSON.stringify(detalle);
 	console.log(json);
-
 
 	$.ajax({
 		type: "POST",

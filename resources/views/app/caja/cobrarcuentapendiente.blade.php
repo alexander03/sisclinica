@@ -156,6 +156,12 @@
 		<!-- OPCIONES -->
 		<div class="opciones"  @if($resumen->total == $movimiento->total) style="display: none;" @endif>
 			<div class="form-group" id="genComp">
+				<div class="form-group">
+					{!! Form::label('facturacion', 'Facturar con:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
+					<div class="col-lg-4 col-md-4 col-sm-4">
+						{!! Form::select('facturacion', $cboFacturar, '', array('class' => 'form-control input-xs', 'id' => 'facturacion', 'onchange' => 'generarNumero();')) !!}
+					</div>
+				</div>
 		        <!--{!! Form::label('plan', 'Generar:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label input-sm')) !!}
 				<div class="col-lg-2 col-md-2 col-sm-2">
 					{!! Form::hidden('comprobante', 'S', array('id' => 'comprobante')) !!}
@@ -166,7 +172,7 @@
 		            {!! Form::label('pago', 'Pago', array('class' => 'col-lg-10 col-md-10 col-sm-10 control-label input-sm datocaja')) !!}
 				</div>-->
 				{!! Form::label('caja_id', 'Caja:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label input-sm datocaja caja')) !!}
-				<div class="col-lg-3 col-md-3 col-sm-3">
+				<div class="col-lg-4 col-md-4 col-sm-4">
 					<select name="caja_id" id="caja_id" class="form-control input-xs datocaja caja">
 						<option value="{{ $cboCaja[0]->id }}">{{ $cboCaja[0]->nombre }}</option>
 					</select>
@@ -584,10 +590,15 @@
 	}
 
 	function generarNumero(){
+		if($('#facturacion').val() == 1 ){
+			$('#serieventa').val('001');
+		}else if($('#facturacion').val() == 2 ){
+			$('#serieventa').val('003');
+		}
 	    $.ajax({
 	        type: "POST",
 	        url: "ticket/generarNumero",
-	        data: "tipodocumento="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="tipodocumento"]').val()+"&serie="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="serieventa"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val() + '&caja_id=' + $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="caja_id"]').val(),
+	        data: "tipodocumento="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="tipodocumento"]').val()+"&serie="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="serieventa"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val() + '&caja_id=' + $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="caja_id"]').val() + '&facturacion=' + $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="facturacion"]').val(),
 	        success: function(a) {
 	            $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="numeroventa"]').val(a);
 	            if($(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="tipodocumento"]').val()=="Factura"){

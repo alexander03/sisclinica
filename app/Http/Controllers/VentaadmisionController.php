@@ -75,7 +75,14 @@ class VentaadmisionController extends Controller
                             ->leftjoin('movimiento as m2','m2.id','=','movimiento.movimiento_id')
                             ->where('movimiento.tipomovimiento_id','=',4)
                             ->where('movimiento.ventafarmacia','=',$ventafarmacia)
-                            ->where('movimiento.sucursal_id','=',$sucursal_id)
+                            //->where('movimiento.sucursal_id','=',$sucursal_id)
+                            ->where(function($q) use($sucursal_id) {            
+                                if($sucursal_id == 1){
+                                    $q->where('movimiento.caja_id', '=', '1');
+                                }else{
+                                    $q->where('movimiento.caja_id', '=', '2')->Where('movimiento.sucursal_id', '=', '2');
+                                }
+                            })
                             //->where('movimiento.situacion','<>','U')
                             ->where('m2.tipomovimiento_id','=',$tipomovimiento_id);
         if($request->input('fechainicial')!=""){

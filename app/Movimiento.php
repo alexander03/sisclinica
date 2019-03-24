@@ -83,7 +83,9 @@ class Movimiento extends Model
             if($serie==0){
                 $rs=$query->where('caja_id','=',$caja_id)->where('sucursal_id','=',$sucursal_id)->where('tipomovimiento_id','=',$tipomovimiento_id)->where('manual','like',$manual)->where('tipodocumento_id','=',$tipodocumento_id)->select(DB::raw("max((CASE WHEN numero IS NULL THEN 0 ELSE numero END)*1) AS maximo"))->first();
             }else{
-                $rs=$query->where('caja_id','=',$caja_id)->where('sucursal_id','=',$sucursal_id)->where('tipomovimiento_id','=',$tipomovimiento_id)->where('manual','like',$manual)->where('tipodocumento_id','=',$tipodocumento_id)->where('serie','=',$serie)->select(DB::raw("max((CASE WHEN numero IS NULL THEN 0 ELSE numero END)*1) AS maximo"))->first();
+                //QUITAMOS CAJA_ID PARA QUE SIGA EL CORRELATIVO ASI FACTURE CAJA OJOS CON RUC ESPECIALIDADES
+                $rs=$query->where('sucursal_id','=',$sucursal_id)->where('tipomovimiento_id','=',$tipomovimiento_id)->where('manual','like',$manual)->where('tipodocumento_id','=',$tipodocumento_id)->where('serie','=',$serie)->select(DB::raw("max((CASE WHEN numero IS NULL THEN 0 ELSE numero END)*1) AS maximo"))->first();
+                //$rs=$query->where('caja_id','=',$caja_id)->where('sucursal_id','=',$sucursal_id)->where('tipomovimiento_id','=',$tipomovimiento_id)->where('manual','like',$manual)->where('tipodocumento_id','=',$tipodocumento_id)->where('serie','=',$serie)->select(DB::raw("max((CASE WHEN numero IS NULL THEN 0 ELSE numero END)*1) AS maximo"))->first();
             }
         }
         return str_pad($rs->maximo+1,8,'0',STR_PAD_LEFT);    
