@@ -80,6 +80,8 @@ use App\Detallemovcaja;
 	            	@if($value->total>0)
 	                	<td align="center" style="display:none;">{!! Form::button('<div class="glyphicon glyphicon-print"></div>', array('onclick' => 'window.open(\'ticket/pdfComprobante?ticket_id='.$value->id.'\',\'_blank\')', 'class' => 'btn btn-xs btn-info', 'title'=>'Comprobante A4')) !!}</td>
 	                	<td align="center" style="display:none;">{!! Form::button('<div class="glyphicon glyphicon-print"></div>', array('onclick' => 'window.open(\'ticket/pdfComprobante3?ticket_id='.$value->id.'\',\'_blank\')', 'class' => 'btn btn-xs btn-info', 'title'=>'Comprobante Ticketera')) !!}</td>
+	                	<td align="center"> - </td>
+	                	<td align="center"> - </td>
 	                @else
 	                	<td align="center">{!! Form::button('<div class="glyphicon glyphicon-print"></div>', array('onclick' => 'window.open(\'ticket/pdfPrefactura?ticket_id='.$value->id.'\',\'_blank\')', 'class' => 'btn btn-xs btn-info', 'title' => 'Prefactura')) !!}</td>
 	                	<td align="center"> - </td>
@@ -89,13 +91,21 @@ use App\Detallemovcaja;
 	                <td align="center"> - </td>
 	            @endif
 	           
-				@if(($user->usertype_id==1 || $user->usertype_id==5) && $value->situacion=='P' && $value->total!==0)
-					<td align="center">{!! Form::button('<div class="glyphicon glyphicon-pencil"></div>', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning', 'title' => 'Editar')) !!}</td>
+				@if($user->usertype_id==1 || $user->usertype_id==5)
+					@if($value->situacion=='P' && $value->total!==0)
+						<td align="center">{!! Form::button('<div class="glyphicon glyphicon-pencil"></div>', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning', 'title' => 'Editar')) !!}</td>
+					@else
+						<td align="center"> - </td>
+					@endif						
 				@else
 					<td align="center"> - </td>
 				@endif
-				@if(($user->usertype_id==1 || $user->usertype_id==7 || $user->usertype_id==5 || $user->usertype_id==2) && $value->total!==0 && $value->situacion=='P')
-					<td align="center">{!! Form::button('<div class="glyphicon glyphicon-minus"></div>', array('onclick' => 'modal (\''.URL::route($ruta["anular"], array($value->id, 'listar'=>'SI')).'\', \'Anular\', this);', 'class' => 'btn btn-xs btn-danger', 'title' => 'Anular')) !!}</td>
+				@if($user->usertype_id==1 || $user->usertype_id==7 || $user->usertype_id==5 || $user->usertype_id==2)
+					@if($value->total!==0 && $value->situacion=='P')
+						<td align="center">{!! Form::button('<div class="glyphicon glyphicon-minus"></div>', array('onclick' => 'modal (\''.URL::route($ruta["anular"], array($value->id, 'listar'=>'SI')).'\', \'Anular\', this);', 'class' => 'btn btn-xs btn-danger', 'title' => 'Anular')) !!}</td>
+					@else
+						<td align="center"> - </td>
+					@endif					
 				@else
 					<td align="center"> - </td>
 				@endif
