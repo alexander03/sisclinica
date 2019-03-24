@@ -72,6 +72,7 @@ class TicketController extends Controller
         $numero           = Libreria::getParam($request->input('numero'),'');
         $fecha            = Libreria::getParam($request->input('fecha'));
         $tipo             = Libreria::getParam($request->input('clasificacionconsulta'));
+        $turno            = Libreria::getParam($request->input('turno'));
         $user = Auth::user();
         if($request->input('usuario')=="Todos"){
             $responsable_id=0;
@@ -93,6 +94,9 @@ class TicketController extends Controller
         if($tipo!=""){
             $resultado = $resultado->where('movimiento.clasificacionconsulta', 'like', '%'.$tipo.'%');
         }
+        if($turno!=""){
+            $resultado = $resultado->where('movimiento.turno', 'like', '%'.$turno.'%');
+        }
         if($responsable_id>0){
             $resultado = $resultado->where('movimiento.responsable_id', '=', $responsable_id);   
         }
@@ -107,6 +111,7 @@ class TicketController extends Controller
         $cabecera[]       = array('valor' => 'Paciente', 'numero' => '1');
         if($sucursal_id == 1){
             $cabecera[]       = array('valor' => 'Tipo', 'numero' => '1');
+            $cabecera[]       = array('valor' => 'Turno', 'numero' => '1');
         }
         $cabecera[]       = array('valor' => 'Total', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Situacion', 'numero' => '1');

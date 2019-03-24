@@ -41,6 +41,10 @@
 								{!! Form::select('clasificacionconsulta', array(''=>'Todos', 'C'=>'Consulta', 'E'=>'Emergencia', 'L'=>'Lect.Resultados','X'=>'Examen', 'P'=>'Procedimiento', 'O'=>'Cirugía'), 'Todos', array('class' => 'form-control input-xs', 'id' => 'clasificacionconsulta', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
 							</div>
 							<div class="form-group">
+								{!! Form::label('turno', 'Turno:') !!}
+								{!! Form::select('turno', array(''=>'Todos', 'M'=>'Mañana', 'T'=>'Tarde'), 'Todos', array('class' => 'form-control input-xs', 'id' => 'turno', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
+							</div>
+							<div class="form-group">
 								{!! Form::label('usuario', 'Mi Usuario:') !!}
 								{!! Form::hidden('usuario', '', array('id' => 'usuario')) !!}
 								<input type="checkbox" checked="" name="check" id="check" onclick="if(this.checked){$('#usuario').val('');}else{$('#usuario').val('Todos');}">

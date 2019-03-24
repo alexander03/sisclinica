@@ -927,19 +927,56 @@ class HistoriaController extends Controller
 
         // set image scale factor
         $pdf::setImageScale(PDF_IMAGE_SCALE_RATIO);
-        foreach ($citas as $cita) {
-            $pdf::AddPage();
-            $pdf::Image("http://localhost:81/clinica/dist/img/logo2-ojos.jpg", 20, 26, 50, 15);
-            $pdf::SetFont('helvetica','B',15);
-            $pdf::Cell(60,10,"",0,0,'C');
-            $pdf::Cell(75,10,"",0,0,'C');
-            $pdf::SetFont('helvetica','B',10);
-            $pdf::Cell(40,10,utf8_decode('Historia '.$historia->numero),1,0,'C');
-            $pdf::Ln();
-            $pdf::SetFont('helvetica','B',15);
-            $pdf::Cell(60,10,strtoupper(""),0,0,'C');
-            $pdf::Cell(70,10,"",0,0,'C');
-            $pdf::Cell(60,6,"",0,0,'C');
+
+        $pdf::AddPage();
+        $pdf::Image("http://localhost/clinica/dist/img/logo2-ojos.jpg", 20, 26, 50, 15);
+        $pdf::SetFont('helvetica','B',15);
+        $pdf::Cell(60,10,"",0,0,'C');
+        $pdf::Cell(75,10,"",0,0,'C');
+        $pdf::SetFont('helvetica','B',10);
+        $pdf::Cell(40,10,utf8_decode('Historia '.$historia->numero),1,0,'C');
+        $pdf::Ln();
+        $pdf::SetFont('helvetica','B',15);
+        $pdf::Cell(60,10,strtoupper(""),0,0,'C');
+        $pdf::Cell(70,10,"",0,0,'C');
+        $pdf::Cell(60,6,"",0,0,'C');
+            
+        $o = 0;
+        foreach ($citas as $cita) {            
+
+            //Solo los antecedentes anteriores del paciente :v
+
+            if($o == 0) {
+
+                $pdf::Ln(4);
+                $pdf::SetFont('helvetica','B',14);
+                $pdf::Cell(48,10,"",0,0,'C');
+                $pdf::Cell(95,10,'ANTECEDENTES ANTERIORES','B',0,'C');
+                $pdf::Ln(4);
+                $pdf::Ln(4);
+                $pdf::Ln(4);
+                $pdf::Ln(4);
+                $pdf::Cell(8,8,"",0,0,'C');
+                $pdf::SetFont('helvetica','B',9);
+                $pdf::Cell(35,8,utf8_decode("PACIENTE: "),0,0,'L');
+                $pdf::SetFont('helvetica','',9);
+                $pdf::Multicell(120,8,($historia->persona->apellidopaterno." ".$historia->persona->apellidomaterno." ".$historia->persona->nombres),0,'L');
+
+                $pdf::Ln(2);
+                $pdf::Ln(3);
+                $pdf::Ln(3);
+                $pdf::SetFont('helvetica','',9);
+                $pdf::Cell(8,8,"",0,0,'C');
+                $pdf::Multicell(165,8,($historia->antecedentes2),0,'L');
+
+                $pdf::Ln(2);
+                $pdf::Ln(3);
+                $pdf::Ln(3);
+
+            }
+
+            //
+
             $pdf::Ln(4);
             $pdf::SetFont('helvetica','B',14);
             $pdf::Cell(48,10,"",0,0,'C');
@@ -1134,6 +1171,7 @@ class HistoriaController extends Controller
             $pdf::Cell(35,8,"COMENTARIO: ",0,0,'L');
             $pdf::SetFont('helvetica','',9);
             $pdf::Multicell(120,8,$cita->comentario== null ?'-':$cita->comentario,0,'L');
+            $o++;
         }
         $pdf::Output('HistorialCitas.pdf');
     }
