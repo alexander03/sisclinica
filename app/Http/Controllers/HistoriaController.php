@@ -929,7 +929,7 @@ class HistoriaController extends Controller
         $pdf::setImageScale(PDF_IMAGE_SCALE_RATIO);
 
         $pdf::AddPage();
-        $pdf::Image("http://localhost/clinica/dist/img/logo2-ojos.jpg", 20, 26, 50, 15);
+        $pdf::Image("http://localhost:81/clinica/dist/img/logo2-ojos.jpg", 20, 26, 50, 15);
         $pdf::SetFont('helvetica','B',15);
         $pdf::Cell(60,10,"",0,0,'C');
         $pdf::Cell(75,10,"",0,0,'C');
@@ -940,7 +940,7 @@ class HistoriaController extends Controller
         $pdf::Cell(60,10,strtoupper(""),0,0,'C');
         $pdf::Cell(70,10,"",0,0,'C');
         $pdf::Cell(60,6,"",0,0,'C');
-            
+
         $o = 0;
         foreach ($citas as $cita) {            
 

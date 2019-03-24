@@ -706,6 +706,7 @@ class HistoriaClinicaController extends Controller
             ->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'), 'LIKE', '%'.$nombre.'%')
             ->orderBy('historiaclinica.id', 'ASC')
             ->select('historiaclinica.*')
+            ->limit(22)
             ->get();
         
         }

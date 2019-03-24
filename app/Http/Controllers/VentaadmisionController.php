@@ -5165,7 +5165,7 @@ class VentaadmisionController extends Controller
 
     public function llamarAtender(Request $request){
 
-        $tabla="<table class='table table-bordered table-striped table-condensed table-hover' style='width:auto; vertical-align:middle;'>
+        $tabla="<table class='table table-responsive table-bordered table-striped table-condensed table-hover'>
                         <tbody>";
 
         $consultas = Movimiento::where('fecha', date('Y-m-d') )->where('sucursal_id' , '=' , 1)->where('tiempo_fondo', null)->where('clasificacionconsulta','like','C')->where('situacion2', 'like', 'C')->orderBy('turno','ASC')->orderBy('tiempo_cola','ASC')
@@ -5351,7 +5351,7 @@ class VentaadmisionController extends Controller
         $lista            = $resultado->get();
 
 
-        $tabla="<table class='table table-bordered table-striped table-condensed table-hover' style='width:100%; vertical-align:middle;'>
+        $tabla="<table class='table table-responsive table-bordered table-striped table-condensed table-hover'>
                         <tbody>";
 
         $tabla = $tabla . " <tr>

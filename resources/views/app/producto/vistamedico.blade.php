@@ -328,7 +328,6 @@ Session::set('sucursal_id', 1);
 									<div class="box-header">
 										<div class="row">
 
-
 											<div class="form-group col-sm-4">
 												{!! Form::label('nombre_atendido', 'Nombre:') !!}
 												{!! Form::text('nombre_atendido', '', array('class' => 'form-control input-xs', 'id' => 'nombre_atendido')) !!}
@@ -1076,7 +1075,10 @@ Session::set('sucursal_id', 1);
 			"url": "{{ url('/historiaclinica/tablaAtendidos') }}",
 			"data": {
 				"_token": "{{ csrf_token() }}",
-				}
+				},
+			beforeSend:function() {
+				$('#tablaAtendidos').html('Cargando...');
+			}
 		}).done(function(info){
 			$('#tablaAtendidos').html(info);
 		});
@@ -1142,6 +1144,9 @@ Session::set('sucursal_id', 1);
 	        type: "POST",
 	        url: "historiaclinica/tablaAtendidos",
 	        data: "nombre=" + $("#nombre_atendido").val() + "&_token=<?php echo csrf_token(); ?>",
+	        beforeSend:function() {
+	        	$('#tablaAtendidos').html('Cargando...');
+	        },
 	        success: function(a) {
 	        	$('#tablaAtendidos').html(a);
 	        }
@@ -1215,7 +1220,7 @@ Session::set('sucursal_id', 1);
 					"_token": "{{ csrf_token() }}",
 				},
 				beforeSend: function() {
-					$(this).html('Cargando');
+					$(this).html('Cargando...');
 					$('.btnLlamarPaciente').attr('disabled', 'disabled');
 				},
 				success: function() {
@@ -1231,7 +1236,7 @@ Session::set('sucursal_id', 1);
 	        data: "_token=<?php echo csrf_token(); ?>",
 	        dataType: "json",
 	        beforeSend: function() {
-				$(this).html('Cargando');
+				$(this).html('Cargando...');
 				$('.btnLlamarPaciente').attr('disabled', 'disabled');
 			},
 	        success: function(a) {
@@ -1499,7 +1504,7 @@ Session::set('sucursal_id', 1);
 					$("#citaproxima").prop('disabled', true);
 					$("#examenes").prop('disabled', true);
 					$("#motivo").prop('disabled', true);
-					$("#btnGuardar").prop('disabled', true);
+					$("#btnGuardar").prop('disabled', true).html('<i class="glyphicon glyphicon-check"></i> Guardar');
 					$("#fondo").prop('disabled', true);
 					$('#fondo').prop('checked', false);
 					tablaAtendidos();
