@@ -678,8 +678,25 @@ class VentaController extends Controller
 
     public function consultaproducto(Request $request)
     {
+        $sucursal_id = Session::get('sucursal_id');
+
+        $user=Auth::user();
+        if($sucursal_id == 1) {
+            if($user->usertype_id == 11) {
+                $almacen_id = 1;
+            } else {
+                $almacen_id = 2;
+            }
+        } else {
+            if($user->usertype_id == 11) {
+                $almacen_id = 3;
+            } else {
+                $almacen_id = 4;
+            }
+        }
+
         $producto = Producto::find($request->input("idproducto"));
-        $currentstock = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $producto->id)->where('movimiento.almacen_id', '=',1)->orderBy('kardex.id', 'DESC')->first();
+        $currentstock = Kardex::join('detallemovimiento', 'kardex.detallemovimiento_id', '=', 'detallemovimiento.id')->join('movimiento', 'detallemovimiento.movimiento_id', '=', 'movimiento.id')->where('producto_id', '=', $producto->id)->where('movimiento.almacen_id', '=',$almacen_id)->orderBy('kardex.id', 'DESC')->first();
         $stock = 0;
         if ($currentstock !== null) {
             $stock=$currentstock->stockactual;

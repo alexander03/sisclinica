@@ -10046,6 +10046,8 @@ class CajaController extends Controller
             $Ticket->nummaster = $request->input('nummaster');
             $Ticket->situacion2 = 'C'; // Cola
 
+            $Ticket->clasificacionconsulta = $request->input('cclasconsulta');
+
             if($request->input('total') == $request->input('total2')){
                 $Ticket->situacion='C';//Pendiente => P / Cobrado => C / Boleteado => B                
             } else {
@@ -10350,6 +10352,8 @@ class CajaController extends Controller
 
         $error = DB::transaction(function() use($request,$user, $sucursal_id,&$dat,&$numeronc){
             $Ticket = Movimiento::find($request->input('id'));
+
+            $Ticket->clasificacionconsulta = $request->input('clasconsulta');
 
             //Solo si se paga el total
 
@@ -11524,7 +11528,9 @@ class CajaController extends Controller
         $pdf::Output('PorProductoAgrupado.pdf');
     }
 
-    public function cambiartipocons($tipo, $id) {
+    public function cambiartipocons(Request $request) {
+        $tipo = $request->input('clas');
+        $id = (int)$request->input('id');
         $tk = Movimiento::find($id);
         $tk->clasificacionconsulta = $tipo;
         $tk->save();

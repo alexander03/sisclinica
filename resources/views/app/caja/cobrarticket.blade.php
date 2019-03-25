@@ -218,15 +218,20 @@
 		}
 	});
 
-	$(document).on('change', '#cclasconsulta', function(e) {
+	{{--$(document).on('change', '#cclasconsulta', function(e) {
 		e.preventDefault();
+		e.stopImmediatePropagation();
 		$.ajax({
-			url: "caja/cambiartipocons/" + $('#cclasconsulta').val() + "/{{ $movimiento->id }}",
+			url: "caja/cambiartipocons",
 			type: "GET",
+			data: {
+				'clas': $(this).val(),
+				'id': '{{$movimiento->id}}',
+			}
 		}).fail(function() {
 			alert('ERROR AL CAMBIAR TIPO.');
 		});
-	});
+	});--}}
 
 	$(document).ready(function() {
 		configurarAnchoModal('1200');

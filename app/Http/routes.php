@@ -654,7 +654,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     //CAMBIO TIPO CONSULTA
 
-    Route::get('caja/cambiartipocons/{tipo}/{id}', 'CajaController@cambiartipocons')->name('caja.cambiartipocons');
+    Route::get('caja/cambiartipocons', 'CajaController@cambiartipocons')->name('caja.cambiartipocons');
 
     //ANULAR DOC VENTA PROVISIONAL
 
