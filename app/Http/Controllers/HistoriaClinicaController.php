@@ -706,7 +706,6 @@ class HistoriaClinicaController extends Controller
             ->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'), 'LIKE', '%'.$nombre.'%')
             ->orderBy('historiaclinica.id', 'ASC')
             ->select('historiaclinica.*')
-            ->limit(22)
             ->get();
         
         }
@@ -718,7 +717,7 @@ class HistoriaClinicaController extends Controller
                                     <th class='text-center'>Hora</th>
                                     <th class='text-center'>Paciente</th>
                                     <th class='text-center'>Doctor</th>
-                                    <th class='text-center' colspan='2'>Acciones</th>
+                                    <th class='text-center' colspan='3'>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>";
@@ -740,6 +739,8 @@ class HistoriaClinicaController extends Controller
                 <td><center>" .  $doctor->apellidopaterno . ' ' . $doctor->apellidomaterno . ' ' . $doctor->nombres . "</center></td>
                 <td><center><button class='btn btn-success btn-sm btnVerCita' id='btnVerCita' onclick='ver(".$value->id.")' data-toggle='modal' data-target='#exampleModal1' type='button'><i class='fa fa-eye fa-lg'></i> Ver Cita</button></center>
                 <td><center><button class='btn btn-primary btn-sm btnEditarCita' id='btnEditarCita' onclick='editar(".$value->id.")' data-toggle='modal' data-target='#exampleModal2' type='button'><i class='fa fa-pencil fa-lg'></i> Editar</button></center>
+                </td>
+                <td><center><button class='btn btn-info btn-sm' data-toggle='modal' data-target='#exampleModal4' onclick='abrirModalAntecedentesPasados(\"".$historia->numero."\", \"" . $historia->persona->apellidopaterno . ' ' . $historia->persona->apellidomaterno . ' ' . $historia->persona->nombres . "\")' type='button'><i class='fa fa-eye fa-lg'></i> Antecedentes</button></center>
                 </td></tr>";
                 $c++;
             }

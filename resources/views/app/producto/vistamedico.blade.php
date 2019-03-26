@@ -1807,11 +1807,34 @@ Session::set('sucursal_id', 1);
 			"data": {
 				"historia" : historia, 
 				"_token": "{{ csrf_token() }}",
-				}
+				},
+            beforeSend:function() {
+            	$('#infoAntecedentes').attr('readonly', 'readonly').html('');
+            }
 		}).done(function(info){
-			$('#infoAntecedentes').html(info).focus();
+			$('#infoAntecedentes').removeAttr('readonly').html(info).focus();
 		});
 	});
+
+	function abrirModalAntecedentesPasados(id, paciente) {
+		$.ajax({
+			"method": "POST",
+			"url": "{{ url('/historiaclinica/infoAntecedentes') }}",
+			"data": {
+				"historia" : id, 
+				"_token": "{{ csrf_token() }}",
+				},
+			beforeSend:function() {
+				$('#infoAntecedentes').attr('readonly', 'readonly').html('');
+			}
+		}).done(function(info){
+			$('#historia').val(id);
+			$('#tituloantecedentes').html('Antecedentes de '+paciente);
+			$('#infoAntecedentes').removeAttr('readonly').html(info).focus();
+		}).fail(function() {
+			alert('Ha ocurrido un error.' + id);
+		});
+	}
 
 	$(document).on('keyup', '#infoAntecedentes', function(event) {
 		var historia = $('#historia').val();

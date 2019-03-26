@@ -62,7 +62,7 @@ class CitaController extends Controller
                             ->join('especialidad','especialidad.id','=','doctor.especialidad_id')
                             ->leftjoin('historia','historia.id','=','cita.historia_id')
                             ->where('cita.paciente', 'LIKE', '%'.strtoupper($paciente).'%')
-                            ->where('historia.sucursal_id','=',$sucursal_id)
+                            //->where('historia.sucursal_id','=',$sucursal_id)
                             ->where(DB::raw('concat(doctor.apellidopaterno,\' \',doctor.apellidomaterno,\' \',doctor.nombres)'), 'LIKE', '%'.strtoupper($doctor).'%');
         if($fecha!=""){
             $resultado = $resultado->where('cita.fecha', '=', ''.$fecha.'');
@@ -496,11 +496,14 @@ class CitaController extends Controller
     }
 
     public function cargarCitaMedico(Request $request){
+        $sucursal_id = Session::get('sucursal_id');
+
         $resultado        = Cita::leftjoin('person as paciente', 'paciente.id', '=', 'cita.paciente_id')
                             ->join('person as doctor', 'doctor.id', '=', 'cita.doctor_id')
                             ->join('especialidad','especialidad.id','=','doctor.especialidad_id')
                             ->leftjoin('historia','historia.id','=','cita.historia_id')
                             ->where('cita.doctor_id', '=', $request->input('idmedico'))
+                            //->where('historia.sucursal_id','=',$sucursal_id)
                             ->where('cita.situacion','<>','A');
         if($request->input('fecha')!=""){
             $resultado = $resultado->where('cita.fecha', '=', ''.$request->input('fecha').'');

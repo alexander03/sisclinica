@@ -80,7 +80,7 @@ class HistoriaController extends Controller
         $resultado        = $resultado->select('historia.*')->orderBy('historia.numero', 'ASC');
         $vistamedico           = $request->input('vistamedico');
         if($vistamedico != "SI"){ 
-            $resultado = $resultado->limit(20);
+            $resultado = $resultado->limit(100);
         }
         $lista            = $resultado->get();
         $cabecera         = array();
