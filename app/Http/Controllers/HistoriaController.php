@@ -61,6 +61,7 @@ class HistoriaController extends Controller
         $nombre           = Libreria::getParam($request->input('nombre'),'');
         $dni              = Libreria::getParam($request->input('dni'));
         $numero           = Libreria::getParam($request->input('numero'));
+        $numero2          = Libreria::getParam($request->input('numero2'));
         $tipopaciente             = Libreria::getParam($request->input('tipopaciente'));
         $resultado        = Historia::join('person', 'person.id', '=', 'historia.person_id')
                             ->leftjoin('convenio', 'convenio.id', '=', 'historia.convenio_id')
@@ -72,6 +73,9 @@ class HistoriaController extends Controller
         }
         if($numero!=""){
             $resultado = $resultado->where('historia.numero', 'LIKE', '%'.strtoupper($numero).'%');   
+        }
+        if($numero2!=""){
+            $resultado = $resultado->where('historia.numero2', 'LIKE', '%'.strtoupper($numero2).'%');   
         }
         $resultado        = $resultado->select('historia.*')->orderBy('historia.numero', 'ASC');
         $vistamedico           = $request->input('vistamedico');
@@ -1239,10 +1243,12 @@ class HistoriaController extends Controller
             }
         }
         //Reestructurar números de historia
-        $historias = Historia::orderBy('id', 'ASC')->get();
-        echo count($historias);
+        $historias = Historia::select('historia.id')->orderBy(DB::raw('CONCAT(apellidopaterno, " ", apellidomaterno, " ", nombres)'), 'ASC')
+                    ->join('person as p', 'p.id', '=', 'historia.person_id')
+                    ->get();
         $i = 1;
-        foreach ($historias as $historia) {
+        foreach ($historias as $history) {
+            $historia = Historia::find($history->id);
             $numero2 = $historia->numero;
             $numero1 = str_pad($i,8,'0',STR_PAD_LEFT);
             if($historia->sucursal_id == 1) {

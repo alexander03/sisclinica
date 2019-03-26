@@ -804,7 +804,9 @@ class CajaController extends Controller
             $nomcierre = 'Farmacia - ' . $nomcierre;
         } 
 
-        $nomcierre = substr($nomcierre, 0, 20);
+        $nomcierre2 = $nomcierre. ' - ' . date("d/m/Y", strtotime($rst->fecha));
+
+        $nomcierre = substr($nomcierre, 0, 20);        
 
         //Pagos de tickets   
 
@@ -911,9 +913,9 @@ class CajaController extends Controller
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         
-        Excel::create('ExcelReporte', function($excel) use($listaventas, $listacuotas, $listaventasfarmacia, $listaingresosvarios, $listaegresos, $listaegresoscompra, $nomcierre, $responsable, $caja, $request) {
+        Excel::create('ExcelReporte', function($excel) use($nomcierre2, $listaventas, $listacuotas, $listaventasfarmacia, $listaingresosvarios, $listaegresos, $listaegresoscompra, $nomcierre, $responsable, $caja, $request) {
  
-            $excel->sheet("Det. Cierre " . $nomcierre, function($sheet) use($listaventas, $listacuotas, $listaventasfarmacia, $listaingresosvarios, $listaegresos, $listaegresoscompra, $nomcierre, $responsable, $caja, $request) {
+            $excel->sheet("Det. Cierre " . $nomcierre, function($sheet) use($nomcierre2, $listaventas, $listacuotas, $listaventasfarmacia, $listaingresosvarios, $listaegresos, $listaegresoscompra, $nomcierre, $responsable, $caja, $request) {
 
                 $sheet->setWidth(array(
                     'A' => 15,'B' => 40, 'C' => 5, 'D' => 10, 'E' => 35, 'F' => 50, 'G' => 10, 'H' => 10, 'I' => 10, 'J' => 10, 'K' => 10, 'L' => 15
@@ -938,7 +940,25 @@ class CajaController extends Controller
                 $subtotalegresos = 0;
                 $subtotaldolares = 0;
 
+                $indicee = 1;
+
                 //Cabecera
+
+                $cabecera1 = array();
+                $cabecera1[] = $nomcierre2;
+                $sheet->row($indicee,$cabecera1);
+                $sheet->mergeCells('A1:L1');
+
+                $sheet->cells('A1:L1', function ($cells) {
+                    $cells->setFont(array(
+                        'family'     => 'Calibri',
+                        'size'       => '25',
+                        'bold'       =>  true
+                    ));
+                    $cells->setAlignment('center');
+                });
+
+                $indicee++;
 
                 $cabecera1 = array();
                 $cabecera1[] = "FECHA";
@@ -948,18 +968,17 @@ class CajaController extends Controller
                 $cabecera1[] = "EMPRESA";
                 $cabecera1[] = "CONCEPTO";
                 $cabecera1[] = "PRECIO";
-                $cabecera1[] = "EGRESO";
-                $cabecera1[] = "INGRESO";
-                $cabecera1[] = "";
-                $cabecera1[] = "";
+                $cabecera1[] = "DSCTO";
+                $cabecera1[] = "EFECTIVO";
+                $cabecera1[] = "VISA";
+                $cabecera1[] = "MASTER";
                 $cabecera1[] = "DOCTOR";
 
-                $sheet->row(1,$cabecera1);
-                $sheet->mergeCells('C1:D1');
-                $sheet->mergeCells('I1:K1');
-                $sheet->mergeCells('A2:H2');
+                $sheet->row($indicee,$cabecera1);
+                $sheet->mergeCells('C2:D2');
+                $sheet->mergeCells('A3:L3');
 
-                $sheet->cells('A1:L3', function ($cells) {
+                $sheet->cells('A2:L2', function ($cells) {
                     $cells->setFont(array(
                         'family'     => 'Calibri',
                         'size'       => '11',
@@ -968,35 +987,22 @@ class CajaController extends Controller
                     $cells->setAlignment('center');
                 });
 
-                $cabecera2 = array();
-                $cabecera2[] = "";
-                $cabecera2[] = "";
-                $cabecera2[] = "";
-                $cabecera2[] = "";
-                $cabecera2[] = "";
-                $cabecera2[] = "";
-                $cabecera2[] = "";
-                $cabecera2[] = "";
-                $cabecera2[] = "EFECTIVO";
-                $cabecera2[] = "VISA";
-                $cabecera2[] = "MASTER";
-                $cabecera2[] = "";
-
-                $sheet->row(2,$cabecera2);
+                $a = 3;
 
                 //Recorrido para tickets
 
                 $fila = array();
 
-                $a = 3;
-
                 if(count($listaventas)>0){
+                    $sheet->row($a, array(''));
+                    $sheet->mergeCells('A'.$a.':L'.$a);
+                    $a++;
                     $sheet->row($a, array('INGRESOS POR VENTAS'));
                     $sheet->mergeCells('A'.$a.':L'.$a);
                     $sheet->cells('A'.$a.':L'.$a, function ($cells) {
                         $cells->setFont(array(
                             'family'     => 'Calibri',
-                            'size'       => '11',
+                            'size'       => '13',
                             'bold'       =>  true
                         ));
                     });
@@ -1026,9 +1032,9 @@ class CajaController extends Controller
                                 }  
                                 $nomdetalle .= ($detalle->servicio==null?$detalle->descripcion:$detalle->servicio->nombre);                      
                                 $fila[] = substr($nomdetalle,0,42);
-                                $fila[] = number_format($detalle->precio,2,'.','');                    
+                                $fila[] = number_format($detalle->precio,2,'.','');
                                 if($row2['situacion'] == 'N') {
-                                    $fila[] = '';
+                                    $fila[] = $detalle['descuento'] . ($detalle['tipodescuento']=='P'?'%':'S/.');
                                     $valuetp = number_format($row2['totalpagado'],2,'.','');
                                     $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
                                     $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
@@ -3382,6 +3388,8 @@ class CajaController extends Controller
         })->export('xls');
     }
 
+    /////////////////////////////////////////////////////////////////////////
+
     //Caja actual
     public function pdfDetalleCierre(Request $request){
         $caja    = Caja::find($request->input('caja_id'));
@@ -3761,6 +3769,66 @@ class CajaController extends Controller
             $pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
             $pdf::Cell(42,7,number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.',''),1,0,'R');
             $pdf::Ln();                 
+        }
+
+        //Solo para ingreso anterior
+
+        if($sucursal_id == 2) {
+            $listaingresosvarios = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
+                    ->leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+                    ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
+                    ->where('movimiento.tipomovimiento_id', '=', 2)
+                    ->where('movimiento.tipodocumento_id', '=', 2)
+                    ->where('movimiento.conceptopago_id', '=', 1)
+                    ->where('movimiento.sucursal_id', '=', $sucursal_id)
+                    ->where('movimiento.caja_id', '=', $caja_id)
+                    ->where('movimiento.situacion', '=', 'N')
+                    ->where('conceptopago.tipo', '=', 'I');
+
+            $listaingresosvarios = $listaingresosvarios->select('movimiento.situacion','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'conceptopago.nombre', 'movimiento.total')->orderBy('movimiento.id', 'desc');
+            
+            $listaingresosvarios = $listaingresosvarios->limit(1)->get();
+
+            if(count($listaingresosvarios)>0){
+                $pdf::SetFont('helvetica','B',8.5);
+                $pdf::Cell(281,7,'CAJA ANTERIOR',1,0,'L');
+                $pdf::Ln();
+                $subtotalefectivo = 0;
+                $subtotalvisa = 0;
+                $subtotalmaster = 0;
+                foreach ($listaingresosvarios as $row) { 
+                    $pdf::SetFont('helvetica','',6);                   
+                    $pdf::Cell(15,7,utf8_decode($row['fecha']),1,0,'C');
+                    $pdf::Cell(56,7,$row['paciente'],1,0,'L');
+                    $pdf::Cell(8,7,$row['formapago'],1,0,'C');
+                    $pdf::Cell(12,7,utf8_decode($row['voucher']),1,0,'C');
+                    $pdf::Cell(114,7,$row['nombre'].': '.$row['comentario'],1,0,'L');
+                    if($row['situacion'] == 'N') {
+                        $valuetp = number_format($row['total'],2,'.','');
+                        $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
+                        $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
+                        if($valuetp == 0){$valuetp='';}
+                        if($valuetpv == 0){$valuetpv='';}
+                        if($valuetpm == 0){$valuetpm='';}
+                        $pdf::Cell(14,7,'',1,0,'R');                    
+                        $pdf::Cell(14,7,$valuetp,1,0,'R');                    
+                        $pdf::Cell(14,7,$valuetpv,1,0,'R');
+                        $pdf::Cell(14,7,$valuetpm,1,0,'R');                    
+                        $totalefectivo += number_format($row['total'],2,'.','');
+                        $subtotalefectivo += number_format($row['total'],2,'.','');
+                    } else {
+                        $pdf::Cell(56,7,'ANULADO',1,0,'C');
+                    }
+                    $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
+                    $pdf::Ln();
+                        
+                }   
+                $pdf::SetFont('helvetica','B',8.5);
+                $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
+                $pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
+                $pdf::Cell(42,7,number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.',''),1,0,'R');
+                $pdf::Ln();                 
+            }
         }
 
         //Solo para egresos
@@ -4859,6 +4927,70 @@ class CajaController extends Controller
                 $pdf::Cell(42,7,number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.',''),1,0,'R');
                 $pdf::Ln();                 
             }
+
+            ///////////////////
+
+            //Solo para ingreso anterior
+
+            if($sucursal_id == 2) {
+                $listaingresosvarios = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
+                        ->leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+                        ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
+                        ->where('movimiento.tipomovimiento_id', '=', 2)
+                        ->where('movimiento.tipodocumento_id', '=', 2)
+                        ->where('movimiento.conceptopago_id', '=', 1)
+                        ->where('movimiento.sucursal_id', '=', $sucursal_id)
+                        ->where('movimiento.caja_id', '=', $caja_id)
+                        ->where('movimiento.situacion', '=', 'N')
+                        ->whereBetween('movimiento.id', [$apertura->id,(int)$cierre['id']])
+                        ->where('conceptopago.tipo', '=', 'I');
+                $listaingresosvarios = $listaingresosvarios->select('movimiento.situacion','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'conceptopago.nombre', 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+                
+                $listaingresosvarios = $listaingresosvarios->get();
+
+                if(count($listaingresosvarios)>0){
+                    $pdf::SetFont('helvetica','B',8.5);
+                    $pdf::Cell(281,7,'CAJA ANTERIOR',1,0,'L');
+                    $pdf::Ln();
+                    $subtotalefectivo = 0;
+                    $subtotalvisa = 0;
+                    $subtotalmaster = 0;
+                    foreach ($listaingresosvarios as $row) { 
+                        $pdf::SetFont('helvetica','',6);                   
+                        $pdf::Cell(15,7,utf8_decode($row['fecha']),1,0,'C');
+                        $pdf::Cell(56,7,$row['paciente'],1,0,'L');
+                        $pdf::Cell(8,7,$row['formapago'],1,0,'C');
+                        $pdf::Cell(12,7,utf8_decode($row['voucher']),1,0,'C');
+                        $pdf::Cell(114,7,$row['nombre'].': '.$row['comentario'],1,0,'L');
+                        if($row['situacion'] == 'N') {
+                            $valuetp = number_format($row['total'],2,'.','');
+                            $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
+                            $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
+                            if($valuetp == 0){$valuetp='';}
+                            if($valuetpv == 0){$valuetpv='';}
+                            if($valuetpm == 0){$valuetpm='';}
+                            $pdf::Cell(14,7,'',1,0,'R');                    
+                            $pdf::Cell(14,7,$valuetp,1,0,'R');                    
+                            $pdf::Cell(14,7,$valuetpv,1,0,'R');
+                            $pdf::Cell(14,7,$valuetpm,1,0,'R');                    
+                            $totalefectivo += number_format($row['total'],2,'.','');
+                            $subtotalefectivo += number_format($row['total'],2,'.','');
+                        } else {
+                            $pdf::Cell(56,7,'ANULADO',1,0,'C');
+                        }
+                        $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
+                        $pdf::Ln();
+                            
+                    }   
+                    $pdf::SetFont('helvetica','B',8.5);
+                    $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
+                    $pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
+                    $pdf::Cell(42,7,number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.',''),1,0,'R');
+                    $pdf::Ln();                 
+                }
+            }
+
+            ///////////////////
 
             //Solo para egresos
 
@@ -10046,6 +10178,8 @@ class CajaController extends Controller
             $Ticket->nummaster = $request->input('nummaster');
             $Ticket->situacion2 = 'C'; // Cola
 
+            $Ticket->clasificacionconsulta = $request->input('cclasconsulta');
+
             if($request->input('total') == $request->input('total2')){
                 $Ticket->situacion='C';//Pendiente => P / Cobrado => C / Boleteado => B                
             } else {
@@ -10350,6 +10484,8 @@ class CajaController extends Controller
 
         $error = DB::transaction(function() use($request,$user, $sucursal_id,&$dat,&$numeronc){
             $Ticket = Movimiento::find($request->input('id'));
+
+            $Ticket->clasificacionconsulta = $request->input('clasconsulta');
 
             //Solo si se paga el total
 
@@ -11524,7 +11660,9 @@ class CajaController extends Controller
         $pdf::Output('PorProductoAgrupado.pdf');
     }
 
-    public function cambiartipocons($tipo, $id) {
+    public function cambiartipocons(Request $request) {
+        $tipo = $request->input('clas');
+        $id = (int)$request->input('id');
         $tk = Movimiento::find($id);
         $tk->clasificacionconsulta = $tipo;
         $tk->save();

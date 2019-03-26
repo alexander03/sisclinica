@@ -33,8 +33,12 @@
 								{!! Form::text('dni', '', array('class' => 'form-control input-xs', 'id' => 'dni')) !!}
 							</div>
 							<div class="form-group">
-								{!! Form::label('numero', 'Historia:') !!}
+								{!! Form::label('numero', 'No Historia:') !!}
 								{!! Form::text('numero', '', array('class' => 'form-control input-xs', 'id' => 'numero')) !!}
+							</div>
+							<div class="form-group">
+								{!! Form::label('numero2', 'No Historia 2:') !!}
+								{!! Form::text('numero2', '', array('class' => 'form-control input-xs', 'id' => 'numero2')) !!}
 							</div>
 							<div class="form-group">
 								{!! Form::label('tipopaciente', 'Tipo Paciente:') !!}

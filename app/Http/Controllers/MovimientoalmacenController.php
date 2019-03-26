@@ -856,9 +856,25 @@ class MovimientoalmacenController extends Controller
         $error = DB::transaction(function() use($id){
 
             $sucursal_id = Session::get('sucursal_id');
-            $almacen_id = 1;
-            if($sucursal_id ==  2) {
-                $almacen_id = 3;
+
+            $user=Auth::user();            
+
+            if($user->usertype_id == 1) {
+                $almacen_id = $request->input('almacen_id');
+            } else {
+                if($sucursal_id == 1) {
+                    if($user->usertype_id == 11) {
+                        $almacen_id = 1;
+                    } else {
+                        $almacen_id = 2;
+                    }
+                } else {
+                    if($user->usertype_id == 11) {
+                        $almacen_id = 3;
+                    } else {
+                        $almacen_id = 4;
+                    }
+                }
             }
 
             $movimiento = Movimiento::find($id);

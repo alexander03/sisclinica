@@ -287,15 +287,20 @@
 		}
 	});
 
-	$(document).on('change', '#clasconsulta', function(e) {
+	{{--$(document).on('change', '#clasconsulta', function(e) {
 		e.preventDefault();
+		e.stopImmediatePropagation();
 		$.ajax({
-			url: "caja/cambiartipocons/" + $('#clasconsulta').val() + "/{{ $movimiento->id }}",
+			url: "caja/cambiartipocons",
 			type: "GET",
+			data: {
+				'clas': $(this).val(),
+				'id': '{{$movimiento->id}}',
+			}
 		}).fail(function() {
 			alert('ERROR AL CAMBIAR TIPO.');
 		});
-	});
+	});--}}
 
 	$(document).ready(function() {
 		$('#clasconsulta').val('{{ $movimiento->clasificacionconsulta }}');
