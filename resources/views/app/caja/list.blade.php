@@ -1,4 +1,8 @@
-<?php use App\Movimiento; ?>
+<?php
+use App\Movimiento;
+use Illuminate\Support\Facades\Session;
+$sucursal_id = Session::get('sucursal_id');
+?>
 <style>
     table tbody tr td {
         font-size: 12px;
@@ -24,10 +28,11 @@
 @endif
 {!! Form::button('<i class="glyphicon glyphicon-print"></i> Exportar PDF', array('class' => 'btn btn-warning btn-xs', 'id' => 'btnDetalle', 'onclick' => 'imprimirDetalle();')) !!}
 {!! Form::button('<i class="glyphicon glyphicon-print"></i> Exportar Excel', array('class' => 'btn btn-success btn-xs', 'id' => 'btnDetalle', 'onclick' => 'imprimirDetalleExcel();')) !!}  
-@if(($tipousuario!=11&&$user->sucursal_id==1)||$user->usertype_id==1)
+@if(($tipousuario!=11&&$user->sucursal_id==1)||$user->usertype_id==1 && $sucursal_id == 1)
+    {!! Form::button('<i class="glyphicon glyphicon-link"></i>&nbsp;&nbsp;Pagos pendientes a doctores', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnpagodoc', 'onclick' => 'modal("caja/pagosdoctoresojos", "Pagos pendientes a doctores");')) !!}
     {!! Form::button('<i class="glyphicon glyphicon-plus-sign"></i>&nbsp;&nbsp;Cirugías/Procedimientos', array('class' => 'btn btn-info btn-xs', 'id' => 'btncirupro', 'onclick' => 'modal("caja/cirupro", "Cirugías/Procedimientos");')) !!}
 @endif 
-@if($user->sucursal_id==2||$user->usertype_id==1)
+@if($user->sucursal_id==2||$user->usertype_id==1 && $sucursal_id == 2)
     {!! Form::button('<i class="glyphicon glyphicon-link"></i>&nbsp;&nbsp;Pagos pendientes a doctores', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnpagodoc', 'onclick' => 'modal("caja/pagosdoctores", "Pagos pendientes a doctores");')) !!}
 @endif
 <?php 

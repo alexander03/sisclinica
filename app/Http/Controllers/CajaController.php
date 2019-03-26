@@ -11604,7 +11604,7 @@ class CajaController extends Controller
         $pagados = json_decode($request->input('pagados'));
         $error = null;
         foreach ($pagados->{"data"} as $pagado) {
-          //  $error = DB::transaction(function() use($request, $pagado){
+            $error = DB::transaction(function() use($request, $pagado){
 
                 $Ticket = Movimiento::find($pagado->{"id"});
 
@@ -11635,8 +11635,152 @@ class CajaController extends Controller
                 //crear egreso
                 $Ticket->movimiento_id = $egreso_id;
                 $Ticket->save();
-          //  });
+            });
         }
+        return is_null($error) ? "OK" : $error;
+    }
+
+    public function pagosdoctoresojos(Request $request) {
+        $entidad = 'caja';
+        $ruta = $this->rutas;
+        $cboDoctores = array(""=>"--Todos--");
+        $doctores = Person::where('workertype_id','=','1')->where('especialidad_id','=','12')->where('id','!=',9277)->where('id','!=',9278)->orderBy('apellidopaterno','ASC')->get();
+        //doctores ducplicados
+        foreach ($doctores as $key => $value) {
+            $cboDoctores = $cboDoctores + array($value->id =>$value->apellidopaterno . " " . $value->apellidomaterno . " " . $value->nombres );
+        }
+        return view($this->folderview.'.pagosdoctoresojos')->with(compact('entidad', 'ruta','cboDoctores'));
+    }
+
+    
+    public function listapagosdoctoresojos($doctor, $fechainicial, $fechafinal) {
+        $ruta = $this->rutas;
+
+        $resultado        = Movimiento::join('detallemovcaja as dmc','dmc.movimiento_id','=','movimiento.id')
+                            ->join('person as medico','medico.id','=','dmc.persona_id')
+                            ->join('person as paciente','paciente.id','=','movimiento.persona_id')
+                            ->join('person as responsable','responsable.id','=','movimiento.responsable_id')
+                            ->leftjoin('movimiento as mref',function($join){
+                                $join->on('mref.movimiento_id', '=', 'movimiento.id')
+                                    ->where('mref.situacion','=','C'); // cobrado
+                            })
+                            ->leftjoin('servicio as s','s.id','=','dmc.servicio_id')
+                            ->join('plan','plan.id','=','movimiento.plan_id')
+                            ->leftjoin('person as referido','referido.id','=','movimiento.doctor_id') // referido
+                            ->where('movimiento.tipomovimiento_id','=',1) // ticket
+                            ->where('dmc.pagado','=', 0) // no pagado
+                            ->whereNull('dmc.deleted_at') // no eliminado
+                            ->where('movimiento.situacion','C') // cobrado
+                            ->where(function($q) {            
+                                $q->where('s.tiposervicio_id','=',1)->orWhere('s.tiposervicio_id','=',21); // CONSULTA - EXAMENES
+                            })
+                            ->where('movimiento.sucursal_id','=', 1 ); // solo ojos
+        
+        if($fechainicial!=""){
+            $resultado = $resultado->where('movimiento.fecha','>=',$fechainicial);
+        }
+        if($fechafinal!=""){
+            $resultado = $resultado->where('movimiento.fecha','<=',$fechafinal);
+        }
+        if($doctor!="0"){
+            $resultado = $resultado->where('dmc.persona_id', '=', $doctor);
+        }
+
+        $resultado        = $resultado->orderBy(DB::raw('case when mref.id>0 then mref.fecha else movimiento.fecha end'), 'desc')->orderBy('mref.serie', 'ASC')->orderBy('mref.numero', 'ASC')
+        ->select('s.tiposervicio_id as tiposervicio_id','medico.id as medico_id','mref.total','plan.id as plan_id','plan.nombre as plan2','mref.tipodocumento_id','mref.serie','mref.numero','movimiento.soat',DB::raw('case when mref.id>0 then (case when mref.fecha=movimiento.fecha then mref.fecha else movimiento.fecha end) else movimiento.fecha end as fecha'),'movimiento.doctor_id as referido_id','dmc.servicio_id','dmc.descripcion as servicio2','movimiento.tarjeta','movimiento.tipotarjeta','movimiento.voucher','movimiento.situacion','dmc.recibo','dmc.fechaentrega','dmc.id as iddetalle',DB::raw('case when s.tarifario_id>0 then (select concat(codigo,\' \',nombre) from tarifario where id=s.tarifario_id) else s.nombre end as servicio'),'dmc.pagohospital','dmc.cantidad','dmc.pagodoctor',DB::raw('concat(medico.apellidopaterno,\' \',medico.apellidomaterno,\' \',medico.nombres) as medico'),DB::raw('concat(referido.apellidopaterno,\' \',referido.apellidomaterno,\' \',referido.nombres) as referido'),DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente2'),DB::raw('responsable.nombres as responsable'),DB::raw('movimiento.numero as numero2'),'mref.ventafarmacia','mref.estadopago','mref.formapago','movimiento.nombrepaciente','movimiento.copago','movimiento.id','mref.id as venta_id');
+        $lista            = $resultado->get();
+        $cabecera         = array();
+        $cabecera[]       = array('valor' => 'Doctor', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Monto Consultas', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Monto Exámenes', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Monto Total', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Pago Consultas', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Pago Exámenes', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Pago Total', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Operacion', 'numero' => '1');
+
+        $doctores = Person::where('workertype_id','=','1')->where('especialidad_id','=','12')->where('id','!=',9277)->where('id','!=',9278)->orderBy('apellidopaterno','ASC')->get();
+        
+        //$conf = DB::connection('sqlsrv')->table('BL_CONFIGURATION')->get();
+        if (count($lista) > 0) {
+            return view($this->folderview.'.listapagosdoctoresojos')->with(compact('lista', 'cabecera','fechainicial','fechafinal', 'ruta','tipo','doctores'));
+        }
+        return view($this->folderview.'.listapagosdoctoresojos')->with(compact('lista', 'ruta'));
+    }
+
+    public function guardarPagoDoctoresOjos(Request $request)
+    {
+        $doctor_id = $request->input('doctor_id');
+        $fechainicial = $request->input('fechainicial');
+        $fechafinal = $request->input('fechafinal');
+        $pagoconsultas = $request->input('pagoconsultas');
+        $pagoexamenes = $request->input('pagoexamenes');
+
+        $resultado        = Movimiento::join('detallemovcaja as dmc','dmc.movimiento_id','=','movimiento.id')
+                            ->join('person as medico','medico.id','=','dmc.persona_id')
+                            ->join('person as paciente','paciente.id','=','movimiento.persona_id')
+                            ->join('person as responsable','responsable.id','=','movimiento.responsable_id')
+                            ->leftjoin('movimiento as mref',function($join){
+                                $join->on('mref.movimiento_id', '=', 'movimiento.id')
+                                    ->where('mref.situacion','=','C'); // cobrado
+                            })
+                            ->leftjoin('servicio as s','s.id','=','dmc.servicio_id')
+                            ->join('plan','plan.id','=','movimiento.plan_id')
+                            ->leftjoin('person as referido','referido.id','=','movimiento.doctor_id') // referido
+                            ->where('movimiento.tipomovimiento_id','=',1) // ticket
+                            ->where('dmc.pagado','=', 0) // no pagado
+                            ->whereNull('dmc.deleted_at') // no eliminado
+                            ->where('movimiento.situacion','C') // cobrado
+                            ->where(function($q) {            
+                                $q->where('s.tiposervicio_id','=',1)->orWhere('s.tiposervicio_id','=',21); // CONSULTA - EXAMENES
+                            })
+                            ->where('movimiento.sucursal_id','=', 1 ); // solo ojos
+        
+        if($fechainicial!=""){
+            $resultado = $resultado->where('movimiento.fecha','>=',$fechainicial);
+        }
+        if($fechafinal!=""){
+            $resultado = $resultado->where('movimiento.fecha','<=',$fechafinal);
+        }
+        if($doctor_id!="0"){
+            $resultado = $resultado->where('dmc.persona_id', '=', $doctor_id);
+        }
+
+        $resultado        = $resultado->orderBy(DB::raw('case when mref.id>0 then mref.fecha else movimiento.fecha end'), 'desc')->orderBy('mref.serie', 'ASC')->orderBy('mref.numero', 'ASC')
+        ->select('s.tiposervicio_id as tiposervicio_id','medico.id as medico_id','mref.total','plan.id as plan_id','plan.nombre as plan2','mref.tipodocumento_id','mref.serie','mref.numero','movimiento.soat',DB::raw('case when mref.id>0 then (case when mref.fecha=movimiento.fecha then mref.fecha else movimiento.fecha end) else movimiento.fecha end as fecha'),'movimiento.doctor_id as referido_id','dmc.servicio_id','dmc.descripcion as servicio2','movimiento.tarjeta','movimiento.tipotarjeta','movimiento.voucher','movimiento.situacion','dmc.recibo','dmc.fechaentrega','dmc.id as iddetalle',DB::raw('case when s.tarifario_id>0 then (select concat(codigo,\' \',nombre) from tarifario where id=s.tarifario_id) else s.nombre end as servicio'),'dmc.pagohospital','dmc.cantidad','dmc.pagodoctor',DB::raw('concat(medico.apellidopaterno,\' \',medico.apellidomaterno,\' \',medico.nombres) as medico'),DB::raw('concat(referido.apellidopaterno,\' \',referido.apellidomaterno,\' \',referido.nombres) as referido'),DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente2'),DB::raw('responsable.nombres as responsable'),DB::raw('movimiento.numero as numero2'),'mref.ventafarmacia','mref.estadopago','mref.formapago','movimiento.nombrepaciente','movimiento.copago','movimiento.id','mref.id as venta_id');
+        $lista            = $resultado->get();
+
+        $error = null;
+
+        $error = DB::transaction(function() use($request, $lista, $doctor_id, $pagoconsultas, $pagoexamenes){
+
+        foreach ($lista as $value) {
+            $detalle = Detallemovcaja::find($value->iddetalle);
+            $detalle->pagado = 1 ;
+            $detalle->save();
+        }
+
+        $egreso = new Movimiento();
+        $egreso->sucursal_id = 1;
+        $egreso->fecha = date("Y-m-d H:i:s");
+        $numero = Movimiento::NumeroSigue(1,1,2,3);
+        $egreso->numero= $numero;
+        $user = Auth::user();
+        $egreso->responsable_id=$user->person_id;
+        $egreso->persona_id = $doctor_id;//doctor
+        $egreso->subtotal=0;
+        $egreso->igv=0;
+        $egreso->total= number_format( round($pagoconsultas + $pagoexamenes,1) ,2,'.','');
+        $egreso->totalpagado = number_format( round($pagoconsultas + $pagoexamenes,1) ,2,'.','');
+        $egreso->tipomovimiento_id=2; //caja
+        $egreso->tipodocumento_id=3;//Egreso
+        $egreso->conceptopago_id=137; // pago a medico
+        $egreso->comentario="Pago Consultas: " . number_format( round($pagoconsultas,1) ,2,'.','') . " - Pago Exámenes: " . number_format( round($pagoexamenes,1) ,2,'.','');
+        $egreso->caja_id= 1 ;
+        $egreso->situacion='N';
+        $egreso->save(); 
+
+        });
         return is_null($error) ? "OK" : $error;
     }
 

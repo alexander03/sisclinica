@@ -608,8 +608,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('caja/pdfHonorario', 'CajaController@pdfHonorario')->name('caja.pdfHonorario');
     Route::get('caja/pdfHonorarioF', 'CajaController@pdfHonorarioF')->name('caja.pdfHonorarioF');
     Route::get('caja/pagosdoctores', 'CajaController@pagosdoctores')->name('caja.pagosdoctores');
+    Route::get('caja/pagosdoctoresojos', 'CajaController@pagosdoctoresojos')->name('caja.pagosdoctoresojos');
     Route::get('caja/listapagosdoctores/{doctor}/{fecha}/{paciente}/{tipo}', 'CajaController@listapagosdoctores')->name('caja.listapagosdoctores');
+    Route::get('caja/listapagosdoctoresojos/{doctor}/{fechainicial}/{fechafinal}', 'CajaController@listapagosdoctoresojos')->name('caja.listapagosdoctoresojos');
     Route::post('caja/guardarPagoDoctores', 'CajaController@guardarPagoDoctores')->name('caja.guardarPagoDoctores');
+    Route::post('caja/guardarPagoDoctoresOjos', 'CajaController@guardarPagoDoctoresOjos')->name('caja.guardarPagoDoctoresOjos');
     
     Route::get('caja/pdfDetalleCierre', 'CajaController@pdfDetalleCierre')->name('caja.pdfDetalleCierre');
     Route::get('caja/pdfDetalleCierreF', 'CajaController@pdfDetalleCierreF')->name('caja.pdfDetalleCierreF');
