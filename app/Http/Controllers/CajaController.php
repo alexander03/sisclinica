@@ -804,7 +804,9 @@ class CajaController extends Controller
             $nomcierre = 'Farmacia - ' . $nomcierre;
         } 
 
-        $nomcierre = substr($nomcierre, 0, 20);
+        $nomcierre2 = $nomcierre. ' - ' . date("d/m/Y", strtotime($rst->fecha));
+
+        $nomcierre = substr($nomcierre, 0, 20);        
 
         //Pagos de tickets   
 
@@ -911,9 +913,9 @@ class CajaController extends Controller
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         
-        Excel::create('ExcelReporte', function($excel) use($listaventas, $listacuotas, $listaventasfarmacia, $listaingresosvarios, $listaegresos, $listaegresoscompra, $nomcierre, $responsable, $caja, $request) {
+        Excel::create('ExcelReporte', function($excel) use($nomcierre2, $listaventas, $listacuotas, $listaventasfarmacia, $listaingresosvarios, $listaegresos, $listaegresoscompra, $nomcierre, $responsable, $caja, $request) {
  
-            $excel->sheet("Det. Cierre " . $nomcierre, function($sheet) use($listaventas, $listacuotas, $listaventasfarmacia, $listaingresosvarios, $listaegresos, $listaegresoscompra, $nomcierre, $responsable, $caja, $request) {
+            $excel->sheet("Det. Cierre " . $nomcierre, function($sheet) use($nomcierre2, $listaventas, $listacuotas, $listaventasfarmacia, $listaingresosvarios, $listaegresos, $listaegresoscompra, $nomcierre, $responsable, $caja, $request) {
 
                 $sheet->setWidth(array(
                     'A' => 15,'B' => 40, 'C' => 5, 'D' => 10, 'E' => 35, 'F' => 50, 'G' => 10, 'H' => 10, 'I' => 10, 'J' => 10, 'K' => 10, 'L' => 15
@@ -938,7 +940,25 @@ class CajaController extends Controller
                 $subtotalegresos = 0;
                 $subtotaldolares = 0;
 
+                $indicee = 1;
+
                 //Cabecera
+
+                $cabecera1 = array();
+                $cabecera1[] = $nomcierre2;
+                $sheet->row($indicee,$cabecera1);
+                $sheet->mergeCells('A1:L1');
+
+                $sheet->cells('A1:L1', function ($cells) {
+                    $cells->setFont(array(
+                        'family'     => 'Calibri',
+                        'size'       => '25',
+                        'bold'       =>  true
+                    ));
+                    $cells->setAlignment('center');
+                });
+
+                $indicee++;
 
                 $cabecera1 = array();
                 $cabecera1[] = "FECHA";
@@ -948,18 +968,17 @@ class CajaController extends Controller
                 $cabecera1[] = "EMPRESA";
                 $cabecera1[] = "CONCEPTO";
                 $cabecera1[] = "PRECIO";
-                $cabecera1[] = "EGRESO";
-                $cabecera1[] = "INGRESO";
-                $cabecera1[] = "";
-                $cabecera1[] = "";
+                $cabecera1[] = "DSCTO";
+                $cabecera1[] = "EFECTIVO";
+                $cabecera1[] = "VISA";
+                $cabecera1[] = "MASTER";
                 $cabecera1[] = "DOCTOR";
 
-                $sheet->row(1,$cabecera1);
-                $sheet->mergeCells('C1:D1');
-                $sheet->mergeCells('I1:K1');
-                $sheet->mergeCells('A2:H2');
+                $sheet->row($indicee,$cabecera1);
+                $sheet->mergeCells('C2:D2');
+                $sheet->mergeCells('A3:L3');
 
-                $sheet->cells('A1:L3', function ($cells) {
+                $sheet->cells('A2:L2', function ($cells) {
                     $cells->setFont(array(
                         'family'     => 'Calibri',
                         'size'       => '11',
@@ -968,35 +987,22 @@ class CajaController extends Controller
                     $cells->setAlignment('center');
                 });
 
-                $cabecera2 = array();
-                $cabecera2[] = "";
-                $cabecera2[] = "";
-                $cabecera2[] = "";
-                $cabecera2[] = "";
-                $cabecera2[] = "";
-                $cabecera2[] = "";
-                $cabecera2[] = "";
-                $cabecera2[] = "";
-                $cabecera2[] = "EFECTIVO";
-                $cabecera2[] = "VISA";
-                $cabecera2[] = "MASTER";
-                $cabecera2[] = "";
-
-                $sheet->row(2,$cabecera2);
+                $a = 3;
 
                 //Recorrido para tickets
 
                 $fila = array();
 
-                $a = 3;
-
                 if(count($listaventas)>0){
+                    $sheet->row($a, array(''));
+                    $sheet->mergeCells('A'.$a.':L'.$a);
+                    $a++;
                     $sheet->row($a, array('INGRESOS POR VENTAS'));
                     $sheet->mergeCells('A'.$a.':L'.$a);
                     $sheet->cells('A'.$a.':L'.$a, function ($cells) {
                         $cells->setFont(array(
                             'family'     => 'Calibri',
-                            'size'       => '11',
+                            'size'       => '13',
                             'bold'       =>  true
                         ));
                     });
@@ -1026,9 +1032,9 @@ class CajaController extends Controller
                                 }  
                                 $nomdetalle .= ($detalle->servicio==null?$detalle->descripcion:$detalle->servicio->nombre);                      
                                 $fila[] = substr($nomdetalle,0,42);
-                                $fila[] = number_format($detalle->precio,2,'.','');                    
+                                $fila[] = number_format($detalle->precio,2,'.','');
                                 if($row2['situacion'] == 'N') {
-                                    $fila[] = '';
+                                    $fila[] = $detalle['descuento'] . ($detalle['tipodescuento']=='P'?'%':'S/.');
                                     $valuetp = number_format($row2['totalpagado'],2,'.','');
                                     $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
                                     $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
@@ -3381,6 +3387,8 @@ class CajaController extends Controller
                 
         })->export('xls');
     }
+
+    /////////////////////////////////////////////////////////////////////////
 
     //Caja actual
     public function pdfDetalleCierre(Request $request){

@@ -1239,10 +1239,12 @@ class HistoriaController extends Controller
             }
         }
         //Reestructurar números de historia
-        $historias = Historia::orderBy('id', 'ASC')->get();
-        echo count($historias);
+        $historias = Historia::select('id')->orderBy(DB::raw('CONCAT(apellidopaterno, " ", apellidomaterno, " ", nombres)'), 'ASC')
+                    ->join('person as p', 'p.id', '=', 'historia.person_id')
+                    ->get();
         $i = 1;
-        foreach ($historias as $historia) {
+        foreach ($historias as $history) {
+            $historia = Historia::find($history->id);
             $numero2 = $historia->numero;
             $numero1 = str_pad($i,8,'0',STR_PAD_LEFT);
             if($historia->sucursal_id == 1) {
