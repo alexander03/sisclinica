@@ -569,7 +569,7 @@ function seleccionarServicio(idservicio){
 
 function seleccionarServicioOtro(){
     var idservicio = "10"+Math.round(Math.random()*10000);
-    $("#tbDetalle").append("<tbody id='tbDetalle"+idservicio+"'><tr id='trDetalle"+idservicio+"'><td>§</td><td colspan='7'><input style='font-weight:bold;' type='text' class='form-control input-xs txtareaa' id='txtServicio"+idservicio+"' name='txtServicio"+idservicio+"' /></td>" +
+    $("#tbDetalle").append("<tbody id='tbDetalle"+idservicio+"'><tr id='trDetalle"+idservicio+"'><td>§</td><td colspan='7'><input style='font-weight:bold;text-align: center;font-size:15px;' type='text' class='form-control input-xs txtareaa' id='txtServicio"+idservicio+"' name='txtServicio"+idservicio+"' /></td>" +
         "<td><input class='form-control input-xs' type='text' id='txtFacturar" + idservicio + "' name='txtFacturar" + idservicio + "' /></td>"  + 
         "<td><a href='#' class='btn btn-danger btn-xs' onclick=\"quitarServicio2('"+idservicio+"')\"><i class='fa fa-minus-circle' title='Quitar Cabecera'></i></td><td><a class='btn btn-success btn-xs' href='#' onclick=\"seleccionarServicioOtro2('"+idservicio+"')\"><i class='fa fa-plus-circle' title='Añadir Detalle'></i></td></tr></tbody>");
     carro.push(idservicio);
