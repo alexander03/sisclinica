@@ -106,9 +106,9 @@ if($cotizacion == null) {
                     <th class="text-right"></th>
                     <th class="text-right"></th>
                     <th class="text-right"></th>
+                    <th class="text-right"></th>
                     <th class="text-right">Total</th>
-                    <th>{!! Form::text('total', $total, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'style' => 'width: 100%;')) !!}</th>
-                    <th>{!! Form::text('total', $total, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'style' => 'width: 100%;')) !!}</th>
+                    <th>{!! Form::text('total', $total, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'style' => 'width: 100%;', 'readonly' => 'readonly')) !!}</th>
                     <th class="text-right"></th>
                     <th class="text-right"></th>
                 </tfoot>
@@ -126,7 +126,7 @@ $(document).ready(function() {
     $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="ruc"]').inputmask("99999999999");
     $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="numeroventa"]').inputmask("99999999");
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="deducible"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
-    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="coa"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
+    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="coa"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });    
     $('#tiporegistro').val('{{ $tipo }}');
     var personas = new Bloodhound({
         datumTokenizer: function (d) {
@@ -516,21 +516,27 @@ function seleccionarServicioOtro(){
         "<td><a href='#' class='btn btn-danger btn-xs' onclick=\"quitarServicio2('"+idservicio+"')\"><i class='fa fa-minus-circle' title='Quitar Cabecera'></i></td><td><a class='btn btn-success btn-xs' href='#' onclick=\"seleccionarServicioOtro2('"+idservicio+"')\"><i class='fa fa-plus-circle' title='Añadir Detalle'></i></td></tr></tbody>");
     carro.push(idservicio);
     $("#txtServicio"+idservicio).focus();
+    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="txtFacturar' + idservicio + '"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
 }
 
 function seleccionarServicioOtro2(idservicio){
     var idservicio2 = "10"+Math.round(Math.random()*10000);
     $("#tbDetalle" + idservicio).append("<tr id='" + idservicio + "tr"+idservicio2+"'><td>-</td><td><input type='text' class='form-control input-xs txtareaa' id='" + idservicio + "txtServicio"+idservicio2+"' name='" + idservicio + "'txtServicio"+idservicio2+"' /></td>" + 
-        "<td><input class='form-control input-xs txtareaa' type='text' id='" + idservicio + "txtCantidad" + idservicio2 + "' name='" + idservicio + "txtCantidad" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs txtareaa' type='text' id='" + idservicio + "txtPorcentaje" + idservicio2 + "'  name='" + idservicio + "txtPorcentaje" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs txtareaa' type='text' id='" + idservicio + "txtSoles" + idservicio2 + "'  name='" + idservicio + "txtSoles" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs txtareaa numerito' type='text' id='" + idservicio + "txtCantidad" + idservicio2 + "' name='" + idservicio + "txtCantidad" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs txtareaa numerito' type='text' id='" + idservicio + "txtPorcentaje" + idservicio2 + "'  name='" + idservicio + "txtPorcentaje" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs txtareaa numerito' type='text' id='" + idservicio + "txtSoles" + idservicio2 + "'  name='" + idservicio + "txtSoles" + idservicio2 + "' /></td>"  + 
         "<td><input class='form-control input-xs txtareaa' type='text' id='" + idservicio + "txtUnidad" + idservicio2 + "' name='" + idservicio + "txtUnidad" + idservicio2 + "' /></td>"  + 
         "<td><input class='form-control input-xs txtareaa' type='text' id='" + idservicio + "txtFactor" + idservicio2 + "' name='" + idservicio + "txtFactor" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs txtareaa' type='text' id='" + idservicio + "txtTotal" + idservicio2 + "' name='" + idservicio + "txtTotal" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs txtareaa numerito' type='text' id='" + idservicio + "txtTotal" + idservicio2 + "' name='" + idservicio + "txtTotal" + idservicio2 + "' /></td>"  + 
         "<td><input class='form-control input-xs' readonly='readonly' type='text' id='" + idservicio + "txtFacturar" + idservicio2 + "' name=" + idservicio + "txtFacturar" + idservicio2 + "' /></td>"  + 
         "<td><a href='#' class='btn btn-warning btn-xs' onclick=\"quitarServicio('" + idservicio + "tr"+idservicio2+"')\"><i class='fa fa-minus-circle' title='Quitar Detalle'></i></td><td></td></tr>");
     carrodetalles.push(idservicio2);
-    $("#" + idservicio + "txtServicio"+idservicio2).focus();             
+    $("#" + idservicio + "txtServicio"+idservicio2).focus();   
+    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="' + idservicio + 'txtCantidad' + idservicio2 + '"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
+    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="' + idservicio + 'txtPorcentaje' + idservicio2 + '"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
+    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="' + idservicio + 'txtSoles' + idservicio2 + '"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
+    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="' + idservicio + 'txtTotal' + idservicio2 + '"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
+    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="' + idservicio + 'txtFacturar' + idservicio2 + '"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });      
 }
 
 function calcularTotal(){
