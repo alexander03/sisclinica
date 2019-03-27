@@ -31,29 +31,31 @@ if($cotizacion == null) {
         {{--<div class="col-lg-6 col-md-6 col-sm-6">--}}
         <div class="col-lg-12 col-md-12 col-sm-12">
             <div class="form-group">
-                {!! Form::label('fecharegistro', 'Fecha:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-                <div class="col-lg-4 col-md-4 col-sm-4">
+                {!! Form::label('fecharegistro', 'Fecha:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
+                <div class="col-lg-3 col-md-3 col-sm-3">
                     {!! Form::date('fecharegistro', $fecha, array('class' => 'form-control input-xs', 'id' => 'fecharegistro')) !!}
                 </div>
-                {!! Form::label('tiporegistro', 'Tipo:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-                <div class="col-lg-4 col-md-4 col-sm-4">
+                {!! Form::label('tiporegistro', 'Tipo:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
+                <div class="col-lg-3 col-md-3 col-sm-3">
                     <select name="tiporegistro" class='form-control input-xs' id='tiporegistro'>
                         <option value="A">AMBULATORIO</option>
                         <option value="H">HOSPITALARIO</option>
                     </select>
                 </div>
-            </div>
-            <div class="form-group">
-                {!! Form::label('codigoregistro', 'Código:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-                <div class="col-lg-10 col-md-10 col-sm-10">
+                {!! Form::label('codigoregistro', 'Código:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
+                <div class="col-lg-3 col-md-3 col-sm-3">
                     {!! Form::text('codigoregistro', $codigo, array('class' => 'form-control input-xs', 'id' => 'codigoregistro')) !!}
                 </div>
             </div>
             <div class="form-group">
-                {!! Form::label('plan', 'Plan:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-                <div class="col-lg-10 col-md-10 col-sm-10">
+                {!! Form::label('plan', 'Plan:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
+                <div class="col-lg-4 col-md-4 col-sm-4">
                     {!! Form::text('plan', $plan, array('class' => 'form-control input-xs', 'id' => 'plan')) !!}
                     {!! Form::hidden('plan_id', $plan_id, array('id' => 'plan_id')) !!}
+                </div>
+                {!! Form::label('titulo', 'Referencia:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
+                <div class="col-lg-6 col-md-6 col-sm-6">
+                    {!! Form::text('titulo', $codigo, array('class' => 'form-control input-xs', 'id' => 'titulo')) !!}
                 </div>
             </div>
             {{--<div class="form-group">
@@ -75,7 +77,7 @@ if($cotizacion == null) {
                     {!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
                 </div>
             </div>
-         </div>
+        </div>
          {{--<div class="col-lg-6 col-md-6 col-sm-6">
             <div class="form-group">
                 {!! Form::label('tiposervicio', 'Tipo:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
@@ -89,24 +91,25 @@ if($cotizacion == null) {
             </div>
             <div class="form-group col-lg-12 col-md-12 col-sm-12" id="divBusqueda">
             </div>
-         </div> --}}    
-     </div>
-     <div class="box">
+        </div> --}}    
+    </div>
+    <div class="box">
         <div class="box-header">
-            <h2 class="box-title col-lg-4 col-md-4 col-sm-4">Detalle <button type="button" class="btn btn-xs btn-info" title="Agregar Detalle" onclick="seleccionarServicioOtro();"><i class="fa fa-plus"></i></button></h2>
+            <h2 class="box-title col-lg-4 col-md-4 col-sm-4">CABECERA <button type="button" class="btn btn-xs btn-info" title="Agregar Detalle" onclick="seleccionarServicioOtro();"><i class="fa fa-plus"></i></button></h2>
         </div>
         <div class="box-body" style="max-height: 300px;overflow: auto;">
             <table class="table table-condensed table-border" id="tbDetalle">
                 <thead>
-                    {{--<th class="text-center">Cant.</th>--}}
-                    {{--<th class="text-center" colspan="2">Medico</th>--}}
-                    {{--<th class="text-center">Rubro</th>--}}
-                    {{--<th class="text-center">Codigo</th>--}}
-                    <th class="text-center" colspan="2">Descripcion</th>
-                    {{--<th class="text-center">Precio</th>--}}
-                    {{--<th class="text-center">Dias</th>--}}
-                    {{--<th class="text-center" colspan="2">Pago Medico</th>--}}
-                    {{--<th class="text-center">Subtotal</th>--}}
+                    <th class="text-center">#</th>
+                    <th class="text-center">Conceptos</th>
+                    <th class="text-center">Cantidad</th>
+                    <th class="text-center">%</th>
+                    <th class="text-center">S/.</th>
+                    <th class="text-center">Unidad</th>
+                    <th class="text-center">Factor</th>
+                    <th class="text-center">Monto Total</th>
+                    <th class="text-center">Por Facturar</th>
+                    <th class="text-center" colspan="2"></th>
                 </thead>
                 <tbody>
                 @if($cotizacion !== NULL) 
@@ -124,17 +127,26 @@ if($cotizacion == null) {
                 @endif
                 </tbody>
                 <tfoot>
-                    <th width="80%" class="text-right">Total</th>
-                    <th width="20%">{!! Form::text('total', $total, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'style' => 'width: 100%;')) !!}</th>
+                    <th class="text-right"></th>
+                    <th class="text-right"></th>
+                    <th class="text-right"></th>
+                    <th class="text-right"></th>
+                    <th class="text-right"></th>
+                    <th class="text-right"></th>
+                    <th class="text-right">Total</th>
+                    <th>{!! Form::text('total', $total, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'style' => 'width: 100%;')) !!}</th>
+                    <th>{!! Form::text('total', $total, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'style' => 'width: 100%;')) !!}</th>
+                    <th class="text-right"></th>
+                    <th class="text-right"></th>
                 </tfoot>
             </table>
         </div>
-     </div>
+    </div>
 {!! Form::close() !!}
 <script type="text/javascript">
 var valorbusqueda="";
 $(document).ready(function() {
-    configurarAnchoModal('500');
+    configurarAnchoModal('1400');
     init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'B', '{!! $entidad !!}');
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="totalboleta"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
@@ -557,8 +569,30 @@ function seleccionarServicio(idservicio){
 
 function seleccionarServicioOtro(){
     var idservicio = "10"+Math.round(Math.random()*10000);
-    $("#tbDetalle").append("<tr id='tr"+idservicio+"'><td><input type='hidden' id='txtIdTipoServicio"+idservicio+"' name='txtIdTipoServicio"+idservicio+"' value='0' /><input type='text' class='form-control input-xs txtareaa' id='txtServicio"+idservicio+"' name='txtServicio"+idservicio+"' /></td>" + 
-        "<td><a href='#' onclick=\"quitarServicio('"+idservicio+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>");
+    $("#tbDetalle").append("<tbody id='tbDetalle"+idservicio+"'><tr id='trDetalle"+idservicio+"'><td>§</td><td><input style='font-weight:bold;' type='text' class='form-control input-xs txtareaa' id='txtServicio"+idservicio+"' name='txtServicio"+idservicio+"' /></td>" + 
+        "<td><input style='font-weight:bold;' class='form-control input-xs' type='text' id='txtCantidad" + idservicio + "' name='txtCantidad" + idservicio + "' /></td>"  + 
+        "<td><input style='font-weight:bold;' class='form-control input-xs' type='text' id='txtPorcentaje" + idservicio + "'  name='txtPorcentaje" + idservicio + "' /></td>"  + 
+        "<td><input style='font-weight:bold;' class='form-control input-xs' type='text' id='txtSoles" + idservicio + "'  name='txtSoles" + idservicio + "' /></td>"  + 
+        "<td><input style='font-weight:bold;' class='form-control input-xs' type='text' id='txtUnidad" + idservicio + "' name='txtUnidad" + idservicio + "' /></td>"  + 
+        "<td><input style='font-weight:bold;' class='form-control input-xs' type='text' id='txtFactor" + idservicio + "' name='txtFactor" + idservicio + "' /></td>"  + 
+        "<td><input style='font-weight:bold;' class='form-control input-xs' type='text' id='txtTotal" + idservicio + "' name='txtTotal" + idservicio + "' /></td>"  + 
+        "<td><input style='font-weight:bold;' class='form-control input-xs' type='text' id='txtFacturar" + idservicio + "' name='txtFacturar" + idservicio + "' /></td>"  + 
+        "<td><a href='#' class='btn btn-danger btn-xs' onclick=\"quitarServicio2('"+idservicio+"')\"><i class='fa fa-minus-circle' title='Quitar Cabecera'></i></td><td><a class='btn btn-success btn-xs' href='#' onclick=\"seleccionarServicioOtro2('"+idservicio+"')\"><i class='fa fa-plus-circle' title='Añadir Detalle'></i></td></tr></tbody>");
+    carro.push(idservicio);
+    $("#txtServicio"+idservicio).focus();             
+}
+
+function seleccionarServicioOtro2(idservicio){
+    var idservicio2 = "10"+Math.round(Math.random()*10000);
+    $("#tbDetalle" + idservicio).append("<tr id='" + idservicio + "tr"+idservicio2+"'><td>-</td><td><input type='text' class='form-control input-xs' id='" + idservicio + "txtServicio"+idservicio2+"' name=" + idservicio + "'txtServicio"+idservicio2+"' /></td>" + 
+        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtCantidad" + idservicio2 + "' name=" + idservicio + "'txtCantidad" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtPorcentaje" + idservicio2 + "'  name=" + idservicio + "'txtPorcentaje" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtSoles" + idservicio2 + "'  name=" + idservicio + "'txtSoles" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtUnidad" + idservicio2 + "' name=" + idservicio + "'txtUnidad" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtFactor" + idservicio2 + "' name=" + idservicio + "'txtFactor" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtTotal" + idservicio2 + "' name=" + idservicio + "'txtTotal" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtFacturar" + idservicio2 + "' name=" + idservicio + "'txtFacturar" + idservicio2 + "' /></td>"  + 
+        "<td><a href='#' class='btn btn-warning btn-xs' onclick=\"quitarServicio('" + idservicio + "tr"+idservicio2+"')\"><i class='fa fa-minus-circle' title='Quitar Detalle'></i></td><td></td></tr>");
     carro.push(idservicio);
     $("#txtServicio"+idservicio).focus();             
 }
@@ -599,13 +633,23 @@ function calcularTotalItem2(id){
 }
 
 function quitarServicio(id){
-    $("#tr"+id).remove();
-    for(c=0; c < carro.length; c++){
+    $("#"+id).remove();
+    /*for(c=0; c < carro.length; c++){
         if(carro[c] == id) {
             carro.splice(c,1);
         }
     }
-    calcularTotal();
+    calcularTotal();*/
+}
+
+function quitarServicio2(id){
+    $("#tbDetalle"+id).remove();
+    /*for(c=0; c < carro.length; c++){
+        if(carro[c] == id) {
+            carro.splice(c,1);
+        }
+    }
+    calcularTotal();*/
 }
 
 function generarNumero(){
