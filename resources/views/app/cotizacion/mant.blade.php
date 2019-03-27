@@ -58,19 +58,6 @@ if($cotizacion == null) {
                     {!! Form::text('titulo', $codigo, array('class' => 'form-control input-xs', 'id' => 'titulo')) !!}
                 </div>
             </div>
-            {{--<div class="form-group">
-                {!! Form::label('paciente', 'Paciente:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-                <div class="col-lg-6 col-md-6 col-sm-6">
-                {!! Form::hidden('person_id', null, array('id' => 'person_id')) !!}
-                {!! Form::hidden('dni', null, array('id' => 'dni')) !!}
-                {!! Form::text('paciente', null, array('class' => 'form-control input-xs', 'id' => 'paciente', 'placeholder' => 'Ingrese Paciente')) !!}
-                </div>
-                {!! Form::label('numero', 'Historia:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-                <div class="col-lg-2 col-md-2 col-sm-2">
-                    {!! Form::hidden('historia_id', null, array('id' => 'historia_id')) !!}
-                    {!! Form::text('numero_historia', null, array('class' => 'form-control input-xs', 'id' => 'numero_historia', 'readonly' => 'readonly')) !!}
-                </div>
-            </div>--}}
             <div class="form-group">
                 <div class="col-lg-12 col-md-12 col-sm-12 text-right">
                     {!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => '$(\'#listServicio\').val(carro);$(\'#movimiento_id\').val(carroDoc);guardarPago(\''.$entidad.'\', this);')) !!}
@@ -78,20 +65,6 @@ if($cotizacion == null) {
                 </div>
             </div>
         </div>
-         {{--<div class="col-lg-6 col-md-6 col-sm-6">
-            <div class="form-group">
-                {!! Form::label('tiposervicio', 'Tipo:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-                <div class="col-lg-3 col-md-3 col-sm-3">
-                    {!! Form::select('tiposervicio', $cboTipoServicio, null, array('class' => 'form-control input-xs', 'id' => 'tiposervicio')) !!}
-                </div>
-                {!! Form::label('descripcion', 'Servicio:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
-                <div class="col-lg-5 col-md-5 col-sm-5">
-                    {!! Form::text('descripcion', null, array('class' => 'form-control input-xs', 'id' => 'descripcion', 'onkeypress' => '')) !!}
-                </div>
-            </div>
-            <div class="form-group col-lg-12 col-md-12 col-sm-12" id="divBusqueda">
-            </div>
-        </div> --}}    
     </div>
     <div class="box">
         <div class="box-header">
@@ -100,16 +73,16 @@ if($cotizacion == null) {
         <div class="box-body" style="max-height: 300px;overflow: auto;">
             <table class="table table-condensed table-border" id="tbDetalle">
                 <thead>
-                    <th class="text-center">#</th>
-                    <th class="text-center">Conceptos</th>
-                    <th class="text-center">Cantidad</th>
-                    <th class="text-center">%</th>
-                    <th class="text-center">S/.</th>
-                    <th class="text-center">Unidad</th>
-                    <th class="text-center">Factor</th>
-                    <th class="text-center">Monto Total</th>
-                    <th class="text-center">Por Facturar</th>
-                    <th class="text-center" colspan="2"></th>
+                    <th class="text-center" width="5%">#</th>
+                    <th class="text-center" width="34%">Conceptos</th>
+                    <th class="text-center" width="8%">Cantidad</th>
+                    <th class="text-center" width="8%">%</th>
+                    <th class="text-center" width="8%">S/.</th>
+                    <th class="text-center" width="8%">Unidad</th>
+                    <th class="text-center" width="8%">Factor</th>
+                    <th class="text-center" width="8%">Monto Total</th>
+                    <th class="text-center" width="8%">Por Facturar</th>
+                    <th class="text-center" width="5%" colspan="2"></th>
                 </thead>
                 <tbody>
                 @if($cotizacion !== NULL) 
@@ -524,57 +497,13 @@ function seleccionarServicio(idservicio){
     }
 }
 
-{{--function seleccionarServicioOtro(){
-    var idservicio = "10"+Math.round(Math.random()*10000);
-    $("#tbDetalle").append("<tr id='tr"+idservicio+"'><td><input type='hidden' id='txtIdTipoServicio"+idservicio+"' name='txtIdTipoServicio"+idservicio+"' value='0' /><input type='text' data='numero' class='form-control input-xs' id='txtCantidad"+idservicio+"' name='txtCantidad"+idservicio+"' style='width: 40px;' value='1' size='3' onkeydown=\"if(event.keyCode==13){calcularTotal()}\" onblur=\"calcularTotalItem2('"+idservicio+"')\" /></td>"+
-        "<td><input type='checkbox' id='chkCopiar"+idservicio+"' onclick=\"checkMedico(this.checked,'"+idservicio+"')\" /></td>"+
-        "<td><input type='text' class='form-control input-xs' id='txtMedico"+idservicio+"' name='txtMedico"+idservicio+"' /><input type='hidden' id='txtIdMedico"+idservicio+"' name='txtIdMedico"+idservicio+"' value='0' /></td>"+
-        "<td align='left'>OTROS</td><td align='right'> - </td><td><textarea style='resize: none;' class='form-control input-xs txtareaa' id='txtServicio"+idservicio+"' name='txtServicio"+idservicio+"' /></td>"+
-        "<td><input type='hidden' id='txtPrecio2"+idservicio+"' name='txtPrecio2"+idservicio+"' value='0' /><input type='text' size='5' class='form-control input-xs' style='width: 60px;' data='numero' id='txtPrecio"+idservicio+"' name='txtPrecio"+idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+idservicio+"')}\" onblur=\"calcularTotalItem2('"+idservicio+"')\" /></td>"+
-        "<td><input type='text' size='5' style='width: 60px;' class='form-control input-xs' data='numero' id='txtDias"+idservicio+"' name='txtDias"+idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+idservicio+"')}\" onblur=\"calcularTotalItem2('"+idservicio+"')\" style='width:50%' /></td>"+
-        "<td><input type='text' size='5' class='form-control input-xs' data='numero' style='width: 60px;' id='txtPorcentajeMedico"+idservicio+"' name='txtPorcentajeMedico"+idservicio+"' value='' onkeyup=\"calcularPorcentajeMedico('"+idservicio+"')\" /></td>"+
-        "<td><input type='text' size='5' class='form-control input-xs' data='numero'  id='txtPrecioMedico"+idservicio+"' name='txtPrecioMedico"+idservicio+"' value='0' style='width: 60px;' onblur=\"calcularTotalItem2('"+idservicio+"');$('#descripcion').focus();\" /></td>"+
-        "<td><input type='text' style='width: 60px;' readonly='' data='numero' class='form-control input-xs' size='5' name='txtTotal"+idservicio+"' id='txtTotal"+idservicio+"' value=0' /></td>"+
-        "<td><a href='#' onclick=\"quitarServicio('"+idservicio+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>");
-    carro.push(idservicio);
-    $(':input[data="numero"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
-    eval("var planes"+idservicio+" = new Bloodhound({"+
-        "datumTokenizer: function (d) {"+
-            "return Bloodhound.tokenizers.whitespace(d.value);"+
-        "},"+
-        "limit: 10,"+
-        "queryTokenizer: Bloodhound.tokenizers.whitespace,"+
-        "remote: {"+
-            "url: 'medico/medicoautocompletar/%QUERY',"+
-            "filter: function (planes"+idservicio+") {"+
-                "return $.map(planes"+idservicio+", function (movie) {"+
-                    "return {"+
-                        "value: movie.value,"+
-                        "id: movie.id,"+
-                    "};"+
-                "});"+
-            "}"+
-        "}"+
-    "});"+
-    "planes"+idservicio+".initialize();"+
-    "$('#txtMedico"+idservicio+"').typeahead(null,{"+
-        "displayKey: 'value',"+
-        "source: planes"+idservicio+".ttAdapter()"+
-    "}).on('typeahead:selected', function (object, datum) {"+
-        "$('#txtMedico"+idservicio+"').val(datum.value);"+
-        "$('#txtIdMedico"+idservicio+"').val(datum.id);"+
-        "copiarMedico('"+idservicio+"');"+
-    "});");
-    $("#txtMedico"+idservicio).focus();             
-}--}}
-
 function seleccionarServicioOtro(){
     var idservicio = "10"+Math.round(Math.random()*10000);
     $("#tbDetalle").append("<tbody id='tbDetalle"+idservicio+"'><tr id='trDetalle"+idservicio+"'><td>§</td><td colspan='7'><input style='font-weight:bold;text-align: center;font-size:15px;' type='text' class='form-control input-xs txtareaa' id='txtServicio"+idservicio+"' name='txtServicio"+idservicio+"' /></td>" +
         "<td><input class='form-control input-xs' type='text' id='txtFacturar" + idservicio + "' name='txtFacturar" + idservicio + "' /></td>"  + 
         "<td><a href='#' class='btn btn-danger btn-xs' onclick=\"quitarServicio2('"+idservicio+"')\"><i class='fa fa-minus-circle' title='Quitar Cabecera'></i></td><td><a class='btn btn-success btn-xs' href='#' onclick=\"seleccionarServicioOtro2('"+idservicio+"')\"><i class='fa fa-plus-circle' title='Añadir Detalle'></i></td></tr></tbody>");
     carro.push(idservicio);
-    $("#txtServicio"+idservicio).focus();             
+    $("#txtServicio"+idservicio).focus();
 }
 
 function seleccionarServicioOtro2(idservicio){
@@ -589,7 +518,7 @@ function seleccionarServicioOtro2(idservicio){
         "<td><input class='form-control input-xs' readonly='readonly' type='text' id='" + idservicio + "txtFacturar" + idservicio2 + "' name=" + idservicio + "txtFacturar" + idservicio2 + "' /></td>"  + 
         "<td><a href='#' class='btn btn-warning btn-xs' onclick=\"quitarServicio('" + idservicio + "tr"+idservicio2+"')\"><i class='fa fa-minus-circle' title='Quitar Detalle'></i></td><td></td></tr>");
     carrodetalles.push(idservicio2);
-    $("#txtServicio"+idservicio2).focus();             
+    $("#" + idservicio + "txtServicio"+idservicio2).focus();             
 }
 
 function calcularTotal(){
