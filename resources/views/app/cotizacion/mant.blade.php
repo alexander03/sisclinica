@@ -70,7 +70,7 @@ if($cotizacion == null) {
         <div class="box-header">
             <h2 class="box-title col-lg-4 col-md-4 col-sm-4">CABECERA <button type="button" class="btn btn-xs btn-info" title="Agregar Detalle" onclick="seleccionarServicioOtro();"><i class="fa fa-plus"></i></button></h2>
         </div>
-        <div class="box-body" style="max-height: 300px;overflow: auto;">
+        <div class="box-body" {{--style="max-height: 300px;overflow: auto;"--}}s>
             <table class="table table-condensed table-border" id="tbDetalle">
                 <thead>
                     <th class="text-center" width="5%">#</th>
@@ -349,6 +349,16 @@ function guardarPago (entidad, idboton) {
         msg += " *Debes Seleccionar un Plan \n";    
     }
 
+    if($('#codigoregistro').val()==""){
+        band = false;
+        msg += " *Debes Escribir un código \n";    
+    }
+
+    if($('#titulo').val()==""){
+        band = false;
+        msg += " *Debes Escribir una referencia \n";    
+    }
+
     //$("#total").val(total2);
     if($(".txtareaa").val()==""){
         band = false;
@@ -500,7 +510,7 @@ function seleccionarServicio(idservicio){
 function seleccionarServicioOtro(){
     var idservicio = "10"+Math.round(Math.random()*10000);
     $("#tbDetalle").append("<tbody id='tbDetalle"+idservicio+"'><tr id='trDetalle"+idservicio+"'><td>§</td><td colspan='7'><input style='font-weight:bold;text-align: center;font-size:15px;' type='text' class='form-control input-xs txtareaa' id='txtServicio"+idservicio+"' name='txtServicio"+idservicio+"' /></td>" +
-        "<td><input class='form-control input-xs' type='text' id='txtFacturar" + idservicio + "' name='txtFacturar" + idservicio + "' /></td>"  + 
+        "<td><input class='form-control input-xs txtareaa' type='text' id='txtFacturar" + idservicio + "' name='txtFacturar" + idservicio + "' /></td>"  + 
         "<td><a href='#' class='btn btn-danger btn-xs' onclick=\"quitarServicio2('"+idservicio+"')\"><i class='fa fa-minus-circle' title='Quitar Cabecera'></i></td><td><a class='btn btn-success btn-xs' href='#' onclick=\"seleccionarServicioOtro2('"+idservicio+"')\"><i class='fa fa-plus-circle' title='Añadir Detalle'></i></td></tr></tbody>");
     carro.push(idservicio);
     $("#txtServicio"+idservicio).focus();
@@ -508,13 +518,13 @@ function seleccionarServicioOtro(){
 
 function seleccionarServicioOtro2(idservicio){
     var idservicio2 = "10"+Math.round(Math.random()*10000);
-    $("#tbDetalle" + idservicio).append("<tr id='" + idservicio + "tr"+idservicio2+"'><td>-</td><td><input type='text' class='form-control input-xs' id='" + idservicio + "txtServicio"+idservicio2+"' name='" + idservicio + "'txtServicio"+idservicio2+"' /></td>" + 
-        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtCantidad" + idservicio2 + "' name='" + idservicio + "txtCantidad" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtPorcentaje" + idservicio2 + "'  name='" + idservicio + "txtPorcentaje" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtSoles" + idservicio2 + "'  name='" + idservicio + "txtSoles" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtUnidad" + idservicio2 + "' name='" + idservicio + "txtUnidad" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtFactor" + idservicio2 + "' name='" + idservicio + "txtFactor" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtTotal" + idservicio2 + "' name='" + idservicio + "txtTotal" + idservicio2 + "' /></td>"  + 
+    $("#tbDetalle" + idservicio).append("<tr id='" + idservicio + "tr"+idservicio2+"'><td>-</td><td><input type='text' class='form-control input-xs txtareaa' id='" + idservicio + "txtServicio"+idservicio2+"' name='" + idservicio + "'txtServicio"+idservicio2+"' /></td>" + 
+        "<td><input class='form-control input-xs txtareaa' type='text' id='" + idservicio + "txtCantidad" + idservicio2 + "' name='" + idservicio + "txtCantidad" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs txtareaa' type='text' id='" + idservicio + "txtPorcentaje" + idservicio2 + "'  name='" + idservicio + "txtPorcentaje" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs txtareaa' type='text' id='" + idservicio + "txtSoles" + idservicio2 + "'  name='" + idservicio + "txtSoles" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs txtareaa' type='text' id='" + idservicio + "txtUnidad" + idservicio2 + "' name='" + idservicio + "txtUnidad" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs txtareaa' type='text' id='" + idservicio + "txtFactor" + idservicio2 + "' name='" + idservicio + "txtFactor" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs txtareaa' type='text' id='" + idservicio + "txtTotal" + idservicio2 + "' name='" + idservicio + "txtTotal" + idservicio2 + "' /></td>"  + 
         "<td><input class='form-control input-xs' readonly='readonly' type='text' id='" + idservicio + "txtFacturar" + idservicio2 + "' name=" + idservicio + "txtFacturar" + idservicio2 + "' /></td>"  + 
         "<td><a href='#' class='btn btn-warning btn-xs' onclick=\"quitarServicio('" + idservicio + "tr"+idservicio2+"')\"><i class='fa fa-minus-circle' title='Quitar Detalle'></i></td><td></td></tr>");
     carrodetalles.push(idservicio2);
