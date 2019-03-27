@@ -100,17 +100,27 @@ if($cotizacion == null) {
                 @endif
                 </tbody>
                 <tfoot>
-                    <th class="text-right"></th>
-                    <th class="text-right"></th>
-                    <th class="text-right"></th>
-                    <th class="text-right"></th>
-                    <th class="text-right"></th>
-                    <th class="text-right"></th>
-                    <th class="text-right"></th>
-                    <th class="text-right">Total</th>
-                    <th>{!! Form::text('total', $total, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'style' => 'width: 100%;', 'readonly' => 'readonly')) !!}</th>
-                    <th class="text-right"></th>
-                    <th class="text-right"></th>
+                    <tr>
+                        <th class="text-right" colspan="7"></th>
+                        <th class="text-right">Sub - Total</th>
+                        <th>{!! Form::text('subtotal', $total, array('class' => 'form-control input-xs', 'id' => 'subtotal', 'size' => 3, 'style' => 'width: 100%;', 'readonly' => 'readonly')) !!}</th>
+                        <th class="text-right"></th>
+                        <th class="text-right"></th>
+                    </tr>
+                    <tr>
+                        <th class="text-right" colspan="7"></th>
+                        <th class="text-right">IGV</th>
+                        <th>{!! Form::text('igv', $total, array('class' => 'form-control input-xs', 'id' => 'igv', 'size' => 3, 'style' => 'width: 100%;', 'readonly' => 'readonly')) !!}</th>
+                        <th class="text-right"></th>
+                        <th class="text-right"></th>
+                    </tr>
+                    <tr>
+                        <th class="text-right" colspan="7"></th>
+                        <th class="text-right">Total</th>
+                        <th>{!! Form::text('total', $total, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'style' => 'width: 100%;', 'readonly' => 'readonly')) !!}</th>
+                        <th class="text-right"></th>
+                        <th class="text-right"></th>
+                    </tr>
                 </tfoot>
             </table>
         </div>
@@ -121,6 +131,8 @@ var valorbusqueda="";
 $(document).ready(function() {
     configurarAnchoModal('1400');
     init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'B', '{!! $entidad !!}');
+    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="subtotal"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
+    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="igv"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="totalboleta"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="ruc"]').inputmask("99999999999");
