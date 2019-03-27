@@ -460,6 +460,7 @@ function buscarServicio(valor){
 }
 
 var carro = new Array();
+var carrodetalles = new Array();
 var carroDoc = new Array();
 var copia = new Array();
 function seleccionarServicio(idservicio){
@@ -587,8 +588,8 @@ function seleccionarServicioOtro2(idservicio){
         "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtTotal" + idservicio2 + "' name='" + idservicio + "txtTotal" + idservicio2 + "' /></td>"  + 
         "<td><input class='form-control input-xs' readonly='readonly' type='text' id='" + idservicio + "txtFacturar" + idservicio2 + "' name=" + idservicio + "txtFacturar" + idservicio2 + "' /></td>"  + 
         "<td><a href='#' class='btn btn-warning btn-xs' onclick=\"quitarServicio('" + idservicio + "tr"+idservicio2+"')\"><i class='fa fa-minus-circle' title='Quitar Detalle'></i></td><td></td></tr>");
-    carro.push(idservicio);
-    $("#txtServicio"+idservicio).focus();             
+    carrodetalles.push(idservicio2);
+    $("#txtServicio"+idservicio2).focus();             
 }
 
 function calcularTotal(){
