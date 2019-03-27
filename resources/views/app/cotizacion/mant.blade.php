@@ -360,11 +360,13 @@ function guardarPago (entidad, idboton) {
     }
 
     //$("#total").val(total2);
-    if($(".txtareaa").val()==""){
-        band = false;
-        msg += " *Se debe agregar una descripcion \n"; 
-        $(this).focus();   
-    }
+    $(".txtareaa").each(function(index, el) {
+        if($(this).val()==""){
+            band = false;
+            msg += " *Te falta agregar un campo \n"; 
+        }
+        
+    });        
 
     if($("#person_id").val()==""){
         band = false;
