@@ -569,14 +569,8 @@ function seleccionarServicio(idservicio){
 
 function seleccionarServicioOtro(){
     var idservicio = "10"+Math.round(Math.random()*10000);
-    $("#tbDetalle").append("<tbody id='tbDetalle"+idservicio+"'><tr id='trDetalle"+idservicio+"'><td>§</td><td><input style='font-weight:bold;' type='text' class='form-control input-xs txtareaa' id='txtServicio"+idservicio+"' name='txtServicio"+idservicio+"' /></td>" + 
-        "<td><input style='font-weight:bold;' class='form-control input-xs' type='text' id='txtCantidad" + idservicio + "' name='txtCantidad" + idservicio + "' /></td>"  + 
-        "<td><input style='font-weight:bold;' class='form-control input-xs' type='text' id='txtPorcentaje" + idservicio + "'  name='txtPorcentaje" + idservicio + "' /></td>"  + 
-        "<td><input style='font-weight:bold;' class='form-control input-xs' type='text' id='txtSoles" + idservicio + "'  name='txtSoles" + idservicio + "' /></td>"  + 
-        "<td><input style='font-weight:bold;' class='form-control input-xs' type='text' id='txtUnidad" + idservicio + "' name='txtUnidad" + idservicio + "' /></td>"  + 
-        "<td><input style='font-weight:bold;' class='form-control input-xs' type='text' id='txtFactor" + idservicio + "' name='txtFactor" + idservicio + "' /></td>"  + 
-        "<td><input style='font-weight:bold;' class='form-control input-xs' type='text' id='txtTotal" + idservicio + "' name='txtTotal" + idservicio + "' /></td>"  + 
-        "<td><input style='font-weight:bold;' class='form-control input-xs' type='text' id='txtFacturar" + idservicio + "' name='txtFacturar" + idservicio + "' /></td>"  + 
+    $("#tbDetalle").append("<tbody id='tbDetalle"+idservicio+"'><tr id='trDetalle"+idservicio+"'><td>§</td><td colspan='7'><input style='font-weight:bold;' type='text' class='form-control input-xs txtareaa' id='txtServicio"+idservicio+"' name='txtServicio"+idservicio+"' /></td>" +
+        "<td><input class='form-control input-xs' type='text' id='txtFacturar" + idservicio + "' name='txtFacturar" + idservicio + "' /></td>"  + 
         "<td><a href='#' class='btn btn-danger btn-xs' onclick=\"quitarServicio2('"+idservicio+"')\"><i class='fa fa-minus-circle' title='Quitar Cabecera'></i></td><td><a class='btn btn-success btn-xs' href='#' onclick=\"seleccionarServicioOtro2('"+idservicio+"')\"><i class='fa fa-plus-circle' title='Añadir Detalle'></i></td></tr></tbody>");
     carro.push(idservicio);
     $("#txtServicio"+idservicio).focus();             
@@ -584,14 +578,14 @@ function seleccionarServicioOtro(){
 
 function seleccionarServicioOtro2(idservicio){
     var idservicio2 = "10"+Math.round(Math.random()*10000);
-    $("#tbDetalle" + idservicio).append("<tr id='" + idservicio + "tr"+idservicio2+"'><td>-</td><td><input type='text' class='form-control input-xs' id='" + idservicio + "txtServicio"+idservicio2+"' name=" + idservicio + "'txtServicio"+idservicio2+"' /></td>" + 
-        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtCantidad" + idservicio2 + "' name=" + idservicio + "'txtCantidad" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtPorcentaje" + idservicio2 + "'  name=" + idservicio + "'txtPorcentaje" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtSoles" + idservicio2 + "'  name=" + idservicio + "'txtSoles" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtUnidad" + idservicio2 + "' name=" + idservicio + "'txtUnidad" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtFactor" + idservicio2 + "' name=" + idservicio + "'txtFactor" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtTotal" + idservicio2 + "' name=" + idservicio + "'txtTotal" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtFacturar" + idservicio2 + "' name=" + idservicio + "'txtFacturar" + idservicio2 + "' /></td>"  + 
+    $("#tbDetalle" + idservicio).append("<tr id='" + idservicio + "tr"+idservicio2+"'><td>-</td><td><input type='text' class='form-control input-xs' id='" + idservicio + "txtServicio"+idservicio2+"' name='" + idservicio + "'txtServicio"+idservicio2+"' /></td>" + 
+        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtCantidad" + idservicio2 + "' name='" + idservicio + "txtCantidad" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtPorcentaje" + idservicio2 + "'  name='" + idservicio + "txtPorcentaje" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtSoles" + idservicio2 + "'  name='" + idservicio + "txtSoles" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtUnidad" + idservicio2 + "' name='" + idservicio + "txtUnidad" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtFactor" + idservicio2 + "' name='" + idservicio + "txtFactor" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtTotal" + idservicio2 + "' name='" + idservicio + "txtTotal" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs' readonly='readonly' type='text' id='" + idservicio + "txtFacturar" + idservicio2 + "' name=" + idservicio + "txtFacturar" + idservicio2 + "' /></td>"  + 
         "<td><a href='#' class='btn btn-warning btn-xs' onclick=\"quitarServicio('" + idservicio + "tr"+idservicio2+"')\"><i class='fa fa-minus-circle' title='Quitar Detalle'></i></td><td></td></tr>");
     carro.push(idservicio);
     $("#txtServicio"+idservicio).focus();             
