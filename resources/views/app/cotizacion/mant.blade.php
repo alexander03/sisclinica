@@ -386,7 +386,7 @@ function calcularTotalDeCadaDetallito(idtr) {
     }
     if(porcentaje === '') {
         porcentaje = 0;
-        monto = cantidad
+        monto = cantidad;
     } if(soles === '') {
         soles = 0;
     }    
