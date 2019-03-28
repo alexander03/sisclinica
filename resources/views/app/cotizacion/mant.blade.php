@@ -429,12 +429,12 @@ function guardarPago (entidad, idboton) {
         band = false;
         msg += " *No se selecciono un paciente \n";    
     }
-    for(c=0; c < carro.length; c++){
+    /*for(c=0; c < carro.length; c++){
         if($("#txtIdMedico"+carro[c]).val()==0){
             band = false;
             msg += " *Debe seleccionar medico \n";                        
         }
-    }
+    }*/
     if(band){
         var idformulario = IDFORMMANTENIMIENTO + entidad;
         var data         = submitForm(idformulario);
@@ -642,14 +642,14 @@ function quitarServicio(id){
 }
 
 function quitarServicio2(id){
-    $("#tbDetalle"+id).remove();
-    calcularTotalPorFacturar();
-    /*for(c=0; c < carro.length; c++){
+    $("#tbDetalle"+id).remove();    
+    for(c=0; c < carro.length; c++){
         if(carro[c] == id) {
             carro.splice(c,1);
         }
     }
-    calcularTotal();*/
+    calcularTotalPorFacturar();
+    calcularTotal();
 }
 
 function generarNumero(){
