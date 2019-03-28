@@ -6,12 +6,14 @@ if($cotizacion == null) {
     $plan_id = '';
     $codigo = '';
     $total = '';
+    $referencia = '';
 } else {
     $fecha = $cotizacion->fecha;
     $tipo = $cotizacion->tipo;
     $plan = $cotizacion->plan->nombre;
     $plan_id = $cotizacion->plan->id;
     $codigo = $cotizacion->codigo;
+    $referencia = $cotizacion->referencia;
     $total = number_format($cotizacion->total, 2);
 }
 ?>
@@ -54,9 +56,9 @@ if($cotizacion == null) {
                     {!! Form::text('plan', $plan, array('class' => 'form-control input-xs', 'id' => 'plan')) !!}
                     {!! Form::hidden('plan_id', $plan_id, array('id' => 'plan_id')) !!}
                 </div>
-                {!! Form::label('titulo', 'Referencia:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
+                {!! Form::label('referencia', 'Referencia:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
                 <div class="col-lg-6 col-md-6 col-sm-6">
-                    {!! Form::text('titulo', $codigo, array('class' => 'form-control input-xs', 'id' => 'titulo')) !!}
+                    {!! Form::text('referencia', $referencia, array('class' => 'form-control input-xs', 'id' => 'referencia')) !!}
                 </div>
             </div>
             <div class="form-group">
@@ -435,7 +437,7 @@ function guardarPago (entidad, idboton) {
         msg += " *Debes Escribir un código \n";    
     }
 
-    if($('#titulo').val()==""){
+    if($('#referencia').val()==""){
         band = false;
         msg += " *Debes Escribir una referencia \n";    
     }
