@@ -243,15 +243,7 @@ $(document).ready(function() {
     });  
 
     $(document).on('keyup', '.porfacturar', function(){
-        var subtotal = 0;
-        $('.porfacturar').each(function(index, el) {
-            if($(this).val() !== '') {
-                subtotal += parseFloat($(this).val().replace(',', ''));
-            }
-        });
-        $('#subtotal').val(subtotal.toFixed(2));
-        $('#igv').val((subtotal*0.18).toFixed(2));
-        $('#total').val((subtotal*(1.18)).toFixed(2));
+        calcularTotalPorFacturar();
     });  
 
     $(document).on('keyup', '.txtCantidad', function(){
@@ -651,6 +643,7 @@ function quitarServicio(id){
 
 function quitarServicio2(id){
     $("#tbDetalle"+id).remove();
+    calcularTotalPorFacturar();
     /*for(c=0; c < carro.length; c++){
         if(carro[c] == id) {
             carro.splice(c,1);
@@ -735,6 +728,18 @@ function calcularCoaseguro(value){
             }
         }
     }*/
+}
+
+function calcularTotalPorFacturar() {
+    var subtotal = 0;
+    $('.porfacturar').each(function(index, el) {
+        if($(this).val() !== '') {
+            subtotal += parseFloat($(this).val().replace(',', ''));
+        }
+    });
+    $('#subtotal').val(subtotal.toFixed(2));
+    $('#igv').val((subtotal*0.18).toFixed(2));
+    $('#total').val((subtotal*(1.18)).toFixed(2));
 }
 
 function agregarDetallePrefactura(idpersona){
