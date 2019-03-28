@@ -261,17 +261,17 @@ $(document).ready(function() {
 
     $(document).on('keyup', '.txtPorcentaje', function(){
         var idtr = $(this).parent().parent().attr('id');
-        if($(this).val() !== '') {
+        /*if($(this).val() !== '') {
             cantidad = $('#'+idtr).find('.txtSoles').val('');
-        }
+        }*/
         calcularTotalDeCadaDetallito(idtr);
     }); 
 
     $(document).on('keyup', '.txtSoles', function(){
         var idtr = $(this).parent().parent().attr('id');
-        if($(this).val() !== '') {
+        /*if($(this).val() !== '') {
             cantidad = $('#'+idtr).find('.txtPorcentaje').val('');
-        }
+        }*/
         calcularTotalDeCadaDetallito(idtr);
     });   
     
@@ -383,13 +383,14 @@ function calcularTotalDeCadaDetallito(idtr) {
     var soles = $('#'+idtr).find('.txtSoles').val();
     if(cantidad === '') {
         cantidad = 0;
-    }
-    if(porcentaje === '') {
-        porcentaje = 0;
-        monto = cantidad;
+    } if(porcentaje === '') {
+        porcentaje = 100;
     } if(soles === '') {
         soles = 0;
-    }    
+    }  
+    monto = (cantidad * (porcentaje/100) * soles).toFixed(2);
+    //alert(monto);
+    $('#'+idtr).find('.txtTotal').val(monto);
 }
 
 function guardarPago (entidad, idboton) {
@@ -587,10 +588,10 @@ function seleccionarServicioOtro2(idservicio){
     var idservicio2 = "10"+Math.round(Math.random()*10000);
     $("#tbDetalle" + idservicio).append("<tr id='" + idservicio + "tr"+idservicio2+"'><td>-</td><td><input type='text' class='form-control input-xs txtareaa' id='" + idservicio + "txtServicio"+idservicio2+"' name='" + idservicio + "'txtServicio"+idservicio2+"' /></td>" + 
         "<td><input class='form-control input-xs txtareaa numerito txtCantidad' value='1' type='text' id='" + idservicio + "txtCantidad" + idservicio2 + "' name='" + idservicio + "txtCantidad" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs txtareaa numerito txtPorcentaje' type='text' id='" + idservicio + "txtPorcentaje" + idservicio2 + "'  name='" + idservicio + "txtPorcentaje" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs numerito txtPorcentaje' type='text' id='" + idservicio + "txtPorcentaje" + idservicio2 + "'  name='" + idservicio + "txtPorcentaje" + idservicio2 + "' /></td>"  + 
         "<td><input class='form-control input-xs txtareaa numerito txtSoles' type='text' value='0.00' id='" + idservicio + "txtSoles" + idservicio2 + "'  name='" + idservicio + "txtSoles" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs txtareaa' type='text' id='" + idservicio + "txtUnidad" + idservicio2 + "' name='" + idservicio + "txtUnidad" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs txtareaa' type='text' id='" + idservicio + "txtFactor" + idservicio2 + "' name='" + idservicio + "txtFactor" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtUnidad" + idservicio2 + "' name='" + idservicio + "txtUnidad" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtFactor" + idservicio2 + "' name='" + idservicio + "txtFactor" + idservicio2 + "' /></td>"  + 
         "<td><input class='form-control input-xs txtareaa numerito txtTotal' readonly='readonly' value='0.00' type='text' id='" + idservicio + "txtTotal" + idservicio2 + "' name='" + idservicio + "txtTotal" + idservicio2 + "' /></td>"  + 
         "<td><input class='form-control input-xs porfacturar' readonly='readonly' type='text' id='" + idservicio + "txtFacturar" + idservicio2 + "' name=" + idservicio + "txtFacturar" + idservicio2 + "' /></td>"  + 
         "<td><a href='#' class='btn btn-warning btn-xs' onclick=\"quitarServicio('" + idservicio + "tr"+idservicio2+"')\"><i class='fa fa-minus-circle' title='Quitar Detalle'></i></td><td></td></tr>");
