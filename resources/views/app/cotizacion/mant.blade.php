@@ -27,6 +27,7 @@ if($cotizacion == null) {
 {!! Form::model($cotizacion, $formData) !!}    
     {!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
     {!! Form::hidden('listServicio', null, array('id' => 'listServicio')) !!}
+    {!! Form::hidden('listDetallesServicio', null, array('id' => 'listDetallesServicio')) !!}
     <div class="row">
         {{--<div class="col-lg-6 col-md-6 col-sm-6">--}}
         <div class="col-lg-12 col-md-12 col-sm-12">
@@ -399,6 +400,29 @@ function guardarPago (entidad, idboton) {
     if(carro.length==0){
         band = false;
         msg += " *Debes escribir al menos un detalle \n";    
+    } else {
+        var detallesconcat = '';
+        for (var i = 0; i < carro.length; i++) {
+            $('#tbDetalle'+carro[i]+' tr').each(function(index, el) {
+                var catdetalles = $('#tbDetalle'+carro[i]+' tr').length - 1;
+                if(index !== 0) {
+                    var partdetallesconcat = $(this).attr('id');
+                    partdetallesconcat = partdetallesconcat.replace(carro[i] + 'tr', '');
+                    detallesconcat += partdetallesconcat;
+                    if(index === catdetalles) {
+                        detallesconcat += ';';
+                    }else{
+                        detallesconcat += ',';
+                    }
+                }
+            });
+        }
+        $('#listDetallesServicio').val(detallesconcat);
+    }
+
+    if($('#listDetallesServicio').val() === '') {
+        band = false;
+        msg += " *Debes Agregar al menos un detalle por cabecera \n";  
     }
 
     if($('#plan_id').val()==""){
@@ -578,7 +602,7 @@ function seleccionarServicioOtro(){
 
 function seleccionarServicioOtro2(idservicio){
     var idservicio2 = "10"+Math.round(Math.random()*10000);
-    $("#tbDetalle" + idservicio).append("<tr id='" + idservicio + "tr"+idservicio2+"'><td>-</td><td><input type='text' class='form-control input-xs txtareaa' id='" + idservicio + "txtServicio"+idservicio2+"' name='" + idservicio + "'txtServicio"+idservicio2+"' /></td>" + 
+    $("#tbDetalle" + idservicio).append("<tr id='" + idservicio + "tr"+idservicio2+"'><td>-</td><td><input type='text' class='form-control input-xs txtareaa' id='" + idservicio + "txtServicio"+idservicio2+"' name='" + idservicio + "txtServicio"+idservicio2+"' /></td>" + 
         "<td><input class='form-control input-xs txtareaa numerito txtCantidad' value='1' type='text' id='" + idservicio + "txtCantidad" + idservicio2 + "' name='" + idservicio + "txtCantidad" + idservicio2 + "' /></td>"  + 
         "<td><input class='form-control input-xs numerito txtPorcentaje' type='text' id='" + idservicio + "txtPorcentaje" + idservicio2 + "'  name='" + idservicio + "txtPorcentaje" + idservicio2 + "' /></td>"  + 
         "<td><input class='form-control input-xs txtareaa numerito txtSoles' type='text' value='0.00' id='" + idservicio + "txtSoles" + idservicio2 + "'  name='" + idservicio + "txtSoles" + idservicio2 + "' /></td>"  + 
@@ -587,7 +611,7 @@ function seleccionarServicioOtro2(idservicio){
         "<td><input class='form-control input-xs txtareaa numerito txtTotal' readonly='readonly' value='0.00' type='text' id='" + idservicio + "txtTotal" + idservicio2 + "' name='" + idservicio + "txtTotal" + idservicio2 + "' /></td>"  + 
         "<td><input class='form-control input-xs porfacturar' readonly='readonly' type='text' id='" + idservicio + "txtFacturar" + idservicio2 + "' name=" + idservicio + "txtFacturar" + idservicio2 + "' /></td>"  + 
         "<td><a href='#' class='btn btn-warning btn-xs' onclick=\"quitarServicio('" + idservicio + "tr"+idservicio2+"')\"><i class='fa fa-minus-circle' title='Quitar Detalle'></i></td><td></td></tr>");
-    carrodetalles.push(idservicio2);
+    //carrodetalles.push(idservicio2);
     $("#" + idservicio + "txtServicio"+idservicio2).focus();   
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="' + idservicio + 'txtCantidad' + idservicio2 + '"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="' + idservicio + 'txtPorcentaje' + idservicio2 + '"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
