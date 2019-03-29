@@ -1799,7 +1799,9 @@ Session::set('sucursal_id', 1);
 		});
 	});
 
-	$(document).on('click', '#btnInfoAntecedentes', function(event) {
+	$(document).on('click', '#btnInfoAntecedentes', function(e) {
+		e.preventDefault();
+		e.stopImmediatePropagation();
 		var historia = $('#historia').val();
 		$.ajax({
 			"method": "POST",
@@ -1809,10 +1811,10 @@ Session::set('sucursal_id', 1);
 				"_token": "{{ csrf_token() }}",
 				},
             beforeSend:function() {
-            	$('#infoAntecedentes').attr('readonly', 'readonly').html('');
+            	$('#infoAntecedentes').attr('readonly', 'readonly').val('');
             }
 		}).done(function(info){
-			$('#infoAntecedentes').removeAttr('readonly').html(info).focus();
+			$('#infoAntecedentes').removeAttr('readonly').val(info).focus();
 		});
 	});
 
@@ -1825,18 +1827,21 @@ Session::set('sucursal_id', 1);
 				"_token": "{{ csrf_token() }}",
 				},
 			beforeSend:function() {
-				$('#infoAntecedentes').attr('readonly', 'readonly').html('');
+				$('#infoAntecedentes').attr('readonly', 'readonly').val('');
+				$('#historia').val(id);
 			}
-		}).done(function(info){
-			$('#historia').val(id);
+		}).done(function(info){			
 			$('#tituloantecedentes').html('Antecedentes de '+paciente);
-			$('#infoAntecedentes').removeAttr('readonly').html(info).focus();
+			$('#infoAntecedentes').removeAttr('readonly').val(info).focus();
+			//alert(info);
 		}).fail(function() {
 			alert('Ha ocurrido un error.' + id);
 		});
 	}
 
-	$(document).on('keyup', '#infoAntecedentes', function(event) {
+	$(document).on('keyup', '#infoAntecedentes', function(e) {
+		e.preventDefault();
+		e.stopImmediatePropagation();
 		var historia = $('#historia').val();
 		var antecedentes = $(this).val();
 		$.ajax({
