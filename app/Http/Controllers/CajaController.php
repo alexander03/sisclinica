@@ -804,7 +804,7 @@ class CajaController extends Controller
             $nomcierre = 'Farmacia - ' . $nomcierre;
         } 
 
-        $nomcierre2 = $nomcierre. ' - ' . date("d/m/Y", strtotime($rst->fecha));
+        $nomcierre2 = $nomcierre. ' - ' . date("d-m-Y", strtotime($rst->fecha));
 
         $nomcierre = substr($nomcierre, 0, 20);        
 
@@ -868,6 +868,23 @@ class CajaController extends Controller
         
         $listaingresosvarios = $listaingresosvarios->get();
 
+        //Solo para caja anterior
+
+        $listacajaanterior = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
+                ->leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+                ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
+                ->where('movimiento.tipomovimiento_id', '=', 2)
+                ->where('movimiento.tipodocumento_id', '=', 2)
+                ->where('movimiento.conceptopago_id', '=', 1)
+                ->where('movimiento.sucursal_id', '=', $sucursal_id)
+                ->where('movimiento.caja_id', '=', $caja_id)
+                ->where('movimiento.situacion', '=', 'N')
+                ->where('conceptopago.tipo', '=', 'I');
+
+        $listacajaanterior = $listacajaanterior->select('movimiento.situacion','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'conceptopago.nombre', 'movimiento.total')->orderBy('movimiento.id', 'desc');
+        
+        $listacajaanterior = $listacajaanterior->limit(1)->get();
+
         //Solo para egresos
 
         $resultadoegresos        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
@@ -913,9 +930,9 @@ class CajaController extends Controller
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         
-        Excel::create('ExcelReporte', function($excel) use($nomcierre2, $listaventas, $listacuotas, $listaventasfarmacia, $listaingresosvarios, $listaegresos, $listaegresoscompra, $nomcierre, $responsable, $caja, $request) {
+        Excel::create('ExcelReporte', function($excel) use($nomcierre2, $listaventas, $listacuotas, $listaventasfarmacia, $listaingresosvarios, $listaegresos, $listacajaanterior, $listaegresoscompra, $nomcierre, $responsable, $caja, $request) {
  
-            $excel->sheet("Det. Cierre " . $nomcierre, function($sheet) use($nomcierre2, $listaventas, $listacuotas, $listaventasfarmacia, $listaingresosvarios, $listaegresos, $listaegresoscompra, $nomcierre, $responsable, $caja, $request) {
+            $excel->sheet("Det. Cierre " . $nomcierre, function($sheet) use($nomcierre2, $listaventas, $listacuotas, $listaventasfarmacia, $listaingresosvarios, $listaegresos, $listacajaanterior, $listaegresoscompra, $nomcierre, $responsable, $caja, $request) {
 
                 $sheet->setWidth(array(
                     'A' => 15,'B' => 40, 'C' => 5, 'D' => 10, 'E' => 35, 'F' => 50, 'G' => 10, 'H' => 10, 'I' => 10, 'J' => 10, 'K' => 10, 'L' => 15
@@ -933,6 +950,7 @@ class CajaController extends Controller
                     )
                 ));
 
+                $totalcajaanterior = 0;
                 $totalvisa     = 0;
                 $totalmaster   = 0;
                 $totalefectivo = 0;
@@ -969,16 +987,44 @@ class CajaController extends Controller
                 $cabecera1[] = "CONCEPTO";
                 $cabecera1[] = "PRECIO";
                 $cabecera1[] = "DSCTO";
-                $cabecera1[] = "EFECTIVO";
-                $cabecera1[] = "VISA";
-                $cabecera1[] = "MASTER";
+                $cabecera1[] = "INGRESO";
+                $cabecera1[] = "";
+                $cabecera1[] = "";
                 $cabecera1[] = "DOCTOR";
 
                 $sheet->row($indicee,$cabecera1);
-                $sheet->mergeCells('C2:D2');
-                $sheet->mergeCells('A3:L3');
 
-                $sheet->cells('A2:L2', function ($cells) {
+                $indicee++;
+
+                $cabecera1 = array();
+                $cabecera1[] = "";
+                $cabecera1[] = "";
+                $cabecera1[] = "";
+                $cabecera1[] = "";
+                $cabecera1[] = "";
+                $cabecera1[] = "";
+                $cabecera1[] = "";
+                $cabecera1[] = "";
+                $cabecera1[] = "EFECTIVO";
+                $cabecera1[] = "VISA";
+                $cabecera1[] = "MASTER";
+                $cabecera1[] = "";
+
+                $sheet->row($indicee,$cabecera1);
+
+                $sheet->mergeCells('I2:K2');
+                $sheet->mergeCells('A2:A3');
+                $sheet->mergeCells('B2:B3');
+                $sheet->mergeCells('C2:D3');
+                $sheet->mergeCells('E2:E3');
+                $sheet->mergeCells('F2:F3');
+                $sheet->mergeCells('G2:G3');
+                $sheet->mergeCells('H2:H3');
+                $sheet->mergeCells('L2:L3');
+
+                $sheet->setBorder('A2:L3', 'thin');
+
+                $sheet->cells('A2:L3', function ($cells) {
                     $cells->setFont(array(
                         'family'     => 'Calibri',
                         'size'       => '11',
@@ -987,24 +1033,26 @@ class CajaController extends Controller
                     $cells->setAlignment('center');
                 });
 
-                $a = 3;
+                $a = 4;
 
                 //Recorrido para tickets
 
                 $fila = array();
 
+                $b = 0;
+
                 if(count($listaventas)>0){
-                    $sheet->row($a, array(''));
-                    $sheet->mergeCells('A'.$a.':L'.$a);
                     $a++;
+                    $b = $a;
                     $sheet->row($a, array('INGRESOS POR VENTAS'));
-                    $sheet->mergeCells('A'.$a.':L'.$a);
-                    $sheet->cells('A'.$a.':L'.$a, function ($cells) {
+                    $sheet->mergeCells('A'.$a.':F'.$a);
+                    $sheet->cells('A'.$a.':F'.$a, function ($cells) {
                         $cells->setFont(array(
                             'family'     => 'Calibri',
                             'size'       => '13',
-                            'bold'       =>  true
+                            'bold'       =>  true,
                         ));
+                        $cells->setBackground('#90EE90');
                     });
                     $a++;
                     $subtotalefectivo = 0;
@@ -1017,7 +1065,7 @@ class CajaController extends Controller
                             $detalles = Detallemovcaja::where('movimiento_id', $row3['id'])->get();  
                             $i = 0;              
                             foreach ($detalles as $detalle) {
-                                $fila[] = utf8_decode($row['fecha']);
+                                $fila[] = date("d-m-Y", strtotime($row['fecha']));
                                 $fila[] = $row['paciente'];
                                 $fila[] = $row->tipodocumento->abreviatura;
                                 $fila[] = utf8_decode($row['serie'] .'-'. $row['numero']); 
@@ -1034,33 +1082,41 @@ class CajaController extends Controller
                                 $fila[] = substr($nomdetalle,0,42);
                                 $fila[] = number_format($detalle->precio,2,'.','');
                                 if($row2['situacion'] == 'N') {
-                                    $fila[] = $detalle['descuento'] . ($detalle['tipodescuento']=='P'?'%':'S/.');
-                                    $valuetp = number_format($row2['totalpagado'],2,'.','');
-                                    $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
-                                    $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
-                                    if($valuetp == 0){$valuetp='';}
-                                    if($valuetpv == 0){$valuetpv='';}
-                                    if($valuetpm == 0){$valuetpm='';}
-                                    $fila[] = $valuetp;                    
-                                    $fila[] = $valuetpv;
-                                    $fila[] = $valuetpm;
-                                } else {                                
-                                    $fila[] = '';
-                                    $fila[] = 'ANULADO';
-                                    $fila[] = '';
-                                    $fila[] = '';
-                                    $sheet->mergeCells('I'.$a.':K'.($a+count($detalles)-1));
+                                    if($i == 0) {
+                                        $fila[] = $detalle['descuento'] . ($detalle['tipodescuento']=='P'?'%':'');
+                                        $valuetp = number_format($row2['totalpagado'],2,'.','');
+                                        $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
+                                        $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
+                                        if($valuetp == 0){$valuetp='';}
+                                        if($valuetpv == 0){$valuetpv='';}
+                                        if($valuetpm == 0){$valuetpm='';}
+                                        $fila[] = $valuetp;                    
+                                        $fila[] = $valuetpv;
+                                        $fila[] = $valuetpm;
+                                        $fila[] = $detalle->persona->apellidopaterno; 
+                                    }
+                                } else {  
+                                    if($i == 0) {
+                                        $fila[] = $detalle['descuento'] . ($detalle['tipodescuento']=='P'?'%':'');
+                                        $fila[] = 'ANULADO';
+                                        $fila[] = '';
+                                        $fila[] = '';
+                                        $fila[] = $detalle->persona->apellidopaterno; 
+                                    } 
                                 }
-                                $fila[] = utf8_decode($detalle->persona->apellidopaterno);                           
                                 $sheet->row($a, $fila);
-                                $sheet->mergeCells('A'.$a.':A'.($a+count($detalles)-1));
-                                $sheet->mergeCells('B'.$a.':B'.($a+count($detalles)-1));
-                                $sheet->mergeCells('C'.$a.':C'.($a+count($detalles)-1));
-                                $sheet->mergeCells('D'.$a.':D'.($a+count($detalles)-1));
-                                $sheet->mergeCells('E'.$a.':E'.($a+count($detalles)-1));
-                                $sheet->mergeCells('I'.$a.':I'.($a+count($detalles)-1));
-                                $sheet->mergeCells('J'.$a.':J'.($a+count($detalles)-1));
-                                $sheet->mergeCells('K'.$a.':K'.($a+count($detalles)-1));
+                                if($i == 0) {
+                                    
+                                    $sheet->mergeCells('A'.$a.':A'.($a+count($detalles)-1));
+                                    $sheet->mergeCells('B'.$a.':B'.($a+count($detalles)-1));
+                                    $sheet->mergeCells('C'.$a.':C'.($a+count($detalles)-1));
+                                    $sheet->mergeCells('D'.$a.':D'.($a+count($detalles)-1));
+                                    $sheet->mergeCells('E'.$a.':E'.($a+count($detalles)-1));
+                                    $sheet->mergeCells('I'.$a.':I'.($a+count($detalles)-1));
+                                    $sheet->mergeCells('J'.$a.':J'.($a+count($detalles)-1));
+                                    $sheet->mergeCells('K'.$a.':K'.($a+count($detalles)-1));
+                                    $sheet->mergeCells('L'.$a.':L'.($a+count($detalles)-1));
+                                }
                                 $a++;
                                 $i++;    
                                 $fila = array();                      
@@ -1086,12 +1142,12 @@ class CajaController extends Controller
                     $fila[] = '';                           
                     $fila[] = '';                           
                     $fila[] = '';                           
-                    $fila[] = 0.00;                           
+                    $fila[] = '';                           
                     $fila[] = number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.','');  
                     $fila[] = ''; 
                     $fila[] = '';                          
                     $sheet->row($a, $fila);
-                    $sheet->mergeCells('A'.$a.':G'.$a); 
+                    $sheet->mergeCells('A'.$a.':H'.$a); 
                     $sheet->mergeCells('I'.$a.':K'.$a); 
                     $sheet->cells('A'.$a.':L'.$a, function ($cells) {
                         $cells->setFont(array(
@@ -1100,24 +1156,28 @@ class CajaController extends Controller
                             'bold'       =>  true
                         ));
                     }); 
-                    $sheet->cell('I'.$a, function($cell){
+                    $sheet->cells('A'.$a.':L'.$a, function($cell){
                         $cell->setAlignment('right');
                     });
                     $fila = array();   
                     $a++;  
+                    $sheet->setBorder('A'.$b .':L'.($a-1), 'thin');
                 }
 
                 //Recorrido para cuotas
 
                 if(count($listacuotas)>0){
+                    $a++;
+                    $b = $a;
                     $sheet->row($a, array('INGRESOS POR CUOTAS'));
-                    $sheet->mergeCells('A'.$a.':L'.$a);
-                    $sheet->cells('A'.$a.':L'.$a, function ($cells) {
+                    $sheet->mergeCells('A'.$a.':F'.$a);
+                    $sheet->cells('A'.$a.':F'.$a, function ($cells) {
                         $cells->setFont(array(
                             'family'     => 'Calibri',
-                            'size'       => '11',
+                            'size'       => '13',
                             'bold'       =>  true
                         ));
+                        $cells->setBackground('#DDA0DD');
                     });
                     $a++;
                     $subtotalefectivo = 0;
@@ -1125,7 +1185,7 @@ class CajaController extends Controller
                     $subtotalmaster = 0;
                     foreach ($listacuotas as $row) { 
                         $cuota = Movimiento::find($row['numeroserie2']);
-                        $fila[] = utf8_decode($row['fecha']);                           
+                        $fila[] = date("d-m-Y", strtotime($row['fecha']));                           
                         $fila[] = $row['paciente'];                           
                         $fila[] = 'C';                           
                         $fila[] = utf8_decode($cuota->numero);                           
@@ -1154,9 +1214,9 @@ class CajaController extends Controller
                             $fila[] = "ANULADO";
                             $fila[] = "";
                             $fila[] = "";
-                            $sheet->mergeCells('I'.$a.':K'.$a);
+                            $fila[] = "";
                         }
-                        $fila[] = "-";  
+                        $fila[] = "-";
                         $sheet->mergeCells('E'.$a.':F'.$a); 
                         $sheet->row($a, $fila);
                         $fila = array(); 
@@ -1169,12 +1229,12 @@ class CajaController extends Controller
                     $fila[] = '';                           
                     $fila[] = '';                           
                     $fila[] = '';                           
-                    $fila[] = 0.00;                           
+                    $fila[] = '';                           
                     $fila[] = number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.','');  
                     $fila[] = ''; 
                     $fila[] = '';                          
                     $sheet->row($a, $fila);
-                    $sheet->mergeCells('A'.$a.':G'.$a); 
+                    $sheet->mergeCells('A'.$a.':H'.$a); 
                     $sheet->mergeCells('I'.$a.':K'.$a); 
                     $sheet->cells('A'.$a.':L'.$a, function ($cells) {
                         $cells->setFont(array(
@@ -1183,24 +1243,28 @@ class CajaController extends Controller
                             'bold'       =>  true
                         ));
                     }); 
-                    $sheet->cell('I'.$a, function($cell){
+                    $sheet->cellS('A'.$a.':L'.$a, function($cell){
                         $cell->setAlignment('right');
                     });
                     $fila = array();   
                     $a++;                                    
+                    $sheet->setBorder('A'.$b .':L'.($a-1), 'thin');
                 } 
 
                 //Recorrido para ventas de farmacia
 
                 if(count($listaventasfarmacia)>0){
+                    $a++;
+                    $b = $a;
                     $sheet->row($a, array('INGRESOS POR VENTAS'));
-                    $sheet->mergeCells('A'.$a.':L'.$a);
-                    $sheet->cells('A'.$a.':L'.$a, function ($cells) {
+                    $sheet->mergeCells('A'.$a.':F'.$a);
+                    $sheet->cells('A'.$a.':F'.$a, function ($cells) {
                         $cells->setFont(array(
                             'family'     => 'Calibri',
-                            'size'       => '11',
+                            'size'       => '13',
                             'bold'       =>  true
                         ));
+                        $cells->setBackground('#FA8072');
                     });
                     $a++;
                     $subtotalefectivo = 0;
@@ -1209,7 +1273,7 @@ class CajaController extends Controller
                     foreach ($listaventasfarmacia as $row) { 
                         $mov = Movimiento::where('movimiento_id', $row['id'])->limit(1)->first();
                         if($mov !== NULL) {
-                            $fila[] = utf8_decode($row['fecha']);
+                            $fila[] = date("d-m-Y", strtotime($row['fecha']));
                             if($row['paciente'] == '') {
                                 $fila[] = $row['nombrepaciente'];
                             } else {
@@ -1240,7 +1304,6 @@ class CajaController extends Controller
                                 $fila[] = 'ANULADO';                           
                                 $fila[] = '';                           
                                 $fila[] = '';
-                                $sheet->mergeCells('I'.$a.':K'.$a);
                             } 
                                 
                             if($row['doctor_id'] != '') {
@@ -1268,12 +1331,12 @@ class CajaController extends Controller
                     $fila[] = '';                           
                     $fila[] = '';                           
                     $fila[] = '';                           
-                    $fila[] = 0.00;                           
+                    $fila[] = '';                           
                     $fila[] = number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.','');  
                     $fila[] = ''; 
                     $fila[] = '';                          
                     $sheet->row($a, $fila);
-                    $sheet->mergeCells('A'.$a.':G'.$a); 
+                    $sheet->mergeCells('A'.$a.':H'.$a); 
                     $sheet->mergeCells('I'.$a.':K'.$a); 
                     $sheet->cells('A'.$a.':L'.$a, function ($cells) {
                         $cells->setFont(array(
@@ -1282,31 +1345,35 @@ class CajaController extends Controller
                             'bold'       =>  true
                         ));
                     }); 
-                    $sheet->cell('I'.$a, function($cell){
+                    $sheet->cells('A'.$a.':L'.$a, function($cell){
                         $cell->setAlignment('right');
                     });
                     $fila = array(); 
                     $a++;        
+                    $sheet->setBorder('A'.$b .':L'.($a-1), 'thin');
                 } 
 
                 //Recorrido para ingresos varios
 
                 if(count($listaingresosvarios)>0){
+                    $a++;
+                    $b = $a;
                     $sheet->row($a, array('INGRESOS VARIOS'));
-                    $sheet->mergeCells('A'.$a.':L'.$a);
-                    $sheet->cells('A'.$a.':L'.$a, function ($cells) {
+                    $sheet->mergeCells('A'.$a.':F'.$a);
+                    $sheet->cells('A'.$a.':F'.$a, function ($cells) {
                         $cells->setFont(array(
                             'family'     => 'Calibri',
-                            'size'       => '11',
+                            'size'       => '13',
                             'bold'       =>  true
                         ));
+                        $cells->setBackground('#87CEEB');
                     });
                     $a++;
                     $subtotalefectivo = 0;
                     $subtotalvisa = 0;
                     $subtotalmaster = 0;
                     foreach ($listaingresosvarios as $row) { 
-                        $fila[] = utf8_decode($row['fecha']);                   
+                        $fila[] = date("d-m-Y", strtotime($row['fecha']));                   
                         $fila[] = $row['paciente'];                   
                         $fila[] = $row['formapago'];                   
                         $fila[] = $row['voucher'];                   
@@ -1335,7 +1402,6 @@ class CajaController extends Controller
                             $fila[] = 'ANULADO';                           
                             $fila[] = '';                           
                             $fila[] = '';
-                            $sheet->mergeCells('I'.$a.':K'.$a);
                         }
                         $fila[] = '-';
                         $sheet->row($a, $fila);
@@ -1349,12 +1415,12 @@ class CajaController extends Controller
                     $fila[] = '';                           
                     $fila[] = '';                           
                     $fila[] = '';                           
-                    $fila[] = 0.00;                           
+                    $fila[] = '';                           
                     $fila[] = number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.','');  
                     $fila[] = ''; 
                     $fila[] = '';                          
                     $sheet->row($a, $fila);
-                    $sheet->mergeCells('A'.$a.':G'.$a); 
+                    $sheet->mergeCells('A'.$a.':H'.$a); 
                     $sheet->mergeCells('I'.$a.':K'.$a);
                     $sheet->cells('A'.$a.':L'.$a, function ($cells) {
                         $cells->setFont(array(
@@ -1363,29 +1429,114 @@ class CajaController extends Controller
                             'bold'       =>  true
                         ));
                     }); 
-                    $sheet->cell('I'.$a, function($cell){
+                    $sheet->cells('A'.$a.':L'.$a, function($cell){
                         $cell->setAlignment('right');
                     });
                     $fila = array();
                     $a++;                  
+                    $sheet->setBorder('A'.$b .':L'.($a-1), 'thin');
                 } 
 
-                //Recorrido para egresos
+                //Solo para ingreso anterior
 
-                if(count($listaegresos)>0){
-                    $sheet->row($a, array('EGRESOS'));
-                    $sheet->mergeCells('A'.$a.':L'.$a);
+                if(count($listacajaanterior)>0){
+                    $a++;
+                    $b = $a;
+                    $sheet->row($a, array('CAJA ANTERIOR'));
+                    $sheet->mergeCells('A'.$a.':F'.$a);
+                    $sheet->cells('A'.$a.':F'.$a, function ($cells) {
+                        $cells->setFont(array(
+                            'family'     => 'Calibri',
+                            'size'       => '13',
+                            'bold'       =>  true
+                        ));
+                        $cells->setBackground('#9ACD32');
+                    });
+                    $a++;
+                    $subtotalefectivo = 0;
+                    $subtotalvisa = 0;
+                    $subtotalmaster = 0;
+                    foreach ($listacajaanterior as $row) {
+                        $fila[] = date("d-m-Y", strtotime($row['fecha']));                   
+                        $fila[] = $row['paciente'];                   
+                        $fila[] = $row['formapago'];                   
+                        $fila[] = $row['voucher'];                   
+                        $fila[] = $row['nombre'].': '.$row['comentario'];                   
+                        $fila[] = '';  
+                        $sheet->mergeCells('E'.$a.':G'.$a); 
+                        $fila[] = '';                           
+                        $fila[] = ''; 
+                        if($row['situacion'] == 'N') {
+                            $valuetp = number_format($row['total'],2,'.','');
+                            $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
+                            $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
+                            if($valuetp == 0){$valuetp='';}
+                            if($valuetpv == 0){$valuetpv='';}
+                            if($valuetpm == 0){$valuetpm='';}                                                      
+                            $fila[] = $valuetp;                           
+                            $fila[] = $valuetpv;                           
+                            $fila[] = $valuetpm;                    
+                            $totalefectivo += number_format($row['total'],2,'.','');
+                            $subtotalefectivo += number_format($row['total'],2,'.','');
+                            $totalcajaanterior += number_format($row['total'],2,'.','');
+                        } else {
+                            $fila[] = 'ANULADO';                           
+                            $fila[] = '';                           
+                            $fila[] = '';
+                        }
+                        $fila[] = '-';
+                        $sheet->row($a, $fila);
+                        $a++;
+                        $fila = array();                                
+                    }   
+                    $fila[] = 'SUBTOTAL';                           
+                    $fila[] = '';                           
+                    $fila[] = '';                           
+                    $fila[] = '';                           
+                    $fila[] = '';                           
+                    $fila[] = '';                           
+                    $fila[] = '';                           
+                    $fila[] = '';                           
+                    $fila[] = number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.','');  
+                    $fila[] = ''; 
+                    $fila[] = '';                          
+                    $sheet->row($a, $fila);
+                    $sheet->mergeCells('A'.$a.':H'.$a); 
+                    $sheet->mergeCells('I'.$a.':K'.$a);
                     $sheet->cells('A'.$a.':L'.$a, function ($cells) {
                         $cells->setFont(array(
                             'family'     => 'Calibri',
                             'size'       => '11',
                             'bold'       =>  true
                         ));
+                    }); 
+                    $sheet->cells('A'.$a.':L'.$a, function($cell){
+                        $cell->setAlignment('right');
+                    });
+                    $fila = array();
+                    $a++;                  
+                    $sheet->setBorder('A'.$b .':L'.($a-1), 'thin');            
+                }
+
+                //Recorrido para egresos
+
+                if(count($listaegresos)>0){
+                    $a++;
+                    $b = $a;
+                    $sheet->row($a, array('EGRESOS'));
+                    $sheet->mergeCells('A'.$a.':F'.$a);
+                    $sheet->cells('A'.$a.':F'.$a, function ($cells) {
+                        $cells->setFont(array(
+                            'family'     => 'Calibri',
+                            'size'       => '13',
+                            'bold'       =>  true
+                        ));
+                        $cells->setBackground('#FFFF00');
                     });
                     $a++;
                     $subtotalegresos = 0;
                     foreach ($listaegresos as $row) { 
-                        $fila[] = utf8_decode($row['fecha']);                   
+                        $fila[] = date("d-m-Y", strtotime($row['fecha']));                   
                         $fila[] = $row['paciente'];                   
                         $fila[] = $row['formapago'];  
                         $fila[] = $row['voucher'];  
@@ -1394,18 +1545,17 @@ class CajaController extends Controller
                         $sheet->mergeCells('E'.$a.':G'.$a);
                         $fila[] = ''; 
                         if($row['situacion'] == 'N') {
-                            $fila[] = number_format($row['total'],2,'.','');
                             $fila[] = '';
+                            $fila[] = number_format($row['total'],2,'.','');
                             $fila[] = '';
                             $fila[] = '';
                             $subtotalegresos += number_format($row['total'],2,'.','');
                         } else {
-                            $fila[] = 'ANULADO';                           
                             $fila[] = '';                           
+                            $fila[] = 'ANULADO';                           
                             $fila[] = '';
                             $fila[] = '';
                         }  
-                        $sheet->mergeCells('I'.$a.':K'.$a);
                         $fila[] = '-';
                         $sheet->row($a, $fila);
                         $a++;
@@ -1418,12 +1568,12 @@ class CajaController extends Controller
                     $fila[] = '';                           
                     $fila[] = '';                           
                     $fila[] = '';              
+                    $fila[] = ''; 
                     $fila[] = number_format($subtotalegresos,2,'.',''); 
-                    $fila[] = 0.00; 
                     $fila[] = ''; 
                     $fila[] = '';                          
                     $sheet->row($a, $fila);
-                    $sheet->mergeCells('A'.$a.':G'.$a); 
+                    $sheet->mergeCells('A'.$a.':H'.$a); 
                     $sheet->mergeCells('I'.$a.':K'.$a);
                     $sheet->cells('A'.$a.':L'.$a, function ($cells) {
                         $cells->setFont(array(
@@ -1432,31 +1582,35 @@ class CajaController extends Controller
                             'bold'       =>  true
                         ));
                     }); 
-                    $sheet->cell('I'.$a, function($cell){
+                    $sheet->cells('A'.$a.':L'.$a, function($cell){
                         $cell->setAlignment('right');
                     });
                     $fila = array();
                     $a++;                
+                    $sheet->setBorder('A'.$b .':L'.($a-1), 'thin');
                 }
                 
                 //Recorrido para egresos por compras farmacia
 
                 if($caja->nombre == 'FARMACIA') {
                     if(count($listaegresoscompra)>0){
+                        $a++;
+                        $b = $a;
                         $sheet->row($a, array('EGRESOS POR COMPRA'));
-                        $sheet->mergeCells('A'.$a.':L'.$a);
-                        $sheet->cells('A'.$a.':L'.$a, function ($cells) {
+                        $sheet->mergeCells('A'.$a.':F'.$a);
+                        $sheet->cells('A'.$a.':F'.$a, function ($cells) {
                             $cells->setFont(array(
                                 'family'     => 'Calibri',
-                                'size'       => '11',
+                                'size'       => '13',
                                 'bold'       =>  true
                             ));
+                            $cells->setBackground('#FA8072');
                         });
                         $a++;
                         $subtotalegresoscompra = 0;
                         foreach ($listaegresoscompra as $row) { 
                             if($row['situacion2'] == null){
-                                $fila[] = utf8_decode($row['fecha']);                   
+                                $fila[] = date("d-m-Y", strtotime($row['fecha']));                   
                                 $fila[] = $row['paciente'];                   
                                 $fila[] = $row['formapago2'];  
                                 $fila[] = $row['voucher'];  
@@ -1465,19 +1619,18 @@ class CajaController extends Controller
                                 $sheet->mergeCells('E'.$a.':G'.$a);
                                 $fila[] = ''; 
                                 if($row['situacion'] == 'N') {
-                                    $fila[] = number_format($row['total'],2,'.','');
                                     $fila[] = '';
+                                    $fila[] = number_format($row['total'],2,'.','');
                                     $fila[] = '';
                                     $fila[] = '';
                                     $subtotalegresoscompra += number_format($row['total'],2,'.','');
                                     $subtotalegresos += number_format($row['total'],2,'.','');
                                 } else {
-                                    $fila[] = 'ANULADO';                           
                                     $fila[] = '';                           
+                                    $fila[] = 'ANULADO';                           
                                     $fila[] = '';
                                     $fila[] = '';                                    
-                                }  
-                                $sheet->mergeCells('I'.$a.':K'.$a);
+                                }
                                 $fila[] = '-';
                                 $sheet->row($a, $fila);
                                 $a++;
@@ -1491,12 +1644,12 @@ class CajaController extends Controller
                         $fila[] = '';                           
                         $fila[] = '';                           
                         $fila[] = '';            
+                        $fila[] = ''; 
                         $fila[] = number_format($subtotalegresoscompra,2,'.',''); 
-                        $fila[] = 0.00; 
                         $fila[] = ''; 
                         $fila[] = '';                          
                         $sheet->row($a, $fila);
-                        $sheet->mergeCells('A'.$a.':G'.$a); 
+                        $sheet->mergeCells('A'.$a.':H'.$a); 
                         $sheet->mergeCells('I'.$a.':K'.$a);
                         $sheet->cells('A'.$a.':L'.$a, function ($cells) {
                             $cells->setFont(array(
@@ -1505,15 +1658,16 @@ class CajaController extends Controller
                                 'bold'       =>  true
                             ));
                         }); 
-                        $sheet->cell('I'.$a, function($cell){
+                        $sheet->cells('A'.$a.':L'.$a, function($cell){
                             $cell->setAlignment('right');
                         });
                         $fila = array();
                         $a++;  
+                        $sheet->setBorder('A'.$b .':L'.($a-1), 'thin');
                     }
                 }
 
-                $sheet->setBorder('A1:L'.($a-1), 'thin');
+                //$sheet->setBorder('A1:L'.($a-1), 'thin');
                 $a++;
 
                 $fila[] = 'RESPONSABLE';                           
@@ -1544,20 +1698,38 @@ class CajaController extends Controller
                         'bold'       =>  true
                     ));
                     $cells->setAlignment('center');
+                    $cells->setBackground('#DEB887');
                 });
                 $sheet->row($a, $fila);
                 $fila = array();
+                $a++;
                 $a++;
 
                 $fila[] = '';                           
                 $fila[] = '';                           
                 $fila[] = '';                           
                 $fila[] = '';
-                $fila[] = 'INGRESOS';
+                $fila[] = 'VENTAS DEL DÍA';
                 $fila[] = number_format($totalefectivo + $totalmaster + $totalvisa,2,'.','');
                 $sheet->row($a, $fila);
+                $sheet->cells('E'.$a.':F'.$a, function ($cells) {
+                    $cells->setFont(array(
+                        'bold'       =>  true
+                    ));
+                    $cells->setBackground('#6495ED');
+                });
                 $fila = array();
-                $a++;
+                $a++;  
+
+                $fila[] = '';                           
+                $fila[] = '';                           
+                $fila[] = '';                           
+                $fila[] = '';
+                $fila[] = 'Caja Anterior';
+                $fila[] = number_format($totalcajaanterior,2,'.','');
+                $sheet->row($a, $fila);
+                $fila = array();
+                $a++;                  
 
                 $fila[] = '';                           
                 $fila[] = '';                           
@@ -1587,6 +1759,13 @@ class CajaController extends Controller
                 $fila[] = number_format($totalvisa,2,'.','');
                 $sheet->row($a, $fila);
                 $fila = array();
+                $sheet->cells('E'.($a-3).':F'.$a, function ($cells) {
+                    $cells->setFont(array(
+                        'bold'       =>  true
+                    ));
+                    $cells->setBackground('#00FFFF');
+                });
+                $a++;
                 $a++;
 
                 $fila[] = '';                           
@@ -1597,6 +1776,13 @@ class CajaController extends Controller
                 $fila[] = number_format($subtotalegresos,2,'.','');
                 $sheet->row($a, $fila);
                 $fila = array();
+                $sheet->cells('E'.$a.':F'.$a, function ($cells) {
+                    $cells->setFont(array(
+                        'bold'       =>  true
+                    ));
+                    $cells->setBackground('#DC143C');
+                });
+                $a++;
                 $a++;
 
                 $fila[] = '';                           
@@ -1627,7 +1813,14 @@ class CajaController extends Controller
                 $fila[] = number_format($totalefectivo-$subtotalegresos,2,'.','');
                 $sheet->row($a, $fila);
 
-                $sheet->cells('E'.($a-9).':E'.$a, function ($cells) {
+                $sheet->cells('E'.($a-2).':F'.$a, function ($cells) {
+                    $cells->setFont(array(
+                        'bold'       =>  true
+                    ));
+                    $cells->setBackground('#7FFF00');
+                });
+
+                $sheet->cells('E'.($a-12).':F'.$a, function ($cells) {
                     $cells->setFont(array(
                         'family'     => 'Calibri',
                         'size'       => '11',
@@ -1635,9 +1828,9 @@ class CajaController extends Controller
                     ));
                 });
 
-                $sheet->setBorder('E'.($a-8).':F'.$a, 'thin');
+                $sheet->setBorder('E'.($a-12).':F'.$a, 'thin');
 
-                $sheet->cells('F'.($a-9).':F'.$a, function ($cells) {
+                $sheet->cells('F'.($a-12).':F'.$a, function ($cells) {
                     $cells->setFont(array(
                         'size'       => '11',
                     ));
@@ -2535,12 +2728,13 @@ class CajaController extends Controller
         if($caja->nombre == 'FARMACIA') {
             $nomcierre = 'Farmacia - ' . $nomcierre;
         } 
+        $nomcierre2 = $nomcierre; 
         $nomcierre = substr($nomcierre, 0, 20);  
-
+        
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         
-        Excel::create('ExcelReporte', function($excel) use($aperturas, $numcajas, $nomcierre, $caja, $responsable, $request) {
+        Excel::create('ExcelReporte', function($excel) use($aperturas, $numcajas, $nomcierre, $nomcierre2, $caja, $responsable, $request) {
 
             $sucursal_id = Session::get('sucursal_id');
             $caja_id = $request->input('caja_id');
@@ -2612,6 +2806,23 @@ class CajaController extends Controller
                     
                     $listaingresosvarios = $listaingresosvarios->get();
 
+                    //Solo para caja anterior
+
+                    $listacajaanterior = Movimiento::leftjoin('movimiento as m2','movimiento.movimiento_id','=','m2.id')
+                            ->leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
+                            ->join('conceptopago','conceptopago.id','=','movimiento.conceptopago_id')
+                            ->where('movimiento.tipomovimiento_id', '=', 2)
+                            ->where('movimiento.tipodocumento_id', '=', 2)
+                            ->where('movimiento.conceptopago_id', '=', 1)
+                            ->where('movimiento.sucursal_id', '=', $sucursal_id)
+                            ->where('movimiento.caja_id', '=', $caja_id)
+                            ->where('movimiento.situacion', '=', 'N')
+                            ->where('conceptopago.tipo', '=', 'I');
+
+                    $listacajaanterior = $listacajaanterior->select('movimiento.situacion','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'conceptopago.nombre', 'movimiento.total')->orderBy('movimiento.id', 'desc');
+        
+                    $listacajaanterior = $listacajaanterior->limit(1)->get();
+
                     //Solo para egresos
 
                     $resultadoegresos        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
@@ -2653,8 +2864,10 @@ class CajaController extends Controller
                     $resultadoegresoscompra        = $resultadoegresoscompra->select('movimiento.*','tipodocumento.abreviatura as formapago2','responsable.nombres as responsable2',DB::raw('concat(paciente.ruc,\' - \',paciente.bussinesname) as paciente'), 'conceptopago.nombre')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
 
                     $listaegresoscompra = $resultadoegresoscompra->get();
+
+                    $nomcierre3 = $nomcierre2 . ' - ' . date('d-m-Y', strtotime($apertura->fecha));
          
-                    $excel->sheet($nomcierre . ' Ap. ' . $apertura->numero, function($sheet) use($listaventas, $listacuotas, $listaventasfarmacia, $listaingresosvarios, $listaegresos, $listaegresoscompra, $caja, $nomcierre, $responsable, $request) {
+                    $excel->sheet($nomcierre . ' Ap. ' . $apertura->numero, function($sheet) use($listaventas, $listacuotas, $listaventasfarmacia, $listaingresosvarios, $listacajaanterior, $listaegresos, $listaegresoscompra, $caja, $nomcierre, $nomcierre3, $responsable, $request, $apertura) {
 
                         $sheet->setWidth(array(
                             'A' => 15,'B' => 40, 'C' => 5, 'D' => 10, 'E' => 35, 'F' => 50, 'G' => 10, 'H' => 10, 'I' => 10, 'J' => 10, 'K' => 10, 'L' => 15
@@ -2672,6 +2885,7 @@ class CajaController extends Controller
                             )
                         ));
 
+                        $totalcajaanterior = 0;
                         $totalvisa     = 0;
                         $totalmaster   = 0;
                         $totalefectivo = 0;
@@ -2679,7 +2893,23 @@ class CajaController extends Controller
                         $subtotalegresos = 0;
                         $subtotaldolares = 0;
 
-                        //Cabecera
+                        $indicee = 1;
+
+                        $cabecera1 = array();
+                        $cabecera1[] = $nomcierre3;
+                        $sheet->row($indicee,$cabecera1);
+                        $sheet->mergeCells('A1:L1');
+
+                        $sheet->cells('A1:L1', function ($cells) {
+                            $cells->setFont(array(
+                                'family'     => 'Calibri',
+                                'size'       => '25',
+                                'bold'       =>  true
+                            ));
+                            $cells->setAlignment('center');
+                        });
+
+                        $indicee++;
 
                         $cabecera1 = array();
                         $cabecera1[] = "FECHA";
@@ -2689,18 +2919,45 @@ class CajaController extends Controller
                         $cabecera1[] = "EMPRESA";
                         $cabecera1[] = "CONCEPTO";
                         $cabecera1[] = "PRECIO";
-                        $cabecera1[] = "EGRESO";
+                        $cabecera1[] = "DSCTO";
                         $cabecera1[] = "INGRESO";
                         $cabecera1[] = "";
                         $cabecera1[] = "";
                         $cabecera1[] = "DOCTOR";
 
-                        $sheet->row(1,$cabecera1);
-                        $sheet->mergeCells('C1:D1');
-                        $sheet->mergeCells('I1:K1');
-                        $sheet->mergeCells('A2:H2');
+                        $sheet->row($indicee,$cabecera1);
 
-                        $sheet->cells('A1:L3', function ($cells) {
+                        $indicee++;
+
+                        $cabecera1 = array();
+                        $cabecera1[] = "";
+                        $cabecera1[] = "";
+                        $cabecera1[] = "";
+                        $cabecera1[] = "";
+                        $cabecera1[] = "";
+                        $cabecera1[] = "";
+                        $cabecera1[] = "";
+                        $cabecera1[] = "";
+                        $cabecera1[] = "EFECTIVO";
+                        $cabecera1[] = "VISA";
+                        $cabecera1[] = "MASTER";
+                        $cabecera1[] = "";
+
+                        $sheet->row($indicee,$cabecera1);
+
+                        $sheet->mergeCells('I2:K2');
+                        $sheet->mergeCells('A2:A3');
+                        $sheet->mergeCells('B2:B3');
+                        $sheet->mergeCells('C2:D3');
+                        $sheet->mergeCells('E2:E3');
+                        $sheet->mergeCells('F2:F3');
+                        $sheet->mergeCells('G2:G3');
+                        $sheet->mergeCells('H2:H3');
+                        $sheet->mergeCells('L2:L3');
+
+                        $sheet->setBorder('A2:L3', 'thin');
+
+                        $sheet->cells('A2:L3', function ($cells) {
                             $cells->setFont(array(
                                 'family'     => 'Calibri',
                                 'size'       => '11',
@@ -2709,37 +2966,26 @@ class CajaController extends Controller
                             $cells->setAlignment('center');
                         });
 
-                        $cabecera2 = array();
-                        $cabecera2[] = "";
-                        $cabecera2[] = "";
-                        $cabecera2[] = "";
-                        $cabecera2[] = "";
-                        $cabecera2[] = "";
-                        $cabecera2[] = "";
-                        $cabecera2[] = "";
-                        $cabecera2[] = "";
-                        $cabecera2[] = "EFECTIVO";
-                        $cabecera2[] = "VISA";
-                        $cabecera2[] = "MASTER";
-                        $cabecera2[] = "";
-
-                        $sheet->row(2,$cabecera2);
+                        $a = 4;
+                        $b = 0;
 
                         //Recorrido para tickets
 
                         $fila = array();
 
-                        $a = 3;
-
                         if(count($listaventas)>0){
+                            $a++;
+                            $b = $a;
                             $sheet->row($a, array('INGRESOS POR VENTAS'));
-                            $sheet->mergeCells('A'.$a.':L'.$a);
-                            $sheet->cells('A'.$a.':L'.$a, function ($cells) {
+                            $sheet->setBorder('A'.$a .':L'.$a, 'thin');
+                            $sheet->mergeCells('A'.$a.':F'.$a);
+                            $sheet->cells('A'.$a.':F'.$a, function ($cells) {
                                 $cells->setFont(array(
                                     'family'     => 'Calibri',
-                                    'size'       => '11',
+                                    'size'       => '13',
                                     'bold'       =>  true
                                 ));
+                                $cells->setBackground('#90EE90');
                             });
                             $a++;
                             $subtotalefectivo = 0;
@@ -2752,50 +2998,65 @@ class CajaController extends Controller
                                     $detalles = Detallemovcaja::where('movimiento_id', $row3['id'])->get();  
                                     $i = 0;              
                                     foreach ($detalles as $detalle) {
-                                        $fila[] = utf8_decode($row['fecha']);
-                                        $fila[] = $row['paciente'];
-                                        $fila[] = $row->tipodocumento->abreviatura;
-                                        $fila[] = utf8_decode($row['serie'] .'-'. $row['numero']); 
-                                        if($row3['plan_id'] != '') {
-                                            $fila[] = substr($row3->plan->nombre, 0, 30);
+                                        if($i == 0) {
+                                            $fila[] = date('d-m-Y', strtotime($row['fecha']));
+                                            $fila[] = $row['paciente'];
+                                            $fila[] = $row->tipodocumento->abreviatura;
+                                            $fila[] = utf8_decode($row['serie'] .'-'. $row['numero']); 
+                                            if($row3['plan_id'] != '') {
+                                                $fila[] = substr($row3->plan->nombre, 0, 30);
+                                            } else {
+                                                $fila[] = '-';
+                                            }
                                         } else {
-                                            $fila[] = '-';
-                                        }
+                                            $fila[] = '';
+                                            $fila[] = '';
+                                            $fila[] = '';
+                                            $fila[] = '';
+                                            $fila[] = '';
+                                        }                                            
                                         $nomdetalle = ''; 
                                         if($detalle->servicio_id == 13) {
                                             $nomdetalle .= '($) ';
                                         }  
                                         $nomdetalle .= ($detalle->servicio==null?$detalle->descripcion:$detalle->servicio->nombre);                            
                                         $fila[] = substr($nomdetalle,0,42);
-                                        $fila[] = number_format($detalle->precio,2,'.','');                    
+                                        $fila[] = number_format($detalle->precio,2,'.','');    
+                                        $fila[] = $detalle['descuento'] . ($detalle['tipodescuento']=='P'?'%':'');                
                                         if($row2['situacion'] == 'N') {
-                                            $fila[] = '';
-                                            $valuetp = number_format($row2['totalpagado'],2,'.','');
-                                            $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
-                                            $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
-                                            if($valuetp == 0){$valuetp='';}
-                                            if($valuetpv == 0){$valuetpv='';}
-                                            if($valuetpm == 0){$valuetpm='';}
-                                            $fila[] = $valuetp;                    
-                                            $fila[] = $valuetpv;
-                                            $fila[] = $valuetpm;
-                                        } else {                                
-                                            $fila[] = '';
-                                            $fila[] = 'ANULADO';
-                                            $fila[] = '';
-                                            $fila[] = '';
-                                            $sheet->mergeCells('I'.$a.':K'.($a+count($detalles)-1));
-                                        }
-                                        $fila[] = utf8_decode($detalle->persona->apellidopaterno);                           
+                                            if($i == 0) {                                                
+                                                $valuetp = number_format($row2['totalpagado'],2,'.','');
+                                                $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
+                                                $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
+                                                if($valuetp == 0){$valuetp='';}
+                                                if($valuetpv == 0){$valuetpv='';}
+                                                if($valuetpm == 0){$valuetpm='';}
+                                                $fila[] = $valuetp;                    
+                                                $fila[] = $valuetpv;
+                                                $fila[] = $valuetpm;
+                                                $fila[] = $detalle->persona->apellidopaterno;
+                                            }
+                                        } else {  
+                                            if($i == 0) {
+                                                $fila[] = 'ANULADO';
+                                                $fila[] = '';
+                                                $fila[] = '';
+                                                $fila[] = $detalle->persona->apellidopaterno;
+                                            }
+                                        }                                                                  
+                                        
                                         $sheet->row($a, $fila);
-                                        $sheet->mergeCells('A'.$a.':A'.($a+count($detalles)-1));
-                                        $sheet->mergeCells('B'.$a.':B'.($a+count($detalles)-1));
-                                        $sheet->mergeCells('C'.$a.':C'.($a+count($detalles)-1));
-                                        $sheet->mergeCells('D'.$a.':D'.($a+count($detalles)-1));
-                                        $sheet->mergeCells('E'.$a.':E'.($a+count($detalles)-1));
-                                        $sheet->mergeCells('I'.$a.':I'.($a+count($detalles)-1));
-                                        $sheet->mergeCells('J'.$a.':J'.($a+count($detalles)-1));
-                                        $sheet->mergeCells('K'.$a.':K'.($a+count($detalles)-1));
+                                        if($i == 0) {
+                                            $sheet->mergeCells('A'.$a.':A'.($a+count($detalles)-1));                                        
+                                            $sheet->mergeCells('B'.$a.':B'.($a+count($detalles)-1));
+                                            $sheet->mergeCells('C'.$a.':C'.($a+count($detalles)-1));
+                                            $sheet->mergeCells('D'.$a.':D'.($a+count($detalles)-1));
+                                            $sheet->mergeCells('E'.$a.':E'.($a+count($detalles)-1));
+                                            $sheet->mergeCells('I'.$a.':I'.($a+count($detalles)-1));
+                                            $sheet->mergeCells('J'.$a.':J'.($a+count($detalles)-1));
+                                            $sheet->mergeCells('K'.$a.':K'.($a+count($detalles)-1));
+                                            $sheet->mergeCells('L'.$a.':L'.($a+count($detalles)-1));
+                                        }
                                         $a++;
                                         $i++;    
                                         $fila = array();                      
@@ -2821,12 +3082,13 @@ class CajaController extends Controller
                             $fila[] = '';                           
                             $fila[] = '';                           
                             $fila[] = '';                           
-                            $fila[] = 0.00;                           
+                            $fila[] = '';                           
                             $fila[] = number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.','');  
                             $fila[] = ''; 
                             $fila[] = '';                          
                             $sheet->row($a, $fila);
-                            $sheet->mergeCells('A'.$a.':G'.$a); 
+                            $sheet->setBorder('A'.$a .':L'.$a, 'thin');
+                            $sheet->mergeCells('A'.$a.':H'.$a); 
                             $sheet->mergeCells('I'.$a.':K'.$a); 
                             $sheet->cells('A'.$a.':L'.$a, function ($cells) {
                                 $cells->setFont(array(
@@ -2835,24 +3097,28 @@ class CajaController extends Controller
                                     'bold'       =>  true
                                 ));
                             }); 
-                            $sheet->cell('I'.$a, function($cell){
+                            $sheet->cells('A'.$a.':L'.$a, function($cell){
                                 $cell->setAlignment('right');
                             });
-                            $fila = array(); 
-                            $a++;       
+                            $fila = array();   
+                            $a++;     
+                            $sheet->setBorder('A'.$b .':L'.($a-1), 'thin');                             
                         }
 
                         //Recorrido para cuotas
 
                         if(count($listacuotas)>0){
+                            $a++;
+                            $b = $a;
                             $sheet->row($a, array('INGRESOS POR CUOTAS'));
-                            $sheet->mergeCells('A'.$a.':L'.$a);
-                            $sheet->cells('A'.$a.':L'.$a, function ($cells) {
+                            $sheet->mergeCells('A'.$a.':F'.$a);
+                            $sheet->cells('A'.$a.':F'.$a, function ($cells) {
                                 $cells->setFont(array(
                                     'family'     => 'Calibri',
-                                    'size'       => '11',
+                                    'size'       => '13',
                                     'bold'       =>  true
                                 ));
+                                $cells->setBackground('#DDA0DD');
                             });
                             $a++;
                             $subtotalefectivo = 0;
@@ -2860,21 +3126,22 @@ class CajaController extends Controller
                             $subtotalmaster = 0;
                             foreach ($listacuotas as $row) { 
                                 $cuota = Movimiento::find($row['numeroserie2']);
-                                $fila[] = utf8_decode($row['fecha']);                           
+                                $fila[] = date('d-m-Y', strtotime($row['fecha']));                           
                                 $fila[] = $row['paciente'];                           
                                 $fila[] = 'C';                           
                                 $fila[] = utf8_decode($cuota->numero);                           
                                 $fila[] = "PAGO DE CUOTA DE TICKET N° " . $row['numeroticket'];                           
-                                $fila[] = '';
-
+                                $fila[] = '';                           
+                                $fila[] = '';                           
+                                
                                 if($row['situacion'] == 'N') {
+                                    $fila[] = $detalle['descuento'] . ($detalle['tipodescuento']=='P'?'%':'');
                                     $valuetp = number_format($row['totalpagado'],2,'.','');
                                     $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
                                     $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
                                     if($valuetp == 0){$valuetp='';}
                                     if($valuetpv == 0){$valuetpv='';}
-                                    if($valuetpm == 0){$valuetpm='';}
-                                    $fila[] = '';                           
+                                    if($valuetpm == 0){$valuetpm='';}     
                                     $fila[] = $valuetp;                           
                                     $fila[] = $valuetpv;                           
                                     $fila[] = $valuetpm;                           
@@ -2885,12 +3152,11 @@ class CajaController extends Controller
                                     $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
                                     $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
                                 } else {
+                                    $fila[] = $detalle['descuento'] . ($detalle['tipodescuento']=='P'?'%':'');
                                     $fila[] = "ANULADO";
                                     $fila[] = "";
                                     $fila[] = "";
-                                    $fila[] = "";
-                                } 
-                                $fila[] = ""; 
+                                }
                                 $fila[] = "-";  
                                 $sheet->mergeCells('E'.$a.':F'.$a); 
                                 $sheet->row($a, $fila);
@@ -2904,12 +3170,12 @@ class CajaController extends Controller
                             $fila[] = '';                           
                             $fila[] = '';                           
                             $fila[] = '';                           
-                            $fila[] = 0.00;                           
+                            $fila[] = '';                           
                             $fila[] = number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.','');  
                             $fila[] = ''; 
                             $fila[] = '';                          
                             $sheet->row($a, $fila);
-                            $sheet->mergeCells('A'.$a.':G'.$a); 
+                            $sheet->mergeCells('A'.$a.':H'.$a); 
                             $sheet->mergeCells('I'.$a.':K'.$a); 
                             $sheet->cells('A'.$a.':L'.$a, function ($cells) {
                                 $cells->setFont(array(
@@ -2918,24 +3184,28 @@ class CajaController extends Controller
                                     'bold'       =>  true
                                 ));
                             }); 
-                            $sheet->cell('I'.$a, function($cell){
+                            $sheet->cells('A'.$a.':L'.$a, function($cell){
                                 $cell->setAlignment('right');
                             });
                             $fila = array();   
                             $a++;                                    
+                            $sheet->setBorder('A'.$b .':L'.($a-1), 'thin');                                 
                         } 
 
                         //Recorrido para ventas de farmacia
 
                         if(count($listaventasfarmacia)>0){
+                            $a++;
+                            $b = $a;
                             $sheet->row($a, array('INGRESOS POR VENTAS'));
-                            $sheet->mergeCells('A'.$a.':L'.$a);
-                            $sheet->cells('A'.$a.':L'.$a, function ($cells) {
+                            $sheet->mergeCells('A'.$a.':F'.$a);
+                            $sheet->cells('A'.$a.':F'.$a, function ($cells) {
                                 $cells->setFont(array(
                                     'family'     => 'Calibri',
-                                    'size'       => '11',
+                                    'size'       => '13',
                                     'bold'       =>  true
                                 ));
+                                $cells->setBackground('#FA8072');
                             });
                             $a++;
                             $subtotalefectivo = 0;
@@ -2944,7 +3214,7 @@ class CajaController extends Controller
                             foreach ($listaventasfarmacia as $row) { 
                                 $mov = Movimiento::where('movimiento_id', $row['id'])->limit(1)->first();
                                 if($mov !== NULL) {
-                                    $fila[] = utf8_decode($row['fecha']);
+                                    $fila[] = date('d-m-Y', strtotime($row['fecha']));
                                     if($row['paciente'] == '') {
                                         $fila[] = $row['nombrepaciente'];
                                     } else {
@@ -2959,23 +3229,23 @@ class CajaController extends Controller
                                     }  
                                     $fila[] = $mov->conceptopago->nombre.': '.$row['comentario'];
                                     $fila[] = ''; 
-                                    $sheet->mergeCells('F'.$a.':G'.$a);             
-                                    $fila[] = '';  
+                                    $sheet->mergeCells('F'.$a.':G'.$a);   
                                     if($row['situacion'] == 'N') {
                                         $valuetp = number_format($row['totalpagado'],2,'.','');
                                         $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
                                         $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
                                         if($valuetp == 0){$valuetp='';}
                                         if($valuetpv == 0){$valuetpv='';}
-                                        if($valuetpm == 0){$valuetpm='';}                                                     
+                                        if($valuetpm == 0){$valuetpm='';}  
+                                        $fila[] = $detalle['descuento'] . ($detalle['tipodescuento']=='P'?'%':'');
                                         $fila[] = $valuetp;                           
                                         $fila[] = $valuetpv;                           
                                         $fila[] = $valuetpm;
                                     } else {
+                                        $fila[] = '';                           
                                         $fila[] = 'ANULADO';                           
                                         $fila[] = '';                           
                                         $fila[] = '';
-                                        $sheet->mergeCells('I'.$a.':K'.$a);
                                     } 
                                         
                                     if($row['doctor_id'] != '') {
@@ -3003,12 +3273,12 @@ class CajaController extends Controller
                             $fila[] = '';                           
                             $fila[] = '';                           
                             $fila[] = '';                           
-                            $fila[] = 0.00;                           
+                            $fila[] = '';                           
                             $fila[] = number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.','');  
                             $fila[] = ''; 
                             $fila[] = '';                          
                             $sheet->row($a, $fila);
-                            $sheet->mergeCells('A'.$a.':G'.$a); 
+                            $sheet->mergeCells('A'.$a.':H'.$a); 
                             $sheet->mergeCells('I'.$a.':K'.$a); 
                             $sheet->cells('A'.$a.':L'.$a, function ($cells) {
                                 $cells->setFont(array(
@@ -3017,31 +3287,35 @@ class CajaController extends Controller
                                     'bold'       =>  true
                                 ));
                             }); 
-                            $sheet->cell('I'.$a, function($cell){
+                            $sheet->cells('A'.$a.':L'.$a, function($cell){
                                 $cell->setAlignment('right');
                             });
                             $fila = array(); 
                             $a++;        
+                            $sheet->setBorder('A'.$b .':L'.($a-1), 'thin');        
                         } 
 
                         //Recorrido para ingresos varios
 
                         if(count($listaingresosvarios)>0){
+                            $a++;
+                            $b = $a;
                             $sheet->row($a, array('INGRESOS VARIOS'));
-                            $sheet->mergeCells('A'.$a.':L'.$a);
-                            $sheet->cells('A'.$a.':L'.$a, function ($cells) {
+                            $sheet->mergeCells('A'.$a.':F'.$a);
+                            $sheet->cells('A'.$a.':F'.$a, function ($cells) {
                                 $cells->setFont(array(
                                     'family'     => 'Calibri',
-                                    'size'       => '11',
+                                    'size'       => '13',
                                     'bold'       =>  true
                                 ));
+                                $cells->setBackground('#87CEEB');
                             });
                             $a++;
                             $subtotalefectivo = 0;
                             $subtotalvisa = 0;
                             $subtotalmaster = 0;
                             foreach ($listaingresosvarios as $row) { 
-                                $fila[] = utf8_decode($row['fecha']);                   
+                                $fila[] = date('d-m-Y', strtotime($row['fecha']));                   
                                 $fila[] = $row['paciente'];                   
                                 $fila[] = $row['formapago'];                   
                                 $fila[] = $row['voucher'];                   
@@ -3070,7 +3344,6 @@ class CajaController extends Controller
                                     $fila[] = 'ANULADO';                           
                                     $fila[] = '';                           
                                     $fila[] = '';
-                                    $sheet->mergeCells('I'.$a.':K'.$a);
                                 }
                                 $fila[] = '-';
                                 $sheet->row($a, $fila);
@@ -3084,12 +3357,12 @@ class CajaController extends Controller
                             $fila[] = '';                           
                             $fila[] = '';                           
                             $fila[] = '';                           
-                            $fila[] = 0.00;                           
+                            $fila[] = '';                           
                             $fila[] = number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.','');  
                             $fila[] = ''; 
                             $fila[] = '';                          
                             $sheet->row($a, $fila);
-                            $sheet->mergeCells('A'.$a.':G'.$a); 
+                            $sheet->mergeCells('A'.$a.':H'.$a); 
                             $sheet->mergeCells('I'.$a.':K'.$a);
                             $sheet->cells('A'.$a.':L'.$a, function ($cells) {
                                 $cells->setFont(array(
@@ -3098,42 +3371,126 @@ class CajaController extends Controller
                                     'bold'       =>  true
                                 ));
                             }); 
-                            $sheet->cell('I'.$a, function($cell){
+                            $sheet->cells('A'.$a.':L'.$a, function($cell){
                                 $cell->setAlignment('right');
                             });
                             $fila = array();
                             $a++;                  
+                            $sheet->setBorder('A'.$b .':L'.($a-1), 'thin');                  
                         } 
 
-                        //Recorrido para egresos
+                        //Solo para ingreso anterior
 
-                        if(count($listaegresos)>0){
-                            $sheet->row($a, array('EGRESOS'));
-                            $sheet->mergeCells('A'.$a.':L'.$a);
+                        if(count($listacajaanterior)>0){
+                            $a++;
+                            $b = $a;
+                            $sheet->row($a, array('CAJA ANTERIOR'));
+                            $sheet->mergeCells('A'.$a.':F'.$a);
+                            $sheet->cells('A'.$a.':F'.$a, function ($cells) {
+                                $cells->setFont(array(
+                                    'family'     => 'Calibri',
+                                    'size'       => '13',
+                                    'bold'       =>  true
+                                ));
+                                $cells->setBackground('#9ACD32');
+                            });
+                            $a++;
+                            $subtotalefectivo = 0;
+                            $subtotalvisa = 0;
+                            $subtotalmaster = 0;
+                            foreach ($listacajaanterior as $row) {
+                                $fila[] = date("d-m-Y", strtotime($row['fecha']));                   
+                                $fila[] = $row['paciente'];                   
+                                $fila[] = $row['formapago'];                   
+                                $fila[] = $row['voucher'];                   
+                                $fila[] = $row['nombre'].': '.$row['comentario'];                   
+                                $fila[] = '';  
+                                $sheet->mergeCells('E'.$a.':G'.$a); 
+                                $fila[] = '';                           
+                                $fila[] = ''; 
+                                if($row['situacion'] == 'N') {
+                                    $valuetp = number_format($row['total'],2,'.','');
+                                    $valuetpv = number_format($row['totalpagadovisa'],2,'.','');
+                                    $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
+                                    if($valuetp == 0){$valuetp='';}
+                                    if($valuetpv == 0){$valuetpv='';}
+                                    if($valuetpm == 0){$valuetpm='';}                                                      
+                                    $fila[] = $valuetp;                           
+                                    $fila[] = $valuetpv;                           
+                                    $fila[] = $valuetpm;                    
+                                    $totalefectivo += number_format($row['total'],2,'.','');
+                                    $subtotalefectivo += number_format($row['total'],2,'.','');
+                                    $totalcajaanterior += number_format($row['total'],2,'.','');
+                                } else {
+                                    $fila[] = 'ANULADO';                           
+                                    $fila[] = '';                           
+                                    $fila[] = '';
+                                }
+                                $fila[] = '-';
+                                $sheet->row($a, $fila);
+                                $a++;
+                                $fila = array();                                
+                            }  
+                            $fila[] = 'SUBTOTAL';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = '';                           
+                            $fila[] = number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.','');  
+                            $fila[] = ''; 
+                            $fila[] = '';                          
+                            $sheet->row($a, $fila);
+                            $sheet->mergeCells('A'.$a.':H'.$a); 
+                            $sheet->mergeCells('I'.$a.':K'.$a);
                             $sheet->cells('A'.$a.':L'.$a, function ($cells) {
                                 $cells->setFont(array(
                                     'family'     => 'Calibri',
                                     'size'       => '11',
                                     'bold'       =>  true
                                 ));
+                            }); 
+                            $sheet->cells('A'.$a.':L'.$a, function($cell){
+                                $cell->setAlignment('right');
+                            });
+                            $fila = array();
+                            $a++;                  
+                            $sheet->setBorder('A'.$b .':L'.($a-1), 'thin');            
+                        }
+
+                        //Recorrido para egresos
+
+                        if(count($listaegresos)>0){
+                            $a++;
+                            $b = $a;
+                            $sheet->row($a, array('EGRESOS'));
+                            $sheet->mergeCells('A'.$a.':F'.$a);
+                            $sheet->cells('A'.$a.':F'.$a, function ($cells) {
+                                $cells->setFont(array(
+                                    'family'     => 'Calibri',
+                                    'size'       => '13',
+                                    'bold'       =>  true
+                                ));
+                                $cells->setBackground('#FFFF00');
                             });
                             $a++;
                             $subtotalegresos = 0;
                             foreach ($listaegresos as $row) { 
-                                $fila[] = utf8_decode($row['fecha']);                   
+                                $fila[] = date('d-m-Y', strtotime($row['fecha']));                   
                                 $fila[] = $row['paciente'];                   
                                 $fila[] = $row['formapago'];  
                                 $fila[] = $row['voucher'];  
                                 $fila[] = $row['nombre'].': '.$row['comentario']; 
                                 $fila[] = ''; 
                                 $fila[] = ''; 
+                                $fila[] = ''; 
                                 $sheet->mergeCells('E'.$a.':G'.$a);
                                 if($row['situacion'] == 'N') {
                                     $fila[] = number_format($row['total'],2,'.','');
-                                    $fila[] = '';                           
                                     $subtotalegresos += number_format($row['total'],2,'.','');
                                 } else {
-                                    $fila[] = '';
                                     $fila[] = 'ANULADO';                   
                                 }                            
                                 $fila[] = '';
@@ -3151,12 +3508,12 @@ class CajaController extends Controller
                             $fila[] = '';                           
                             $fila[] = '';                           
                             $fila[] = '';
-                            $fila[] = number_format($subtotalegresos,2,'.','');  
-                            $fila[] = 0.00;
+                            $fila[] = '';  
+                            $fila[] = number_format($subtotalegresos,2,'.','');
                             $fila[] = ''; 
                             $fila[] = '';                          
                             $sheet->row($a, $fila);
-                            $sheet->mergeCells('A'.$a.':G'.$a); 
+                            $sheet->mergeCells('A'.$a.':H'.$a); 
                             $sheet->mergeCells('I'.$a.':K'.$a);
                             $sheet->cells('A'.$a.':L'.$a, function ($cells) {
                                 $cells->setFont(array(
@@ -3165,43 +3522,46 @@ class CajaController extends Controller
                                     'bold'       =>  true
                                 ));
                             }); 
-                            $sheet->cell('I'.$a, function($cell){
+                            $sheet->cells('A'.$a.':L'.$a, function($cell){
                                 $cell->setAlignment('right');
                             });
                             $fila = array();
                             $a++;                
+                            $sheet->setBorder('A'.$b .':L'.($a-1), 'thin');               
                         }
 
                         if($caja->nombre == 'FARMACIA') {
                             if(count($listaegresoscompra)>0){
+                                $a++;
+                                $b = $a;
                                 $sheet->row($a, array('EGRESOS POR COMPRA'));
-                                $sheet->mergeCells('A'.$a.':L'.$a);
-                                $sheet->cells('A'.$a.':L'.$a, function ($cells) {
+                                $sheet->mergeCells('A'.$a.':F'.$a);
+                                $sheet->cells('A'.$a.':F'.$a, function ($cells) {
                                     $cells->setFont(array(
                                         'family'     => 'Calibri',
                                         'size'       => '11',
                                         'bold'       =>  true
                                     ));
+                                    $cells->setBackground('#FA8072');
                                 });
                                 $a++;
                                 $subtotalegresoscompra = 0;
                                 foreach ($listaegresoscompra as $row) {
                                     if($row['situacion2'] == null){
-                                        $fila[] = utf8_decode($row['fecha']);                   
+                                        $fila[] = date('d-m-Y', strtotime($row['fecha']));                   
                                         $fila[] = $row['paciente'];                   
                                         $fila[] = $row['formapago2'];  
                                         $fila[] = $row['voucher'];  
                                         $fila[] = $row['nombre'].': '.$row['comentario']; 
                                         $fila[] = ''; 
                                         $fila[] = '';
+                                        $fila[] = '';
                                         $sheet->mergeCells('E'.$a.':G'.$a);
                                         if($row['situacion'] == 'N') {
                                             $fila[] = number_format($row['total'],2,'.','');
-                                            $fila[] = '';
                                             $subtotalegresoscompra += number_format($row['total'],2,'.','');
                                             $subtotalegresos += number_format($row['total'],2,'.','');
                                         } else {
-                                            $fila[] = '';
                                             $fila[] = 'ANULADO';
                                         } 
                                         $fila[] = '';                           
@@ -3220,12 +3580,12 @@ class CajaController extends Controller
                                 $fila[] = '';                           
                                 $fila[] = '';                           
                                 $fila[] = '';                           
-                                $fila[] = number_format($subtotalegresoscompra,2,'.','');  
-                                $fila[] = 0.00;                           
+                                $fila[] = '';  
+                                $fila[] = number_format($subtotalegresoscompra,2,'.','');                           
                                 $fila[] = ''; 
                                 $fila[] = '';                          
                                 $sheet->row($a, $fila);
-                                $sheet->mergeCells('A'.$a.':G'.$a); 
+                                $sheet->mergeCells('A'.$a.':H'.$a); 
                                 $sheet->mergeCells('I'.$a.':K'.$a);
                                 $sheet->cells('A'.$a.':L'.$a, function ($cells) {
                                     $cells->setFont(array(
@@ -3234,15 +3594,15 @@ class CajaController extends Controller
                                         'bold'       =>  true
                                     ));
                                 }); 
-                                $sheet->cell('I'.$a, function($cell){
+                                $sheet->cells('A'.$a.':L'.$a, function($cell){
                                     $cell->setAlignment('right');
                                 });
                                 $fila = array();
-                                $a++;                
+                                $a++;  
+                                $sheet->setBorder('A'.$b .':L'.($a-1), 'thin');               
                             }
                         }
-
-                        $sheet->setBorder('A1:L'.($a-1), 'thin');
+                        //$sheet->setBorder('A1:L'.($a-1), 'thin');
                         $a++;
 
                         $fila[] = 'RESPONSABLE';                           
@@ -3273,8 +3633,26 @@ class CajaController extends Controller
                                 'bold'       =>  true
                             ));
                             $cells->setAlignment('center');
+                            $cells->setBackground('#DEB887');
                         });
                         $sheet->row($a, $fila);
+                        $fila = array();
+                        $a++;
+                        $a++;
+
+                        $fila[] = '';                           
+                        $fila[] = '';                           
+                        $fila[] = '';                           
+                        $fila[] = '';
+                        $fila[] = 'VENTAS DEL DÍA';
+                        $fila[] = number_format($totalefectivo + $totalmaster + $totalvisa,2,'.','');
+                        $sheet->row($a, $fila);
+                        $sheet->cells('E'.$a.':F'.$a, function ($cells) {
+                            $cells->setFont(array(
+                                'bold'       =>  true
+                            ));
+                            $cells->setBackground('#6495ED');
+                        });
                         $fila = array();
                         $a++;
 
@@ -3282,11 +3660,11 @@ class CajaController extends Controller
                         $fila[] = '';                           
                         $fila[] = '';                           
                         $fila[] = '';
-                        $fila[] = 'INGRESOS';
-                        $fila[] = number_format($totalefectivo + $totalmaster + $totalvisa,2,'.','');
+                        $fila[] = 'Caja Anterior';
+                        $fila[] = number_format($totalcajaanterior,2,'.','');
                         $sheet->row($a, $fila);
                         $fila = array();
-                        $a++;
+                        $a++;   
 
                         $fila[] = '';                           
                         $fila[] = '';                           
@@ -3316,6 +3694,13 @@ class CajaController extends Controller
                         $fila[] = number_format($totalvisa,2,'.','');
                         $sheet->row($a, $fila);
                         $fila = array();
+                        $sheet->cells('E'.($a-3).':F'.$a, function ($cells) {
+                            $cells->setFont(array(
+                                'bold'       =>  true
+                            ));
+                            $cells->setBackground('#00FFFF');
+                        });
+                        $a++;
                         $a++;
 
                         $fila[] = '';                           
@@ -3326,6 +3711,13 @@ class CajaController extends Controller
                         $fila[] = number_format($subtotalegresos,2,'.','');
                         $sheet->row($a, $fila);
                         $fila = array();
+                        $sheet->cells('E'.$a.':F'.$a, function ($cells) {
+                            $cells->setFont(array(
+                                'bold'       =>  true
+                            ));
+                            $cells->setBackground('#DC143C');
+                        });
+                        $a++;
                         $a++;
 
                         $fila[] = '';                           
@@ -3356,7 +3748,14 @@ class CajaController extends Controller
                         $fila[] = number_format($totalefectivo-$subtotalegresos,2,'.','');
                         $sheet->row($a, $fila);
 
-                        $sheet->cells('E'.($a-9).':E'.$a, function ($cells) {
+                        $sheet->cells('E'.($a-2).':F'.$a, function ($cells) {
+                            $cells->setFont(array(
+                                'bold'       =>  true
+                            ));
+                            $cells->setBackground('#7FFF00');
+                        });
+
+                        $sheet->cells('E'.($a-12).':F'.$a, function ($cells) {
                             $cells->setFont(array(
                                 'family'     => 'Calibri',
                                 'size'       => '11',
@@ -3364,9 +3763,9 @@ class CajaController extends Controller
                             ));
                         });
 
-                        $sheet->setBorder('E'.($a-8).':F'.$a, 'thin');
+                        $sheet->setBorder('E'.($a-12).':F'.$a, 'thin');
 
-                        $sheet->cells('F'.($a-9).':F'.$a, function ($cells) {
+                        $sheet->cells('F'.($a-12).':F'.$a, function ($cells) {
                             $cells->setFont(array(
                                 'size'       => '11',
                             ));
