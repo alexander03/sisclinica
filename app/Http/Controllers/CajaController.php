@@ -2817,11 +2817,11 @@ class CajaController extends Controller
                             ->where('movimiento.sucursal_id', '=', $sucursal_id)
                             ->where('movimiento.caja_id', '=', $caja_id)
                             ->where('movimiento.situacion', '=', 'N')
+                            ->whereBetween('movimiento.id', [$apertura->id,(int)$cierre['id']])
                             ->where('conceptopago.tipo', '=', 'I');
-
-                    $listacajaanterior = $listacajaanterior->select('movimiento.situacion','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'conceptopago.nombre', 'movimiento.total')->orderBy('movimiento.id', 'desc');
-        
-                    $listacajaanterior = $listacajaanterior->limit(1)->get();
+                    $listacajaanterior = $listacajaanterior->select('movimiento.situacion','movimiento.voucher','movimiento.formapago','movimiento.comentario','movimiento.fecha','movimiento.numero','movimiento.total','movimiento.totalpagado','movimiento.totalpagadovisa','movimiento.totalpagadomaster','m2.numero as numeroticket',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'conceptopago.nombre', 'movimiento.total')->orderBy('movimiento.numero', 'asc');
+                    
+                    $listacajaanterior = $listacajaanterior->get();
 
                     //Solo para egresos
 
