@@ -386,6 +386,8 @@ function calcularTotalDeCadaDetallito(idtr) {
     monto = (cantidad * (porcentaje/100) * soles).toFixed(2);
     //alert(monto);
     $('#'+idtr).find('.txtTotal').val(monto);
+    idtb = $('#'+idtr).parent().attr('id');
+    calcularTotalPorFacturarIndividual(idtb);
 }
 
 function guardarPago (entidad, idboton) {
@@ -595,7 +597,7 @@ function seleccionarServicio(idservicio){
 function seleccionarServicioOtro(){
     var idservicio = "10"+Math.round(Math.random()*10000);
     $("#tbDetalle").append("<tbody id='tbDetalle"+idservicio+"'><tr id='trDetalle"+idservicio+"'><td>§</td><td colspan='7'><input style='font-weight:bold;text-align: center;font-size:15px;' type='text' class='form-control input-xs txtareaa' id='txtServicio"+idservicio+"' name='txtServicio"+idservicio+"' /></td>" +
-        "<td><input class='form-control input-xs txtareaa porfacturar' type='text' id='txtFacturar" + idservicio + "' name='txtFacturar" + idservicio + "' /></td>"  + 
+        "<td><input readonly='readonly' class='form-control input-xs txtareaa porfacturar' value='0.00' type='text' id='txtFacturar" + idservicio + "' name='txtFacturar" + idservicio + "' /></td>"  + 
         "<td><a href='#' class='btn btn-danger btn-xs' onclick=\"quitarServicio2('"+idservicio+"')\"><i class='fa fa-minus-circle' title='Quitar Cabecera'></i></td><td><a class='btn btn-success btn-xs' href='#' onclick=\"seleccionarServicioOtro2('"+idservicio+"')\"><i class='fa fa-plus-circle' title='Añadir Detalle'></i></td></tr></tbody>");
     carro.push(idservicio);
     $("#txtServicio"+idservicio).focus();
@@ -611,7 +613,7 @@ function seleccionarServicioOtro2(idservicio){
         "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtUnidad" + idservicio2 + "' name='" + idservicio + "txtUnidad" + idservicio2 + "' /></td>"  + 
         "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtFactor" + idservicio2 + "' name='" + idservicio + "txtFactor" + idservicio2 + "' /></td>"  + 
         "<td><input class='form-control input-xs txtareaa numerito txtTotal' readonly='readonly' value='0.00' type='text' id='" + idservicio + "txtTotal" + idservicio2 + "' name='" + idservicio + "txtTotal" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs porfacturar' readonly='readonly' type='text' id='" + idservicio + "txtFacturar" + idservicio2 + "' name=" + idservicio + "txtFacturar" + idservicio2 + "' /></td>"  + 
+        "<td><input class='form-control input-xs' readonly='readonly' type='text' id='" + idservicio + "txtFacturar" + idservicio2 + "' name=" + idservicio + "txtFacturar" + idservicio2 + "' /></td>"  + 
         "<td><a href='#' class='btn btn-warning btn-xs' onclick=\"quitarServicio('" + idservicio + "tr"+idservicio2+"')\"><i class='fa fa-minus-circle' title='Quitar Detalle'></i></td><td></td></tr>");
     //carrodetalles.push(idservicio2);
     $("#" + idservicio + "txtServicio"+idservicio2).focus();   
@@ -658,7 +660,9 @@ function calcularTotalItem2(id){
 }
 
 function quitarServicio(id){
+    var idtb = $('#'+id).parent().attr('id'); 
     $("#"+id).remove();
+    calcularTotalPorFacturarIndividual(idtb);    
     /*for(c=0; c < carro.length; c++){
         if(carro[c] == id) {
             carro.splice(c,1);
@@ -768,6 +772,15 @@ function calcularTotalPorFacturar() {
     $('#total').val((subtotal*(1.18)).toFixed(2));
 }
 
+function calcularTotalPorFacturarIndividual(idtb) {
+    var subtotal = 0;
+    $('#'+idtb).find('.txtTotal').each(function(index, el) {
+        subtotal += parseFloat($(this).val().replace(',', ''));
+    });
+    $('#'+idtb).find('.porfacturar').val(subtotal.toFixed(2));
+    calcularTotalPorFacturar();
+}
+
 function agregarDetallePrefactura(idpersona){
     $.ajax({
         type: "POST",
@@ -828,7 +841,6 @@ function cargarCarro() {
         carro.push({{ $detalle->id }});
     @endforeach
 }
-
 cargarCarro();
 @endif
 </script>
