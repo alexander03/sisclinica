@@ -232,6 +232,7 @@ class CotizacionController extends Controller
         $cotizacion       = Cotizacion::find($id);
         $cboTipoServicio  = array(""=>"--Todos--");
         $tiposervicio     = Tiposervicio::where(DB::raw('1'),'=','1')->orderBy('nombre','ASC')->get();
+        $cabeceras        = Detallecotizacion::where('detallecotizacion_id', '=', NULL)->where('cotizacion_id', '=', $id)->get();
         foreach ($tiposervicio as $key => $value) {
             $cboTipoServicio = $cboTipoServicio + array($value->id => $value->nombre);
         }
@@ -239,7 +240,7 @@ class CotizacionController extends Controller
         $formData            = array('cotizacion.update', $id);
         $formData            = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton               = 'Modificar'; 
-        return view($this->folderview.'.mant')->with(compact('cotizacion', 'formData', 'entidad', 'boton', 'listar', 'cboTipoServicio', 'user'));        
+        return view($this->folderview.'.mant')->with(compact('cotizacion', 'formData', 'entidad', 'boton', 'listar', 'cboTipoServicio', 'user', 'cabeceras'));        
     }
 
     public function update(Request $request, $id)
@@ -285,17 +286,36 @@ class CotizacionController extends Controller
             foreach ($cotizacion->detalles as $key => $value) {
                 $value->delete();
             }
+
+            //////////////////////////
+
+
             $arr=explode(",",$request->input('listServicio'));
-            for($c=0;$c<count($arr);$c++){                
+            $arr_detalle=explode(";",$request->input('listDetallesServicio'));
+            for($c=0;$c<count($arr);$c++){
                 $Detalle = new Detallecotizacion();
                 $Detalle->cotizacion_id=$cotizacion->id;
-                $Detalle->descripcion=trim($request->input('txtServicio'.$arr[$c]));
-                //$Detalle->doctor_id=$request->input('txtIdMedico'.$arr[$c]);
-                //$Detalle->cantidad=$request->input('txtCantidad'.$arr[$c]);
-                //$Detalle->precio=round($request->input('txtPrecio'.$arr[$c]),2);
+                $Detalle->descripcion = trim($request->input('txtServicio'.$arr[$c]));
+                $Detalle->monto = $request->input('txtFacturar'.$arr[$c]);
                 $Detalle->save();
-            }
-            
+
+                $detallitos = explode(",",$arr_detalle[$c]);
+                foreach ($detallitos as $value) {
+                    $detallito = new Detallecotizacion();
+                    $detallito->cotizacion_id=$cotizacion->id;
+                    $detallito->detallecotizacion_id=$Detalle->id;
+
+                    $detallito->descripcion = trim($request->input($arr[$c].'txtServicio'.$value));
+                    $detallito->cantidad = $request->input($arr[$c].'txtCantidad'.$value);
+                    $detallito->porcentaje = $request->input($arr[$c].'txtPorcentaje'.$value);
+                    $detallito->monto = $request->input($arr[$c].'txtSoles'.$value);
+                    //$detallito->unidad = $request->input($arr[$c].'txtUnidad'.$value);
+                    //$detallito->factor = $request->input($arr[$c].'txtFactor'.$value);
+                    $detallito->total = $request->input($arr[$c].'txtTotal'.$value);
+
+                    $detallito->save();
+                }
+            }            
             $dat[0]=array("respuesta"=>"OK","id"=>$cotizacion->id);
         });
         return is_null($error) ? json_encode($dat) : $error;

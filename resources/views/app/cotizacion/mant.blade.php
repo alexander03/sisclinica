@@ -86,22 +86,61 @@ if($cotizacion == null) {
                     <th class="text-center" width="8%">Monto Total</th>
                     <th class="text-center" width="8%">Por Facturar</th>
                     <th class="text-center" width="5%" colspan="2"></th>
-                </thead>
-                <tbody>
+                </thead>                
                 @if($cotizacion !== NULL) 
-                    @foreach($cotizacion->detalles as $detalle)
-                        <tr id='tr{{ $detalle->id }}'>
-                            <td>
-                                <input type='hidden' id='txtIdTipoServicio{{ $detalle->id }}' name='txtIdTipoServicio{{ $detalle->id }}' value='0' />
-                                <input type='text' class='form-control input-xs txtareaa' id='txtServicio{{ $detalle->id }}' name='txtServicio{{ $detalle->id }}' value="{{ $detalle->descripcion }}" />
-                            </td>
-                            <td>
-                                <a href='#' onclick="quitarServicio('{{ $detalle->id }}')"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i>
-                            </td>
-                        </tr>
+                    @foreach($cabeceras as $cabeza)
+                        <tbody id="tbDetalle{{ $cabeza->id }}__">
+                            <tr id="trDetalle{{ $cabeza->id }}__">
+                                <td>§</td>
+                                <td colspan="7">
+                                    <input style="font-weight:bold;text-align: center;font-size:15px;" type="text" class="form-control input-xs txtareaa" value="{{ $cabeza->descripcion }}" id="txtServicio{{ $cabeza->id }}__" name="txtServicio{{ $cabeza->id }}__">
+                                </td>
+                                <td>
+                                    <input readonly="readonly" class="form-control input-xs txtareaa porfacturar" type="text" id="txtFacturar{{ $cabeza->id }}__" value="{{ number_format($cabeza->monto,2,".","") }}" name="txtFacturar{{ $cabeza->id }}__" style="text-align: right;">
+                                </td>
+                                <td>
+                                    <a href="#" class="btn btn-danger btn-xs" onclick="quitarServicio2('{{ $cabeza->id }}__')"><i class="fa fa-minus-circle" title="Quitar Cabecera"></i></a>
+                                </td>
+                                <td>
+                                    <a class="btn btn-success btn-xs" href="#" onclick="seleccionarServicioOtro2('{{ $cabeza->id }}__')"><i class="fa fa-plus-circle" title="Añadir Detalle"></i></a>
+                                </td>
+                            </tr>
+                            @foreach($cabeza->detalles as $detalle)
+                                <tr id="{{ $cabeza->id }}__tr{{ $detalle->id }}__">
+                                    <td>-</td>
+                                    <td>
+                                        <input type="text" value="{{ $detalle->descripcion }}" class="form-control input-xs txtareaa" id="{{ $cabeza->id }}__txtServicio{{ $detalle->id }}__" name="{{ $cabeza->id }}__txtServicio{{ $detalle->id }}__">
+                                    </td>
+                                    <td>
+                                        <input class="form-control input-xs txtareaa numerito txtCantidad" value="{{ $detalle->cantidad }}" value="1" type="text" id="{{ $cabeza->id }}__txtCantidad{{ $detalle->id }}__" name="{{ $cabeza->id }}__txtCantidad{{ $detalle->id }}__" style="text-align: right;">
+                                    </td>
+                                    <td>
+                                        <input class="form-control input-xs numerito txtPorcentaje" value="{{ $detalle->porcentaje == 0 ? '' : $detalle->porcentaje }}" type="text" id="{{ $cabeza->id }}__txtPorcentaje{{ $detalle->id }}__" name="{{ $cabeza->id }}__txtPorcentaje{{ $detalle->id }}__" style="text-align: right;">
+                                    </td>
+                                    <td>
+                                        <input class="form-control input-xs txtareaa numerito txtSoles" value="{{ number_format($detalle->monto,2,".","") }}" type="text" id="{{ $cabeza->id }}__txtSoles{{ $detalle->id }}__" name="{{ $cabeza->id }}__txtSoles{{ $detalle->id }}__" style="text-align: right;">
+                                    </td>
+                                    <td>
+                                        <input class="form-control input-xs" value="{{ $detalle->unidad }}" type="text" id="{{ $cabeza->id }}__txtUnidad{{ $detalle->id }}__" name="{{ $cabeza->id }}__txtUnidad{{ $detalle->id }}__">
+                                    </td>
+                                    <td>
+                                        <input class="form-control input-xs" value="{{ $detalle->factor }}" type="text" id="{{ $cabeza->id }}__txtFactor{{ $detalle->id }}__" name="{{ $cabeza->id }}__txtFactor{{ $detalle->id }}__">
+                                    </td>
+                                    <td>
+                                        <input class="form-control input-xs txtareaa numerito txtTotal" value="{{ number_format($detalle->total,2,".","") }}" readonly="readonly" value="0.00" type="text" id="{{ $cabeza->id }}__txtTotal{{ $detalle->id }}__" name="{{ $cabeza->id }}__txtTotal{{ $detalle->id }}__" style="text-align: right;">
+                                    </td>
+                                    <td>
+                                        <input class="form-control input-xs" readonly="readonly" type="text" id="{{ $cabeza->id }}__txtFacturar{{ $detalle->id }}__" name="{{ $cabeza->id }}__txtFacturar{{ $detalle->id }}__'" style="text-align: right;">
+                                    </td>
+                                    <td>
+                                        <a href="#" class="btn btn-warning btn-xs" onclick="quitarServicio('{{ $cabeza->id }}__tr{{ $detalle->id }}__')"><i class="fa fa-minus-circle" title="Quitar Detalle"></i></a>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                            @endforeach
+                        </tbody>
                     @endforeach
-                @endif
-                </tbody>
+                @endif                
                 <tfoot>
                     <tr>
                         <th class="text-right" colspan="7"></th>
@@ -836,11 +875,38 @@ function agregarDetallePrefactura(idpersona){
 }
 
 @if($cotizacion !== NULL) 
-function cargarCarro() {
-    @foreach($cotizacion->detalles as $detalle)
-        carro.push({{ $detalle->id }});
-    @endforeach
-}
-cargarCarro();
+    function cargarCarro() {
+        @foreach($cabeceras as $detalle)
+            carro.push('{{ $detalle->id }}__');
+        @endforeach
+    }
+    function setearListServicio() {
+        var detallesconcat0 = '';
+        var detallesconcat = '';
+        for (var i = 0; i < carro.length; i++) {
+            detallesconcat0 += carro[i];
+            if(i !== (carro.length-1)) {
+                detallesconcat0 += ',';
+            }
+            $('#tbDetalle'+carro[i]+' tr').each(function(index, el) {
+                var catdetalles = $('#tbDetalle'+carro[i]+' tr').length - 1;
+                if(index !== 0) {
+                    var partdetallesconcat = $(this).attr('id');
+                    partdetallesconcat = partdetallesconcat.replace(carro[i] + 'tr', '');
+                    detallesconcat += partdetallesconcat;
+                    if(index === catdetalles) {
+                        detallesconcat += ';';
+                    }else{
+                        detallesconcat += ',';
+                    }
+                }
+            });
+        }
+        $('#listServicio').val(detallesconcat0);
+        $('#listDetallesServicio').val(detallesconcat);
+    }
+    cargarCarro();
+    setearListServicio();
+    calcularTotalPorFacturar();
 @endif
 </script>
