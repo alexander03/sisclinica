@@ -78,13 +78,14 @@ if($cotizacion == null) {
                 <thead>
                     <th class="text-center" width="5%">#</th>
                     <th class="text-center" width="34%">Conceptos</th>
-                    <th class="text-center" width="8%">Cantidad</th>
-                    <th class="text-center" width="8%">%</th>
-                    <th class="text-center" width="8%">S/.</th>
-                    <th class="text-center" width="8%">Unidad</th>
-                    <th class="text-center" width="8%">Factor</th>
-                    <th class="text-center" width="8%">Monto Total</th>
-                    <th class="text-center" width="8%">Por Facturar</th>
+                    <th class="text-center" width="7%">Pago</th>
+                    <th class="text-center" width="7%">Cantidad</th>
+                    <th class="text-center" width="7%">%</th>
+                    <th class="text-center" width="7%">S/.</th>
+                    <th class="text-center" width="7%">Unidad</th>
+                    <th class="text-center" width="7%">Factor</th>
+                    <th class="text-center" width="7%">Monto Total</th>
+                    <th class="text-center" width="7%">Por Facturar</th>
                     <th class="text-center" width="5%" colspan="2"></th>
                 </thead>                
                 @if($cotizacion !== NULL) 
@@ -92,7 +93,7 @@ if($cotizacion == null) {
                         <tbody id="tbDetalle{{ $cabeza->id }}__">
                             <tr id="trDetalle{{ $cabeza->id }}__">
                                 <td>§</td>
-                                <td colspan="7">
+                                <td colspan="8">
                                     <input style="font-weight:bold;text-align: center;font-size:15px;" type="text" class="form-control input-xs txtareaa" value="{{ $cabeza->descripcion }}" id="txtServicio{{ $cabeza->id }}__" name="txtServicio{{ $cabeza->id }}__">
                                 </td>
                                 <td>
@@ -112,7 +113,10 @@ if($cotizacion == null) {
                                         <input type="text" value="{{ $detalle->descripcion }}" class="form-control input-xs txtareaa" id="{{ $cabeza->id }}__txtServicio{{ $detalle->id }}__" name="{{ $cabeza->id }}__txtServicio{{ $detalle->id }}__">
                                     </td>
                                     <td>
-                                        <input class="form-control input-xs txtareaa numerito txtCantidad" value="{{ $detalle->cantidad }}" value="1" type="text" id="{{ $cabeza->id }}__txtCantidad{{ $detalle->id }}__" name="{{ $cabeza->id }}__txtCantidad{{ $detalle->id }}__" style="text-align: right;">
+                                        <input class="form-control input-xs numerito txtPago" value="{{ $detalle->pago == 0 ? '' : $detalle->pago }}" type="text" id="{{ $cabeza->id }}__txtPago{{ $detalle->id }}__" name="{{ $cabeza->id }}__txtPago{{ $detalle->id }}__" style="text-align: right;">
+                                    </td>
+                                    <td>
+                                        <input class="form-control input-xs txtareaa numerito txtCantidad" value="{{ $detalle->cantidad }}" type="text" id="{{ $cabeza->id }}__txtCantidad{{ $detalle->id }}__" name="{{ $cabeza->id }}__txtCantidad{{ $detalle->id }}__" style="text-align: right;">
                                     </td>
                                     <td>
                                         <input class="form-control input-xs numerito txtPorcentaje" value="{{ $detalle->porcentaje == 0 ? '' : $detalle->porcentaje }}" type="text" id="{{ $cabeza->id }}__txtPorcentaje{{ $detalle->id }}__" name="{{ $cabeza->id }}__txtPorcentaje{{ $detalle->id }}__" style="text-align: right;">
@@ -143,21 +147,21 @@ if($cotizacion == null) {
                 @endif                
                 <tfoot>
                     <tr>
-                        <th class="text-right" colspan="7"></th>
+                        <th class="text-right" colspan="8"></th>
                         <th class="text-right">Sub - Total</th>
                         <th>{!! Form::text('subtotal', $total, array('class' => 'form-control input-xs', 'id' => 'subtotal', 'size' => 3, 'style' => 'width: 100%;', 'readonly' => 'readonly')) !!}</th>
                         <th class="text-right"></th>
                         <th class="text-right"></th>
                     </tr>
                     <tr>
-                        <th class="text-right" colspan="7"></th>
+                        <th class="text-right" colspan="8"></th>
                         <th class="text-right">IGV</th>
                         <th>{!! Form::text('igv', $total, array('class' => 'form-control input-xs', 'id' => 'igv', 'size' => 3, 'style' => 'width: 100%;', 'readonly' => 'readonly')) !!}</th>
                         <th class="text-right"></th>
                         <th class="text-right"></th>
                     </tr>
                     <tr>
-                        <th class="text-right" colspan="7"></th>
+                        <th class="text-right" colspan="8"></th>
                         <th class="text-right">Total</th>
                         <th>{!! Form::text('total', $total, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'style' => 'width: 100%;', 'readonly' => 'readonly')) !!}</th>
                         <th class="text-right"></th>
@@ -635,7 +639,7 @@ function seleccionarServicio(idservicio){
 
 function seleccionarServicioOtro(){
     var idservicio = "10"+Math.round(Math.random()*10000);
-    $("#tbDetalle").append("<tbody id='tbDetalle"+idservicio+"'><tr id='trDetalle"+idservicio+"'><td>§</td><td colspan='7'><input style='font-weight:bold;text-align: center;font-size:15px;' type='text' class='form-control input-xs txtareaa' id='txtServicio"+idservicio+"' name='txtServicio"+idservicio+"' /></td>" +
+    $("#tbDetalle").append("<tbody id='tbDetalle"+idservicio+"'><tr id='trDetalle"+idservicio+"'><td>§</td><td colspan='8'><input style='font-weight:bold;text-align: center;font-size:15px;' type='text' class='form-control input-xs txtareaa' id='txtServicio"+idservicio+"' name='txtServicio"+idservicio+"' /></td>" +
         "<td><input readonly='readonly' class='form-control input-xs txtareaa porfacturar' value='0.00' type='text' id='txtFacturar" + idservicio + "' name='txtFacturar" + idservicio + "' /></td>"  + 
         "<td><a href='#' class='btn btn-danger btn-xs' onclick=\"quitarServicio2('"+idservicio+"')\"><i class='fa fa-minus-circle' title='Quitar Cabecera'></i></td><td><a class='btn btn-success btn-xs' href='#' onclick=\"seleccionarServicioOtro2('"+idservicio+"')\"><i class='fa fa-plus-circle' title='Añadir Detalle'></i></td></tr></tbody>");
     carro.push(idservicio);
@@ -646,6 +650,7 @@ function seleccionarServicioOtro(){
 function seleccionarServicioOtro2(idservicio){
     var idservicio2 = "10"+Math.round(Math.random()*10000);
     $("#tbDetalle" + idservicio).append("<tr id='" + idservicio + "tr"+idservicio2+"'><td>-</td><td><input type='text' class='form-control input-xs txtareaa' id='" + idservicio + "txtServicio"+idservicio2+"' name='" + idservicio + "txtServicio"+idservicio2+"' /></td>" + 
+        "<td><input class='form-control input-xs numerito txtPago' type='text' id='" + idservicio + "txtPago" + idservicio2 + "' name='" + idservicio + "txtPago" + idservicio2 + "' /></td>"  + 
         "<td><input class='form-control input-xs txtareaa numerito txtCantidad' value='1' type='text' id='" + idservicio + "txtCantidad" + idservicio2 + "' name='" + idservicio + "txtCantidad" + idservicio2 + "' /></td>"  + 
         "<td><input class='form-control input-xs numerito txtPorcentaje' type='text' id='" + idservicio + "txtPorcentaje" + idservicio2 + "'  name='" + idservicio + "txtPorcentaje" + idservicio2 + "' /></td>"  + 
         "<td><input class='form-control input-xs txtareaa numerito txtSoles' type='text' value='0.00' id='" + idservicio + "txtSoles" + idservicio2 + "'  name='" + idservicio + "txtSoles" + idservicio2 + "' /></td>"  + 
@@ -660,7 +665,8 @@ function seleccionarServicioOtro2(idservicio){
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="' + idservicio + 'txtPorcentaje' + idservicio2 + '"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="' + idservicio + 'txtSoles' + idservicio2 + '"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="' + idservicio + 'txtTotal' + idservicio2 + '"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
-    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="' + idservicio + 'txtFacturar' + idservicio2 + '"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });      
+    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="' + idservicio + 'txtFacturar' + idservicio2 + '"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });  
+    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="' + idservicio + 'txtPago' + idservicio2 + '"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
 }
 
 function calcularTotal(){

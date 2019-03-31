@@ -207,6 +207,7 @@ class CotizacionController extends Controller
 
                     $detallito->descripcion = trim($request->input($arr[$c].'txtServicio'.$value));
                     $detallito->cantidad = $request->input($arr[$c].'txtCantidad'.$value);
+                    $detallito->pago = $request->input($arr[$c].'txtPago'.$value);
                     $detallito->porcentaje = $request->input($arr[$c].'txtPorcentaje'.$value);
                     $detallito->monto = $request->input($arr[$c].'txtSoles'.$value);
                     //$detallito->unidad = $request->input($arr[$c].'txtUnidad'.$value);
@@ -307,6 +308,7 @@ class CotizacionController extends Controller
 
                     $detallito->descripcion = trim($request->input($arr[$c].'txtServicio'.$value));
                     $detallito->cantidad = $request->input($arr[$c].'txtCantidad'.$value);
+                    $detallito->pago = $request->input($arr[$c].'txtPago'.$value);
                     $detallito->porcentaje = $request->input($arr[$c].'txtPorcentaje'.$value);
                     $detallito->monto = $request->input($arr[$c].'txtSoles'.$value);
                     //$detallito->unidad = $request->input($arr[$c].'txtUnidad'.$value);
