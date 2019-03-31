@@ -5,7 +5,7 @@
 				{!! Form::open(['method' => 'GET' ,'onsubmit' => 'return false;', 'class' => 'form-inline', 'role' => 'form', 'autocomplete' => 'off']) !!}
 					<div class="form-group">
 						{!! Form::label('fecha', 'Fecha:') !!}
-						{!! Form::date('fecha', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fechareprogramar', 'onchange' => 'listapagosdoctores();')) !!}
+						{!! Form::date('fecha', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fecha', 'onchange' => 'listapagosdoctores();')) !!}
 					</div>
 					<div class="form-group">
 						{!! Form::label('doctor_ticket', 'Doctor:') !!}
@@ -21,7 +21,8 @@
 					</div>
 					<br>
 					{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar', 'onclick' => 'listapagosdoctores();')) !!}
-					{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-xs', 'id' => 'btnCerrarTicketsPendientes', 'onclick' => 'cerrarModal();')) !!}
+					{!! Form::button('<i class="glyphicon glyphicon-print"></i> Exportar PDF', array('class' => 'btn btn-warning btn-xs', 'id' => 'btnReporte', 'onclick' => 'reportePagos();')) !!}
+					{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnCerrarTicketsPendientes', 'onclick' => 'cerrarModal();')) !!}
 				{!! Form::close() !!}
 			</div>
 		</div>
@@ -47,6 +48,11 @@ function listapagosdoctores() {
 	if(paciente == '') {
 		paciente = '0';
 	}
-	cargarRuta('{{ url('/caja/listapagosdoctores') }}' + '/' + doctor + '/' + $('#fechareprogramar').val() + '/' + paciente + '/' + tipopaciente, "listado{{ $entidad }}");	
+	cargarRuta('{{ url('/caja/listapagosdoctores') }}' + '/' + doctor + '/' + $('#fecha').val() + '/' + paciente + '/' + tipopaciente, "listado{{ $entidad }}");	
+}
+
+function reportePagos(){
+	var fecha = $("#fecha").val();
+	window.open("caja/pdfReportePago?fecha=" + fecha,"_blank");
 }
 </script>

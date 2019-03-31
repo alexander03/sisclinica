@@ -104,6 +104,8 @@ function checkear(id){
 
 function guardarPagoDoctoresOjos(elemento){
 
+	$(elemento).prop('disabled',true);
+
 	var doctor_id = $(elemento).data('doctor_id');
 	var fechainicial = $(elemento).data('fechainicial');
 	var fechafinal = $(elemento).data('fechafinal');
@@ -124,7 +126,7 @@ function guardarPagoDoctoresOjos(elemento){
 		success: function(a) {
 			alert('GUARDADO CORRECTAMENTE...');
 			buscar('Caja');
-			listapagosdoctores();
+			listapagosdoctoresojos();
 		},
 	error: function() {
 		alert('OCURRIÓ UN ERROR, VUELVA A INTENTAR...');

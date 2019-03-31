@@ -12402,11 +12402,11 @@ class CajaController extends Controller
 
         $error = null;
 
-        $error = DB::transaction(function() use($request, $lista, $doctor_id, $pagoconsultas, $pagoexamenes){
+        $error = DB::transaction(function() use($request, $lista, $doctor_id, $pagoconsultas, $pagoexamenes, $fechainicial , $fechafinal){
 
         foreach ($lista as $value) {
             $detalle = Detallemovcaja::find($value->iddetalle);
-            $detalle->pagado = 1 ;
+            //$detalle->pagado = 1 ;
             $detalle->save();
         }
 
@@ -12425,13 +12425,124 @@ class CajaController extends Controller
         $egreso->tipomovimiento_id=2; //caja
         $egreso->tipodocumento_id=3;//Egreso
         $egreso->conceptopago_id=137; // pago a medico
-        $egreso->comentario="Pago Consultas: " . number_format( round($pagoconsultas,1) ,2,'.','') . " - Pago Exámenes: " . number_format( round($pagoexamenes,1) ,2,'.','');
+        $egreso->fechapagoinicio = $fechainicial;
+        $egreso->fechapagofin = $fechafinal;
+        $egreso->montoconsultas = round($pagoconsultas,1);
+        $egreso->montoexamenes = round($pagoexamenes,1);
+        $egreso->comentario="Pago Consultas: " . number_format( round($pagoconsultas,1) ,2,'.','') . " - Pago Exámenes: " . number_format( round($pagoexamenes,1) ,2,'.','') . " - Fecha: " . date("d/m/Y", strtotime($fechainicial)) . " al " . date("d/m/Y", strtotime($fechafinal)) ;
         $egreso->caja_id= 1 ;
         $egreso->situacion='N';
         $egreso->save(); 
 
         });
         return is_null($error) ? "OK" : $error;
+    }
+
+    public function pdfReportePagoOjos(Request $request) {
+        $fechaini = $request->input('fechainicial');
+        $fechafin = $request->input('fechafinal');
+
+        $fechainicial = date("d/m/Y", strtotime($fechaini));
+        $fechafinal = date("d/m/Y", strtotime($fechafin));
+
+         $rs = Movimiento::where('tipomovimiento_id','=',2)
+                        ->where('tipodocumento_id','=',3)
+                        ->where('conceptopago_id','=',137)
+                        ->where('caja_id', '=',1)
+                        ->where('fechapagoinicio', '>=' , $fechaini)
+                        ->where('fechapagofin', '<=', $fechafin)
+                        ->get();
+        
+        $pdf = new TCPDF();
+        $pdf::SetTitle('Reporte de Pago a Doctores Oftalmologia ' . $fechainicial . " - " . $fechafinal);
+        $pdf::AddPage('L', 'A4');
+
+        $pdf::SetFont('helvetica','B',15);
+        $pdf::Cell(0,10,'REPORTE DE PAGO A DOCTORES OFTALMOLOGIA: ' . $fechainicial . " - " . $fechafinal,0,0,'C');
+        $pdf::Ln();
+
+        $pdf::SetFont('helvetica','B',8);
+
+        $pdf::Cell(20,10,utf8_decode("FECHA"),1,0,'C');
+        $pdf::Cell(70,10,utf8_decode("DOCTOR"),1,0,'C');
+        $pdf::Cell(30,10,utf8_decode("CONCEPTO"),1,0,'C'); 
+        $pdf::Cell(20,10,utf8_decode("CONSULTAS"),1,0,'C'); 
+        $pdf::Cell(20,10,utf8_decode("EXAMENES"),1,0,'C'); 
+        $pdf::Cell(20,10,utf8_decode("TOTAL"),1,0,'C'); 
+        $pdf::Cell(23,10,utf8_decode("FECHA INICIO"),1,0,'C'); 
+        $pdf::Cell(23,10,utf8_decode("FECHA FIN"),1,0,'C'); 
+        $pdf::Cell(50,10,utf8_decode("RESPONSABLE"),1,0,'C'); 
+
+        $pdf::SetFont('helvetica','B',8);
+
+        $pdf::Ln();
+        
+        foreach ($rs as $value) {
+            $pdf::Cell(20,10, date("d/m/Y",strtotime($value->fecha)),1,0,'C'); 
+            $pdf::Cell(70,10, $value->persona->apellidopaterno . " " . $value->persona->apellidomaterno . " " . $value->persona->nombres ,1,0,'L');
+            $pdf::Cell(30,10,utf8_decode($value->conceptopago->nombre),1,0,'L');
+            $pdf::Cell(20,10, number_format($value->montoconsultas,2,'.',''),1,0,'R'); 
+            $pdf::Cell(20,10, number_format($value->montoexamenes,2,'.',''),1,0,'R'); 
+            $pdf::Cell(20,10, number_format($value->total,2,'.',''),1,0,'R'); 
+            $pdf::Cell(23,10,date("d/m/Y",strtotime($value->fechapagoinicio)),1,0,'C'); 
+            $pdf::Cell(23,10,date("d/m/Y",strtotime($value->fechapagofin)),1,0,'C'); 
+            $pdf::Cell(50,10, $value->responsable->nombres . " " . $value->responsable->apellidopaterno ,1,0,'C'); 
+            $pdf::Ln();
+        }
+
+        $pdf::Output('ReportePagoOjos.pdf');   
+
+    }
+
+    public function pdfReportePago(Request $request) {
+        $fecha = $request->input('fecha');
+
+        $fecha1 = date("d/m/Y", strtotime($fecha));
+
+
+         $rs = Movimiento::leftjoin('movimiento as m2', 'movimiento.id', '=', 'm2.movimiento_id')
+                        ->join('person as paciente','paciente.id','=','m2.persona_id')
+                        ->where('movimiento.tipomovimiento_id','=',2)
+                        ->where('movimiento.tipodocumento_id','=',3)
+                        ->where('movimiento.conceptopago_id','=',137)
+                        ->where('movimiento.caja_id', '=',2)
+                        ->where('movimiento.fecha', $fecha)
+                        ->select('movimiento.*', DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente2'))
+                        ->get();
+        
+        $pdf = new TCPDF();
+        $pdf::SetTitle('Reporte de Pago a Doctores Especialidades ' . $fecha1);
+        $pdf::AddPage('L', 'A4');
+
+        $pdf::SetFont('helvetica','B',15);
+        $pdf::Cell(0,10,'REPORTE DE PAGO A DOCTORES ESPECIALIDADES: ' . $fecha1,0,0,'C');
+        $pdf::Ln();
+
+        $pdf::SetFont('helvetica','B',8);
+
+        $pdf::Cell(20,10,utf8_decode("FECHA"),1,0,'C');
+        $pdf::Cell(70,10,utf8_decode("DOCTOR"),1,0,'C');
+        $pdf::Cell(30,10,utf8_decode("CONCEPTO"),1,0,'C'); 
+        $pdf::Cell(70,10,utf8_decode("PACIENTE"),1,0,'C');
+        $pdf::Cell(20,10,utf8_decode("TOTAL"),1,0,'C'); 
+        $pdf::Cell(50,10,utf8_decode("RESPONSABLE"),1,0,'C'); 
+
+        $pdf::SetFont('helvetica','B',8);
+
+        $pdf::Ln();
+        
+        foreach ($rs as $value) {
+            $pdf::Cell(20,10, date("d/m/Y",strtotime($value->fecha)),1,0,'C'); 
+            $pdf::Cell(70,10, $value->persona->apellidopaterno . " " . $value->persona->apellidomaterno . " " . $value->persona->nombres ,1,0,'L');
+            $pdf::Cell(30,10,utf8_decode($value->conceptopago->nombre),1,0,'L');
+            $pdf::Cell(70,10, $value->paciente2 ,1,0,'L');
+            $pdf::Cell(20,10, number_format($value->total,2,'.',''),1,0,'R'); 
+            $pdf::Cell(50,10, $value->responsable->nombres . " " . $value->responsable->apellidopaterno ,1,0,'C'); 
+            $pdf::Ln();
+        }
+
+        $pdf::Output('ReportePagoOjos.pdf');   
+
     }
 
 }

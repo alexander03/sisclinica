@@ -613,6 +613,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('caja/listapagosdoctoresojos/{doctor}/{fechainicial}/{fechafinal}', 'CajaController@listapagosdoctoresojos')->name('caja.listapagosdoctoresojos');
     Route::post('caja/guardarPagoDoctores', 'CajaController@guardarPagoDoctores')->name('caja.guardarPagoDoctores');
     Route::post('caja/guardarPagoDoctoresOjos', 'CajaController@guardarPagoDoctoresOjos')->name('caja.guardarPagoDoctoresOjos');
+    Route::get('caja/pdfReportePago', 'CajaController@pdfReportePago')->name('caja.pdfReportePago');
+    Route::get('caja/pdfReportePagoOjos', 'CajaController@pdfReportePagoOjos')->name('caja.pdfReportePagoOjos');
     
     Route::get('caja/pdfDetalleCierre', 'CajaController@pdfDetalleCierre')->name('caja.pdfDetalleCierre');
     Route::get('caja/pdfDetalleCierreF', 'CajaController@pdfDetalleCierreF')->name('caja.pdfDetalleCierreF');

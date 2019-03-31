@@ -17,7 +17,8 @@
 					</div>
 					<br>
 					{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar', 'onclick' => 'listapagosdoctoresojos();')) !!}
-					{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-xs', 'id' => 'btnCerrarTicketsPendientes', 'onclick' => 'cerrarModal();')) !!}
+					{!! Form::button('<i class="glyphicon glyphicon-print"></i> Exportar PDF', array('class' => 'btn btn-warning btn-xs', 'id' => 'btnReporte', 'onclick' => 'reportePagosOjos();')) !!}
+					{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnCerrarTicketsPendientes', 'onclick' => 'cerrarModal();')) !!}
 				{!! Form::close() !!}
 			</div>
 		</div>
@@ -39,5 +40,11 @@ function listapagosdoctoresojos() {
 		doctor = '0';
 	}
 	cargarRuta('{{ url('/caja/listapagosdoctoresojos') }}' + '/' + doctor + '/' + $('#fechainicial').val() + '/' + $('#fechafinal').val() , "listado{{ $entidad }}");	
+}
+
+function reportePagosOjos(){
+	var fechainicial = $("#fechainicial").val();
+	var fechafinal = $("#fechafinal").val();
+	window.open("caja/pdfReportePagoOjos?fechainicial=" + fechainicial + "&fechafinal=" + fechafinal,"_blank");
 }
 </script>
