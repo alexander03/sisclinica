@@ -48,26 +48,61 @@
 	</div>
 	<div class="row">
 		<div class="col-lg-12 col-md-12 col-sm-12">
-			<div id="divDetail" class="table-responsive" style="overflow:auto; height:180px; padding-right:10px; border:1px outset">
-		        <table style="width: 100%;" class="table-condensed table-striped">
-		            <thead>
-		                <tr>
-		                    <th bgcolor="#E0ECF8" class='text-center'>#</th>
-		                    <th bgcolor="#E0ECF8" class='text-center'>Descripción</th>
-		                </tr>
-		            </thead>
-		            <tbody>
-		            <?php $i= 1; ?>
-		            @foreach($cotizacion->detalles as $key => $value)
-					<tr>
-						<td class="text-center">{!! $i !!}</td>
-						<td class="text-left">{!! $value->descripcion !!}</td>
-					</tr>
-					<?php $i++; ?>
-					@endforeach
-		            </tbody>
-		           
-		        </table>
+			<div id="divDetail" class="table-responsive">
+		        <table class="table table-condensed table-border" id="tbDetalle">
+	                <thead>
+	                    <th class="text-center" width="5%">#</th>
+	                    <th class="text-center" width="34%">Conceptos</th>
+	                    <th class="text-center" width="7%">Pago</th>
+	                    <th class="text-center" width="7%">Cantidad</th>
+	                    <th class="text-center" width="7%">%</th>
+	                    <th class="text-center" width="7%">S/.</th>
+	                    <th class="text-center" width="7%">Unidad</th>
+	                    <th class="text-center" width="7%">Factor</th>
+	                    <th class="text-center" width="9%">Monto Total</th>
+	                    <th class="text-center" width="10%">Por Facturar</th>
+	                </thead>                
+                    @foreach($cabeceras as $cabeza)
+                        <tbody>
+                            <tr>
+                                <th class="text-center">§</th>
+                                <th class="text-center" colspan="8">{{ $cabeza->descripcion }}</th>
+                                <th class="text-right">{{ number_format($cabeza->monto,2,".","") }}</th>
+                            </tr>
+                            @foreach($cabeza->detalles as $detalle)
+                                <tr>
+                                    <td class="text-right">-</td>
+                                    <td>{{ $detalle->descripcion }}</td>
+                                    <td class="text-right">{{ $detalle->pago == 0 ? '' : $detalle->pago }}</td>
+                                    <td class="text-right">{{ $detalle->cantidad }}</td>
+                                    <td class="text-right">{{ $detalle->porcentaje == 0 ? '' : $detalle->porcentaje }}</td>
+                                    <td class="text-right">{{ number_format($detalle->monto,2,".","") }}</td>
+                                    <td>{{ $detalle->unidad }}</td>
+                                    <td>{{ $detalle->factor }}</td>
+                                    <td class="text-right">{{ number_format($detalle->total,2,".","") }}</td>
+                                    <td></td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    @endforeach
+	                <tfoot>
+	                    <tr>
+	                        <th colspan="7"></th>
+	                        <th colspan="2">Sub - Total</th>
+	                        <th class="text-right">{{ number_format($cotizacion->total/1.18,2,".","") }}</th>
+	                    </tr>
+	                    <tr>
+	                        <th colspan="7"></th>
+	                        <th colspan="2">IGV</th>
+	                        <th class="text-right">{{ number_format($cotizacion->total/1.18*0.18,2,".","") }}</th>
+	                    </tr>
+	                    <tr>
+	                        <th colspan="7"></th>
+	                        <th colspan="2">Total</th>
+	                        <th class="text-right">{{ number_format($cotizacion->total,2,".","") }}</th>
+	                    </tr>
+	                </tfoot>
+	            </table>
 		    </div>
 		</div>
 	 </div>
@@ -82,7 +117,7 @@
 {!! Form::close() !!}
 <script>
 $(document).ready(function() {
-    configurarAnchoModal('800');
+    configurarAnchoModal('1000');
     init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'B', '{!! $entidad !!}');
 });
 </script>

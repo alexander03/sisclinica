@@ -435,10 +435,11 @@ class CotizacionController extends Controller
             return $existe;
         }        
         $cotizacion = Cotizacion::find($id);
+        $cabeceras        = Detallecotizacion::where('detallecotizacion_id', '=', NULL)->where('cotizacion_id', '=', $id)->get();
         if($cotizacion->tipo=='A') {$tipo = 'AMBULATORIO';}elseif($cotizacion->tipo=='H') {$tipo = 'HOSPITALARIO';}
-        if($cotizacion->situacion=='E') {$situacion = 'ENVIADA';}elseif($cotizacion->situacion=='A') {$situacion = 'ACEPTADA';}elseif($cotizacion->situacion=='O') {$situacion = 'OBSERVADA';}elseif($cotizacion->situacion=='R') {$situacion = 'RECHAZADA';} 
+        if($cotizacion->situacion=='E') {$situacion = 'ENVIADA';}elseif($cotizacion->situacion=='A') {$situacion = 'ACEPTADA';}elseif($cotizacion->situacion=='O') {$situacion = 'OBSERVADA';}elseif($cotizacion->situacion=='R') {$situacion = 'RECHAZADA';}elseif($cotizacion->situacion=='U') {$situacion = 'ANULADA';} 
         $formData  = array('class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        return view($this->folderview.'.ver')->with(compact('entidad', 'cotizacion', 'formData', 'tipo', 'situacion'));
+        return view($this->folderview.'.ver')->with(compact('entidad', 'cotizacion', 'formData', 'tipo', 'situacion', 'cabeceras'));
     }
 
     public function seleccionarservicio(Request $request)
