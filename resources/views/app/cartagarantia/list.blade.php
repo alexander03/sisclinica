@@ -36,6 +36,12 @@
 	            <td align="center">{{ number_format($value->monto,2,'.','') }}</td>
 	            <td>{{ $value->comentario == '' ? '-' : $value->comentario }}</td>
 	            <td>{{ $value->responsable->nombres }}</td>
+	            <td><button onclick="modal ('http://localhost/clinica/cotizacion/ver/2', 'Editar Carta de Garantía', this);" class="btn btn-xs btn-warning" type="button"><div class="glyphicon glyphicon-pencil"></div></button>
+	            </td>
+	            <td><button onclick="modal ('http://localhost/clinica/cotizacion/ver/2', 'Liquidación', this);" class="btn btn-xs btn-info" type="button"><div class="glyphicon glyphicon-list"></div> Liquidación</button>
+	            </td>
+	            <td><button onclick="#" class="btn btn-xs btn-danger" type="button"><div class="glyphicon glyphicon-remove"></div></button>
+	            </td>
 			</tr>
 			<?php
 			$contador = $contador + 1;
