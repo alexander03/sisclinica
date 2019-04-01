@@ -62,11 +62,26 @@ if($cotizacion == null) {
                 </div>
             </div>
             <div class="form-group">
+                {!! Form::label('paciente', 'Paciente:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
+                <div class="col-lg-5 col-md-5 col-sm-5">
+                    {!! Form::text('paciente', $paciente===NULL?'':($paciente->dni .' ' . $paciente->apellidopaterno . ' ' . $paciente->apellidomaterno . ' ' . $paciente->nombres), array('class' => 'form-control input-xs', 'id' => 'paciente')) !!}
+                    {!! Form::hidden('person_id', $paciente===NULL?'':$paciente->id, array('id' => 'person_id')) !!}
+                </div>
+                {!! Form::label('dni', 'DNI:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    {!! Form::text('dni', $paciente===NULL?'':$paciente->dni, array('readonly'=>'readonly', 'class' => 'form-control input-xs', 'id' => 'dni')) !!}
+                </div>
+                {!! Form::label('historia', 'Historia:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    {!! Form::text('historia', $numhistoria===NULL?'':$numhistoria->numero, array('readonly'=>'readonly', 'class' => 'form-control input-xs', 'id' => 'historia')) !!}
+                </div>
+            </div>
+            <div class="form-group">
                 <div class="col-lg-12 col-md-12 col-sm-12 text-right">
                     {!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => '$(\'#listServicio\').val(carro);$(\'#movimiento_id\').val(carroDoc);guardarPago(\''.$entidad.'\', this);')) !!}
                     {!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
                 </div>
-            </div>
+            </div>            
         </div>
     </div>
     <div class="box">
@@ -222,20 +237,20 @@ $(document).ready(function() {
         displayKey: 'value',
         source: personas.ttAdapter()
     }).on('typeahead:selected', function (object, datum) {
-        $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="historia_id"]').val(datum.id);
-        $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="numero_historia"]').val(datum.historia);
+        {{--$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="historia_id"]').val(datum.id);--}}
+        $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="historia"]').val(datum.historia);
         $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="paciente"]').val(datum.value);
         $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="dni"]').val(datum.dni);
         $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="person_id"]').val(datum.person_id);
-        if(datum.plan_id>0){
+        {{--if(datum.plan_id>0){
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="plan"]').val(datum.plan);
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="coa"]').val(datum.coa);
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="deducible"]').val(datum.deducible);
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="plan_id"]').val(datum.plan_id);
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="ruc"]').val(datum.ruc);
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="direccion"]').val(datum.direccion);
-        }
-        agregarDetallePrefactura(datum.person_id);
+        --}}
+        //agregarDetallePrefactura(datum.person_id);
     });
 
     var personas2 = new Bloodhound({
@@ -496,10 +511,10 @@ function guardarPago (entidad, idboton) {
         
     });        
 
-    if($("#person_id").val()==""){
+    /*if($("#person_id").val()==""){
         band = false;
         msg += " *No se selecciono un paciente \n";    
-    }
+    }*/
     /*for(c=0; c < carro.length; c++){
         if($("#txtIdMedico"+carro[c]).val()==0){
             band = false;

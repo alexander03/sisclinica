@@ -11,6 +11,7 @@ use App\Cotizacion;
 use App\Convenio;
 use App\Movimiento;
 use App\Detallecotizacion;
+use App\Historia;
 use App\Person;
 use App\Cie;
 use App\Tiposervicio;
@@ -143,12 +144,14 @@ class CotizacionController extends Controller
         foreach ($tiposervicio as $key => $value) {
             $cboTipoServicio = $cboTipoServicio + array($value->id => $value->nombre);
         }
+        $paciente = null;
+        $numhistoria = null;
         $formData            = array('cotizacion.store');
         $user = Auth::user();
         
         $formData            = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton               = 'Registrar'; 
-        return view($this->folderview.'.mant')->with(compact('cotizacion', 'formData', 'entidad', 'boton', 'listar', 'cboTipoServicio', 'user'));
+        return view($this->folderview.'.mant')->with(compact('cotizacion', 'formData', 'entidad', 'boton', 'listar', 'cboTipoServicio', 'user', 'paciente', 'numhistoria'));
     }
 
     public function store(Request $request)
@@ -182,7 +185,7 @@ class CotizacionController extends Controller
             $cotizacion->situacion='E';//ENVIADA
             $cotizacion->responsable_id=$user->person_id;
             $cotizacion->plan_id = $request->input('plan_id');
-            //$cotizacion->paciente_id = $request->input('person_id');
+            $cotizacion->paciente_id = $request->input('person_id');
             $cotizacion->referencia=$request->input('referencia');  
             $cotizacion->total=$request->input('total');  
             $cotizacion->tipo=$request->input('tiporegistro');  
@@ -241,7 +244,9 @@ class CotizacionController extends Controller
         $formData            = array('cotizacion.update', $id);
         $formData            = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton               = 'Modificar'; 
-        return view($this->folderview.'.mant')->with(compact('cotizacion', 'formData', 'entidad', 'boton', 'listar', 'cboTipoServicio', 'user', 'cabeceras'));        
+        $paciente = Person::find($cotizacion->paciente_id);
+        $numhistoria = Historia::where('person_id', '=', $cotizacion->paciente_id)->first();
+        return view($this->folderview.'.mant')->with(compact('cotizacion', 'formData', 'entidad', 'boton', 'listar', 'cboTipoServicio', 'user', 'cabeceras', 'paciente', 'numhistoria'));        
     }
 
     public function update(Request $request, $id)
@@ -277,7 +282,7 @@ class CotizacionController extends Controller
             $cotizacion->situacion='E';//ENVIADA
             $cotizacion->responsable_id=$user->person_id;
             $cotizacion->plan_id = $request->input('plan_id');
-            //$cotizacion->paciente_id = $request->input('person_id');
+            $cotizacion->paciente_id = $request->input('person_id');
             $cotizacion->total=$request->input('total');  
             $cotizacion->tipo=$request->input('tiporegistro');  
             $cotizacion->codigo=$request->input('codigoregistro');  
