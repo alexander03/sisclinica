@@ -468,40 +468,14 @@ function guardarPago (entidad, idboton) {
         msg += " *Debes Agregar al menos un detalle por cabecera \n";  
     }
 
-    if($('#plan_id').val()==""){
-        band = false;
-        msg += " *Debes Seleccionar un Plan \n";    
-    }
-
-    if($('#codigoregistro').val()==""){
-        band = false;
-        msg += " *Debes Escribir un código \n";    
-    }
-
-    if($('#referencia').val()==""){
-        band = false;
-        msg += " *Debes Escribir una referencia \n";    
-    }
-
-    //$("#total").val(total2);
     $(".txtareaa").each(function(index, el) {
         if($(this).val()==""){
             band = false;
             msg += " *Te falta agregar un campo \n"; 
         }
         
-    });        
+    });  
 
-    /*if($("#person_id").val()==""){
-        band = false;
-        msg += " *No se selecciono un paciente \n";    
-    }*/
-    /*for(c=0; c < carro.length; c++){
-        if($("#txtIdMedico"+carro[c]).val()==0){
-            band = false;
-            msg += " *Debe seleccionar medico \n";                        
-        }
-    }*/
     if(band){
         var idformulario = IDFORMMANTENIMIENTO + entidad;
         var data         = submitForm(idformulario);
@@ -527,6 +501,7 @@ function guardarPago (entidad, idboton) {
                 if (resp === 'OK') {
                     cerrarModal();
                     buscarCompaginado('', 'Accion realizada correctamente', entidad, 'OK');
+                    buscar('CartaGarantia');
                 } else if(resp === 'ERROR') {
                     alert(dat[0].msg);
                 } else {

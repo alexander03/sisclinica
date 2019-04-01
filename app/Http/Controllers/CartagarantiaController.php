@@ -94,7 +94,7 @@ class CartagarantiaController extends Controller
         $cabecera[]       = array('valor' => 'Situación', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Total', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Comentario', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Responsable', 'numero' => '1');
+        //$cabecera[]       = array('valor' => 'Responsable', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '3');
         
         $titulo_modificar = $this->tituloModificar;

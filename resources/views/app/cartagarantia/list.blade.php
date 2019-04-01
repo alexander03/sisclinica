@@ -27,14 +27,14 @@
 	            <td>{{ $value->cotizacion->paciente->nombres . ' ' . $value->cotizacion->paciente->apellidopaterno . ' ' . $value->cotizacion->paciente->apellidomaterno }}</td>
 	            <td>{{ $value->cotizacion->plan->nombre }}</td>
 	            @if($value->cotizacion->tipo == 'A')
-	            <td>AMBULATORIA</td>
+	            <td>AMBU.</td>
 	            @else
-	            <td>HOSPITALARIA</td>
+	            <td>HOSP.</td>
 	            @endif
 	            <td>{{ $value->situacion == 'E' ? 'CONFIRM.' : 'ANUL.' }}</td>
 	            <td align="center">{{ number_format($value->monto,2,'.','') }}</td>
 	            <td>{{ $value->comentario == '' ? '-' : $value->comentario }}</td>
-	            <td>{{ $value->responsable->nombres }}</td>
+	            {{--<td>{{ $value->responsable->nombres }}</td>--}}
 	            <td>
 	            	{!! Form::button('<div class="glyphicon glyphicon-pencil"></div>', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning')) !!}
 	            </td>

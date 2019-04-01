@@ -56,55 +56,59 @@ class LiquidacionController extends Controller
         $ruta     = $this->rutas;
         $liquidacion    = Cotizacion::where('cartagarantia_id', '=', $id)->first();
         $cabeceras    = Detallecotizacion::where('cotizacion_id', '=', $liquidacion->id)->where('detallecotizacion_id', '=', NULL)->get();
-        $formData = array('liquidacion.update', $id);
+        $formData = array('liquidacion.update', 'id'=>$liquidacion->id, 'listar'=>'SI');
         $formData = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton    = 'Modificar'; 
         return view($this->folderview.'.mantLiquidacion')->with(compact('ruta', 'entidad', 'boton', 'listar','liquidacion','formData', 'cabeceras'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        $existe = Libreria::verificarExistencia($id, 'cartagarantia');
+    	$id = $request->input('id');
+        $existe = Libreria::verificarExistencia($id, 'cotizacion');
         if ($existe !== true) {
             return $existe;
         }
-        $listar     = Libreria::getParam($request->input('listar'), 'NO');
-        $reglas     = array(
-                'fechacarta'    => 'required',
-                'cotizacion_id' => 'required',
-                'paciente_id'   => 'required',
-                );
-        $mensajes = array(
-            'fechacarta.required'     => 'Debe seleccionar una fecha',
-            'paciente_id.required'    => 'Debe seleccionar un paciente',
-            'cotizacion_id.required'  => 'Debe agregar una cotización',
-            );
-        $validacion = Validator::make($request->all(), $reglas, $mensajes);
-        if ($validacion->fails()) {
-            return $validacion->messages()->toJson();
-        }       
+        $listar = Libreria::getParam($request->input('listar'), 'SI');
         $user = Auth::user();
         $dat=array();
-        $numerocarta = Cartagarantia::NumeroSigue();
-        $error = DB::transaction(function() use($request,$user,$numerocarta,$id,&$dat){
-            $cotizacion              = Cotizacion::find($request->input('cotizacion_id'));
-            $cotizacion->situacion   = 'A';//ACEPTADA
-            $cotizacion->paciente_id = $request->input('paciente_id');//ACEPTADA
-            $cotizacion->total       = $request->input('totalcarta');
-            $cotizacion->save();
+        $error = DB::transaction(function() use($request,$user,$id,&$dat){
+            $liquidacion        = Cotizacion::find($id);
+            $carta        = $liquidacion->cartagarantia;
+            $carta->monto = $request->input('total');
+            $carta->save();
+            foreach ($liquidacion->detalles as $key => $value) {
+                $value->delete();
+            }
 
-            $carta                   = Cartagarantia::find($id);
-            $carta->fecha            = $request->input('fechacarta');
-            $carta->cotizacion_id    = $cotizacion->id;
-            $carta->codigo           = $request->input('codigocarta');
-            $carta->numero           = $numerocarta;
-            $carta->situacion        = 'E';//ENVIADA
-            $carta->comentario       = $request->input('comentariocarta');
-            $carta->monto            = $cotizacion->total;
-            $carta->responsable_id   = $user->person_id; 
-            $carta->save();           
-            
-            $dat['respuesta'] = 'OK';
+            $arr=explode(",",$request->input('listServicio'));
+            $arr_detalle=explode(";",$request->input('listDetallesServicio'));
+            for($c=0;$c<count($arr);$c++){
+                $Detalle = new Detallecotizacion();
+                $Detalle->cotizacion_id=$liquidacion->id;
+                $Detalle->descripcion = trim($request->input('txtServicio'.$arr[$c]));
+                $Detalle->monto = $request->input('txtFacturar'.$arr[$c]);
+                $Detalle->save();
+
+                $detallitos = explode(",",$arr_detalle[$c]);
+                foreach ($detallitos as $value) {
+                    $detallito = new Detallecotizacion();
+                    $detallito->cotizacion_id=$liquidacion->id;
+                    $detallito->detallecotizacion_id=$Detalle->id;
+
+                    $detallito->descripcion = trim($request->input($arr[$c].'txtServicio'.$value));
+                    $detallito->cantidad = $request->input($arr[$c].'txtCantidad'.$value);
+                    $detallito->pago = $request->input($arr[$c].'txtPago'.$value);
+                    $detallito->porcentaje = $request->input($arr[$c].'txtPorcentaje'.$value);
+                    $detallito->monto = $request->input($arr[$c].'txtSoles'.$value);
+                    //$detallito->unidad = $request->input($arr[$c].'txtUnidad'.$value);
+                    //$detallito->factor = $request->input($arr[$c].'txtFactor'.$value);
+                    $detallito->total = $request->input($arr[$c].'txtTotal'.$value);
+
+                    $detallito->save();
+                }
+            }            
+            $dat[0]=array("respuesta"=>"OK","id"=>$liquidacion->id);
         });
         return is_null($error) ? json_encode($dat) : $error;
     }
