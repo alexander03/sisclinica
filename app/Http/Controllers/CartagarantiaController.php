@@ -296,28 +296,29 @@ class CartagarantiaController extends Controller
 
     public function destroy($id)
     {
-        $error = DB::transaction(function() use($id){
-            $plan = explode("@", $id);
-            $listventas = Movimiento::where('plan_id','=',$plan[0])
-                            ->where('numerodias','=',$plan[1])
-                            ->get();
-            foreach ($listventas as $key => $value) {
-                $value->tipoventa = 'A';
-                $value->save();
-            }
+        $error = DB::transaction(function() use($id){    
+            $carta = Cartagarantia::find($id);        
+            $liquidacion = Cotizacion::where('cartagarantia_id', '=', $id)->first();
+            $cotizacion = $carta->cotizacion;        
+            //Anular Liquidacion
+            $liquidacion->situacion = 'U';
+            $liquidacion->save();
+            //Anular Cotizacion
+            $cotizacion->situacion = 'U';
+            $cotizacion->save();
+            //Anular Carta 
+            $carta->situacion = 'U';           
+            $carta->save();
         });
         return is_null($error) ? "OK" : $error;
     }
 
-    public function eliminar($plan_id, $numero, $listarLuego)
+    public function eliminar($id, $listarLuego)
     {
-        $listar = "NO";
-        if (!is_null(Libreria::obtenerParametro($listarLuego))) {
-            $listar = $listarLuego;
-        }
+        $listar = "SI";
         $modelo   = null;
-        $entidad  = 'CartasGarantia2';
-        $formData = array('route' => array('cartasgarantia.destroy', $plan_id.'@'.$numero), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $entidad  = 'CartaGarantia';
+        $formData = array('route' => array('cartagarantia.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton    = 'Anular';
         return view('app.confirmar')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar'));
     }
