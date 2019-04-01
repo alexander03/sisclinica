@@ -24,6 +24,7 @@
 				<td>{{ $contador }}</td>
 	            <td>{{ date('d/m/Y',strtotime($value->fecha)) }}</td>
 	            <td>{{ $value->cotizacion->codigo }}</td>
+	            <td>{{ $value->codigo }}</td>
 	            <td>{{ $value->cotizacion->paciente->nombres . ' ' . $value->cotizacion->paciente->apellidopaterno . ' ' . $value->cotizacion->paciente->apellidomaterno }}</td>
 	            <td>{{ $value->cotizacion->plan->nombre }}</td>
 	            @if($value->cotizacion->tipo == 'A')

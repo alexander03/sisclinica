@@ -84,6 +84,7 @@ class CartagarantiaController extends Controller
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Fecha', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Código Cotiz.', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Código Carta', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Paciente', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Plan', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Tipo', 'numero' => '1');
@@ -174,6 +175,7 @@ class CartagarantiaController extends Controller
             $carta                   = new Cartagarantia();
             $carta->fecha            = $request->input('fechacarta');
             $carta->cotizacion_id    = $cotizacion->id;
+            $carta->codigo           = $request->input('codigocarta');
             $carta->numero           = $numerocarta;
             $carta->situacion        = 'E';//ENVIADA
             $carta->comentario       = $request->input('comentariocarta');
@@ -281,10 +283,18 @@ class CartagarantiaController extends Controller
         						->first();
         $data = array();
         if($resultado !== NULL) {  
-        	$tipo = 'AMBULATORIO';
+            $tipo = 'AMBULATORIO';
+            $persona = '';
+        	$person_id = '';
         	if($resultado->tipo == 'H') {
         		$tipo = 'HOSPITALARIO';
-        	}  	
+        	} 
+            if($resultado->paciente_id !== '' || $resultado->paciente_id !== NULL) {
+                $persona = $resultado->paciente->dni . ' - ' . $resultado->paciente->nombres . ' ' . $resultado->paciente->apellidopaterno . ' ' .$resultado->paciente->apellidomaterno;
+                $person_id = $resultado->paciente->id;
+            } 
+            $data['persona'] = $persona;
+            $data['person_id'] = $person_id; 	
             $data['id'] = $resultado->id;
             $data['codigo'] = $resultado->codigo;
             $data['plan'] = $resultado->plan->nombre;

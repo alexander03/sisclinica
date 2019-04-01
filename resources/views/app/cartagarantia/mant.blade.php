@@ -44,6 +44,10 @@
 								{!! Form::text('pacientecotizacion', '', array('class' => 'form-control input-xs', 'id' => 'pacientecotizacion')) !!}
 							</div>
 							<div class="form-group">
+								{!! Form::label('codigocarta', 'Código Carta') !!}
+								{!! Form::text('codigocarta', '', array('class' => 'form-control input-xs', 'id' => 'codigocarta')) !!}
+							</div>
+							<div class="form-group">
 								{!! Form::label('comentariocarta', 'Comentario') !!}
 								{!! Form::textarea('comentariocarta', '', array('class' => 'form-control input-xs', 'id' => 'comentariocarta')) !!}
 							</div>
@@ -85,6 +89,9 @@
 		}
 		if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="paciente_id"]').val() == '') {
 			mensaje += '* Debes ingresar un Paciente.\n'; 
+		}
+		if($(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="codigocarta"]').val() == '') {
+			mensaje += '* Debes ingresar un Código de Carta.\n'; 
 		}
 		if(mensaje !== '') {
 			alert(mensaje);
@@ -130,7 +137,15 @@
 				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="codigocotizacion"]').val(e.codigo);
 				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="montocotizacion"]').val(e.total);
 				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="totalcarta"]').val(e.total);
-				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="pacientecotizacion"]').focus();
+				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="pacientecotizacion"]').val(e.persona);
+				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="paciente_id"]').val(e.person_id);
+				if(e.persona === '') {
+					//$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="pacientecotizacion"]').removeAttr('readonly');
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="pacientecotizacion"]').focus();
+				} else {
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="codigocarta"]').focus();
+					//$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="pacientecotizacion"]').attr('readonly', 'readonly');
+				}					
 			} else {
 				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="cotizacion_id"]').val('');
 				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="plancotizacion"]').val('');
@@ -138,6 +153,8 @@
 				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="tipocotizacion"]').val('');
 				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="montocotizacion"]').val('');
 				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="totalcarta"]').val('');
+				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="pacientecotizacion"]').val('');
+				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="paciente_id"]').val('');
 			}
 		})
 		.fail(function() {
