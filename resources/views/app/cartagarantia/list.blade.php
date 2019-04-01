@@ -39,7 +39,7 @@
 	            	{!! Form::button('<div class="glyphicon glyphicon-pencil"></div>', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning')) !!}
 	            </td>
 	            <td>
-	            	{!! Form::button('<div class="glyphicon glyphicon-list"></div> Liquidación', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_liquid.'\', this);', 'class' => 'btn btn-xs btn-info')) !!}
+	            	{!! Form::button('<div class="glyphicon glyphicon-list"></div> Liquidación', array('onclick' => 'modal (\''.URL::route($ruta["editLiquidacion"], array('listar'=>'SI', 'id' => $value->id)).'\', \''.$titulo_liquid.'\', this);', 'class' => 'btn btn-xs btn-info')) !!}
 	            </td>
 	            <td>
 	            	{!! Form::button('<div class="glyphicon glyphicon-remove"></div>', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_anular.'\', this);', 'class' => 'btn btn-xs btn-danger')) !!}

@@ -85,7 +85,7 @@ class CotizacionController extends Controller
         if($situacion!=""){
             $resultado = $resultado->where('cotizacion.situacion', 'LIKE', '%'.$situacion.'%');
         }
-        $resultado        = $resultado->select('cotizacion.*'/*,DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente')*/)->orderBy('cotizacion.fecha', 'ASC');
+        $resultado        = $resultado->select('cotizacion.*'/*,DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente')*/)->where('tipotabla', '=', 'C')->orderBy('cotizacion.fecha', 'ASC');
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
@@ -183,6 +183,7 @@ class CotizacionController extends Controller
             $cotizacion->fecha = $request->input('fecharegistro');
             $cotizacion->numero= $numerocotizacion;
             $cotizacion->situacion='E';//ENVIADA
+            $cotizacion->tipotabla='C';//COTIZACION
             $cotizacion->responsable_id=$user->person_id;
             $cotizacion->plan_id = $request->input('plan_id');
             $cotizacion->paciente_id = $request->input('person_id');

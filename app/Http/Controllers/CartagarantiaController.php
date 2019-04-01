@@ -11,6 +11,7 @@ use App\Convenio;
 use App\Movimiento;
 use App\Cartagarantia;
 use App\Detallemovcaja;
+use App\Detallecotizacion;
 use App\Cotizacion;
 use App\Person;
 use App\Cie;
@@ -41,6 +42,7 @@ class CartagarantiaController extends Controller
     protected $tituloEliminar  = 'Anular Carta de Garantía';
     protected $rutas           = array('create' => 'cartagarantia.create', 
             'edit'   => 'cartagarantia.edit', 
+            'editLiquidacion'   => 'liquidacion.edit', 
             'delete' => 'cartagarantia.eliminar',
             'search' => 'cartagarantia.buscar',
             'index'  => 'cartagarantia.index'
@@ -183,16 +185,54 @@ class CartagarantiaController extends Controller
             $carta->comentario       = $request->input('comentariocarta');
             $carta->monto            = $cotizacion->total;
             $carta->responsable_id   = $user->person_id; 
-            $carta->save();           
+            $carta->save();   
+
+            //Creamos liquidacion y los detalles de la liquidación
+
+            $liquidacion = new Cotizacion();
+            $liquidacion->cartagarantia_id=$carta->id;
+            $liquidacion->tipotabla='L';//LIQUIDACION
+            $liquidacion->responsable_id=$user->person_id;
+            $liquidacion->total=$request->input('totalcarta');
+            $liquidacion->save();
+
+            $cabeceras = Detallecotizacion::where('cotizacion_id', '=', $cotizacion->id)->where('detallecotizacion_id', '=', NULL)->get();
+
+            foreach ($cabeceras as $detallereal) {
+                $detallenuevo = new Detallecotizacion();
+                $detallenuevo->cotizacion_id=$liquidacion->id; //AGREGAMOS ID LIQUIDACION, INDICANDO QUE ESTOS SERAN SUS DETALLES
+                $detallenuevo->descripcion = $detallereal->descripcion;
+                $detallenuevo->monto = $detallereal->monto;
+                $detallenuevo->save();
+
+                //Recorremos los detalles de la cabecera real
+
+                foreach ($detallereal->detalles as $detallecabecerareal) {
+                    $detallenuevo2 = new Detallecotizacion();
+                    $detallenuevo2->cotizacion_id=$liquidacion->id; //AGREGAMOS ID LIQUIDACION, INDICANDO QUE ESTOS SERAN SUS DETALLES
+                    $detallenuevo2->descripcion = $detallecabecerareal->descripcion;
+                    $detallenuevo2->detallecotizacion_id=$detallenuevo->id; //detallecotizacion id es el id de la nueva cabec.                    
+                    $detallenuevo2->cantidad = $detallecabecerareal->cantidad;
+                    $detallenuevo2->pago = $detallecabecerareal->pago;
+                    $detallenuevo2->porcentaje = $detallecabecerareal->porcentaje;
+                    $detallenuevo2->monto = $detallecabecerareal->monto;
+                    //$detallenuevo2->unidad = $detallecabecerareal->unidad;
+                    //$detallenuevo2->factor = $detallecabecerareal->factor;
+                    $detallenuevo2->total = $detallecabecerareal->total;
+
+                    $detallenuevo2->save();
+                }                    
+            }
             
             $dat['respuesta'] = 'OK';
-        });
+        });        
+
         return is_null($error) ? json_encode($dat) : $error;
     }
 
     public function edit($id, Request $request)
     {
-        $existe = Libreria::verificarExistencia($id, 'cotizacion');
+        $existe = Libreria::verificarExistencia($id, 'cartagarantia');
         if ($existe !== true) {
             return $existe;
         }
@@ -209,7 +249,7 @@ class CartagarantiaController extends Controller
 
     public function update(Request $request, $id)
     {
-        $existe = Libreria::verificarExistencia($id, 'cotizacion');
+        $existe = Libreria::verificarExistencia($id, 'cartagarantia');
         if ($existe !== true) {
             return $existe;
         }

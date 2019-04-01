@@ -512,6 +512,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('cartagarantia/personaautocompletar/{searching}', 'CartagarantiaController@personaautocompletar')->name('cartagarantia.personaautocompletar');
     Route::get('cartagarantia/buscarcotizacion/{searching}', 'CartagarantiaController@buscarcotizacion')->name('cartagarantia.buscarcotizacion');
 
+    Route::get('liquidacion/edit', 'LiquidacionController@edit')->name('liquidacion.edit');
+    Route::get('liquidacion/update', 'LiquidacionController@update')->name('liquidacion.update');
+
     /* FACTURACION PASADA*/
     Route::post('facturacionpasada/buscar', 'FacturacionpasadaController@buscar')->name('facturacionpasada.buscar');
     Route::get('facturacionpasada/eliminar/{id}/{listarluego}', 'FacturacionpasadaController@eliminar')->name('facturacionpasada.eliminar');

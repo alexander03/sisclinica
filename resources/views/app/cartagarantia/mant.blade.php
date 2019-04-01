@@ -1,6 +1,6 @@
 <?php
 
-$fechacarta = '';
+$fechacarta = date('Y-m-d');
 $cotizacion_id = '';
 $codigocotizacion = '';
 $plancotizacion = '';
@@ -47,7 +47,11 @@ if($carta !== NULL) {
 							<div class="form-group">
 								{!! Form::label('codigocotizacion', 'Código de Cotización') !!}
 								{!! Form::hidden('cotizacion_id', $cotizacion_id, array('id' => 'cotizacion_id')) !!}
+								@if($carta === NULL)
 								{!! Form::text('codigocotizacion', $codigocotizacion, array('class' => 'form-control input-xs', 'id' => 'codigocotizacion', 'onkeyup' => 'buscarCotizacionCodigo();')) !!}
+								@else
+								{!! Form::text('codigocotizacion', $codigocotizacion, array('class' => 'form-control input-xs', 'id' => 'codigocotizacion')) !!}
+								@endif
 							</div>
 							<div class="form-group">
 								{!! Form::label('plancotizacion', 'Plan') !!}
@@ -108,6 +112,9 @@ if($carta !== NULL) {
 		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="codigocotizacion"]').focus();
 		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="totalcarta"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
 		$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="montocotizacion"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
+		@if($carta !== NULL)
+			$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="codigocotizacion"]').attr('readonly', 'readonly');
+		@endif
 	});
 
 	function guardarCarta() {
@@ -153,47 +160,51 @@ if($carta !== NULL) {
 		}			
 	}
 
-	function buscarCotizacionCodigo() {
-		var codigo = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="codigocotizacion"]').val();
-		if(codigo === '') { codigo = '0'; }
-		$.ajax({
-			url: 'cartagarantia/buscarcotizacion/' + codigo,
-			type: 'GET',
-			dataType: 'JSON',			
-		})
-		.done(function(e) {
-			if(e.codigo !== '') {
-				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="cotizacion_id"]').val(e.id);
-				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="plancotizacion"]').val(e.plan);
-				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="fechacotizacion"]').val(e.fecha);
-				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="tipocotizacion"]').val(e.tipo);
-				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="codigocotizacion"]').val(e.codigo);
-				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="montocotizacion"]').val(e.total);
-				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="totalcarta"]').val(e.total);
-				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="pacientecotizacion"]').val(e.persona);
-				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="paciente_id"]').val(e.person_id);
-				if(e.persona === '') {
-					//$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="pacientecotizacion"]').removeAttr('readonly');
-					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="pacientecotizacion"]').focus();
+	@if($carta === NULL)
+
+		function buscarCotizacionCodigo() {
+			var codigo = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="codigocotizacion"]').val();
+			if(codigo === '') { codigo = '0'; }
+			$.ajax({
+				url: 'cartagarantia/buscarcotizacion/' + codigo,
+				type: 'GET',
+				dataType: 'JSON',			
+			})
+			.done(function(e) {
+				if(e.codigo !== '') {
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="cotizacion_id"]').val(e.id);
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="plancotizacion"]').val(e.plan);
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="fechacotizacion"]').val(e.fecha);
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="tipocotizacion"]').val(e.tipo);
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="codigocotizacion"]').val(e.codigo);
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="montocotizacion"]').val(e.total);
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="totalcarta"]').val(e.total);
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="pacientecotizacion"]').val(e.persona);
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="paciente_id"]').val(e.person_id);
+					if(e.persona === '') {
+						//$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="pacientecotizacion"]').removeAttr('readonly');
+						$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="pacientecotizacion"]').focus();
+					} else {
+						$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="codigocarta"]').focus();
+						//$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="pacientecotizacion"]').attr('readonly', 'readonly');
+					}					
 				} else {
-					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="codigocarta"]').focus();
-					//$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="pacientecotizacion"]').attr('readonly', 'readonly');
-				}					
-			} else {
-				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="cotizacion_id"]').val('');
-				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="plancotizacion"]').val('');
-				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="fechacotizacion"]').val('');
-				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="tipocotizacion"]').val('');
-				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="montocotizacion"]').val('');
-				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="totalcarta"]').val('');
-				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="pacientecotizacion"]').val('');
-				$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="paciente_id"]').val('');
-			}
-		})
-		.fail(function() {
-			console.log("Error al Solicitar Datos.");
-		});	
-	}
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="cotizacion_id"]').val('');
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="plancotizacion"]').val('');
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="fechacotizacion"]').val('');
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="tipocotizacion"]').val('');
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="montocotizacion"]').val('');
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="totalcarta"]').val('');
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="pacientecotizacion"]').val('');
+					$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="paciente_id"]').val('');
+				}
+			})
+			.fail(function() {
+				console.log("Error al Solicitar Datos.");
+			});	
+		}
+
+	@endif
 
 	var personas2 = new Bloodhound({
 		datumTokenizer: function (d) {
