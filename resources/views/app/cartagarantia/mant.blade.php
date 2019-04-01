@@ -1,3 +1,36 @@
+<?php
+
+$fechacarta = '';
+$cotizacion_id = '';
+$codigocotizacion = '';
+$plancotizacion = '';
+$fechacotizacion = '';
+$tipocotizacion = '';
+$montocotizacion = '';
+$totalcarta = '';
+$pacientecotizacion = '';
+$codigocarta = '';
+$comentariocarta = '';
+$paciente_id = '';
+
+
+if($carta !== NULL) {
+	$fechacarta = $carta->codigo;
+	$codigocotizacion = $carta->cotizacion->codigo;
+	$cotizacion_id = $carta->cotizacion->id;
+	$plancotizacion = $carta->cotizacion->plan->nombre;
+	$fechacotizacion = $carta->cotizacion->fecha;
+	$tipocotizacion = $carta->cotizacion->tipo == 'A'?'AMBULATORIA':'HOSPITALARIA';
+	$montocotizacion = $carta->cotizacion->total;
+	$totalcarta = $carta->monto;
+	$pacientecotizacion = $carta->cotizacion->paciente->dni . ' - ' . $carta->cotizacion->paciente->nombres . ' ' . $carta->cotizacion->paciente->apellidopaterno . ' ' . $carta->cotizacion->paciente->apellidomaterno;
+	$codigocarta = $carta->codigo;
+	$comentariocarta = $carta->comentario;
+	$paciente_id = $carta->cotizacion->paciente->id;
+
+}
+
+?>
 <section class="content">
 	<div class="row">
 		<div class="col-xs-12">
@@ -9,47 +42,47 @@
 						<div class="col-xs-6">
 							<div class="form-group">
 								{!! Form::label('fechacarta', 'Fecha de Carta de Garantía') !!}
-								{!! Form::date('fechacarta', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fechacarta')) !!}
+								{!! Form::date('fechacarta', $carta !== NULL ? date('Y-m-d') : $fechacarta, array('class' => 'form-control input-xs', 'id' => 'fechacarta')) !!}
 							</div>
 							<div class="form-group">
 								{!! Form::label('codigocotizacion', 'Código de Cotización') !!}
-								{!! Form::hidden('cotizacion_id', '', array('id' => 'cotizacion_id')) !!}
-								{!! Form::text('codigocotizacion', '', array('class' => 'form-control input-xs', 'id' => 'codigocotizacion', 'onkeyup' => 'buscarCotizacionCodigo();')) !!}
+								{!! Form::hidden('cotizacion_id', $cotizacion_id, array('id' => 'cotizacion_id')) !!}
+								{!! Form::text('codigocotizacion', $codigocotizacion, array('class' => 'form-control input-xs', 'id' => 'codigocotizacion', 'onkeyup' => 'buscarCotizacionCodigo();')) !!}
 							</div>
 							<div class="form-group">
 								{!! Form::label('plancotizacion', 'Plan') !!}
-								{!! Form::text('plancotizacion', '', array('class' => 'form-control input-xs', 'id' => 'plancotizacion', 'readonly' => 'readonly')) !!}
+								{!! Form::text('plancotizacion', $plancotizacion, array('class' => 'form-control input-xs', 'id' => 'plancotizacion', 'readonly' => 'readonly')) !!}
 							</div>
 							<div class="form-group">
 								{!! Form::label('fechacotizacion', 'Fecha de Cotización') !!}
-								{!! Form::text('fechacotizacion', '', array('class' => 'form-control input-xs', 'id' => 'fechacotizacion', 'readonly' => 'readonly')) !!}
+								{!! Form::text('fechacotizacion', $fechacotizacion, array('class' => 'form-control input-xs', 'id' => 'fechacotizacion', 'readonly' => 'readonly')) !!}
 							</div>
 							<div class="form-group">
 								{!! Form::label('tipocotizacion', 'Tipo de Cotización') !!}
-								{!! Form::text('tipocotizacion', '', array('class' => 'form-control input-xs', 'id' => 'tipocotizacion', 'readonly' => 'readonly')) !!}
+								{!! Form::text('tipocotizacion', $tipocotizacion, array('class' => 'form-control input-xs', 'id' => 'tipocotizacion', 'readonly' => 'readonly')) !!}
 							</div>
 							<div class="form-group">
 								{!! Form::label('montocotizacion', 'Monto de Cotización') !!}
-								{!! Form::text('montocotizacion', '', array('class' => 'form-control input-xs', 'id' => 'montocotizacion', 'readonly' => 'readonly')) !!}
+								{!! Form::text('montocotizacion', $montocotizacion, array('class' => 'form-control input-xs', 'id' => 'montocotizacion', 'readonly' => 'readonly')) !!}
 							</div>
 						</div>
 						<div class="col-xs-6">
 							<div class="form-group">
 								{!! Form::label('totalcarta', 'Monto de Carta') !!}
-								{!! Form::text('totalcarta', '', array('class' => 'form-control input-xs', 'id' => 'totalcarta')) !!}
+								{!! Form::text('totalcarta', $totalcarta, array('class' => 'form-control input-xs', 'id' => 'totalcarta', 'readonly' => 'readonly')) !!}
 							</div>
 							<div class="form-group">
 								{!! Form::label('pacientecotizacion', 'Paciente') !!}
-								{!! Form::hidden('paciente_id', '', array('id' => 'paciente_id')) !!}
-								{!! Form::text('pacientecotizacion', '', array('class' => 'form-control input-xs', 'id' => 'pacientecotizacion')) !!}
+								{!! Form::hidden('paciente_id', $paciente_id, array('id' => 'paciente_id')) !!}
+								{!! Form::text('pacientecotizacion', $pacientecotizacion, array('class' => 'form-control input-xs', 'id' => 'pacientecotizacion')) !!}
 							</div>
 							<div class="form-group">
 								{!! Form::label('codigocarta', 'Código Carta') !!}
-								{!! Form::text('codigocarta', '', array('class' => 'form-control input-xs', 'id' => 'codigocarta')) !!}
+								{!! Form::text('codigocarta', $codigocarta, array('class' => 'form-control input-xs', 'id' => 'codigocarta')) !!}
 							</div>
 							<div class="form-group">
 								{!! Form::label('comentariocarta', 'Comentario') !!}
-								{!! Form::textarea('comentariocarta', '', array('class' => 'form-control input-xs', 'id' => 'comentariocarta')) !!}
+								{!! Form::textarea('comentariocarta', $comentariocarta, array('class' => 'form-control input-xs', 'id' => 'comentariocarta')) !!}
 							</div>
 							{!! Form::button('<i class="glyphicon glyphicon-check"></i> ' . $boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnBuscarc', 'onclick' => 'guardarCarta();')) !!}
 							{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}

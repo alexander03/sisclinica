@@ -35,6 +35,7 @@ class CartagarantiaController extends Controller
     protected $folderview      = 'app.cartagarantia';
     protected $tituloAdmin     = 'Cartas de Garantía';
     protected $tituloLista     = 'Lista de Cartas de Garantía';
+    protected $tituloLiquid    = 'Liquidación de Carta de Garantía';
     protected $tituloRegistrar = 'Registrar de Carta de Garantía';
     protected $tituloModificar = 'Modificar Carta de Garantía';
     protected $tituloEliminar  = 'Anular Carta de Garantía';
@@ -95,7 +96,8 @@ class CartagarantiaController extends Controller
         $cabecera[]       = array('valor' => 'Operaciones', 'numero' => '3');
         
         $titulo_modificar = $this->tituloModificar;
-        $titulo_eliminar  = $this->tituloEliminar;
+        $titulo_anular  = $this->tituloEliminar;
+        $titulo_liquid  = $this->tituloLiquid;
         $ruta             = $this->rutas;
         $totalfac = 0;
 
@@ -112,7 +114,7 @@ class CartagarantiaController extends Controller
             $paginaactual    = $paramPaginacion['nuevapagina'];
             $lista           = $resultado->paginate($filas);
             $request->replace(array('page' => $paginaactual));
-            return view($this->folderview.'.list')->with(compact('lista', 'totalfac', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta', 'conf'));
+            return view($this->folderview.'.list')->with(compact('lista', 'totalfac', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_anular', 'titulo_liquid', 'ruta', 'conf'));
         }
         return view($this->folderview.'.list')->with(compact('lista', 'entidad','conf'));
     }
@@ -173,6 +175,70 @@ class CartagarantiaController extends Controller
         	$cotizacion->save();
 
             $carta                   = new Cartagarantia();
+            $carta->fecha            = $request->input('fechacarta');
+            $carta->cotizacion_id    = $cotizacion->id;
+            $carta->codigo           = $request->input('codigocarta');
+            $carta->numero           = $numerocarta;
+            $carta->situacion        = 'E';//ENVIADA
+            $carta->comentario       = $request->input('comentariocarta');
+            $carta->monto            = $cotizacion->total;
+            $carta->responsable_id   = $user->person_id; 
+            $carta->save();           
+            
+            $dat['respuesta'] = 'OK';
+        });
+        return is_null($error) ? json_encode($dat) : $error;
+    }
+
+    public function edit($id, Request $request)
+    {
+        $existe = Libreria::verificarExistencia($id, 'cotizacion');
+        if ($existe !== true) {
+            return $existe;
+        }
+        $listar   = Libreria::getParam($request->input('listar'), 'NO');
+        $entidad  = 'CartaGarantia2';
+        $boton    = 'Registrar'; 
+        $ruta     = $this->rutas;
+        $carta    = Cartagarantia::find($id);
+        $formData            = array('cartagarantia.update', $id);
+        $formData            = array('route' => $formData, 'method' => 'PUT', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $boton               = 'Modificar'; 
+        return view($this->folderview.'.mant')->with(compact('ruta', 'entidad', 'boton', 'listar','carta','formData'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $existe = Libreria::verificarExistencia($id, 'cotizacion');
+        if ($existe !== true) {
+            return $existe;
+        }
+        $listar     = Libreria::getParam($request->input('listar'), 'NO');
+        $reglas     = array(
+                'fechacarta'    => 'required',
+                'cotizacion_id' => 'required',
+                'paciente_id'   => 'required',
+                );
+        $mensajes = array(
+            'fechacarta.required'     => 'Debe seleccionar una fecha',
+            'paciente_id.required'    => 'Debe seleccionar un paciente',
+            'cotizacion_id.required'  => 'Debe agregar una cotización',
+            );
+        $validacion = Validator::make($request->all(), $reglas, $mensajes);
+        if ($validacion->fails()) {
+            return $validacion->messages()->toJson();
+        }       
+        $user = Auth::user();
+        $dat=array();
+        $numerocarta = Cartagarantia::NumeroSigue();
+        $error = DB::transaction(function() use($request,$user,$numerocarta,$id,&$dat){
+            $cotizacion              = Cotizacion::find($request->input('cotizacion_id'));
+            $cotizacion->situacion   = 'A';//ACEPTADA
+            $cotizacion->paciente_id = $request->input('paciente_id');//ACEPTADA
+            $cotizacion->total       = $request->input('totalcarta');
+            $cotizacion->save();
+
+            $carta                   = Cartagarantia::find($id);
             $carta->fecha            = $request->input('fechacarta');
             $carta->cotizacion_id    = $cotizacion->id;
             $carta->codigo           = $request->input('codigocarta');
