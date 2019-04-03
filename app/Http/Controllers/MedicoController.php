@@ -176,6 +176,25 @@ class MedicoController extends Controller
             $medico->especialidad_id = Libreria::obtenerParametro($request->input('especialidad_id'));
             $medico->tipomedico = Libreria::obtenerParametro($request->input('tipomedico'));
             $medico->workertype_id = 1;
+
+            $medico->consultas = Libreria::obtenerParametro($request->input('consultas'));
+            $consultasigv = Libreria::obtenerParametro($request->input('consultasigv'));
+            if($consultasigv == true){
+                $consultasigv = 1;
+            }else{
+                $consultasigv = 0;
+            }
+            $medico->consultasigv = $consultasigv;
+
+            $medico->examenes = Libreria::obtenerParametro($request->input('examenes'));
+            $examenesigv = Libreria::obtenerParametro($request->input('examenesigv'));
+            if($examenesigv == true){
+                $examenesigv = 1;
+            }else{
+                $examenesigv = 0;
+            }
+            $medico->examenesigv = $examenesigv;
+            $medico->montoconvenio = Libreria::obtenerParametro($request->input('montoconvenio'));
             $medico->save();
 
             $rolpersona = new Rolpersona();
@@ -269,6 +288,26 @@ class MedicoController extends Controller
             $medico->especialidad_id = Libreria::obtenerParametro($request->input('especialidad_id'));
             $medico->tipomedico = Libreria::obtenerParametro($request->input('tipomedico'));
             //$medico->workertype_id = 1;
+
+            $medico->consultas = Libreria::obtenerParametro($request->input('consultas'));
+            $consultasigv = Libreria::obtenerParametro($request->input('consultasigv'));
+            if($consultasigv == true){
+                $consultasigv = 1;
+            }else{
+                $consultasigv = 0;
+            }
+            $medico->consultasigv = $consultasigv;
+
+            $medico->examenes = Libreria::obtenerParametro($request->input('examenes'));
+            $examenesigv = Libreria::obtenerParametro($request->input('examenesigv'));
+            if($examenesigv == true){
+                $examenesigv = 1;
+            }else{
+                $examenesigv = 0;
+            }
+            $medico->examenesigv = $examenesigv;
+            $medico->montoconvenio = Libreria::obtenerParametro($request->input('montoconvenio'));
+
             $medico->save();
         });
         return is_null($error) ? "OK" : $error;
