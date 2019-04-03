@@ -12344,7 +12344,8 @@ class CajaController extends Controller
         $cabecera[]       = array('valor' => 'Monto Consultas', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Monto Exámenes', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Monto Total', 'numero' => '1');
-        $cabecera[]       = array('valor' => 'Pago Consultas', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Pago Consultas Particular', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Pago Consultas Convenio', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Pago Exámenes', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Pago Total', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Operacion', 'numero' => '1');
@@ -12363,7 +12364,8 @@ class CajaController extends Controller
         $doctor_id = $request->input('doctor_id');
         $fechainicial = $request->input('fechainicial');
         $fechafinal = $request->input('fechafinal');
-        $pagoconsultas = $request->input('pagoconsultas');
+        $pagoconsultasp = $request->input('pagoconsultasp');
+        $pagoconsultasc = $request->input('pagoconsultasc');
         $pagoexamenes = $request->input('pagoexamenes');
 
         $resultado        = Movimiento::join('detallemovcaja as dmc','dmc.movimiento_id','=','movimiento.id')
@@ -12402,7 +12404,7 @@ class CajaController extends Controller
 
         $error = null;
 
-        $error = DB::transaction(function() use($request, $lista, $doctor_id, $pagoconsultas, $pagoexamenes, $fechainicial , $fechafinal){
+        $error = DB::transaction(function() use($request, $lista, $doctor_id, $pagoconsultasp, $pagoconsultasc, $pagoexamenes, $fechainicial , $fechafinal){
 
         foreach ($lista as $value) {
             $detalle = Detallemovcaja::find($value->iddetalle);
@@ -12420,16 +12422,17 @@ class CajaController extends Controller
         $egreso->persona_id = $doctor_id;//doctor
         $egreso->subtotal=0;
         $egreso->igv=0;
-        $egreso->total= number_format( round($pagoconsultas + $pagoexamenes,1) ,2,'.','');
-        $egreso->totalpagado = number_format( round($pagoconsultas + $pagoexamenes,1) ,2,'.','');
+        $egreso->total= number_format( round( $pagoconsultasp + $pagoconsultasc + $pagoexamenes,1) ,2,'.','');
+        $egreso->totalpagado = number_format( round( $pagoconsultasp + $pagoconsultasc + $pagoexamenes,1) ,2,'.','');
         $egreso->tipomovimiento_id=2; //caja
         $egreso->tipodocumento_id=3;//Egreso
         $egreso->conceptopago_id=137; // pago a medico
         $egreso->fechapagoinicio = $fechainicial;
         $egreso->fechapagofin = $fechafinal;
-        $egreso->montoconsultas = round($pagoconsultas,1);
+        $egreso->montoconsultasp = round($pagoconsultasp,1);
+        $egreso->montoconsultasc = round($pagoconsultasc,1);
         $egreso->montoexamenes = round($pagoexamenes,1);
-        $egreso->comentario="Pago Consultas: " . number_format( round($pagoconsultas,1) ,2,'.','') . " - Pago Exámenes: " . number_format( round($pagoexamenes,1) ,2,'.','') . " - Fecha: " . date("d/m/Y", strtotime($fechainicial)) . " al " . date("d/m/Y", strtotime($fechafinal)) ;
+        $egreso->comentario="Pago Consultas: " . number_format( round($pagoconsultasp + $pagoconsultasc,1) ,2,'.','') . " - Pago Exámenes: " . number_format( round($pagoexamenes,1) ,2,'.','') . " - Fecha: " . date("d/m/Y", strtotime($fechainicial)) . " al " . date("d/m/Y", strtotime($fechafinal)) ;
         $egreso->caja_id= 1 ;
         $egreso->situacion='N';
         $egreso->save(); 
@@ -12465,8 +12468,8 @@ class CajaController extends Controller
 
         $pdf::Cell(20,10,utf8_decode("FECHA"),1,0,'C');
         $pdf::Cell(70,10,utf8_decode("DOCTOR"),1,0,'C');
-        $pdf::Cell(30,10,utf8_decode("CONCEPTO"),1,0,'C'); 
-        $pdf::Cell(20,10,utf8_decode("CONSULTAS"),1,0,'C'); 
+        $pdf::Cell(28,10,utf8_decode("CONSULTA PART."),1,0,'C'); 
+        $pdf::Cell(28,10,utf8_decode("CONSULTA CONV."),1,0,'C'); 
         $pdf::Cell(20,10,utf8_decode("EXAMENES"),1,0,'C'); 
         $pdf::Cell(20,10,utf8_decode("TOTAL"),1,0,'C'); 
         $pdf::Cell(23,10,utf8_decode("FECHA INICIO"),1,0,'C'); 
@@ -12480,8 +12483,8 @@ class CajaController extends Controller
         foreach ($rs as $value) {
             $pdf::Cell(20,10, date("d/m/Y",strtotime($value->fecha)),1,0,'C'); 
             $pdf::Cell(70,10, $value->persona->apellidopaterno . " " . $value->persona->apellidomaterno . " " . $value->persona->nombres ,1,0,'L');
-            $pdf::Cell(30,10,utf8_decode($value->conceptopago->nombre),1,0,'L');
-            $pdf::Cell(20,10, number_format($value->montoconsultas,2,'.',''),1,0,'R'); 
+            $pdf::Cell(28,10, number_format($value->montoconsultasp,2,'.',''),1,0,'R'); 
+            $pdf::Cell(28,10, number_format($value->montoconsultasc,2,'.',''),1,0,'R'); 
             $pdf::Cell(20,10, number_format($value->montoexamenes,2,'.',''),1,0,'R'); 
             $pdf::Cell(20,10, number_format($value->total,2,'.',''),1,0,'R'); 
             $pdf::Cell(23,10,date("d/m/Y",strtotime($value->fechapagoinicio)),1,0,'C'); 

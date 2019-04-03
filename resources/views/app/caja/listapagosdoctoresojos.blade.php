@@ -56,12 +56,40 @@ use App\Person;
 
 			@if($montomedicoconsulta != 0 || $montomedicoexamenes != 0)
 			<?php
-				if($doctor->id == 3){
+			/*	if($doctor->id == 3){
 					$pagomedicoexamenes = $montomedicoexamenes / 1.18 * 0.25; 
 					$pagomedicoconsulta = $montomedicoconsulta * 0.58 + $cantconsultaplan * 30;
 				}else{
 					$pagomedicoexamenes = $montomedicoexamenes / 1.18 * 0.25; 
 					$pagomedicoconsulta = $montomedicoconsulta / 1.18 * 0.25 + $cantconsultaplan * 30;
+				}*/
+
+				$consultas = 0;
+				$examenes = 0;
+				$montoconvenio = 0;
+
+				if($doctor->consultas != null){
+					$consultas = $doctor->consultas;
+				}
+				if($doctor->examenes != null){
+					$examenes = $doctor->examenes;
+				}
+				if($doctor->montoconvenio != null){
+					$montoconvenio = $doctor->montoconvenio;
+				}
+
+				if($doctor->consultasigv == 1){
+					$particular = $montomedicoconsulta / 1.18 * ( $doctor->consultas / 100 );
+				}else{
+					$particular = $montomedicoconsulta * $doctor->consultas / 100 ;
+				}
+				$convenio = $cantconsultaplan * $montoconvenio;
+				$pagomedicoconsulta = $particular + $convenio;
+
+				if($doctor->examenesigv == 1){
+					$pagomedicoexamenes = $montomedicoexamenes / 1.18 * $doctor->examenes / 100; 
+				}else{
+					$pagomedicoexamenes = $montomedicoexamenes * $doctor->examenes / 100;
 				}
 			?>
 			<tr>
@@ -69,11 +97,12 @@ use App\Person;
 				<td align ="right">{{ number_format( round($montomedicoconsulta + $montomedicoconsultaplan,1) ,2,'.','') }}</td>
 				<td align ="right">{{ number_format( round($montomedicoexamenes,1) ,2,'.','') }}</td>
 				<td align ="right">{{ number_format( round($montomedicoexamenes + $montomedicoconsulta + $montomedicoconsultaplan,1) ,2,'.','') }}</td>
-				<td align ="right">{{ number_format( round($pagomedicoconsulta,1) ,2,'.','') }}</td>
+				<td align ="right">{{ number_format( round($particular,1) ,2,'.','') }}</td>
+				<td align ="right">{{ number_format( round($convenio,1) ,2,'.','') }}</td>
 				<td align ="right">{{ number_format( round($pagomedicoexamenes,1) ,2,'.','') }}</td>
 				<td align ="right">{{ number_format( round($pagomedicoexamenes + $pagomedicoconsulta,1) ,2,'.','') }}</td>
 				<td>
-					<button class="btn btn-success btn-xs" id="btnPagar" data-doctor_id="{{$doctor->id}}" data-pagoconsultas="{{ $pagomedicoconsulta }}" data-pagoexamenes="{{ $pagomedicoexamenes }}" data-fechainicial="{{$fechainicial}}" data-fechafinal="{{$fechafinal}}" onclick="guardarPagoDoctoresOjos(this);" type="button">
+					<button class="btn btn-success btn-xs" id="btnPagar" data-doctor_id="{{$doctor->id}}" data-pagoconsultasp="{{ $particular }}" data-pagoconsultasc="{{ $convenio }}" data-pagoexamenes="{{ $pagomedicoexamenes }}" data-fechainicial="{{$fechainicial}}" data-fechafinal="{{$fechafinal}}" onclick="guardarPagoDoctoresOjos(this);" type="button">
 						<i class="fa fa-check fa-lg"></i> Pagar
 					</button>
 				</td>
@@ -109,7 +138,8 @@ function guardarPagoDoctoresOjos(elemento){
 	var doctor_id = $(elemento).data('doctor_id');
 	var fechainicial = $(elemento).data('fechainicial');
 	var fechafinal = $(elemento).data('fechafinal');
-	var pagoconsultas = $(elemento).data('pagoconsultas');
+	var pagoconsultasp = $(elemento).data('pagoconsultasp');
+	var pagoconsultasc = $(elemento).data('pagoconsultasc');
 	var pagoexamenes = $(elemento).data('pagoexamenes');
 
 	$.ajax({
@@ -119,7 +149,8 @@ function guardarPagoDoctoresOjos(elemento){
 			"doctor_id" : doctor_id, 
 			"fechainicial" : fechainicial, 
 			"fechafinal" : fechafinal, 
-			"pagoconsultas" : pagoconsultas,
+			"pagoconsultasp" : pagoconsultasp,
+			"pagoconsultasc" : pagoconsultasc,
 			"pagoexamenes" : pagoexamenes,
 			"_token": "{{ csrf_token() }}",
 			},

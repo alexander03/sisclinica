@@ -34,7 +34,7 @@
 		</div>
 	</div>
 	<div class="col-lg-6 col-md-6 col-sm-6">
-	<div class="form-group">
+		<div class="form-group">
 			{!! Form::label('rne', 'RNE:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
 				{!! Form::text('rne', null, array('class' => 'form-control input-xs', 'id' => 'rne', 'placeholder' => 'Ingrese RNE')) !!}
@@ -77,6 +77,40 @@
 			</div>
 		</div>
 	</div>
+	<div class="col-lg-6 col-md-6 col-sm-6">
+		<div class="form-group">
+			{!! Form::label('consultas', '% Consultas:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+			<div class="col-lg-7 col-md-7 col-sm-7">
+				{!! Form::text('consultas', null, array('class' => 'form-control input-xs', 'id' => 'consultas')) !!}
+			</div>
+		</div>
+		<div class="form-group">
+			{!! Form::label('consultasigv', 'Con IGV Cons.:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+			<div class="col-lg-7 col-md-7 col-sm-7">
+				{!! Form::checkbox('consultasigv', null, array('class' => 'form-control input-xs', 'id' => 'consultasigv')) !!}
+			</div>
+		</div>
+		<div class="form-group">
+			{!! Form::label('montoconvenio', 'Cons. Convenio: (S/.)', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+			<div class="col-lg-7 col-md-7 col-sm-7">
+				{!! Form::text('montoconvenio', null, array('class' => 'form-control input-xs', 'id' => 'montoconvenio')) !!}
+			</div>
+		</div>
+	</div>
+	<div class="col-lg-6 col-md-6 col-sm-6">
+		<div class="form-group">
+			{!! Form::label('examenes', '% Examenes:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+			<div class="col-lg-7 col-md-7 col-sm-7">
+				{!! Form::text('examenes', null, array('class' => 'form-control input-xs', 'id' => 'examenes')) !!}
+			</div>
+		</div>
+		<div class="form-group">
+			{!! Form::label('examenesigv', 'Con IGV Exam.:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
+			<div class="col-lg-7 col-md-7 col-sm-7">
+				{!! Form::checkbox('examenesigv', null, array('class' => 'form-control input-xs', 'id' => 'examenesigv')) !!}
+			</div>
+		</div>
+	</div>
 	<div class="form-group">
 		<div class="col-lg-12 col-md-12 col-sm-12 text-right">
 			{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => 'guardar(\''.$entidad.'\', this)')) !!}
@@ -91,5 +125,21 @@ $(document).ready(function() {
 	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="nombres"]').focus();
 	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="dni"]').inputmask("99999999");
 	$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="ruc"]').inputmask("99999999999");
+	@if($medico != null)
+		@if($medico->consultasigv == 1)
+			$('#consultasigv').prop('checked',true);
+		@else
+			$('#consultasigv').prop('checked',false);
+		@endif
+
+		@if($medico->examenesigv == 1)
+			$('#examenesigv').prop('checked',true);
+		@else
+			$('#examenesigv').prop('checked',false);
+		@endif
+	@else
+	$('#consultasigv').prop('checked',false);
+	$('#examenesigv').prop('checked',false);
+	@endif
 }); 
 </script>
