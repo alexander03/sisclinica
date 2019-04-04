@@ -1836,7 +1836,7 @@ class CajaController extends Controller
                     ));
                 });
             });
-        })->export('xls');
+        })->export('xlsx');
     }
 
     //Consolidado
@@ -2697,7 +2697,7 @@ class CajaController extends Controller
                     ));
                 });
             });
-        })->export('xls');
+        })->export('xlsx');
     }
 
     //Por Cajas separadas
@@ -3792,7 +3792,7 @@ class CajaController extends Controller
                 })->store('xlsx', storage_path('excel/exports'));
             }
                 
-        })->export('xls');
+        })->export('xlsx');
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -11779,7 +11779,7 @@ class CajaController extends Controller
                 $sheet->loadView('app.rpts.egresos')->with(compact('egresos', 'aperturas', 'numcajas', 'caja_id', 'sucursal_id'));
             });
 
-        })->export('xls');
+        })->export('xlsx');
     }
 
     
