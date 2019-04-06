@@ -328,9 +328,13 @@ Session::set('sucursal_id', 1);
 									<div class="box-header">
 										<div class="row">
 
-											<div class="form-group col-sm-4">
+											<div class="form-group col-xs-4">
 												{!! Form::label('nombre_atendido', 'Nombre:') !!}
 												{!! Form::text('nombre_atendido', '', array('class' => 'form-control input-xs', 'id' => 'nombre_atendido')) !!}
+											</div>
+											<div class="form-group col-xs-3">
+												{!! Form::label('fecha_atendido', 'Fecha de Atención:') !!}
+												{!! Form::date('fecha_atendido', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fecha_atendido')) !!}
 											</div>
 
 											{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscarAtendido', 'onclick' => 'buscarAtendido();', 'style' => 'margin-top: 25px;')) !!}
@@ -1143,7 +1147,7 @@ Session::set('sucursal_id', 1);
 		$.ajax({
 	        type: "POST",
 	        url: "historiaclinica/tablaAtendidos",
-	        data: "nombre=" + $("#nombre_atendido").val() + "&_token=<?php echo csrf_token(); ?>",
+	        data: "nombre=" + $("#nombre_atendido").val() + "&fecha=" + $("#fecha_atendido").val() + "&_token=<?php echo csrf_token(); ?>",
 	        beforeSend:function() {
 	        	$('#tablaAtendidos').html('Cargando...');
 	        },

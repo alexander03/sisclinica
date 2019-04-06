@@ -49,6 +49,9 @@ $date     = Date::instance($usertype->created_at)->format('l j F Y');
         <a href="#" onclick="cargarRuta('{{ url('/medico') }}', 'container');" title="Medicos" class="enlaces"><i class="fa fa-users"></i></a>
         <a href="#" onclick="cargarRuta('{{ url('/hospitalizacion') }}', 'container');" title="Hospitalizacion" class="enlaces"><i class="fa fa-ambulance"></i></a>
         <a href="#" onclick="cargarRuta('{{ url('/salaoperacion') }}', 'container');" title="Sala de Operacion" class="enlaces"><i class="fa fa-bed"></i></a>
+        @if($user->usertype_id == 1)
+        <a href="http://localhost/clinica/vistamedico" target="_blank" title="Vista Medico" class="enlaces"><i class="fa fa-list"></i></a>
+        @endif
         <div id='divAlerta' class='enlaces' style='color:red;font-weight: bold;'></div>
         <div class="navbar-custom-menu">
             <ul class="nav navbar-nav">

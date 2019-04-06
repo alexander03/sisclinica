@@ -1836,12 +1836,12 @@ class CajaController extends Controller
                     ));
                 });
             });
-        })->export('xls');
+        })->export('xlsx');
     }
 
     //Consolidado
     public function pdfDetalleCierreExcelF(Request $request) {
-        setlocale(LC_TIME, 'spanish');
+        //setlocale(LC_TIME, 'spanish');
         $caja    = Caja::find($request->input('caja_id'));
         $caja_id = Libreria::getParam($request->input('caja_id'),'1');
 
@@ -2067,43 +2067,56 @@ class CajaController extends Controller
                         $row3 = Movimiento::find($row['movimiento_id']);
                         if($row2['situacion'] != '') {
                             $detalles = Detallemovcaja::where('movimiento_id', $row3['id'])->get();  
-                            $i = 0;              
+                            $i = 0;
                             foreach ($detalles as $detalle) {
-                                $fila[] = utf8_decode($row['fecha']);
-                                $fila[] = $row['paciente'];
-                                $fila[] = $row->tipodocumento->abreviatura;
-                                $fila[] = utf8_decode($row['serie'] .'-'. $row['numero']); 
-                                if($row3['plan_id'] != '') {
-                                    $fila[] = substr($row3->plan->nombre, 0, 30);
+                                if($i == 0) {
+                                    $fila[] = utf8_decode($row['fecha']);
+                                    $fila[] = $row['paciente'];
+                                    $fila[] = $row->tipodocumento->abreviatura;
+                                    $fila[] = utf8_decode($row['serie'] .'-'. $row['numero']); 
+                                    if($row3['plan_id'] != '') {
+                                        $fila[] = substr($row3->plan->nombre, 0, 30);
+                                    } else {
+                                        $fila[] = '-';
+                                    } 
                                 } else {
-                                    $fila[] = '-';
-                                }   
+                                    $fila[] = '';
+                                    $fila[] = '';
+                                    $fila[] = '';
+                                    $fila[] = ''; 
+                                    $fila[] = '';
+                                }                                      
                                 $nomdetalle = ''; 
                                 if($detalle->servicio_id == 13) {
                                     $nomdetalle .= '($) ';
                                 }  
                                 $nomdetalle .= ($detalle->servicio==null?$detalle->descripcion:$detalle->servicio->nombre);                         
                                 $fila[] = substr($nomdetalle,0,42);
-                                $fila[] = number_format($detalle->precio,2,'.','');                    
-                                if($row2['situacion'] == 'N') {
+                                $fila[] = number_format($detalle->precio,2,'.','');    
+                                $fila[] = '';    
+                                if($i == 0) {            
+                                    if($row2['situacion'] == 'N') {                                    
+                                        $valuetp = number_format($row2['totalpagado'],2,'.','');
+                                        $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
+                                        $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
+                                        if($valuetp == 0){$valuetp='';}
+                                        if($valuetpv == 0){$valuetpv='';}
+                                        if($valuetpm == 0){$valuetpm='';}
+                                        $fila[] = $valuetp;                    
+                                        $fila[] = $valuetpv;
+                                        $fila[] = $valuetpm;
+                                    } else {  
+                                        $fila[] = 'ANULADO';
+                                        $fila[] = '';
+                                        $fila[] = '';
+                                    }
+                                    $fila[] = utf8_decode($detalle->persona->apellidopaterno);     
+                                } else {
+                                    $fila[] = '';                    
                                     $fila[] = '';
-                                    $valuetp = number_format($row2['totalpagado'],2,'.','');
-                                    $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
-                                    $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
-                                    if($valuetp == 0){$valuetp='';}
-                                    if($valuetpv == 0){$valuetpv='';}
-                                    if($valuetpm == 0){$valuetpm='';}
-                                    $fila[] = $valuetp;                    
-                                    $fila[] = $valuetpv;
-                                    $fila[] = $valuetpm;
-                                } else {                                
-                                    $fila[] = '';
-                                    $fila[] = 'ANULADO';
                                     $fila[] = '';
                                     $fila[] = '';
-                                    $sheet->mergeCells('I'.$a.':K'.($a+count($detalles)-1));
-                                }
-                                $fila[] = utf8_decode($detalle->persona->apellidopaterno);                           
+                                }                      
                                 $sheet->row($a, $fila);
                                 $sheet->mergeCells('A'.$a.':A'.($a+count($detalles)-1));
                                 $sheet->mergeCells('B'.$a.':B'.($a+count($detalles)-1));
@@ -2113,6 +2126,7 @@ class CajaController extends Controller
                                 $sheet->mergeCells('I'.$a.':I'.($a+count($detalles)-1));
                                 $sheet->mergeCells('J'.$a.':J'.($a+count($detalles)-1));
                                 $sheet->mergeCells('K'.$a.':K'.($a+count($detalles)-1));
+                                $sheet->mergeCells('L'.$a.':L'.($a+count($detalles)-1));
                                 $a++;
                                 $i++;    
                                 $fila = array();                      
@@ -2122,9 +2136,9 @@ class CajaController extends Controller
                                     $totalvisa += number_format($row2['totalpagadovisa'],2,'.','');
                                     $totalmaster += number_format($row2['totalpagadomaster'],2,'.','');
                                     $totalefectivo += number_format($row2['totalpagado'],2,'.','');
-                                    $subtotalefectivo += number_format($row2['totalpagadovisa'],2,'.','');
-                                    $subtotalvisa     += number_format($row2['totalpagadomaster'],2,'.','');
-                                    $subtotalmaster   += number_format($row2['totalpagado'],2,'.','');
+                                    $subtotalvisa += number_format($row2['totalpagadovisa'],2,'.','');
+                                    $subtotalmaster     += number_format($row2['totalpagadomaster'],2,'.','');
+                                    $subtotalefectivo   += number_format($row2['totalpagado'],2,'.','');
                                 } else {
                                     $subtotaldolares += number_format($row2['total'],2,'.','');
                                 }
@@ -2183,6 +2197,8 @@ class CajaController extends Controller
                         $fila[] = utf8_decode($cuota->numero);                           
                         $fila[] = "PAGO DE CUOTA DE TICKET N° " . $row['numeroticket'];                           
                         $fila[] = '';
+                        $fila[] = '';
+                        $fila[] = '';
 
                         if($row['situacion'] == 'N') {
                             $valuetp = number_format($row['totalpagado'],2,'.','');
@@ -2190,26 +2206,23 @@ class CajaController extends Controller
                             $valuetpm = number_format($row['totalpagadomaster'],2,'.','');
                             if($valuetp == 0){$valuetp='';}
                             if($valuetpv == 0){$valuetpv='';}
-                            if($valuetpm == 0){$valuetpm='';}
-                            $fila[] = '';                           
+                            if($valuetpm == 0){$valuetpm='';}    
                             $fila[] = $valuetp;                           
                             $fila[] = $valuetpv;                           
                             $fila[] = $valuetpm;                           
                             $totalvisa += number_format($row['totalpagadovisa'],2,'.','');
                             $totalmaster += number_format($row['totalpagadomaster'],2,'.','');
                             $totalefectivo += number_format($row['totalpagado'],2,'.','');
-                            $subtotalefectivo += number_format($row['totalpagadovisa'],2,'.','');
-                            $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
-                            $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
+                            $subtotalvisa += number_format($row['totalpagadovisa'],2,'.','');
+                            $subtotalmaster     += number_format($row['totalpagadomaster'],2,'.','');
+                            $subtotalefectivo   += number_format($row['totalpagado'],2,'.','');
                         } else {
                             $fila[] = "ANULADO";
                             $fila[] = "";
                             $fila[] = "";
-                            $fila[] = "";
                         } 
-                        $fila[] = ""; 
                         $fila[] = "-";  
-                        $sheet->mergeCells('E'.$a.':F'.$a); 
+                        $sheet->mergeCells('E'.$a.':H'.$a); 
                         $sheet->row($a, $fila);
                         $fila = array(); 
                         $a++;           
@@ -2292,7 +2305,6 @@ class CajaController extends Controller
                                 $fila[] = 'ANULADO';                           
                                 $fila[] = '';                           
                                 $fila[] = '';
-                                $sheet->mergeCells('I'.$a.':K'.$a);
                             } 
                                 
                             if($row['doctor_id'] != '') {
@@ -2304,9 +2316,9 @@ class CajaController extends Controller
                                 $totalvisa        += number_format($row['totalpagadovisa'],2,'.','');
                                 $totalmaster      += number_format($row['totalpagadomaster'],2,'.','');
                                 $totalefectivo    += number_format($row['totalpagado'],2,'.','');
-                                $subtotalefectivo += number_format($row['totalpagadovisa'],2,'.','');
-                                $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
-                                $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
+                                $subtotalvisa += number_format($row['totalpagadovisa'],2,'.','');
+                                $subtotalmaster     += number_format($row['totalpagadomaster'],2,'.','');
+                                $subtotalefectivo   += number_format($row['totalpagado'],2,'.','');
                             }
                             $sheet->row($a, $fila);
                             $a++;
@@ -2380,14 +2392,13 @@ class CajaController extends Controller
                             $totalvisa += number_format($row['totalpagadovisa'],2,'.','');
                             $totalmaster += number_format($row['totalpagadomaster'],2,'.','');
                             $totalefectivo += number_format($row['totalpagado'],2,'.','');
-                            $subtotalefectivo += number_format($row['totalpagadovisa'],2,'.','');
-                            $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
-                            $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
+                            $subtotalvisa += number_format($row['totalpagadovisa'],2,'.','');
+                            $subtotalmaster     += number_format($row['totalpagadomaster'],2,'.','');
+                            $subtotalefectivo   += number_format($row['totalpagado'],2,'.','');
                         } else {
                             $fila[] = 'ANULADO';                           
                             $fila[] = '';                           
                             $fila[] = '';
-                            $sheet->mergeCells('I'.$a.':K'.$a);
                         }
                         $fila[] = '-';
                         $sheet->row($a, $fila);
@@ -2456,7 +2467,6 @@ class CajaController extends Controller
                         $fila[] = '';
                         $fila[] = '';
                         $fila[] = '-';
-                        $sheet->mergeCells('I'.$a.':K'.$a);
                         $sheet->row($a, $fila);
                         $a++;
                         $fila = array();              
@@ -2514,17 +2524,15 @@ class CajaController extends Controller
                                 $sheet->mergeCells('E'.$a.':G'.$a);
                                 if($row['situacion'] == 'N') {
                                     $fila[] = number_format($row['total'],2,'.','');
-                                    $fila[] = '';
                                     $subtotalegresoscompra += number_format($row['total'],2,'.','');
                                     $subtotalegresos += number_format($row['total'],2,'.','');
                                 } else {
-                                    $fila[] = '';
                                     $fila[] = 'ANULADO';
                                 } 
+                                $fila[] = '';
                                 $fila[] = '';                           
                                 $fila[] = ''; 
                                 $fila[] = '-';
-                                $sheet->mergeCells('I'.$a.':K'.$a);
                                 $sheet->row($a, $fila);
                                 $a++;
                                 $fila = array();
@@ -2689,7 +2697,7 @@ class CajaController extends Controller
                     ));
                 });
             });
-        })->export('xls');
+        })->export('xlsx');
     }
 
     //Por Cajas separadas
@@ -3784,7 +3792,7 @@ class CajaController extends Controller
                 })->store('xlsx', storage_path('excel/exports'));
             }
                 
-        })->export('xls');
+        })->export('xlsx');
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -11771,7 +11779,7 @@ class CajaController extends Controller
                 $sheet->loadView('app.rpts.egresos')->with(compact('egresos', 'aperturas', 'numcajas', 'caja_id', 'sucursal_id'));
             });
 
-        })->export('xls');
+        })->export('xlsx');
     }
 
     

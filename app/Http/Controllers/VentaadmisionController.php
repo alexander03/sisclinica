@@ -76,7 +76,7 @@ class VentaadmisionController extends Controller
                             ->where('movimiento.tipomovimiento_id','=',4)
                             ->where('movimiento.ventafarmacia','=',$ventafarmacia)
                             //->where('movimiento.sucursal_id','=',$sucursal_id)
-                            ->where(function($q) use($sucursal_id) {            
+                            ->where(function($q) use($sucursal_id, $user) {            
                                 if($sucursal_id == 1){
                                     $q->where('movimiento.caja_id', '=', '1');
                                     if($user->usertype_id == 11){

@@ -693,16 +693,18 @@ class HistoriaClinicaController extends Controller
     public function tablaAtendidos(Request $request){
 
         $nombre = $request->input('nombre');
+        $fecha = $request->input('fecha');
+        $fecha = date('Y-m-d', strtotime($fecha));
 
         $ruta             = $this->rutas;
 
-        $resultado = HistoriaClinica::whereDate('fecha_atencion', '=' ,Carbon::now()->format('Y-m-d') )->orderBy('id', 'ASC')->get();
+        $resultado = HistoriaClinica::whereDate('fecha_atencion', '=' ,$fecha)->orderBy('id', 'ASC')->get();
 
         if($nombre != null){
 
             $resultado = HistoriaClinica::leftjoin('historia as h', 'h.id', '=', 'historiaclinica.historia_id')
             ->join('person as paciente', 'paciente.id', '=', 'h.person_id')
-            ->whereDate('fecha_atencion', '=' ,Carbon::now()->format('Y-m-d') )
+            ->whereDate('fecha_atencion', '=' ,$fecha)
             ->where(DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres)'), 'LIKE', '%'.$nombre.'%')
             ->orderBy('historiaclinica.id', 'ASC')
             ->select('historiaclinica.*')
