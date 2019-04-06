@@ -27,7 +27,7 @@
 								{!! Form::date('fechafinal', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fechafinal')) !!}
 							</div>
 
-							<div class="form-group" @if(Auth::user()->usertype_id != 1) style="display: none;" @endif id="cajas"></div>
+							<div class="form-group" @if(Auth::user()->usertype_id != 1 && $user->usertype_id != 24 && $user->usertype_id != 2) style="display: none;" @endif id="cajas"></div>
 
 							{!! Form::button('<i class="glyphicon glyphicon-file"></i> Consolidado PDF', array('class' => 'btn btn-danger btn-xs', 'onclick' => 'imprimirDetalleF(\'\')')) !!}
 
@@ -43,7 +43,7 @@
 							@if($user->usertype_id==1 || $user->usertype_id==23)
 								{!! Form::button('<i class="glyphicon glyphicon-file"></i> Detalle de Egresos', array('class' => 'btn btn-info btn-xs','onclick' => 'pdfDetalleEgresos()')) !!}
 							@endif
-							@if($user->usertype_id==1 || $user->usertype_id==11 )
+							@if($user->usertype_id==1 || $user->usertype_id==11 || $user->usertype_id == 2)
 								{!! Form::button('<i class="glyphicon glyphicon-print"></i> Ventas Por Producto Individual', array('class' => 'btn btn-primary btn-xs', 'id' => 'btnBuscar', 'onclick' => 'detallePorProducto();')) !!}
 								{!! Form::button('<i class="glyphicon glyphicon-print"></i> Ventas Por Producto Agrupado, Convenio y Particular', array('class' => 'btn btn-info btn-xs', 'id' => 'btnBuscar', 'onclick' => 'detallePorProductoAgrupado();')) !!}				
 							@endif
@@ -52,7 +52,7 @@
 							-->							
 						</div>
 					</div>
-					@if($user->usertype_id==1 || $user->usertype_id==11 )
+					@if($user->usertype_id==1 || $user->usertype_id==2 || $user->usertype_id==11 || $user->usertype_id==24)
 					<hr>
 					<div class="col-xs-12">		
 						<div class="form-group">
@@ -116,7 +116,7 @@
         }
     }
 
-	@if($user->usertype_id==1 || $user->usertype_id==11 )
+	@if($user->usertype_id==1 || $user->usertype_id==11 || $user->usertype_id==24 || $user->usertype_id==2)
 		
 	function detallePorProducto(){
 		var fi = $('#fechainicial').val();

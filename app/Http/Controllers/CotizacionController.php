@@ -11,7 +11,6 @@ use App\Cotizacion;
 use App\Convenio;
 use App\Movimiento;
 use App\Detallecotizacion;
-use App\Historia;
 use App\Person;
 use App\Cie;
 use App\Tiposervicio;
@@ -85,7 +84,7 @@ class CotizacionController extends Controller
         if($situacion!=""){
             $resultado = $resultado->where('cotizacion.situacion', 'LIKE', '%'.$situacion.'%');
         }
-        $resultado        = $resultado->select('cotizacion.*'/*,DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente')*/)->where('tipotabla', '=', 'C')->orderBy('cotizacion.fecha', 'ASC');
+        $resultado        = $resultado->select('cotizacion.*'/*,DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente')*/)->orderBy('cotizacion.fecha', 'ASC');
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => '#', 'numero' => '1');
@@ -144,14 +143,12 @@ class CotizacionController extends Controller
         foreach ($tiposervicio as $key => $value) {
             $cboTipoServicio = $cboTipoServicio + array($value->id => $value->nombre);
         }
-        $paciente = null;
-        $numhistoria = null;
         $formData            = array('cotizacion.store');
         $user = Auth::user();
         
         $formData            = array('route' => $formData, 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton               = 'Registrar'; 
-        return view($this->folderview.'.mant')->with(compact('cotizacion', 'formData', 'entidad', 'boton', 'listar', 'cboTipoServicio', 'user', 'paciente', 'numhistoria'));
+        return view($this->folderview.'.mant')->with(compact('cotizacion', 'formData', 'entidad', 'boton', 'listar', 'cboTipoServicio', 'user'));
     }
 
     public function store(Request $request)
@@ -183,11 +180,9 @@ class CotizacionController extends Controller
             $cotizacion->fecha = $request->input('fecharegistro');
             $cotizacion->numero= $numerocotizacion;
             $cotizacion->situacion='E';//ENVIADA
-            $cotizacion->tipotabla='C';//COTIZACION
             $cotizacion->responsable_id=$user->person_id;
             $cotizacion->plan_id = $request->input('plan_id');
-            $cotizacion->paciente_id = $request->input('person_id');
-            $cotizacion->referencia=$request->input('referencia');  
+            //$cotizacion->paciente_id = $request->input('person_id');
             $cotizacion->total=$request->input('total');  
             $cotizacion->tipo=$request->input('tiporegistro');  
             $cotizacion->codigo=$request->input('codigoregistro');  
@@ -195,32 +190,22 @@ class CotizacionController extends Controller
 
             $pagohospital=0;
             $arr=explode(",",$request->input('listServicio'));
-            $arr_detalle=explode(";",$request->input('listDetallesServicio'));
             for($c=0;$c<count($arr);$c++){
                 $Detalle = new Detallecotizacion();
                 $Detalle->cotizacion_id=$cotizacion->id;
-                $Detalle->descripcion = trim($request->input('txtServicio'.$arr[$c]));
-                $Detalle->monto = $request->input('txtFacturar'.$arr[$c]);
-                $Detalle->save();
-
-                $detallitos = explode(",",$arr_detalle[$c]);
-                foreach ($detallitos as $value) {
-                    $detallito = new Detallecotizacion();
-                    $detallito->cotizacion_id=$cotizacion->id;
-                    $detallito->detallecotizacion_id=$Detalle->id;
-
-                    $detallito->descripcion = trim($request->input($arr[$c].'txtServicio'.$value));
-                    $detallito->cantidad = $request->input($arr[$c].'txtCantidad'.$value);
-                    $detallito->pago = $request->input($arr[$c].'txtPago'.$value);
-                    $detallito->porcentaje = $request->input($arr[$c].'txtPorcentaje'.$value);
-                    $detallito->monto = $request->input($arr[$c].'txtSoles'.$value);
-                    //$detallito->unidad = $request->input($arr[$c].'txtUnidad'.$value);
-                    //$detallito->factor = $request->input($arr[$c].'txtFactor'.$value);
-                    $detallito->total = $request->input($arr[$c].'txtTotal'.$value);
-
-                    $detallito->save();
+                if($request->input('txtIdTipoServicio'.$arr[$c])!="0"){
+                    $Detalle->servicio_id=$request->input('txtIdServicio'.$arr[$c]);
+                    $Detalle->descripcion=trim($request->input('txtServicio'.$arr[$c]));
+                }else{
+                    $Detalle->servicio_id=null;
+                    $Detalle->descripcion=trim($request->input('txtServicio'.$arr[$c]));
                 }
+                //$Detalle->doctor_id=$request->input('txtIdMedico'.$arr[$c]);
+                //$Detalle->cantidad=$request->input('txtCantidad'.$arr[$c]);
+                //$Detalle->precio=round($request->input('txtPrecio'.$arr[$c]),2);
+                $Detalle->save();
             }
+            
             $dat[0]=array("respuesta"=>"OK","id"=>$cotizacion->id);
         });
         return is_null($error) ? json_encode($dat) : $error;
@@ -237,7 +222,6 @@ class CotizacionController extends Controller
         $cotizacion       = Cotizacion::find($id);
         $cboTipoServicio  = array(""=>"--Todos--");
         $tiposervicio     = Tiposervicio::where(DB::raw('1'),'=','1')->orderBy('nombre','ASC')->get();
-        $cabeceras        = Detallecotizacion::where('detallecotizacion_id', '=', NULL)->where('cotizacion_id', '=', $id)->get();
         foreach ($tiposervicio as $key => $value) {
             $cboTipoServicio = $cboTipoServicio + array($value->id => $value->nombre);
         }
@@ -245,9 +229,7 @@ class CotizacionController extends Controller
         $formData            = array('cotizacion.update', $id);
         $formData            = array('route' => $formData, 'method' => 'PUT', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton               = 'Modificar'; 
-        $paciente = Person::find($cotizacion->paciente_id);
-        $numhistoria = Historia::where('person_id', '=', $cotizacion->paciente_id)->first();
-        return view($this->folderview.'.mant')->with(compact('cotizacion', 'formData', 'entidad', 'boton', 'listar', 'cboTipoServicio', 'user', 'cabeceras', 'paciente', 'numhistoria'));        
+        return view($this->folderview.'.mant')->with(compact('cotizacion', 'formData', 'entidad', 'boton', 'listar', 'cboTipoServicio', 'user'));        
     }
 
     public function update(Request $request, $id)
@@ -283,7 +265,7 @@ class CotizacionController extends Controller
             $cotizacion->situacion='E';//ENVIADA
             $cotizacion->responsable_id=$user->person_id;
             $cotizacion->plan_id = $request->input('plan_id');
-            $cotizacion->paciente_id = $request->input('person_id');
+            //$cotizacion->paciente_id = $request->input('person_id');
             $cotizacion->total=$request->input('total');  
             $cotizacion->tipo=$request->input('tiporegistro');  
             $cotizacion->codigo=$request->input('codigoregistro');  
@@ -293,37 +275,17 @@ class CotizacionController extends Controller
             foreach ($cotizacion->detalles as $key => $value) {
                 $value->delete();
             }
-
-            //////////////////////////
-
-
             $arr=explode(",",$request->input('listServicio'));
-            $arr_detalle=explode(";",$request->input('listDetallesServicio'));
-            for($c=0;$c<count($arr);$c++){
+            for($c=0;$c<count($arr);$c++){                
                 $Detalle = new Detallecotizacion();
                 $Detalle->cotizacion_id=$cotizacion->id;
-                $Detalle->descripcion = trim($request->input('txtServicio'.$arr[$c]));
-                $Detalle->monto = $request->input('txtFacturar'.$arr[$c]);
+                $Detalle->descripcion=trim($request->input('txtServicio'.$arr[$c]));
+                //$Detalle->doctor_id=$request->input('txtIdMedico'.$arr[$c]);
+                //$Detalle->cantidad=$request->input('txtCantidad'.$arr[$c]);
+                //$Detalle->precio=round($request->input('txtPrecio'.$arr[$c]),2);
                 $Detalle->save();
-
-                $detallitos = explode(",",$arr_detalle[$c]);
-                foreach ($detallitos as $value) {
-                    $detallito = new Detallecotizacion();
-                    $detallito->cotizacion_id=$cotizacion->id;
-                    $detallito->detallecotizacion_id=$Detalle->id;
-
-                    $detallito->descripcion = trim($request->input($arr[$c].'txtServicio'.$value));
-                    $detallito->cantidad = $request->input($arr[$c].'txtCantidad'.$value);
-                    $detallito->pago = $request->input($arr[$c].'txtPago'.$value);
-                    $detallito->porcentaje = $request->input($arr[$c].'txtPorcentaje'.$value);
-                    $detallito->monto = $request->input($arr[$c].'txtSoles'.$value);
-                    //$detallito->unidad = $request->input($arr[$c].'txtUnidad'.$value);
-                    //$detallito->factor = $request->input($arr[$c].'txtFactor'.$value);
-                    $detallito->total = $request->input($arr[$c].'txtTotal'.$value);
-
-                    $detallito->save();
-                }
-            }            
+            }
+            
             $dat[0]=array("respuesta"=>"OK","id"=>$cotizacion->id);
         });
         return is_null($error) ? json_encode($dat) : $error;
@@ -441,11 +403,10 @@ class CotizacionController extends Controller
             return $existe;
         }        
         $cotizacion = Cotizacion::find($id);
-        $cabeceras        = Detallecotizacion::where('detallecotizacion_id', '=', NULL)->where('cotizacion_id', '=', $id)->get();
         if($cotizacion->tipo=='A') {$tipo = 'AMBULATORIO';}elseif($cotizacion->tipo=='H') {$tipo = 'HOSPITALARIO';}
-        if($cotizacion->situacion=='E') {$situacion = 'ENVIADA';}elseif($cotizacion->situacion=='A') {$situacion = 'ACEPTADA';}elseif($cotizacion->situacion=='O') {$situacion = 'OBSERVADA';}elseif($cotizacion->situacion=='R') {$situacion = 'RECHAZADA';}elseif($cotizacion->situacion=='U') {$situacion = 'ANULADA';} 
+        if($cotizacion->situacion=='E') {$situacion = 'ENVIADA';}elseif($cotizacion->situacion=='A') {$situacion = 'ACEPTADA';}elseif($cotizacion->situacion=='O') {$situacion = 'OBSERVADA';}elseif($cotizacion->situacion=='R') {$situacion = 'RECHAZADA';} 
         $formData  = array('class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
-        return view($this->folderview.'.ver')->with(compact('entidad', 'cotizacion', 'formData', 'tipo', 'situacion', 'cabeceras'));
+        return view($this->folderview.'.ver')->with(compact('entidad', 'cotizacion', 'formData', 'tipo', 'situacion'));
     }
 
     public function seleccionarservicio(Request $request)

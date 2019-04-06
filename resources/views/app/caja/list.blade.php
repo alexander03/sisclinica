@@ -9,7 +9,7 @@ $sucursal_id = Session::get('sucursal_id');
     }
 </style>
 @if($conceptopago_id==1) 
-	{!! Form::button('<i class="glyphicon glyphicon-plus"></i> Apertura', array('class' => 'btn btn-info btn-xs', 'disabled' => 'true', 'id' => 'btnApertura')) !!}
+    {!! Form::button('<i class="glyphicon glyphicon-plus"></i> Apertura', array('class' => 'btn btn-info btn-xs', 'disabled' => 'true', 'id' => 'btnApertura')) !!}
     {!! Form::button('<i class="glyphicon glyphicon-usd"></i> Nuevo', array('class' => 'btn btn-success btn-xs', 'id' => 'btnCerrar', 'onclick' => 'modalCaja (\''.URL::route($ruta["create"], array('listar'=>'SI')).'\', \''.$titulo_registrar.'\', this);')) !!}
     {!! Form::button('<i class="glyphicon glyphicon-remove-circle"></i> Cierre', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnCerrar', 'onclick' => 'modalCaja (\''.URL::route($ruta["cierre"], array('listar'=>'SI')).'\', \''.$titulo_cierre.'\', this);')) !!}    
 
@@ -23,7 +23,7 @@ $sucursal_id = Session::get('sucursal_id');
     {!! Form::button('<i class="glyphicon glyphicon-link"></i>&nbsp;&nbsp;Pagos pendientes a doctores', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnpagodoc', 'onclick' => 'modal("caja/pagosdoctoresojos", "Pagos pendientes a doctores");')) !!}
 @endif 
 
-@if($user->sucursal_id==2||$user->usertype_id==1 && $sucursal_id == 2)
+@if($user->sucursal_id==2 ||$user->usertype_id==1 && $sucursal_id == 2)
     {!! Form::button('<i class="glyphicon glyphicon-link"></i>&nbsp;&nbsp;Pagos pendientes a doctores', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnpagodoc', 'onclick' => 'modal("caja/pagosdoctores", "Pagos pendientes a doctores");')) !!}
 @endif
 
@@ -43,11 +43,11 @@ $sucursal_id = Session::get('sucursal_id');
     {!! Form::button('<i class="glyphicon glyphicon-tags"></i>&nbsp;&nbsp;Cuentas por Cobrar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnCuentasPendientes', 'onclick' => 'modalCaja (\''.URL::route($ruta["cuentaspendientes"], array('listar'=>'SI')).'\', \''.$titulo_cuentaspendientes.'\', this);')) !!}    
 @endif
 
-@if(($tipousuario!=11&&$user->sucursal_id==1)||$user->usertype_id==1 && $sucursal_id == 1)
+@if(($tipousuario!=11&&$user->sucursal_id==1)||($user->usertype_id==1 ||$user->usertype_id==2)  && $sucursal_id == 1)
     {!! Form::button('<i class="glyphicon glyphicon-link"></i>&nbsp;&nbsp;Pagos pendientes a doctores', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnpagodoc', 'onclick' => 'modal("caja/pagosdoctoresojos", "Pagos pendientes a doctores");')) !!}
 @endif 
 
-@if($user->sucursal_id==2||$user->usertype_id==1 && $sucursal_id == 2)
+@if($user->sucursal_id==2||($user->usertype_id==1 ||$user->usertype_id==2) && $sucursal_id == 2)
     {!! Form::button('<i class="glyphicon glyphicon-link"></i>&nbsp;&nbsp;Pagos pendientes a doctores', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnpagodoc', 'onclick' => 'modal("caja/pagosdoctores", "Pagos pendientes a doctores");')) !!}
 @endif
 
@@ -234,7 +234,16 @@ $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
 
             } ?>
 
-            <td align="center"><?php echo $formapago; ?></td>
+            @if($sucursal_id == 2 && $user->usertype_id == 25)
+            @if($value->situacion !== 'A' && $value->conceptopago_id !== 1) 
+                <td align="center"><button class="btn btn-success input-xs"><i class="glyphicon glyphicon-pencil" onclick="modal('caja/editarformapago?id={{$value->id}}', 'EDITAR FORMA PAGO', this)"><i/> <?php echo $formapago; ?></button></td>
+            @else
+                <td align="center">-</td>
+            @endif
+            @else
+                <td align="center"><?php echo $formapago; ?></td>
+            @endif
+            
             <td>{{ $value->comentario }}</td>
             <td>{{ $value->responsable }}</td>
             <?php //echo $value->conceptopago_id; ?>

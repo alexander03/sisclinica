@@ -34,7 +34,7 @@
 		</div>
 	</div>
 	<div class="col-lg-6 col-md-6 col-sm-6">
-		<div class="form-group">
+	<div class="form-group">
 			{!! Form::label('rne', 'RNE:', array('class' => 'col-lg-5 col-md-5 col-sm-5 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
 				{!! Form::text('rne', null, array('class' => 'form-control input-xs', 'id' => 'rne', 'placeholder' => 'Ingrese RNE')) !!}
@@ -131,7 +131,6 @@ $(document).ready(function() {
 		@else
 			$('#consultasigv').prop('checked',false);
 		@endif
-
 		@if($medico->examenesigv == 1)
 			$('#examenesigv').prop('checked',true);
 		@else

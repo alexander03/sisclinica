@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 class Banco extends Model
 {
     use SoftDeletes;
-    protected $table = 'banco';
+    protected $table = 'Banco';
     protected $dates = ['deleted_at'];
     
 }

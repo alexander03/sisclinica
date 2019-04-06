@@ -63,7 +63,7 @@ class SalaoperacionController extends Controller
                             ->leftjoin('person as usuario', 'usuario.id', '=', 'salaoperacion.usuario_id')
                             ->join('especialidad','especialidad.id','=','doctor.especialidad_id')
                             ->leftjoin('person as paciente', 'paciente.id', '=', 'historia.person_id')
-                            ->where('sucursal_id','=',$sucursal_id)
+                           // ->where('sucursal_id','=',$sucursal_id)
                             ->where(DB::raw('concat(doctor.apellidopaterno,\' \',doctor.apellidomaterno,\' \',doctor.nombres)'), 'LIKE', '%'.strtoupper($doctor).'%');
         if($paciente!=""){
             //$resultado = $resultado->where('Salaoperacion.paciente', 'LIKE', '%'.strtoupper($paciente).'%');

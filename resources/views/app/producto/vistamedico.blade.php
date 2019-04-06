@@ -9,7 +9,7 @@ $user = Auth::user();
 Session::set('sucursal_id', 1);
 ?>
 @if($user != null)
-@if($user->usertype_id == 18 || $user->usertype_id == 1)
+@if($user->usertype_id == 18 || $user->usertype_id == 1 || $user->usertype_id == 2 || $user->usertype_id == 5)
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -62,15 +62,20 @@ Session::set('sucursal_id', 1);
 				</h1>
 			</section>
 			<ul class="nav nav-tabs">
+			  @if($user->usertype_id !== 5 && $user->usertype_id !== 2)
 			  <li><a data-toggle="tab" href="#Farmacia">Farmacia</a></li>
 			  <li><a data-toggle="tab" href="#Tarifario">Tarifario</a></li>
 			  <li><a data-toggle="tab" href="#Historias">Historias</a></li>
 			  <li><a data-toggle="tab" href="#cie">CIE 10</a></li>
 			  <li class="active" id="pestanaPacienteCola"><a data-toggle="tab" href="#cola">Pacientes en cola</a></li>
-			  <li><a data-toggle="tab" href="#atendidos">Atenciones del día</a></li>
+			  @endif
+			  <li id="pestanaAtendidos"><a data-toggle="tab" href="#atendidos">Atenciones del día</a></li>
+			  @if($user->usertype_id !== 5 && $user->usertype_id !== 2)
 			  <li style="" id="pestanaAtencion"><a data-toggle="tab" href="#atencion">Atención de Paciente</a></li>
+			  @endif
 			</ul>
 			<div class="tab-content">
+				@if($user->usertype_id !== 5 && $user->usertype_id !== 2)
 	  			<div id="Farmacia" class="tab-pane fade">
 					<!-- Main content -->
 					<section class="content">
@@ -105,8 +110,6 @@ Session::set('sucursal_id', 1);
 					</section>
 					<!-- /.content -->	
 				</div>
-
-
 				<div id="Tarifario" class="tab-pane fade">
 					<!-- Main content -->
 					<section class="content">
@@ -163,10 +166,6 @@ Session::set('sucursal_id', 1);
 					</section>
 					<!-- /.content -->	
 				</div>
-
-
-
-
 				<div id="Historias" class="tab-pane fade">
 					<!-- Main content -->
 					<section class="content">
@@ -227,8 +226,6 @@ Session::set('sucursal_id', 1);
 					</section>
 					<!-- /.content -->	
 				</div>
-
-
 				<div id="cie" class="tab-pane fade">
 					<!-- Main content -->
 					<section class="content">
@@ -261,7 +258,6 @@ Session::set('sucursal_id', 1);
 					</section>
 					<!-- /.content -->	
 				</div>
-
 				<div id="cola" class="tab-pane fade in active">
 					<!-- Main content -->
 					<section class="content">
@@ -318,7 +314,7 @@ Session::set('sucursal_id', 1);
 					</section>
 					<!-- /.content -->	
 				</div>
-
+				@endif
 				<div id="atendidos" class="tab-pane fade">
 					<!-- Main content -->
 					<section class="content">
@@ -361,7 +357,7 @@ Session::set('sucursal_id', 1);
 					</section>
 					<!-- /.content -->	
 				</div>
-
+				@if($user->usertype_id !== 5 && $user->usertype_id !== 2)
 				<div id="atencion" class="tab-pane fade">
 					<!-- Main content -->
 					<section class="content">
@@ -536,7 +532,7 @@ Session::set('sucursal_id', 1);
 					</section>
 					<!-- /.content -->	
 				</div>
-				
+				@endif
 	        </div>
 
 			<!-- Modal -->
@@ -789,6 +785,13 @@ Session::set('sucursal_id', 1);
 		$("#btnGuardar").prop('disabled', true);
 		$("#fondo").prop('disabled', true);
 		$('#fondo').prop('checked', false);
+
+		@if($user->usertype_id == 5 || $user->usertype_id == 2)
+		$('#pestanaPacienteCola').removeClass('active');
+		$('#pestanaAtendidos').addClass('active');
+		$('#cola').removeClass('fade').removeClass('in').removeClass('active');
+		$('#atendidos').addClass('fade').addClass('in').addClass('active');
+		@endif
 	});
 	
 		
@@ -1789,7 +1792,9 @@ Session::set('sucursal_id', 1);
 
 	}
 
-	$(document).on('click', '#btnInfoPaciente', function(event) {
+	$(document).on('click', '#btnInfoPaciente', function(e) {
+		e.preventDefault();
+		e.stopImmediatePropagation();
 		var historia = $('#historia').val();
 		$.ajax({
 			"method": "POST",

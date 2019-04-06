@@ -17,11 +17,6 @@ class Cartagarantia extends Model
         return $this->belongsTo('App\Cotizacion', 'cotizacion_id');
     }
 
-    public function cartagarantia()
-    {
-        return $this->belongsTo('App\Cartagarantia', 'cartagarantia_id');
-    }
-
     public function responsable()
     {
         return $this->belongsTo('App\Person', 'responsable_id');

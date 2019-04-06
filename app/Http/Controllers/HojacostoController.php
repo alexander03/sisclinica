@@ -517,7 +517,7 @@ class HojacostoController extends Controller
                 $pdf::AddPage();
                 $pdf::SetFont('helvetica','B',12);
                 $pdf::Cell(130,7,"",0,0,'C');
-                $pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 15, 5, 115, 20);
+                //$pdf::Image("http://localhost/juanpablo/dist/img/logo.jpg", 15, 5, 115, 20);
                 $pdf::Ln();
                 $pdf::Ln();
                 $pdf::Cell(0,7,"HOJA DE COSTO",0,0,'C');

@@ -127,7 +127,7 @@
 	            <td>{!! Form::button('<i class="glyphicon glyphicon-print"></i>', array('class' => 'btn btn-success btn-xs', 'id' => 'btnImprimir2', 'title' => 'Imprimir Citas', 'onclick' => 'imprimirHistoria2(\''.$entidad.'\','.$value->id.')')) !!}</td>
 				<td>{!! Form::button('<div class="glyphicon glyphicon-eye-open"></div>', array( 'title' => 'Historias Clínicas', 'onclick' => 'tablaCita(' . $value->id . ', "' . $value->persona->apellidopaterno.' '.$value->persona->apellidomaterno.' '.$value->persona->nombres . '");', 'class' => 'btn btn-xs btn-primary')) !!}</td>
 				<td>{!! Form::button('<div class="glyphicon glyphicon-pencil"></div>', array( 'title' => 'Editar', 'onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning')) !!}</td>
-				@if($user->usertype_id==1 || $user->usertype_id==2)
+				@if($user->usertype_id==1 || $user->usertype_id==2 || $user->usertype_id == 16)
 					<td>{!! Form::button('<div class="glyphicon glyphicon-trash"></div>', array( 'title' => 'Eliminar', 'onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);', 'class' => 'btn btn-xs btn-danger')) !!}</td>
 				@else
 					<td> - </td>

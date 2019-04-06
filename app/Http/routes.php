@@ -507,13 +507,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('cartagarantia/buscar', 'CartagarantiaController@buscar')->name('cartagarantia.buscar');
     Route::post('cartagarantia/buscarcarta', 'CartagarantiaController@buscarcarta')->name('cartagarantia.buscarcarta');
     Route::resource('cartagarantia', 'CartagarantiaController', array('except' => array('show')));
-    Route::get('cartagarantia/eliminar/{id}/{listarluego}', 'CartagarantiaController@eliminar')->name('cartagarantia.eliminar');
+    Route::get('cartagarantia/eliminar/{plan_id}/{numero}/{listarluego}', 'CartagarantiaController@eliminar')->name('cartagarantia.eliminar');
     Route::get('cartagarantia/lista', 'CartagarantiaController@lista')->name('cartagarantia.lista');
     Route::get('cartagarantia/personaautocompletar/{searching}', 'CartagarantiaController@personaautocompletar')->name('cartagarantia.personaautocompletar');
     Route::get('cartagarantia/buscarcotizacion/{searching}', 'CartagarantiaController@buscarcotizacion')->name('cartagarantia.buscarcotizacion');
-
-    Route::get('liquidacion/edit', 'LiquidacionController@edit')->name('liquidacion.edit');
-    Route::put('liquidacion/update', 'LiquidacionController@update')->name('liquidacion.update');
 
     /* FACTURACION PASADA*/
     Route::post('facturacionpasada/buscar', 'FacturacionpasadaController@buscar')->name('facturacionpasada.buscar');
@@ -611,11 +608,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('caja/pdfHonorario', 'CajaController@pdfHonorario')->name('caja.pdfHonorario');
     Route::get('caja/pdfHonorarioF', 'CajaController@pdfHonorarioF')->name('caja.pdfHonorarioF');
     Route::get('caja/pagosdoctores', 'CajaController@pagosdoctores')->name('caja.pagosdoctores');
-    Route::get('caja/pagosdoctoresojos', 'CajaController@pagosdoctoresojos')->name('caja.pagosdoctoresojos');
     Route::get('caja/listapagosdoctores/{doctor}/{fecha}/{paciente}/{tipo}', 'CajaController@listapagosdoctores')->name('caja.listapagosdoctores');
-    Route::get('caja/listapagosdoctoresojos/{doctor}/{fechainicial}/{fechafinal}', 'CajaController@listapagosdoctoresojos')->name('caja.listapagosdoctoresojos');
     Route::post('caja/guardarPagoDoctores', 'CajaController@guardarPagoDoctores')->name('caja.guardarPagoDoctores');
+    Route::get('caja/pagosdoctoresojos', 'CajaController@pagosdoctoresojos')->name('caja.pagosdoctoresojos');
+    Route::get('caja/listapagosdoctoresojos/{doctor}/{fechainicial}/{fechafinal}', 'CajaController@listapagosdoctoresojos')->name('caja.listapagosdoctoresojos');
     Route::post('caja/guardarPagoDoctoresOjos', 'CajaController@guardarPagoDoctoresOjos')->name('caja.guardarPagoDoctoresOjos');
+    Route::get('caja/mostrarDetallePago', 'CajaController@mostrarDetallePago')->name('caja.mostrarDetallePago');
     Route::get('caja/pdfReportePago', 'CajaController@pdfReportePago')->name('caja.pdfReportePago');
     Route::get('caja/pdfReportePagoOjos', 'CajaController@pdfReportePagoOjos')->name('caja.pdfReportePagoOjos');
     
@@ -667,6 +665,10 @@ Route::group(['middleware' => 'auth'], function () {
     //ANULAR DOC VENTA PROVISIONAL
 
     Route::get('caja/anularProv/{id}', 'CajaController@anularProv')->name('caja.anularProv');
+
+    //EDITAR FORMAPAGO
+    Route::get('caja/editarformapago', array('as' => 'caja.editarformapago', 'uses' => 'CajaController@editarformapago'));
+    Route::post('caja/editarformapago2', array('as' => 'caja.editarformapago2', 'uses' => 'CajaController@editarformapago2'));
     
     /* CAJA TESORERIA*/
     Route::post('cajatesoreria/buscar', 'CajatesoreriaController@buscar')->name('cajatesoreria.buscar');

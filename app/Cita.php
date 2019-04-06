@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 class Cita extends Model
 {
     use SoftDeletes;
-    protected $table = 'cita';
+    protected $table = 'Cita';
     protected $dates = ['deleted_at'];
     
     public function doctor()

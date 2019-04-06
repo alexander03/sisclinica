@@ -35,7 +35,7 @@
             @if($value->situacion=='H')
             	<td align="center"> - </td>
             	<td align="center"> - </td>
-            	@if($user->usertype_id==7 || $user->usertype_id==1 || $user->usertype_id==12 || $user->person_id==56606)
+            	@if($user->usertype_id==25 || $user->usertype_id==1 || $user->usertype_id==12)
             		<td align="center">{!! Form::button('<div class="glyphicon glyphicon-chevron-up"></div>', array('onclick' => 'modal (\''.URL::route($ruta["alta"], array($value->id, 'listar'=>'SI')).'\', \'Alta\', this);', 'class' => 'btn btn-xs btn-info', 'title' => 'Alta')) !!}</td>
             		<td align="center">{!! Form::button('<div class="glyphicon glyphicon-pencil"></div>', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning', 'title' => 'Editar')) !!}</td>
 					<td align="center">{!! Form::button('<div class="glyphicon glyphicon-remove"></div>', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_eliminar.'\', this);', 'class' => 'btn btn-xs btn-danger', 'title' => 'Eliminar')) !!}</td>

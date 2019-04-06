@@ -68,6 +68,7 @@ class SeguimientoController extends Controller
         $cabecera[]       = array('valor' => 'Fecha Solicitud', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Area Solicitante', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Historia', 'numero' => '1');
+        $cabecera[]       = array('valor' => 'Historia 2', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Paciente', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Comentario', 'numero' => '1');
         $cabecera[]       = array('valor' => 'Usuario', 'numero' => '1');

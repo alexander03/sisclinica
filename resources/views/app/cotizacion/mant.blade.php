@@ -1,19 +1,17 @@
 <?php 
-if($cotizacion === null) {
+if($cotizacion == null) {
     $fecha = date('Y-m-d');
     $tipo = 'A';
     $plan = '';
     $plan_id = '';
     $codigo = '';
     $total = '';
-    $referencia = '';
 } else {
     $fecha = $cotizacion->fecha;
     $tipo = $cotizacion->tipo;
     $plan = $cotizacion->plan->nombre;
     $plan_id = $cotizacion->plan->id;
     $codigo = $cotizacion->codigo;
-    $referencia = $cotizacion->referencia;
     $total = number_format($cotizacion->total, 2);
 }
 ?>
@@ -29,180 +27,121 @@ if($cotizacion === null) {
 {!! Form::model($cotizacion, $formData) !!}    
     {!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
     {!! Form::hidden('listServicio', null, array('id' => 'listServicio')) !!}
-    {!! Form::hidden('listDetallesServicio', null, array('id' => 'listDetallesServicio')) !!}
     <div class="row">
         {{--<div class="col-lg-6 col-md-6 col-sm-6">--}}
         <div class="col-lg-12 col-md-12 col-sm-12">
             <div class="form-group">
-                {!! Form::label('fecharegistro', 'Fecha:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-                <div class="col-lg-3 col-md-3 col-sm-3">
+                {!! Form::label('fecharegistro', 'Fecha:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+                <div class="col-lg-4 col-md-4 col-sm-4">
                     {!! Form::date('fecharegistro', $fecha, array('class' => 'form-control input-xs', 'id' => 'fecharegistro')) !!}
                 </div>
-                {!! Form::label('tiporegistro', 'Tipo:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-                <div class="col-lg-3 col-md-3 col-sm-3">
+                {!! Form::label('tiporegistro', 'Tipo:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+                <div class="col-lg-4 col-md-4 col-sm-4">
                     <select name="tiporegistro" class='form-control input-xs' id='tiporegistro'>
                         <option value="A">AMBULATORIO</option>
                         <option value="H">HOSPITALARIO</option>
                     </select>
                 </div>
-                {!! Form::label('codigoregistro', 'Código:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-                <div class="col-lg-3 col-md-3 col-sm-3">
+            </div>
+            <div class="form-group">
+                {!! Form::label('codigoregistro', 'Código:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+                <div class="col-lg-10 col-md-10 col-sm-10">
                     {!! Form::text('codigoregistro', $codigo, array('class' => 'form-control input-xs', 'id' => 'codigoregistro')) !!}
                 </div>
             </div>
             <div class="form-group">
-                {!! Form::label('plan', 'Plan:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-                <div class="col-lg-4 col-md-4 col-sm-4">
+                {!! Form::label('plan', 'Plan:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+                <div class="col-lg-10 col-md-10 col-sm-10">
                     {!! Form::text('plan', $plan, array('class' => 'form-control input-xs', 'id' => 'plan')) !!}
                     {!! Form::hidden('plan_id', $plan_id, array('id' => 'plan_id')) !!}
                 </div>
-                {!! Form::label('referencia', 'Referencia:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
+            </div>
+            {{--<div class="form-group">
+                {!! Form::label('paciente', 'Paciente:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
                 <div class="col-lg-6 col-md-6 col-sm-6">
-                    {!! Form::text('referencia', $referencia, array('class' => 'form-control input-xs', 'id' => 'referencia')) !!}
+                {!! Form::hidden('person_id', null, array('id' => 'person_id')) !!}
+                {!! Form::hidden('dni', null, array('id' => 'dni')) !!}
+                {!! Form::text('paciente', null, array('class' => 'form-control input-xs', 'id' => 'paciente', 'placeholder' => 'Ingrese Paciente')) !!}
                 </div>
-            </div>
-            <div class="form-group">
-                {!! Form::label('paciente', 'Paciente:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-                <div class="col-lg-5 col-md-5 col-sm-5">
-                    {!! Form::text('paciente', $paciente===NULL?'':($paciente->dni .' ' . $paciente->apellidopaterno . ' ' . $paciente->apellidomaterno . ' ' . $paciente->nombres), array('class' => 'form-control input-xs', 'id' => 'paciente')) !!}
-                    {!! Form::hidden('person_id', $paciente===NULL?'':$paciente->id, array('id' => 'person_id')) !!}
-                </div>
-                {!! Form::label('dni', 'DNI:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
+                {!! Form::label('numero', 'Historia:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
                 <div class="col-lg-2 col-md-2 col-sm-2">
-                    {!! Form::text('dni', $paciente===NULL?'':$paciente->dni, array('readonly'=>'readonly', 'class' => 'form-control input-xs', 'id' => 'dni')) !!}
+                    {!! Form::hidden('historia_id', null, array('id' => 'historia_id')) !!}
+                    {!! Form::text('numero_historia', null, array('class' => 'form-control input-xs', 'id' => 'numero_historia', 'readonly' => 'readonly')) !!}
                 </div>
-                {!! Form::label('historia', 'Historia:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-                <div class="col-lg-2 col-md-2 col-sm-2">
-                    {!! Form::text('historia', $numhistoria===NULL?'':$numhistoria->numero, array('readonly'=>'readonly', 'class' => 'form-control input-xs', 'id' => 'historia')) !!}
-                </div>
-            </div>
+            </div>--}}
             <div class="form-group">
                 <div class="col-lg-12 col-md-12 col-sm-12 text-right">
                     {!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => '$(\'#listServicio\').val(carro);$(\'#movimiento_id\').val(carroDoc);guardarPago(\''.$entidad.'\', this);')) !!}
                     {!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
                 </div>
-            </div>            
-        </div>
-    </div>
-    <div class="box">
+            </div>
+         </div>
+         {{--<div class="col-lg-6 col-md-6 col-sm-6">
+            <div class="form-group">
+                {!! Form::label('tiposervicio', 'Tipo:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    {!! Form::select('tiposervicio', $cboTipoServicio, null, array('class' => 'form-control input-xs', 'id' => 'tiposervicio')) !!}
+                </div>
+                {!! Form::label('descripcion', 'Servicio:', array('class' => 'col-lg-2 col-md-2 col-sm-2 control-label')) !!}
+                <div class="col-lg-5 col-md-5 col-sm-5">
+                    {!! Form::text('descripcion', null, array('class' => 'form-control input-xs', 'id' => 'descripcion', 'onkeypress' => '')) !!}
+                </div>
+            </div>
+            <div class="form-group col-lg-12 col-md-12 col-sm-12" id="divBusqueda">
+            </div>
+         </div> --}}    
+     </div>
+     <div class="box">
         <div class="box-header">
-            <h2 class="box-title col-lg-4 col-md-4 col-sm-4">CABECERA <button type="button" class="btn btn-xs btn-info" title="Agregar Detalle" onclick="seleccionarServicioOtro();"><i class="fa fa-plus"></i></button></h2>
+            <h2 class="box-title col-lg-4 col-md-4 col-sm-4">Detalle <button type="button" class="btn btn-xs btn-info" title="Agregar Detalle" onclick="seleccionarServicioOtro();"><i class="fa fa-plus"></i></button></h2>
         </div>
-        <div class="box-body" {{--style="max-height: 300px;overflow: auto;"--}}s>
+        <div class="box-body" style="max-height: 300px;overflow: auto;">
             <table class="table table-condensed table-border" id="tbDetalle">
                 <thead>
-                    <th class="text-center" width="5%">#</th>
-                    <th class="text-center" width="34%">Conceptos</th>
-                    <th class="text-center" width="7%">Pago</th>
-                    <th class="text-center" width="7%">Cantidad</th>
-                    <th class="text-center" width="7%">%</th>
-                    <th class="text-center" width="7%">S/.</th>
-                    <th class="text-center" width="7%">Unidad</th>
-                    <th class="text-center" width="7%">Factor</th>
-                    <th class="text-center" width="7%">Monto Total</th>
-                    <th class="text-center" width="7%">Por Facturar</th>
-                    <th class="text-center" width="5%" colspan="2"></th>
-                </thead>                
+                    {{--<th class="text-center">Cant.</th>--}}
+                    {{--<th class="text-center" colspan="2">Medico</th>--}}
+                    {{--<th class="text-center">Rubro</th>--}}
+                    {{--<th class="text-center">Codigo</th>--}}
+                    <th class="text-center" colspan="2">Descripcion</th>
+                    {{--<th class="text-center">Precio</th>--}}
+                    {{--<th class="text-center">Dias</th>--}}
+                    {{--<th class="text-center" colspan="2">Pago Medico</th>--}}
+                    {{--<th class="text-center">Subtotal</th>--}}
+                </thead>
+                <tbody>
                 @if($cotizacion !== NULL) 
-                    @foreach($cabeceras as $cabeza)
-                        <tbody id="tbDetalle{{ $cabeza->id }}__">
-                            <tr id="trDetalle{{ $cabeza->id }}__">
-                                <td>§</td>
-                                <td colspan="8">
-                                    <input style="font-weight:bold;text-align: center;font-size:15px;" type="text" class="form-control input-xs txtareaa" value="{{ $cabeza->descripcion }}" id="txtServicio{{ $cabeza->id }}__" name="txtServicio{{ $cabeza->id }}__">
-                                </td>
-                                <td>
-                                    <input readonly="readonly" class="form-control input-xs txtareaa porfacturar" type="text" id="txtFacturar{{ $cabeza->id }}__" value="{{ number_format($cabeza->monto,2,".","") }}" name="txtFacturar{{ $cabeza->id }}__" style="text-align: right;">
-                                </td>
-                                <td>
-                                    <a href="#" class="btn btn-danger btn-xs" onclick="quitarServicio2('{{ $cabeza->id }}__')"><i class="fa fa-minus-circle" title="Quitar Cabecera"></i></a>
-                                </td>
-                                <td>
-                                    <a class="btn btn-success btn-xs" href="#" onclick="seleccionarServicioOtro2('{{ $cabeza->id }}__')"><i class="fa fa-plus-circle" title="Añadir Detalle"></i></a>
-                                </td>
-                            </tr>
-                            @foreach($cabeza->detalles as $detalle)
-                                <tr id="{{ $cabeza->id }}__tr{{ $detalle->id }}__">
-                                    <td>-</td>
-                                    <td>
-                                        <input type="text" value="{{ $detalle->descripcion }}" class="form-control input-xs txtareaa" id="{{ $cabeza->id }}__txtServicio{{ $detalle->id }}__" name="{{ $cabeza->id }}__txtServicio{{ $detalle->id }}__">
-                                    </td>
-                                    <td>
-                                        <input class="form-control input-xs numerito txtPago" value="{{ $detalle->pago == 0 ? '' : $detalle->pago }}" type="text" id="{{ $cabeza->id }}__txtPago{{ $detalle->id }}__" name="{{ $cabeza->id }}__txtPago{{ $detalle->id }}__" style="text-align: right;">
-                                    </td>
-                                    <td>
-                                        <input class="form-control input-xs txtareaa numerito txtCantidad" value="{{ $detalle->cantidad }}" type="text" id="{{ $cabeza->id }}__txtCantidad{{ $detalle->id }}__" name="{{ $cabeza->id }}__txtCantidad{{ $detalle->id }}__" style="text-align: right;">
-                                    </td>
-                                    <td>
-                                        <input class="form-control input-xs numerito txtPorcentaje" value="{{ $detalle->porcentaje == 0 ? '' : $detalle->porcentaje }}" type="text" id="{{ $cabeza->id }}__txtPorcentaje{{ $detalle->id }}__" name="{{ $cabeza->id }}__txtPorcentaje{{ $detalle->id }}__" style="text-align: right;">
-                                    </td>
-                                    <td>
-                                        <input class="form-control input-xs txtareaa numerito txtSoles" value="{{ number_format($detalle->monto,2,".","") }}" type="text" id="{{ $cabeza->id }}__txtSoles{{ $detalle->id }}__" name="{{ $cabeza->id }}__txtSoles{{ $detalle->id }}__" style="text-align: right;">
-                                    </td>
-                                    <td>
-                                        <input class="form-control input-xs" value="{{ $detalle->unidad }}" type="text" id="{{ $cabeza->id }}__txtUnidad{{ $detalle->id }}__" name="{{ $cabeza->id }}__txtUnidad{{ $detalle->id }}__">
-                                    </td>
-                                    <td>
-                                        <input class="form-control input-xs" value="{{ $detalle->factor }}" type="text" id="{{ $cabeza->id }}__txtFactor{{ $detalle->id }}__" name="{{ $cabeza->id }}__txtFactor{{ $detalle->id }}__">
-                                    </td>
-                                    <td>
-                                        <input class="form-control input-xs txtareaa numerito txtTotal" value="{{ number_format($detalle->total,2,".","") }}" readonly="readonly" value="0.00" type="text" id="{{ $cabeza->id }}__txtTotal{{ $detalle->id }}__" name="{{ $cabeza->id }}__txtTotal{{ $detalle->id }}__" style="text-align: right;">
-                                    </td>
-                                    <td>
-                                        <input class="form-control input-xs" readonly="readonly" type="text" id="{{ $cabeza->id }}__txtFacturar{{ $detalle->id }}__" name="{{ $cabeza->id }}__txtFacturar{{ $detalle->id }}__'" style="text-align: right;">
-                                    </td>
-                                    <td>
-                                        <a href="#" class="btn btn-warning btn-xs" onclick="quitarServicio('{{ $cabeza->id }}__tr{{ $detalle->id }}__')"><i class="fa fa-minus-circle" title="Quitar Detalle"></i></a>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                            @endforeach
-                        </tbody>
+                    @foreach($cotizacion->detalles as $detalle)
+                        <tr id='tr{{ $detalle->id }}'>
+                            <td>
+                                <input type='hidden' id='txtIdTipoServicio{{ $detalle->id }}' name='txtIdTipoServicio{{ $detalle->id }}' value='0' />
+                                <input type='text' class='form-control input-xs txtareaa' id='txtServicio{{ $detalle->id }}' name='txtServicio{{ $detalle->id }}' value="{{ $detalle->descripcion }}" />
+                            </td>
+                            <td>
+                                <a href='#' onclick="quitarServicio('{{ $detalle->id }}')"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i>
+                            </td>
+                        </tr>
                     @endforeach
-                @endif                
+                @endif
+                </tbody>
                 <tfoot>
-                    <tr>
-                        <th class="text-right" colspan="8"></th>
-                        <th class="text-right">Sub - Total</th>
-                        <th>{!! Form::text('subtotal', $total, array('class' => 'form-control input-xs', 'id' => 'subtotal', 'size' => 3, 'style' => 'width: 100%;', 'readonly' => 'readonly')) !!}</th>
-                        <th class="text-right"></th>
-                        <th class="text-right"></th>
-                    </tr>
-                    <tr>
-                        <th class="text-right" colspan="8"></th>
-                        <th class="text-right">IGV</th>
-                        <th>{!! Form::text('igv', $total, array('class' => 'form-control input-xs', 'id' => 'igv', 'size' => 3, 'style' => 'width: 100%;', 'readonly' => 'readonly')) !!}</th>
-                        <th class="text-right"></th>
-                        <th class="text-right"></th>
-                    </tr>
-                    <tr>
-                        <th class="text-right" colspan="8"></th>
-                        <th class="text-right">Total</th>
-                        <th>{!! Form::text('total', $total, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'style' => 'width: 100%;', 'readonly' => 'readonly')) !!}</th>
-                        <th class="text-right"></th>
-                        <th class="text-right"></th>
-                    </tr>
+                    <th width="80%" class="text-right">Total</th>
+                    <th width="20%">{!! Form::text('total', $total, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'style' => 'width: 100%;')) !!}</th>
                 </tfoot>
             </table>
         </div>
-    </div>
+     </div>
 {!! Form::close() !!}
 <script type="text/javascript">
 var valorbusqueda="";
 $(document).ready(function() {
-    configurarAnchoModal('1300');
+    configurarAnchoModal('500');
     init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'B', '{!! $entidad !!}');
-    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="subtotal"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
-    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="igv"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
-    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="subtotal"]').val('0.00');
-    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="igv"]').val('0.00');
-    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="total"]').val('0.00');
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="totalboleta"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="ruc"]').inputmask("99999999999");
     $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="numeroventa"]').inputmask("99999999");
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="deducible"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
-    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="coa"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });    
+    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="coa"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
     $('#tiporegistro').val('{{ $tipo }}');
     var personas = new Bloodhound({
         datumTokenizer: function (d) {
@@ -237,20 +176,20 @@ $(document).ready(function() {
         displayKey: 'value',
         source: personas.ttAdapter()
     }).on('typeahead:selected', function (object, datum) {
-        {{--$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="historia_id"]').val(datum.id);--}}
-        $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="historia"]').val(datum.historia);
+        $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="historia_id"]').val(datum.id);
+        $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="numero_historia"]').val(datum.historia);
         $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="paciente"]').val(datum.value);
         $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="dni"]').val(datum.dni);
         $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="person_id"]').val(datum.person_id);
-        {{--if(datum.plan_id>0){
+        if(datum.plan_id>0){
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="plan"]').val(datum.plan);
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="coa"]').val(datum.coa);
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="deducible"]').val(datum.deducible);
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="plan_id"]').val(datum.plan_id);
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="ruc"]').val(datum.ruc);
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="direccion"]').val(datum.direccion);
-        --}}
-        //agregarDetallePrefactura(datum.person_id);
+        }
+        agregarDetallePrefactura(datum.person_id);
     });
 
     var personas2 = new Bloodhound({
@@ -301,32 +240,7 @@ $(document).ready(function() {
             $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="direccion"]').val(datum.direccion);
         }
         agregarDetallePrefactura(datum.person_id);
-    });  
-
-    $(document).on('keyup', '.porfacturar', function(){
-        calcularTotalPorFacturar();
-    });  
-
-    $(document).on('keyup', '.txtCantidad', function(){
-        var idtr = $(this).parent().parent().attr('id');
-        calcularTotalDeCadaDetallito(idtr);
-    });
-
-    $(document).on('keyup', '.txtPorcentaje', function(){
-        var idtr = $(this).parent().parent().attr('id');
-        /*if($(this).val() !== '') {
-            cantidad = $('#'+idtr).find('.txtSoles').val('');
-        }*/
-        calcularTotalDeCadaDetallito(idtr);
-    }); 
-
-    $(document).on('keyup', '.txtSoles', function(){
-        var idtr = $(this).parent().parent().attr('id');
-        /*if($(this).val() !== '') {
-            cantidad = $('#'+idtr).find('.txtPorcentaje').val('');
-        }*/
-        calcularTotalDeCadaDetallito(idtr);
-    });   
+    });    
     
     var planes = new Bloodhound({
         datumTokenizer: function (d) {
@@ -429,25 +343,6 @@ $(document).ready(function() {
     });
 }); 
 
-function calcularTotalDeCadaDetallito(idtr) {
-    var monto = 0;
-    var cantidad = $('#'+idtr).find('.txtCantidad').val();
-    var porcentaje = $('#'+idtr).find('.txtPorcentaje').val();
-    var soles = $('#'+idtr).find('.txtSoles').val();
-    if(cantidad === '') {
-        cantidad = 0;
-    } if(porcentaje === '') {
-        porcentaje = 100;
-    } if(soles === '') {
-        soles = 0;
-    }  
-    monto = (cantidad * (porcentaje/100) * soles).toFixed(2);
-    //alert(monto);
-    $('#'+idtr).find('.txtTotal').val(monto);
-    idtb = $('#'+idtr).parent().attr('id');
-    calcularTotalPorFacturarIndividual(idtb);
-}
-
 function guardarPago (entidad, idboton) {
     var band=true;
     var msg="";
@@ -462,29 +357,6 @@ function guardarPago (entidad, idboton) {
     if(carro.length==0){
         band = false;
         msg += " *Debes escribir al menos un detalle \n";    
-    } else {
-        var detallesconcat = '';
-        for (var i = 0; i < carro.length; i++) {
-            $('#tbDetalle'+carro[i]+' tr').each(function(index, el) {
-                var catdetalles = $('#tbDetalle'+carro[i]+' tr').length - 1;
-                if(index !== 0) {
-                    var partdetallesconcat = $(this).attr('id');
-                    partdetallesconcat = partdetallesconcat.replace(carro[i] + 'tr', '');
-                    detallesconcat += partdetallesconcat;
-                    if(index === catdetalles) {
-                        detallesconcat += ';';
-                    }else{
-                        detallesconcat += ',';
-                    }
-                }
-            });
-        }
-        $('#listDetallesServicio').val(detallesconcat);
-    }
-
-    if($('#listDetallesServicio').val() === '') {
-        band = false;
-        msg += " *Debes Agregar al menos un detalle por cabecera \n";  
     }
 
     if($('#plan_id').val()==""){
@@ -492,35 +364,23 @@ function guardarPago (entidad, idboton) {
         msg += " *Debes Seleccionar un Plan \n";    
     }
 
-    if($('#codigoregistro').val()==""){
-        band = false;
-        msg += " *Debes Escribir un código \n";    
-    }
-
-    if($('#referencia').val()==""){
-        band = false;
-        msg += " *Debes Escribir una referencia \n";    
-    }
-
     //$("#total").val(total2);
-    $(".txtareaa").each(function(index, el) {
-        if($(this).val()==""){
-            band = false;
-            msg += " *Te falta agregar un campo \n"; 
-        }
-        
-    });        
+    if($(".txtareaa").val()==""){
+        band = false;
+        msg += " *Se debe agregar una descripcion \n"; 
+        $(this).focus();   
+    }
 
-    /*if($("#person_id").val()==""){
+    if($("#person_id").val()==""){
         band = false;
         msg += " *No se selecciono un paciente \n";    
-    }*/
-    /*for(c=0; c < carro.length; c++){
+    }
+    for(c=0; c < carro.length; c++){
         if($("#txtIdMedico"+carro[c]).val()==0){
             band = false;
             msg += " *Debe seleccionar medico \n";                        
         }
-    }*/
+    }
     if(band){
         var idformulario = IDFORMMANTENIMIENTO + entidad;
         var data         = submitForm(idformulario);
@@ -588,7 +448,6 @@ function buscarServicio(valor){
 }
 
 var carro = new Array();
-var carrodetalles = new Array();
 var carroDoc = new Array();
 var copia = new Array();
 function seleccionarServicio(idservicio){
@@ -652,36 +511,56 @@ function seleccionarServicio(idservicio){
     }
 }
 
+{{--function seleccionarServicioOtro(){
+    var idservicio = "10"+Math.round(Math.random()*10000);
+    $("#tbDetalle").append("<tr id='tr"+idservicio+"'><td><input type='hidden' id='txtIdTipoServicio"+idservicio+"' name='txtIdTipoServicio"+idservicio+"' value='0' /><input type='text' data='numero' class='form-control input-xs' id='txtCantidad"+idservicio+"' name='txtCantidad"+idservicio+"' style='width: 40px;' value='1' size='3' onkeydown=\"if(event.keyCode==13){calcularTotal()}\" onblur=\"calcularTotalItem2('"+idservicio+"')\" /></td>"+
+        "<td><input type='checkbox' id='chkCopiar"+idservicio+"' onclick=\"checkMedico(this.checked,'"+idservicio+"')\" /></td>"+
+        "<td><input type='text' class='form-control input-xs' id='txtMedico"+idservicio+"' name='txtMedico"+idservicio+"' /><input type='hidden' id='txtIdMedico"+idservicio+"' name='txtIdMedico"+idservicio+"' value='0' /></td>"+
+        "<td align='left'>OTROS</td><td align='right'> - </td><td><textarea style='resize: none;' class='form-control input-xs txtareaa' id='txtServicio"+idservicio+"' name='txtServicio"+idservicio+"' /></td>"+
+        "<td><input type='hidden' id='txtPrecio2"+idservicio+"' name='txtPrecio2"+idservicio+"' value='0' /><input type='text' size='5' class='form-control input-xs' style='width: 60px;' data='numero' id='txtPrecio"+idservicio+"' name='txtPrecio"+idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+idservicio+"')}\" onblur=\"calcularTotalItem2('"+idservicio+"')\" /></td>"+
+        "<td><input type='text' size='5' style='width: 60px;' class='form-control input-xs' data='numero' id='txtDias"+idservicio+"' name='txtDias"+idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+idservicio+"')}\" onblur=\"calcularTotalItem2('"+idservicio+"')\" style='width:50%' /></td>"+
+        "<td><input type='text' size='5' class='form-control input-xs' data='numero' style='width: 60px;' id='txtPorcentajeMedico"+idservicio+"' name='txtPorcentajeMedico"+idservicio+"' value='' onkeyup=\"calcularPorcentajeMedico('"+idservicio+"')\" /></td>"+
+        "<td><input type='text' size='5' class='form-control input-xs' data='numero'  id='txtPrecioMedico"+idservicio+"' name='txtPrecioMedico"+idservicio+"' value='0' style='width: 60px;' onblur=\"calcularTotalItem2('"+idservicio+"');$('#descripcion').focus();\" /></td>"+
+        "<td><input type='text' style='width: 60px;' readonly='' data='numero' class='form-control input-xs' size='5' name='txtTotal"+idservicio+"' id='txtTotal"+idservicio+"' value=0' /></td>"+
+        "<td><a href='#' onclick=\"quitarServicio('"+idservicio+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>");
+    carro.push(idservicio);
+    $(':input[data="numero"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
+    eval("var planes"+idservicio+" = new Bloodhound({"+
+        "datumTokenizer: function (d) {"+
+            "return Bloodhound.tokenizers.whitespace(d.value);"+
+        "},"+
+        "limit: 10,"+
+        "queryTokenizer: Bloodhound.tokenizers.whitespace,"+
+        "remote: {"+
+            "url: 'medico/medicoautocompletar/%QUERY',"+
+            "filter: function (planes"+idservicio+") {"+
+                "return $.map(planes"+idservicio+", function (movie) {"+
+                    "return {"+
+                        "value: movie.value,"+
+                        "id: movie.id,"+
+                    "};"+
+                "});"+
+            "}"+
+        "}"+
+    "});"+
+    "planes"+idservicio+".initialize();"+
+    "$('#txtMedico"+idservicio+"').typeahead(null,{"+
+        "displayKey: 'value',"+
+        "source: planes"+idservicio+".ttAdapter()"+
+    "}).on('typeahead:selected', function (object, datum) {"+
+        "$('#txtMedico"+idservicio+"').val(datum.value);"+
+        "$('#txtIdMedico"+idservicio+"').val(datum.id);"+
+        "copiarMedico('"+idservicio+"');"+
+    "});");
+    $("#txtMedico"+idservicio).focus();             
+}--}}
+
 function seleccionarServicioOtro(){
     var idservicio = "10"+Math.round(Math.random()*10000);
-    $("#tbDetalle").append("<tbody id='tbDetalle"+idservicio+"'><tr id='trDetalle"+idservicio+"'><td>§</td><td colspan='8'><input style='font-weight:bold;text-align: center;font-size:15px;' type='text' class='form-control input-xs txtareaa' id='txtServicio"+idservicio+"' name='txtServicio"+idservicio+"' /></td>" +
-        "<td><input readonly='readonly' class='form-control input-xs txtareaa porfacturar' value='0.00' type='text' id='txtFacturar" + idservicio + "' name='txtFacturar" + idservicio + "' /></td>"  + 
-        "<td><a href='#' class='btn btn-danger btn-xs' onclick=\"quitarServicio2('"+idservicio+"')\"><i class='fa fa-minus-circle' title='Quitar Cabecera'></i></td><td><a class='btn btn-success btn-xs' href='#' onclick=\"seleccionarServicioOtro2('"+idservicio+"')\"><i class='fa fa-plus-circle' title='Añadir Detalle'></i></td></tr></tbody>");
+    $("#tbDetalle").append("<tr id='tr"+idservicio+"'><td><input type='hidden' id='txtIdTipoServicio"+idservicio+"' name='txtIdTipoServicio"+idservicio+"' value='0' /><input type='text' class='form-control input-xs txtareaa' id='txtServicio"+idservicio+"' name='txtServicio"+idservicio+"' /></td>" + 
+        "<td><a href='#' onclick=\"quitarServicio('"+idservicio+"')\"><i class='fa fa-minus-circle' title='Quitar' width='20px' height='20px'></i></td></tr>");
     carro.push(idservicio);
-    $("#txtServicio"+idservicio).focus();
-    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="txtFacturar' + idservicio + '"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
-}
-
-function seleccionarServicioOtro2(idservicio){
-    var idservicio2 = "10"+Math.round(Math.random()*10000);
-    $("#tbDetalle" + idservicio).append("<tr id='" + idservicio + "tr"+idservicio2+"'><td>-</td><td><input type='text' class='form-control input-xs txtareaa' id='" + idservicio + "txtServicio"+idservicio2+"' name='" + idservicio + "txtServicio"+idservicio2+"' /></td>" + 
-        "<td><input class='form-control input-xs numerito txtPago' type='text' id='" + idservicio + "txtPago" + idservicio2 + "' name='" + idservicio + "txtPago" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs txtareaa numerito txtCantidad' value='1' type='text' id='" + idservicio + "txtCantidad" + idservicio2 + "' name='" + idservicio + "txtCantidad" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs numerito txtPorcentaje' type='text' id='" + idservicio + "txtPorcentaje" + idservicio2 + "'  name='" + idservicio + "txtPorcentaje" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs txtareaa numerito txtSoles' type='text' value='0.00' id='" + idservicio + "txtSoles" + idservicio2 + "'  name='" + idservicio + "txtSoles" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtUnidad" + idservicio2 + "' name='" + idservicio + "txtUnidad" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs' type='text' id='" + idservicio + "txtFactor" + idservicio2 + "' name='" + idservicio + "txtFactor" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs txtareaa numerito txtTotal' readonly='readonly' value='0.00' type='text' id='" + idservicio + "txtTotal" + idservicio2 + "' name='" + idservicio + "txtTotal" + idservicio2 + "' /></td>"  + 
-        "<td><input class='form-control input-xs' readonly='readonly' type='text' id='" + idservicio + "txtFacturar" + idservicio2 + "' name=" + idservicio + "txtFacturar" + idservicio2 + "' /></td>"  + 
-        "<td><a href='#' class='btn btn-warning btn-xs' onclick=\"quitarServicio('" + idservicio + "tr"+idservicio2+"')\"><i class='fa fa-minus-circle' title='Quitar Detalle'></i></td><td></td></tr>");
-    //carrodetalles.push(idservicio2);
-    $("#" + idservicio + "txtServicio"+idservicio2).focus();   
-    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="' + idservicio + 'txtCantidad' + idservicio2 + '"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
-    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="' + idservicio + 'txtPorcentaje' + idservicio2 + '"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
-    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="' + idservicio + 'txtSoles' + idservicio2 + '"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
-    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="' + idservicio + 'txtTotal' + idservicio2 + '"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
-    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="' + idservicio + 'txtFacturar' + idservicio2 + '"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });  
-    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="' + idservicio + 'txtPago' + idservicio2 + '"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
+    $("#txtServicio"+idservicio).focus();             
 }
 
 function calcularTotal(){
@@ -720,25 +599,12 @@ function calcularTotalItem2(id){
 }
 
 function quitarServicio(id){
-    var idtb = $('#'+id).parent().attr('id'); 
-    $("#"+id).remove();
-    calcularTotalPorFacturarIndividual(idtb);    
-    /*for(c=0; c < carro.length; c++){
-        if(carro[c] == id) {
-            carro.splice(c,1);
-        }
-    }
-    calcularTotal();*/
-}
-
-function quitarServicio2(id){
-    $("#tbDetalle"+id).remove();    
+    $("#tr"+id).remove();
     for(c=0; c < carro.length; c++){
         if(carro[c] == id) {
             carro.splice(c,1);
         }
     }
-    calcularTotalPorFacturar();
     calcularTotal();
 }
 
@@ -820,27 +686,6 @@ function calcularCoaseguro(value){
     }*/
 }
 
-function calcularTotalPorFacturar() {
-    var subtotal = 0;
-    $('.porfacturar').each(function(index, el) {
-        if($(this).val() !== '') {
-            subtotal += parseFloat($(this).val().replace(',', ''));
-        }
-    });
-    $('#subtotal').val(subtotal.toFixed(2));
-    $('#igv').val((subtotal*0.18).toFixed(2));
-    $('#total').val((subtotal*(1.18)).toFixed(2));
-}
-
-function calcularTotalPorFacturarIndividual(idtb) {
-    var subtotal = 0;
-    $('#'+idtb).find('.txtTotal').each(function(index, el) {
-        subtotal += parseFloat($(this).val().replace(',', ''));
-    });
-    $('#'+idtb).find('.porfacturar').val(subtotal.toFixed(2));
-    calcularTotalPorFacturar();
-}
-
 function agregarDetallePrefactura(idpersona){
     $.ajax({
         type: "POST",
@@ -896,38 +741,12 @@ function agregarDetallePrefactura(idpersona){
 }
 
 @if($cotizacion !== NULL) 
-    function cargarCarro() {
-        @foreach($cabeceras as $detalle)
-            carro.push('{{ $detalle->id }}__');
-        @endforeach
-    }
-    function setearListServicio() {
-        var detallesconcat0 = '';
-        var detallesconcat = '';
-        for (var i = 0; i < carro.length; i++) {
-            detallesconcat0 += carro[i];
-            if(i !== (carro.length-1)) {
-                detallesconcat0 += ',';
-            }
-            $('#tbDetalle'+carro[i]+' tr').each(function(index, el) {
-                var catdetalles = $('#tbDetalle'+carro[i]+' tr').length - 1;
-                if(index !== 0) {
-                    var partdetallesconcat = $(this).attr('id');
-                    partdetallesconcat = partdetallesconcat.replace(carro[i] + 'tr', '');
-                    detallesconcat += partdetallesconcat;
-                    if(index === catdetalles) {
-                        detallesconcat += ';';
-                    }else{
-                        detallesconcat += ',';
-                    }
-                }
-            });
-        }
-        $('#listServicio').val(detallesconcat0);
-        $('#listDetallesServicio').val(detallesconcat);
-    }
-    cargarCarro();
-    setearListServicio();
-    calcularTotalPorFacturar();
+function cargarCarro() {
+    @foreach($cotizacion->detalles as $detalle)
+        carro.push({{ $detalle->id }});
+    @endforeach
+}
+
+cargarCarro();
 @endif
 </script>

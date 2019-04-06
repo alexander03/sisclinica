@@ -210,8 +210,8 @@ class repsController extends Controller
     public function cajas(){
         $sucursal_id = Session::get('sucursal_id');
         $user = Auth::user();  
-        if($user->usertype_id == 1) {
-            $resultado = Caja::orderBy('nombre','ASC');
+        if($user->usertype_id == 1 || $user->usertype_id == 24 || $user->usertype_id == 2) {
+            $resultado = Caja::orderBy('nombre','ASC')->where('sucursal_id', $sucursal_id);
         } else {
             if($sucursal_id == 1) {
                 if($user->usertype_id == 11) {

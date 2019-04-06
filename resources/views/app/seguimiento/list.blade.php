@@ -21,6 +21,7 @@
 			<td>{{ date("d/m/Y H:i:s",strtotime($value->fechaenvio)) }}</td>
             <td>{{ $value->areaenvio->nombre }}</td>
             <td>{{ $value->historia->numero }}</td>
+            <td>{{ $value->historia->numero2 }}</td>
             <td>{{ $value->historia->persona->apellidopaterno.' '.$value->historia->persona->apellidomaterno.' '.$value->historia->persona->nombres }}</td>
             <td>{{ $value->comentario }}</td>
             <td>{{ $value->personaenvio2 }}</td>

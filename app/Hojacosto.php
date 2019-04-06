@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Hojacosto extends Model
 {
 	 use SoftDeletes;
-    protected $table = 'hojacosto';
+    protected $table = 'Hojacosto';
     protected $dates = ['deleted_at'];
 
     public function hospitalizacion(){

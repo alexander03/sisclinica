@@ -1490,12 +1490,24 @@ class VentaadmisionController extends Controller
                 $cabecera[] = "Importe Base Detraccion/Percepcion Soles";
                 $cabecera[] = "Tipo de Cambio para F";
                 $cabecera[] = "Importe de IGV sin derecho a Credito Fiscal";
+                $sheet->cells('A2:AM2', function ($cells) {
+                    $cells->setFont(array(
+                        'family'     => 'Calibri',
+                        'size'       => '13',
+                        'bold'       =>  true
+                    ));
+                    $cells->setBackground('#FFC000');
+                });
                 $array[] = $cabecera;
                 $c=1;$d=3;
                 foreach ($resultado as $key => $value){
                     $detalle = Detallemovcaja::where('movimiento_id','=',$value->movimiento_id)->first();
-                    if($detalle->servicio_id>0){
-                        $glosa=$detalle->servicio->tiposervicio->nombre;
+                    if($detalle !== NULL){
+                        if($detalle->servicio !== NULL){
+                            $glosa=$detalle->servicio->tiposervicio->nombre;
+                        } else {
+                            $glosa='VARIOS';
+                        }                        
                     }else{
                         $glosa='VARIOS';
                     }
@@ -1504,7 +1516,15 @@ class VentaadmisionController extends Controller
                     $detalle[] = date('m',strtotime($value->fecha)).str_pad($c,4,'0',STR_PAD_LEFT);
                     $detalle[] = date('d/m/Y',strtotime($value->fecha));
                     $detalle[] = "MN";
-                    $detalle[] = "VENTAS ".strtoupper(strftime("%B",strtotime($value->fecha)))." DEL ".date("Y",strtotime($value->fecha));
+                    //$detalle[] = "VENTAS ".strtoupper(strftime("%B",strtotime($value->fecha)))." DEL ".date("Y",strtotime($value->fecha));
+                    $glosaprincipal = '';
+                    if($value->situacion == 'U') {
+                        $glosaprincipal .= 'COMPROBAN. ANU, ';
+                    } else {
+                        $glosaprincipal .= 'VARIOS ';
+                    }
+                    $glosaprincipal .= ($value->tipodocumento_id==5?'BV':'FT') . ' ' . str_pad($value->serie, 3, '0', STR_PAD_LEFT).'-'.str_pad($value->numero, 7, '0', STR_PAD_LEFT);
+                    $detalle[] = $glosaprincipal;
                     $detalle[] = "0";
                     $detalle[] = "M";
                     $detalle[] = "S";
@@ -1530,11 +1550,11 @@ class VentaadmisionController extends Controller
                     $detalle[] = "=O".($d)."/F".($d);
                     $detalle[] = "";
                     $detalle[] = $value->tipodocumento_id==5?'BV':'FT';
-                    $detalle[] = $value->serie.'-'.$value->numero;
+                    $detalle[] = str_pad($value->serie, 3, '0', STR_PAD_LEFT).'-'.str_pad($value->numero, 7, '0', STR_PAD_LEFT);
                     $detalle[] = date('d/m/Y',strtotime($value->fecha));
                     $detalle[] = "";
                     $detalle[] = "";
-                    $detalle[] = $glosa;
+                    $detalle[] = $glosaprincipal;
                     $person = Person::find($value->persona_id);
                     if ($person !== null) {
                         if(strlen($person->dni)<>8 || $value->total<700){
@@ -1557,7 +1577,14 @@ class VentaadmisionController extends Controller
                     $detalle[] = date('m',strtotime($value->fecha)).str_pad($c,4,'0',STR_PAD_LEFT);
                     $detalle[] = date('d/m/Y',strtotime($value->fecha));
                     $detalle[] = "MN";
-                    $detalle[] = "VENTAS ".strtoupper(strftime("%B",strtotime($value->fecha)))." DEL ".date("Y",strtotime($value->fecha));
+                    $glosaprincipal = '';
+                    if($value->situacion == 'U') {
+                        $glosaprincipal .= 'COMPROBAN. ANU, ';
+                    } else {
+                        $glosaprincipal .= 'VARIOS ';
+                    }
+                    $glosaprincipal .= ($value->tipodocumento_id==5?'BV':'FT') . ' ' . str_pad($value->serie, 3, '0', STR_PAD_LEFT).'-'.str_pad($value->numero, 7, '0', STR_PAD_LEFT);
+                    $detalle[] = $glosaprincipal;
                     $detalle[] = "0";
                     $detalle[] = "M";
                     $detalle[] = "S";
@@ -1582,12 +1609,12 @@ class VentaadmisionController extends Controller
                     $detalle[] = $value->subtotal;
                     $detalle[] = "=O".($d)."/F".($d);
                     $detalle[] = "";
-                    $detalle[] = '';
-                    $detalle[] = $value->serie.'-'.$value->numero;
+                    $detalle[] = $value->tipodocumento_id==5?'BV':'FT';
+                    $detalle[] = str_pad($value->serie, 3, '0', STR_PAD_LEFT).'-'.str_pad($value->numero, 7, '0', STR_PAD_LEFT);
                     $detalle[] = date('d/m/Y',strtotime($value->fecha));
                     $detalle[] = "";
                     $detalle[] = "";
-                    $detalle[] = $glosa;
+                    $detalle[] = $glosaprincipal;
                     $person = Person::find($value->persona_id);
                     if ($person != null) {
                         if(strlen($person->dni)<>8 || $value->total<700){
@@ -1610,7 +1637,14 @@ class VentaadmisionController extends Controller
                     $detalle[] = date('m',strtotime($value->fecha)).str_pad($c,4,'0',STR_PAD_LEFT);
                     $detalle[] = date('d/m/Y',strtotime($value->fecha));
                     $detalle[] = "MN";
-                    $detalle[] = "VENTAS ".strtoupper(strftime("%B",strtotime($value->fecha)))." DEL ".date("Y",strtotime($value->fecha));
+                    $glosaprincipal = '';
+                    if($value->situacion == 'U') {
+                        $glosaprincipal .= 'COMPROBAN. ANU, ';
+                    } else {
+                        $glosaprincipal .= 'VARIOS ';
+                    }
+                    $glosaprincipal .= ($value->tipodocumento_id==5?'BV':'FT') . ' ' . str_pad($value->serie, 3, '0', STR_PAD_LEFT).'-'.str_pad($value->numero, 7, '0', STR_PAD_LEFT);
+                    $detalle[] = $glosaprincipal;
                     $detalle[] = "0";
                     $detalle[] = "M";
                     $detalle[] = "S";
@@ -1644,11 +1678,11 @@ class VentaadmisionController extends Controller
                     $detalle[] = "=O".($d)."/F".($d);
                     $detalle[] = "";
                     $detalle[] = $value->tipodocumento_id==5?'BV':'FT';
-                    $detalle[] = $value->serie.'-'.$value->numero;
+                    $detalle[] = str_pad($value->serie, 3, '0', STR_PAD_LEFT).'-'.str_pad($value->numero, 7, '0', STR_PAD_LEFT);
                     $detalle[] = date('d/m/Y',strtotime($value->fecha));
                     $detalle[] = date('d/m/Y',strtotime($value->fecha));
                     $detalle[] = "";
-                    $detalle[] = $glosa;
+                    $detalle[] = $glosaprincipal;
                     $person = Person::find($value->persona_id);
                     if ($person != null) {
                         if(strlen($person->dni)<>8 || $value->total<700){
@@ -1721,11 +1755,11 @@ class VentaadmisionController extends Controller
                     $detalle[] = "=O".($d)."/F".($d);
                     $detalle[] = "";
                     $detalle[] = $value->tipodocumento_id==5?'BV':'FT';
-                    $detalle[] = $value->serie.'-'.$value->numero;
+                    $detalle[] = str_pad($value->serie, 3, '0', STR_PAD_LEFT).'-'.str_pad($value->numero, 7, '0', STR_PAD_LEFT);
                     $detalle[] = date('d/m/Y',strtotime($value->fecha));
                     $detalle[] = "";
                     $detalle[] = "";
-                    $detalle[] = $glosa;
+                    $detalle[] = $glosaprincipal;
                     $person = Person::find($value->persona_id);
                     if ($person !== null) {
                         if(strlen($person->dni)<>8 || $value->total<700){
@@ -1748,7 +1782,14 @@ class VentaadmisionController extends Controller
                     $detalle[] = date('m',strtotime($value->fecha)).str_pad($c,4,'0',STR_PAD_LEFT);
                     $detalle[] = date('d/m/Y',strtotime($value->fecha));
                     $detalle[] = "MN";
-                    $detalle[] = "VENTAS ".strtoupper(strftime("%B",strtotime($value->fecha)))." DEL ".date("Y",strtotime($value->fecha));
+                    $glosaprincipal = '';
+                    if($value->situacion == 'U') {
+                        $glosaprincipal .= 'COMPROBAN. ANU, ';
+                    } else {
+                        $glosaprincipal .= 'VARIOS ';
+                    }
+                    $glosaprincipal .= ($value->tipodocumento_id==5?'BV':'FT') . ' ' . str_pad($value->serie, 3, '0', STR_PAD_LEFT).'-'.str_pad($value->numero, 7, '0', STR_PAD_LEFT);
+                    $detalle[] = $glosaprincipal;
                     $detalle[] = "0";
                     $detalle[] = "M";
                     $detalle[] = "S";
@@ -1774,11 +1815,11 @@ class VentaadmisionController extends Controller
                     $detalle[] = "=O".($d)."/F".($d);
                     $detalle[] = "";
                     $detalle[] = '';
-                    $detalle[] = $value->serie.'-'.$value->numero;
+                    $detalle[] = str_pad($value->serie, 3, '0', STR_PAD_LEFT).'-'.str_pad($value->numero, 7, '0', STR_PAD_LEFT);
                     $detalle[] = date('d/m/Y',strtotime($value->fecha));
                     $detalle[] = "";
                     $detalle[] = "";
-                    $detalle[] = $glosa;
+                    $detalle[] = $glosaprincipal;
                     $person = Person::find($value->persona_id);
                     if ($person != null) {
                         if(strlen($person->dni)<>8 || $value->total<700){
@@ -1801,7 +1842,14 @@ class VentaadmisionController extends Controller
                     $detalle[] = date('m',strtotime($value->fecha)).str_pad($c,4,'0',STR_PAD_LEFT);
                     $detalle[] = date('d/m/Y',strtotime($value->fecha));
                     $detalle[] = "MN";
-                    $detalle[] = "VENTAS ".strtoupper(strftime("%B",strtotime($value->fecha)))." DEL ".date("Y",strtotime($value->fecha));
+                    $glosaprincipal = '';
+                    if($value->situacion == 'U') {
+                        $glosaprincipal .= 'COMPROBAN. ANU, ';
+                    } else {
+                        $glosaprincipal .= 'VARIOS ';
+                    }
+                    $glosaprincipal .= ($value->tipodocumento_id==5?'BV':'FT') . ' ' . str_pad($value->serie, 3, '0', STR_PAD_LEFT).'-'.str_pad($value->numero, 7, '0', STR_PAD_LEFT);
+                    $detalle[] = $glosaprincipal;
                     $detalle[] = "0";
                     $detalle[] = "M";
                     $detalle[] = "S";
@@ -1835,11 +1883,11 @@ class VentaadmisionController extends Controller
                     $detalle[] = "=O".($d)."/F".($d);
                     $detalle[] = "";
                     $detalle[] = $value->tipodocumento_id==5?'BV':'FT';
-                    $detalle[] = $value->serie.'-'.$value->numero;
+                    $detalle[] = str_pad($value->serie, 3, '0', STR_PAD_LEFT).'-'.str_pad($value->numero, 7, '0', STR_PAD_LEFT);
                     $detalle[] = date('d/m/Y',strtotime($value->fecha));
                     $detalle[] = date('d/m/Y',strtotime($value->fecha));
                     $detalle[] = "";
-                    $detalle[] = $glosa;
+                    $detalle[] = $glosaprincipal;
                     $person = Person::find($value->persona_id);
                     if ($person != null) {
                         if(strlen($person->dni)<>8 || $value->total<700){
@@ -1862,7 +1910,7 @@ class VentaadmisionController extends Controller
                 $sheet->fromArray($array);
  
             });
-        })->export('xls');
+        })->export('xlsx');
     }
 
     public function excelSunatConvenio(Request $request){

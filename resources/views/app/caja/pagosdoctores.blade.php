@@ -54,5 +54,5 @@ function listapagosdoctores() {
 function reportePagos(){
 	var fecha = $("#fecha").val();
 	window.open("caja/pdfReportePago?fecha=" + fecha,"_blank");
-}
+}	
 </script>
