@@ -40,14 +40,12 @@ use App\Person;
 						@endif
 					@else
 						@if($value->tiposervicio_id == 1)
-						<?php
-							$cantconsultaplan ++;
-							$montomedicoconsultaplan += $value->pagohospital*$value->cantidad;
-						?>
-						@elseif($value->tiposervicio_id == 21)
-						<?php
-							$montomedicoexamenes += $value->pagohospital*$value->cantidad;
-						?>
+							@if($value->precio != 0)
+								<?php
+									$cantconsultaplan ++;
+									$montomedicoconsultaplan += $value->pagohospital*$value->cantidad;
+								?>
+							@endif
 						@endif
 					@endif
 				@endif
@@ -92,21 +90,26 @@ use App\Person;
 					$pagomedicoexamenes = $montomedicoexamenes * $doctor->examenes / 100;
 				}
 			?>
+			@if($pagomedicoexamenes + $pagomedicoconsulta != 0)
 			<tr>
 				<td>{{ $doctor->apellidopaterno . " " . $doctor->apellidomaterno . " " . $doctor->nombres}}</td>
-				<td align ="right">{{ number_format( round($montomedicoconsulta + $montomedicoconsultaplan,1) ,2,'.','') }}</td>
-				<td align ="right">{{ number_format( round($montomedicoexamenes,1) ,2,'.','') }}</td>
-				<td align ="right">{{ number_format( round($montomedicoexamenes + $montomedicoconsulta + $montomedicoconsultaplan,1) ,2,'.','') }}</td>
-				<td align ="right">{{ number_format( round($particular,1) ,2,'.','') }}</td>
-				<td align ="right">{{ number_format( round($convenio,1) ,2,'.','') }}</td>
-				<td align ="right">{{ number_format( round($pagomedicoexamenes,1) ,2,'.','') }}</td>
-				<td align ="right">{{ number_format( round($pagomedicoexamenes + $pagomedicoconsulta,1) ,2,'.','') }}</td>
+				<td width="6%" align ="right">{{ number_format( round($montomedicoconsulta + $montomedicoconsultaplan,1) ,2,'.','') }}</td>
+				<td width="6%" align ="right">{{ number_format( round($montomedicoexamenes,1) ,2,'.','') }}</td>
+				<td width="6%" align ="right">{{ number_format( round($montomedicoexamenes + $montomedicoconsulta + $montomedicoconsultaplan,1) ,2,'.','') }}</td>
+				<td width="6%" align ="right">{{ number_format( round($particular,1) ,2,'.','') }}</td>
+				<td width="6%"align ="right">{{ number_format( round($convenio,1) ,2,'.','') }}</td>
+				<td width="6%" align ="right">{{ number_format( round($pagomedicoexamenes,1) ,2,'.','') }}</td>
+				<td width="6%" align ="right">{{ number_format( round($pagomedicoexamenes + $pagomedicoconsulta,1) ,2,'.','') }}</td>
 				<td>
+					<button class="btn btn-danger btn-xs" id="btnDetalle" data-doctor_id="{{$doctor->id}}" data-fechainicial="{{$fechainicial}}" data-fechafinal="{{$fechafinal}}" onclick="mostrarDetallePago(this);" type="button">
+						<i class="fa fa-list fa-lg"></i> Detalle
+					</button>
 					<button class="btn btn-success btn-xs" id="btnPagar" data-doctor_id="{{$doctor->id}}" data-pagoconsultasp="{{ $particular }}" data-pagoconsultasc="{{ $convenio }}" data-pagoexamenes="{{ $pagomedicoexamenes }}" data-fechainicial="{{$fechainicial}}" data-fechafinal="{{$fechafinal}}" onclick="guardarPagoDoctoresOjos(this);" type="button">
 						<i class="fa fa-check fa-lg"></i> Pagar
 					</button>
 				</td>
 			</tr>	
+			@endif
 			@endif
 		@endforeach
 
@@ -163,6 +166,16 @@ function guardarPagoDoctoresOjos(elemento){
 		alert('OCURRIÓ UN ERROR, VUELVA A INTENTAR...');
 	}
 	});
+}
+
+function mostrarDetallePago(elemento){
+	
+	var doctor_id = $(elemento).data('doctor_id');
+	var fechainicial = $(elemento).data('fechainicial');
+	var fechafinal = $(elemento).data('fechafinal');
+
+	window.open("caja/mostrarDetallePago?fechainicial=" + fechainicial+ "&fechafinal="+ fechafinal + "&doctor_id="+ doctor_id ,"_blank");
+
 }
 
 </script>
