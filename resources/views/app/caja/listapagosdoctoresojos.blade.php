@@ -40,7 +40,7 @@ use App\Person;
 						@endif
 					@else
 						@if($value->tiposervicio_id == 1)
-								@if($value->precio != 0)
+							@if($value->precio != 0)
 								<?php
 									$cantconsultaplan ++;
 									$montomedicoconsultaplan += $value->pagohospital*$value->cantidad;
@@ -97,10 +97,10 @@ use App\Person;
 				<td width="6%" align ="right">{{ number_format( round($pagomedicoexamenes,1) ,2,'.','') }}</td>
 				<td width="6%" align ="right">{{ number_format( round($pagomedicoexamenes + $pagomedicoconsulta,1) ,2,'.','') }}</td>
 				<td>
-						<button class="btn btn-danger btn-xs" id="btnDetalle" data-doctor_id="{{$doctor->id}}" data-fechainicial="{{$fechainicial}}" data-fechafinal="{{$fechafinal}}" onclick="mostrarDetallePago(this);" type="button">
+					<button class="btn btn-danger btn-xs" id="btnDetalle" data-doctor_id="{{$doctor->id}}" data-fechainicial="{{$fechainicial}}" data-fechafinal="{{$fechafinal}}" onclick="mostrarDetallePago(this);" type="button">
 						<i class="fa fa-list fa-lg"></i> Detalle
 					</button>
-					<button disabled class="btn btn-success btn-xs" id="btnPagar" data-doctor_id="{{$doctor->id}}" data-pagoconsultas="{{ $pagomedicoconsulta }}" data-pagoexamenes="{{ $pagomedicoexamenes }}" data-fechainicial="{{$fechainicial}}" data-fechafinal="{{$fechafinal}}" onclick="guardarPagoDoctoresOjos(this);" type="button">
+					<button class="btn btn-success btn-xs" id="btnPagar" data-doctor_id="{{$doctor->id}}" data-pagoconsultasp="{{ $particular }}" data-pagoconsultasc="{{ $convenio }}" data-pagoexamenes="{{ $pagomedicoexamenes }}" data-fechainicial="{{$fechainicial}}" data-fechafinal="{{$fechafinal}}" onclick="guardarPagoDoctoresOjos(this);" type="button">
 						<i class="fa fa-check fa-lg"></i> Pagar
 					</button>
 				</td>

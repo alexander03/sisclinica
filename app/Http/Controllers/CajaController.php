@@ -12483,7 +12483,6 @@ class CajaController extends Controller
                                 $q->where('s.tiposervicio_id','=',1)->orWhere('s.tiposervicio_id','=',21); // CONSULTA - EXAMENES
                             })
                             ->where('movimiento.sucursal_id','=', 1 ); // solo ojos
-
         if($fechainicial!=""){
             $resultado = $resultado->where('movimiento.fecha','>=',$fechainicial);
         }
@@ -12542,7 +12541,6 @@ class CajaController extends Controller
             // 4 factura
             // 5 boleta
             // 12 ticket
-
             $pdf::Cell(70,10, $value->paciente2 ,1,0,'L');
             $pdf::Cell(23,10, $value->tipopaciente ,1,0,'C');
             $pdf::Cell(75,10, $value->servicio ,1,0,'L');
@@ -12597,7 +12595,6 @@ class CajaController extends Controller
                 if($value->tiposervicio_id == 1){
 
                     if($value->precio != 0){
-
                         $montoconsultasc += $montoservicio;
 
                         $pagodoctor = $montoconvenio;
