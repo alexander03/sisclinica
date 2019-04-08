@@ -12262,8 +12262,7 @@ class CajaController extends Controller
         return view($this->folderview.'.listapagosdoctores')->with(compact('lista', 'ruta'));
     }
 
-    public function guardarPagoDoctores(Request $request)
-    {
+    public function guardarPagoDoctores(Request $request){
         $pagados = json_decode($request->input('pagados'));
         $error = null;
         foreach ($pagados->{"data"} as $pagado) {
@@ -12508,12 +12507,12 @@ class CajaController extends Controller
         $pdf::SetFont('helvetica','B',8);
 
         $pdf::Cell(20,10,utf8_decode("FECHA"),1,0,'C');
-        $pdf::Cell(20,10,utf8_decode("DOC VENTA"),1,0,'C');
+        //$pdf::Cell(20,10,utf8_decode("DOC VENTA"),1,0,'C');
         $pdf::Cell(70,10,utf8_decode("PACIENTE"),1,0,'C');
         $pdf::Cell(23,10,utf8_decode("TIPO PACIENTE"),1,0,'C'); 
         $pdf::Cell(75,10,utf8_decode("SERVICIO"),1,0,'C'); 
-        $pdf::Cell(15,10,utf8_decode("CANT"),1,0,'C'); 
-        $pdf::Cell(27,10,utf8_decode("MONTO SERVICIO"),1,0,'C'); 
+        //$pdf::Cell(15,10,utf8_decode("CANT"),1,0,'C'); 
+        //$pdf::Cell(27,10,utf8_decode("MONTO SERVICIO"),1,0,'C'); 
         $pdf::Cell(27,10,utf8_decode("PAGO DOCTOR"),1,0,'C'); 
 
         $pdf::SetFont('helvetica','B',8);
@@ -12536,7 +12535,7 @@ class CajaController extends Controller
             }else if($value->tipodocventa == 12){
                 $comprobante ="T".$value->serieventa."-".$value->numeroventa;
             }
-            $pdf::Cell(20,10, $comprobante,1,0,'C'); 
+            //$pdf::Cell(20,10, $comprobante,1,0,'C'); 
 
             // 4 factura
             // 5 boleta
@@ -12544,7 +12543,7 @@ class CajaController extends Controller
             $pdf::Cell(70,10, $value->paciente2 ,1,0,'L');
             $pdf::Cell(23,10, $value->tipopaciente ,1,0,'C');
             $pdf::Cell(75,10, $value->servicio ,1,0,'L');
-            $pdf::Cell(15,10, (int) $value->cantidad ,1,0,'C');
+            //$pdf::Cell(15,10, (int) $value->cantidad ,1,0,'C');
             $pdf::Cell(27,10, number_format($value->monto * $value->cantidad,2,'.','') ,1,0,'R');
 
             $consultas = 0;
@@ -12705,15 +12704,17 @@ class CajaController extends Controller
 
         $fecha1 = date("d/m/Y", strtotime($fecha));
 
-
-         $rs = Movimiento::leftjoin('movimiento as m2', 'movimiento.id', '=', 'm2.movimiento_id')
+        $rs = Movimiento::leftjoin('movimiento as m2', 'movimiento.id', '=', 'm2.movimiento_id') //m2 ticket
+                        ->join('detallemovcaja as dmc','dmc.movimiento_id','=','m2.id')
+                        ->leftjoin('servicio as s','s.id','=','dmc.servicio_id')
                         ->join('person as paciente','paciente.id','=','m2.persona_id')
-                        ->where('movimiento.tipomovimiento_id','=',2)
-                        ->where('movimiento.tipodocumento_id','=',3)
-                        ->where('movimiento.conceptopago_id','=',137)
-                        ->where('movimiento.caja_id', '=',2)
+                        ->join('historia','paciente.id','=','historia.person_id')
+                        ->where('movimiento.tipomovimiento_id','=',2) //caja 
+                        ->where('movimiento.tipodocumento_id','=',3) //egreso
+                        ->where('movimiento.conceptopago_id','=',137) //pago a medico
+                        ->where('movimiento.caja_id', '=',2) // especialidades
                         ->where('movimiento.fecha', $fecha)
-                        ->select('movimiento.*', DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente2'))
+                        ->select('movimiento.*','dmc.pagodoctor as pagodoctor2','s.nombre as servicionombre','dmc.descripcion as serviciodescripcion', DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente2'), 'historia.tipopaciente as tipopaciente2' )
                         ->get();
         
         $pdf = new TCPDF();
@@ -12728,27 +12729,173 @@ class CajaController extends Controller
 
         $pdf::Cell(20,10,utf8_decode("FECHA"),1,0,'C');
         $pdf::Cell(70,10,utf8_decode("DOCTOR"),1,0,'C');
-        $pdf::Cell(30,10,utf8_decode("CONCEPTO"),1,0,'C'); 
         $pdf::Cell(70,10,utf8_decode("PACIENTE"),1,0,'C');
-        $pdf::Cell(20,10,utf8_decode("TOTAL"),1,0,'C'); 
-        $pdf::Cell(50,10,utf8_decode("RESPONSABLE"),1,0,'C'); 
+        $pdf::Cell(23,10,utf8_decode("TIPO PACIENTE"),1,0,'C'); 
+        $pdf::Cell(75,10,utf8_decode("SERVICIO"),1,0,'C'); 
+        $pdf::Cell(20,10,utf8_decode("MONTO"),1,0,'C'); 
 
         $pdf::SetFont('helvetica','B',8);
 
         $pdf::Ln();
         
         foreach ($rs as $value) {
-            $pdf::Cell(20,10, date("d/m/Y",strtotime($value->fecha)),1,0,'C'); 
-            $pdf::Cell(70,10, $value->persona->apellidopaterno . " " . $value->persona->apellidomaterno . " " . $value->persona->nombres ,1,0,'L');
-            $pdf::Cell(30,10,utf8_decode($value->conceptopago->nombre),1,0,'L');
-            $pdf::Cell(70,10, $value->paciente2 ,1,0,'L');
-            $pdf::Cell(20,10, number_format($value->total,2,'.',''),1,0,'R'); 
-            $pdf::Cell(50,10, $value->responsable->nombres . " " . $value->responsable->apellidopaterno ,1,0,'C'); 
-            $pdf::Ln();
+            if($value->pagodoctor2 != 0){
+                $pdf::Cell(20,10, date("d/m/Y",strtotime($value->fecha)),1,0,'C'); 
+                $pdf::Cell(70,10, $value->persona->apellidopaterno . " " . $value->persona->apellidomaterno . " " . $value->persona->nombres ,1,0,'L');
+                $pdf::Cell(70,10, $value->paciente2 ,1,0,'L');
+                $pdf::Cell(23,10, $value->tipopaciente2 ,1,0,'C');
+                if($value->servicionombre == ""){
+                    $pdf::Cell(75,10, $value->serviciodescripcion ,1,0,'L');
+                }else{
+                    $pdf::Cell(75,10, $value->servicionombre ,1,0,'L');
+                }
+                if($value->tipopaciente2 == "Convenio"){
+                    $pdf::Cell(20,10, number_format($value->total,2,'.',''),1,0,'R'); 
+                }else{
+                    $pdf::Cell(20,10, number_format($value->pagodoctor2,2,'.',''),1,0,'R'); 
+                }
+                $pdf::Ln();
+            }
         }
 
         $pdf::Output('ReportePagoOjos.pdf');   
 
+    }
+
+    public function excelReportePagos(Request $request) {
+        setlocale(LC_TIME, 'spanish');
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        
+        Excel::create('ExcelReporte', function($excel) use( $request ) {
+
+            $fecha = $request->input('fecha');
+
+            $fecha1 = date("d/m/Y", strtotime($fecha));
+    
+            $user=Auth::user();
+            $responsable = $user->login;
+
+            $nomcierre = 'Reporte de Pagos a Doctores Especialidades'; 
+
+            $rs = Movimiento::leftjoin('movimiento as m2', 'movimiento.id', '=', 'm2.movimiento_id') //m2 ticket
+                ->join('movimiento as venta', 'm2.id', '=', 'venta.movimiento_id') //venta
+                ->join('detallemovcaja as dmc','dmc.movimiento_id','=','m2.id')
+                ->join('plan','m2.plan_id','=','plan.id')
+                ->join('tipodocumento','venta.tipodocumento_id','=','tipodocumento.id')
+                ->leftjoin('servicio as s','s.id','=','dmc.servicio_id')
+                ->join('person as paciente','paciente.id','=','m2.persona_id')
+                ->join('historia','paciente.id','=','historia.person_id')
+                ->where('movimiento.tipomovimiento_id','=',2) //caja 
+                ->where('movimiento.tipodocumento_id','=',3) //egreso
+                ->where('movimiento.conceptopago_id','=',137) //pago a medico
+                ->where('movimiento.caja_id', '=',2) // especialidades
+                ->where('movimiento.fecha', $fecha)
+                ->select('movimiento.*','dmc.precio as precio2','dmc.cantidad as scantidad','plan.nombre as plan2','tipodocumento.abreviatura as abr','venta.serie as serieventa', 'venta.numero as numeroventa','historia.numero as numhistoria','dmc.pagodoctor as pagodoctor2','s.nombre as servicionombre','dmc.descripcion as serviciodescripcion', DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente2'), 'historia.tipopaciente as tipopaciente2' )
+                ->get();
+
+            $excel->sheet("Reporte Pago", function($sheet) use($rs, $nomcierre, $responsable, $request) {
+
+                $sheet->setWidth(array(
+                    'A' => 15, 'B' => 5, 'C' => 10, 'D' => 50, 'E' => 50, 'F' => 15, 'G' => 18, 'H' => 50, 'I' => 50, 'J' => 10, 'K' => 12, 'L' => 12, 'M' => 50
+                ));
+
+                $sheet->setStyle(array(
+                    'font' => array(
+                        'name'      =>  'Calibri',
+                        'size'      =>  8
+                    )
+                ));
+
+                $indicee = 1;
+
+                $cabecera1 = array();
+                $cabecera1[] = $nomcierre;
+                $sheet->row($indicee,$cabecera1);
+                $sheet->mergeCells('A1:M1');
+
+                $sheet->cells('A1:L1', function ($cells) {
+                    $cells->setFont(array(
+                        'family'     => 'Calibri',
+                        'size'       => '25',
+                        'bold'       =>  true
+                    ));
+                    $cells->setAlignment('center');
+                });
+
+                $indicee++;
+
+                $cabecera1 = array();
+                $cabecera1[] = "FECHA";
+                $cabecera1[] = "DOC VENTA";
+                $cabecera1[] = "";
+                $cabecera1[] = "DOCTOR";
+                $cabecera1[] = "PACIENTE";
+                $cabecera1[] = "HISTORIA";
+                $cabecera1[] = "TIPO PACIENTE";
+                $cabecera1[] = "PLAN";
+                $cabecera1[] = "SERVICIO";
+                $cabecera1[] = "CANT";
+                $cabecera1[] = "PRECIO";
+                $cabecera1[] = "PAGO";
+                $cabecera1[] = "RESPONSABLE";
+
+                $sheet->row($indicee,$cabecera1);
+
+                $sheet->mergeCells('B2:C2');
+
+                $indicee++;
+
+                $sheet->setBorder('A2:M2', 'thin');
+
+                $sheet->cells('A2:M2', function ($cells) {
+                    $cells->setFont(array(
+                        'family'     => 'Calibri',
+                        'size'       => '11',
+                        'bold'       =>  true
+                    ));
+                    $cells->setAlignment('center');
+                });
+
+                $a = 3;
+                $b = 0;
+
+                $fila = array();
+
+                if(count($rs)>0){
+                    $b = $a;
+                    foreach ($rs as $row) {  
+                        if($row->pagodoctor2 != 0){
+                        $fila[] = date('d-m-Y', strtotime($row['fecha']));
+                        $fila[] = $row['abr'];
+                        $fila[] = $row['serieventa'] .'-'. $row['numeroventa']; 
+                        $fila[] = $row->persona->apellidopaterno . " " . $row->persona->apellidomaterno . " " . $row->persona->nombres;
+                        $fila[] = $row['paciente2'];
+                        $fila[] = $row['numhistoria'];
+                        $fila[] = $row['tipopaciente2'];
+                        $fila[] = $row['plan2'];
+                        if($row->servicionombre == ""){
+                            $fila[] = $row['serviciodescripcion'];
+                        }else{
+                            $fila[] = $row['servicionombre'];
+                        }
+                        $fila[] = $row['scantidad'];
+                        $fila[] = $row['precio2'];
+                        $fila[] = $row['pagodoctor2'];
+                        $fila[] = $row->responsable->nombres . " " . $row->responsable->apellidopaterno;
+
+                        $sheet->row($a, $fila);
+                        $a++;
+                        $fila = array(); 
+                        }
+                    } 
+
+                    $sheet->setBorder('A'.$b .':M'.($a-1), 'thin');                             
+                }
+
+            });
+
+        })->export('xlsx');
     }
 
     public function editarformapago(Request $request) {

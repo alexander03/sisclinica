@@ -20,8 +20,9 @@
 						{!! Form::select('tipopaciente', $cboTipoPaciente, '', array('class' => 'form-control input-xs', 'id' => 'tipopaciente', 'onchange' => 'listapagosdoctores();')) !!}
 					</div>
 					<br>
-					{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar', 'onclick' => 'listapagosdoctores();')) !!}
+					{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-primary btn-xs', 'id' => 'btnBuscar', 'onclick' => 'listapagosdoctores();')) !!}
 					{!! Form::button('<i class="glyphicon glyphicon-print"></i> Exportar PDF', array('class' => 'btn btn-warning btn-xs', 'id' => 'btnReporte', 'onclick' => 'reportePagos();')) !!}
+					{!! Form::button('<i class="glyphicon glyphicon-print"></i> Exportar EXCEL', array('class' => 'btn btn-success btn-xs', 'id' => 'btnReporte', 'onclick' => 'excelReportePagos();')) !!}
 					{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnCerrarTicketsPendientes', 'onclick' => 'cerrarModal();')) !!}
 				{!! Form::close() !!}
 			</div>
@@ -54,5 +55,10 @@ function listapagosdoctores() {
 function reportePagos(){
 	var fecha = $("#fecha").val();
 	window.open("caja/pdfReportePago?fecha=" + fecha,"_blank");
+}	
+function excelReportePagos(){
+	var fecha = $("#fecha").val();
+	window.open("caja/excelReportePagos?fecha=" + fecha,"_blank");
+	//window.open("caja/pdfReportePago?fecha=" + fecha,"_blank");
 }	
 </script>

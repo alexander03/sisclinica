@@ -75,6 +75,7 @@ function checkear(id){
 
 
 function guardarPagoDoctores(){
+	$('#btnGuardar').prop('disabled',true);
 	var data = [];
 	var tipopaciente = $('#tipopaciente').val();
 	if(tipopaciente == "P"){
@@ -115,6 +116,7 @@ function guardarPagoDoctores(){
 			},
 		success: function(a) {
 			alert('GUARDADO CORRECTAMENTE...');
+			$('#btnGuardar').prop('disabled',false);
 			buscar('Caja');
 			listapagosdoctores();
 		},

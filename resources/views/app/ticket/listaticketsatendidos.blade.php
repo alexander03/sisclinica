@@ -66,6 +66,9 @@ function checkear(id){
 }
 
 function guardarAtendidos(){
+
+	$('#btnGuardar').prop('disabled',true);
+
 	var data = [];
 	$('.atendido:checked').each(
 		function() {
@@ -88,6 +91,7 @@ function guardarAtendidos(){
 			},
 		success: function(a) {
 			alert('GUARDADO CORRECTAMENTE...');
+			$('#btnGuardar').prop('disabled',false);
 			listaticketsatendidos();
 		},
 	error: function() {

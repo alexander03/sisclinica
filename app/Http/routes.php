@@ -615,6 +615,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('caja/guardarPagoDoctoresOjos', 'CajaController@guardarPagoDoctoresOjos')->name('caja.guardarPagoDoctoresOjos');
     Route::get('caja/mostrarDetallePago', 'CajaController@mostrarDetallePago')->name('caja.mostrarDetallePago');
     Route::get('caja/pdfReportePago', 'CajaController@pdfReportePago')->name('caja.pdfReportePago');
+    Route::get('caja/excelReportePagos', 'CajaController@excelReportePagos')->name('caja.excelReportePagos');
+    Route::get('caja/excelReportePagosOjos', 'CajaController@excelReportePagosOjos')->name('caja.excelReportePagosOjos');
     Route::get('caja/pdfReportePagoOjos', 'CajaController@pdfReportePagoOjos')->name('caja.pdfReportePagoOjos');
     
     Route::get('caja/pdfDetalleCierre', 'CajaController@pdfDetalleCierre')->name('caja.pdfDetalleCierre');

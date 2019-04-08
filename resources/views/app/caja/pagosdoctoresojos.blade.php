@@ -16,8 +16,9 @@
 						{!! Form::select('doctor_ticket', $cboDoctores, '', array('class' => 'form-control input-xs', 'id' => 'doctor_ticket', 'onchange' => 'listapagosdoctoresojos();')) !!}
 					</div>
 					<br>
-					{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar', 'onclick' => 'listapagosdoctoresojos();')) !!}
+					{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-primary btn-xs', 'id' => 'btnBuscar', 'onclick' => 'listapagosdoctoresojos();')) !!}
 					{!! Form::button('<i class="glyphicon glyphicon-print"></i> Exportar PDF', array('class' => 'btn btn-warning btn-xs', 'id' => 'btnReporte', 'onclick' => 'reportePagosOjos();')) !!}
+					{!! Form::button('<i class="glyphicon glyphicon-print"></i> Exportar EXCEL', array('class' => 'btn btn-success btn-xs', 'id' => 'btnReporte', 'onclick' => 'excelReportePagosOjos();')) !!}
 					{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnCerrarTicketsPendientes', 'onclick' => 'cerrarModal();')) !!}
 				{!! Form::close() !!}
 			</div>
@@ -47,4 +48,9 @@ function reportePagosOjos(){
 	var fechafinal = $("#fechafinal").val();
 	window.open("caja/pdfReportePagoOjos?fechainicial=" + fechainicial + "&fechafinal=" + fechafinal,"_blank");
 }
+
+function excelReportePagos(){
+	var fecha = $("#fecha").val();
+	window.open("caja/excelReportePagosOjos?fechainicial=" + fechainicial + "&fechafinal=" + fechafinal,"_blank");
+}	
 </script>
