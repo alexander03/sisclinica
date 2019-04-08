@@ -22,7 +22,7 @@
 	</div>
 	<div class="form-group">
 		<div class="col-lg-12 col-md-12 col-sm-12 text-right">
-			{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => 'guardar(\''.$entidad.'\', this)')) !!}
+			{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => '#')) !!}
 			{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
 		</div>
 	</div>
@@ -31,15 +31,35 @@
 $(document).ready(function() {
 	configurarAnchoModal('350');
 	init(IDFORMMANTENIMIENTO+'{!! $entidad !!}', 'M', '{!! $entidad !!}');
+	$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="efectivo22"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
+	$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="visa22"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
+	$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="master22"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
+
 	$(document).on('click', '#btnGuardar', function(e) {
-		var efectivo = parseFloat($('#efectivo22').val());
-		var visa = parseFloat($('#visa22').val());
-		var master = parseFloat($('#master22').val()); 
+		e.preventDefault();
+		e.stopImmediatePropagation();
+
+		var efectivo = 0.00;
+		var visa = 0.00;
+		var master = 0.00;
+
+		if($('#efectivo22').val() !== '') {
+			efectivo = parseFloat($('#efectivo22').val());
+		}
+
+		if($('#visa22').val() !== '') {
+			visa = parseFloat($('#visa22').val());
+		}
+
+		if($('#master22').val() !== '') {
+			master = parseFloat($('#master22').val());
+		}
 
 		if((efectivo+visa+master) !== {{ ($ingreso->totalpagado+$ingreso->totalpagadovisa+$ingreso->totalpagadomaster) }}) {
 			alert('Los montos deben sumar {{ ($ingreso->totalpagado+$ingreso->totalpagadovisa+$ingreso->totalpagadomaster) }}');
 			return false;
 		} else {
+			guardar('{{ $entidad }}', this);
 			buscar('Caja');
 			cerrarModal();
 		}			

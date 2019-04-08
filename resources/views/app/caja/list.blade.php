@@ -236,7 +236,7 @@ $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
 
             @if($sucursal_id == 2 && $user->usertype_id == 25)
             @if($value->situacion !== 'A' && $value->conceptopago_id !== 1) 
-                <td align="center"><button class="btn btn-success input-xs"><i class="glyphicon glyphicon-pencil" onclick="modal('caja/editarformapago?id={{$value->id}}', 'EDITAR FORMA PAGO', this)"><i/> <?php echo $formapago; ?></button></td>
+                <td align="center"><?php echo $formapago; ?><button class="btn btn-success input-xs"><i class="glyphicon glyphicon-pencil" onclick="modal('caja/editarformapago?id={{$value->id}}', 'EDITAR FORMA PAGO', this)"><i/></button></td>
             @else
                 <td align="center">-</td>
             @endif
