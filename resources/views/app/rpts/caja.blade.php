@@ -1,3 +1,8 @@
+<?php 
+	use Illuminate\Support\Facades\Session;
+	$sucursal_id = Session::get('sucursal_id');
+?>
+
 <!-- Content Header (Page header) -->
 <section class="content-header">
 	<h1>
@@ -65,6 +70,17 @@
 									@foreach($productos as $key => $producto)
 										<option value="{{ $producto->id }}">{{ $producto->nombre }}</option>
 									@endforeach
+								@endif
+							</select>
+						</div>
+						<div class="form-group">
+							<select name="almacen__id" id="almacen__id" class='form-control input-sms'>
+								@if($sucursal_id==1)
+								<option value="1">FARMACIA BMOJOS</option>
+								<option value="2">LOGÍSTICA BMOJOS</option>
+								@elseif($sucursal_id==2)
+								<option value="3">FARMACIA ESPECIALIDADES</option>
+								<option value="4">LOGÍSTICA ESPECIALIDADES</option>
 								@endif
 							</select>
 						</div>					

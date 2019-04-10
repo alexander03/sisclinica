@@ -66,9 +66,7 @@ function checkear(id){
 }
 
 function guardarAtendidos(){
-
 	$('#btnGuardar').prop('disabled',true);
-
 	var data = [];
 	$('.atendido:checked').each(
 		function() {

@@ -19,6 +19,7 @@ use App\Librerias\Libreria;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Jenssegers\Date\Date;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 ini_set('memory_limit', '512M'); //Raise to 512 MB
@@ -111,6 +112,7 @@ class ProductoController extends Controller
         $titulo_modificar = $this->tituloModificar;
         $titulo_eliminar  = $this->tituloEliminar;
         $ruta             = $this->rutas;
+        $user = Auth::user();
         if (count($lista) > 0) {
             $clsLibreria     = new Libreria();
             $paramPaginacion = $clsLibreria->generarPaginacion($lista, $pagina, $filas, $entidad);
@@ -120,7 +122,7 @@ class ProductoController extends Controller
             $paginaactual    = $paramPaginacion['nuevapagina'];
             $lista           = $resultado->paginate($filas);
             $request->replace(array('page' => $paginaactual));
-            return view($this->folderview.'.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta','principioactivo'));
+            return view($this->folderview.'.list')->with(compact('lista', 'paginacion', 'inicio', 'fin', 'entidad', 'cabecera', 'titulo_modificar', 'titulo_eliminar', 'ruta','principioactivo', 'user'));
         }
         return view($this->folderview.'.list')->with(compact('lista', 'entidad'));
     }
