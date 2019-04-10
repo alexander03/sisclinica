@@ -49,8 +49,9 @@ function reportePagosOjos(){
 	window.open("caja/pdfReportePagoOjos?fechainicial=" + fechainicial + "&fechafinal=" + fechafinal,"_blank");
 }
 
-function excelReportePagos(){
-	var fecha = $("#fecha").val();
+function excelReportePagosOjos(){
+	var fechainicial = $("#fechainicial").val();
+	var fechafinal = $("#fechafinal").val();
 	window.open("caja/excelReportePagosOjos?fechainicial=" + fechainicial + "&fechafinal=" + fechafinal,"_blank");
 }	
 </script>

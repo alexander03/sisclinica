@@ -12320,12 +12320,10 @@ class CajaController extends Controller
 
         $resultado        = Movimiento::join('detallemovcaja as dmc','dmc.movimiento_id','=','movimiento.id')
                             ->join('person as medico','medico.id','=','dmc.persona_id')
+                            ->join('movimiento as venta','movimiento.id','=','venta.movimiento_id')//venta
                             ->join('person as paciente','paciente.id','=','movimiento.persona_id')
+                            ->join('historia as historia','paciente.id','=','historia.person_id')
                             ->join('person as responsable','responsable.id','=','movimiento.responsable_id')
-                            ->leftjoin('movimiento as mref',function($join){
-                                $join->on('mref.movimiento_id', '=', 'movimiento.id')
-                                    ->where('mref.situacion','=','C'); // cobrado
-                            })
                             ->leftjoin('servicio as s','s.id','=','dmc.servicio_id')
                             ->join('plan','plan.id','=','movimiento.plan_id')
                             ->leftjoin('person as referido','referido.id','=','movimiento.doctor_id') // referido
@@ -12333,6 +12331,7 @@ class CajaController extends Controller
                             ->where('dmc.pagado','=', 0) // no pagado
                             ->whereNull('dmc.deleted_at') // no eliminado
                             ->where('movimiento.situacion','C') // cobrado
+                            //->where('movimiento.situacion2','L') // atendido
                             ->where(function($q) {            
                                 $q->where('s.tiposervicio_id','=',1)->orWhere('s.tiposervicio_id','=',21); // CONSULTA - EXAMENES
                             })
@@ -12348,8 +12347,8 @@ class CajaController extends Controller
             $resultado = $resultado->where('dmc.persona_id', '=', $doctor);
         }
 
-        $resultado        = $resultado->orderBy(DB::raw('case when mref.id>0 then mref.fecha else movimiento.fecha end'), 'desc')->orderBy('mref.serie', 'ASC')->orderBy('mref.numero', 'ASC')->groupBy('dmc.id')
-        ->select('s.tiposervicio_id as tiposervicio_id','dmc.precio as precio' ,'medico.id as medico_id','mref.total','plan.id as plan_id','plan.nombre as plan2','mref.tipodocumento_id','mref.serie','mref.numero','movimiento.soat',DB::raw('case when mref.id>0 then (case when mref.fecha=movimiento.fecha then mref.fecha else movimiento.fecha end) else movimiento.fecha end as fecha'),'movimiento.doctor_id as referido_id','dmc.servicio_id','dmc.descripcion as servicio2','movimiento.tarjeta','movimiento.tipotarjeta','movimiento.voucher','movimiento.situacion','dmc.recibo','dmc.fechaentrega','dmc.id as iddetalle',DB::raw('case when s.tarifario_id>0 then (select concat(codigo,\' \',nombre) from tarifario where id=s.tarifario_id) else s.nombre end as servicio'),'dmc.pagohospital','dmc.cantidad','dmc.pagodoctor',DB::raw('concat(medico.apellidopaterno,\' \',medico.apellidomaterno,\' \',medico.nombres) as medico'),DB::raw('concat(referido.apellidopaterno,\' \',referido.apellidomaterno,\' \',referido.nombres) as referido'),DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente2'),DB::raw('responsable.nombres as responsable'),DB::raw('movimiento.numero as numero2'),'mref.ventafarmacia','mref.estadopago','mref.formapago','movimiento.nombrepaciente','movimiento.copago','movimiento.id','mref.id as venta_id');
+        $resultado        = $resultado->orderBy(DB::raw('case when venta.id>0 then venta.fecha else venta.fecha end'), 'desc')->orderBy('venta.serie', 'ASC')->orderBy('venta.numero', 'ASC')->groupBy('dmc.id')
+        ->select('s.tiposervicio_id as tiposervicio_id','dmc.precio as precio' ,'medico.id as medico_id','venta.total','plan.id as plan_id','plan.nombre as plan2','venta.tipodocumento_id','venta.serie','venta.numero','movimiento.soat',DB::raw('case when venta.id>0 then (case when venta.fecha=movimiento.fecha then venta.fecha else movimiento.fecha end) else movimiento.fecha end as fecha'),'movimiento.doctor_id as referido_id','dmc.servicio_id','dmc.descripcion as servicio2','movimiento.tarjeta','movimiento.tipotarjeta','movimiento.voucher','movimiento.situacion','dmc.recibo','dmc.fechaentrega','dmc.id as iddetalle',DB::raw('case when s.tarifario_id>0 then (select concat(codigo,\' \',nombre) from tarifario where id=s.tarifario_id) else s.nombre end as servicio'),'dmc.pagohospital','dmc.cantidad','dmc.pagodoctor',DB::raw('concat(medico.apellidopaterno,\' \',medico.apellidomaterno,\' \',medico.nombres) as medico'),DB::raw('concat(referido.apellidopaterno,\' \',referido.apellidomaterno,\' \',referido.nombres) as referido'),DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente2'),DB::raw('responsable.nombres as responsable'),DB::raw('movimiento.numero as numero2'),'venta.ventafarmacia','venta.estadopago','venta.formapago','movimiento.nombrepaciente','movimiento.copago','movimiento.id','venta.id as venta_id');
         $lista            = $resultado->get();
         $cabecera         = array();
         $cabecera[]       = array('valor' => 'Doctor', 'numero' => '1');
@@ -12363,7 +12362,7 @@ class CajaController extends Controller
         $cabecera[]       = array('valor' => 'Operacion', 'numero' => '2');
 
         $doctores = Person::where('workertype_id','=','1')->where('especialidad_id','=','12')->where('id','!=',9277)->where('id','!=',9278)->orderBy('apellidopaterno','ASC')->get();
-        
+
         //$conf = DB::connection('sqlsrv')->table('BL_CONFIGURATION')->get();
         if (count($lista) > 0) {
             return view($this->folderview.'.listapagosdoctoresojos')->with(compact('lista', 'cabecera','fechainicial','fechafinal', 'ruta','tipo','doctores'));
@@ -12382,12 +12381,10 @@ class CajaController extends Controller
 
         $resultado        = Movimiento::join('detallemovcaja as dmc','dmc.movimiento_id','=','movimiento.id')
                             ->join('person as medico','medico.id','=','dmc.persona_id')
+                            ->join('movimiento as venta','movimiento.id','=','venta.movimiento_id')//venta
                             ->join('person as paciente','paciente.id','=','movimiento.persona_id')
+                            ->join('historia as historia','paciente.id','=','historia.person_id')
                             ->join('person as responsable','responsable.id','=','movimiento.responsable_id')
-                            ->leftjoin('movimiento as mref',function($join){
-                                $join->on('mref.movimiento_id', '=', 'movimiento.id')
-                                    ->where('mref.situacion','=','C'); // cobrado
-                            })
                             ->leftjoin('servicio as s','s.id','=','dmc.servicio_id')
                             ->join('plan','plan.id','=','movimiento.plan_id')
                             ->leftjoin('person as referido','referido.id','=','movimiento.doctor_id') // referido
@@ -12395,11 +12392,11 @@ class CajaController extends Controller
                             ->where('dmc.pagado','=', 0) // no pagado
                             ->whereNull('dmc.deleted_at') // no eliminado
                             ->where('movimiento.situacion','C') // cobrado
+                            //->where('movimiento.situacion2','L') // atendido
                             ->where(function($q) {            
                                 $q->where('s.tiposervicio_id','=',1)->orWhere('s.tiposervicio_id','=',21); // CONSULTA - EXAMENES
                             })
                             ->where('movimiento.sucursal_id','=', 1 ); // solo ojos
-        
         if($fechainicial!=""){
             $resultado = $resultado->where('movimiento.fecha','>=',$fechainicial);
         }
@@ -12410,44 +12407,45 @@ class CajaController extends Controller
             $resultado = $resultado->where('dmc.persona_id', '=', $doctor_id);
         }
 
-        $resultado        = $resultado->orderBy(DB::raw('case when mref.id>0 then mref.fecha else movimiento.fecha end'), 'desc')->orderBy('mref.serie', 'ASC')->orderBy('mref.numero', 'ASC')
-        ->select('s.tiposervicio_id as tiposervicio_id','medico.id as medico_id','mref.total','plan.id as plan_id','plan.nombre as plan2','mref.tipodocumento_id','mref.serie','mref.numero','movimiento.soat',DB::raw('case when mref.id>0 then (case when mref.fecha=movimiento.fecha then mref.fecha else movimiento.fecha end) else movimiento.fecha end as fecha'),'movimiento.doctor_id as referido_id','dmc.servicio_id','dmc.descripcion as servicio2','movimiento.tarjeta','movimiento.tipotarjeta','movimiento.voucher','movimiento.situacion','dmc.recibo','dmc.fechaentrega','dmc.id as iddetalle',DB::raw('case when s.tarifario_id>0 then (select concat(codigo,\' \',nombre) from tarifario where id=s.tarifario_id) else s.nombre end as servicio'),'dmc.pagohospital','dmc.cantidad','dmc.pagodoctor',DB::raw('concat(medico.apellidopaterno,\' \',medico.apellidomaterno,\' \',medico.nombres) as medico'),DB::raw('concat(referido.apellidopaterno,\' \',referido.apellidomaterno,\' \',referido.nombres) as referido'),DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente2'),DB::raw('responsable.nombres as responsable'),DB::raw('movimiento.numero as numero2'),'mref.ventafarmacia','mref.estadopago','mref.formapago','movimiento.nombrepaciente','movimiento.copago','movimiento.id','mref.id as venta_id');
+        $resultado        = $resultado->orderBy(DB::raw('case when venta.id>0 then venta.fecha else movimiento.fecha end'), 'desc')->orderBy('venta.serie', 'ASC')->orderBy('venta.numero', 'ASC')->groupBy('dmc.id')
+        ->select('s.tiposervicio_id as tiposervicio_id','venta.serie as serieventa', 'venta.numero as numeroventa','venta.tipodocumento_id as tipodocventa', 'dmc.precio as precio' ,'dmc.id as detalle_id','historia.tipopaciente as tipopaciente','dmc.persona_id as medico_id','venta.total','plan.id as plan_id','plan.nombre as plan2','venta.tipodocumento_id','venta.serie','venta.numero','movimiento.soat',DB::raw('case when venta.id>0 then (case when venta.fecha=movimiento.fecha then venta.fecha else movimiento.fecha end) else movimiento.fecha end as fecha'),'movimiento.doctor_id as referido_id','dmc.servicio_id','dmc.descripcion as servicio2','dmc.pagohospital as monto','movimiento.tarjeta','movimiento.tipotarjeta','movimiento.voucher','movimiento.situacion','dmc.recibo','dmc.fechaentrega','dmc.id as iddetalle',DB::raw('case when s.tarifario_id>0 then (select concat(codigo,\' \',nombre) from tarifario where id=s.tarifario_id) else s.nombre end as servicio'),'dmc.cantidad as cantidad','dmc.pagodoctor',DB::raw('concat(medico.apellidopaterno,\' \',medico.apellidomaterno,\' \',medico.nombres) as medico'),DB::raw('concat(referido.apellidopaterno,\' \',referido.apellidomaterno,\' \',referido.nombres) as referido'),DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente2'),DB::raw('responsable.nombres as responsable'),DB::raw('movimiento.numero as numero2'),'venta.ventafarmacia','venta.estadopago','venta.formapago','movimiento.nombrepaciente','movimiento.copago','movimiento.id','venta.id as venta_id');
         $lista            = $resultado->get();
 
         $error = null;
 
         $error = DB::transaction(function() use($request, $lista, $doctor_id, $pagoconsultasp, $pagoconsultasc, $pagoexamenes, $fechainicial , $fechafinal){
 
-        foreach ($lista as $value) {
-            $detalle = Detallemovcaja::find($value->iddetalle);
-            $detalle->pagado = 1 ;
-            $detalle->save();
-        }
+            $egreso = new Movimiento();
+            $egreso->sucursal_id = 1;
+            $egreso->fecha = date("Y-m-d H:i:s");
+            $numero = Movimiento::NumeroSigue(1,1,2,3);
+            $egreso->numero= $numero;
+            $user = Auth::user();
+            $egreso->responsable_id=$user->person_id;
+            $egreso->persona_id = $doctor_id;//doctor
+            $egreso->subtotal=0;
+            $egreso->igv=0;
+            $egreso->total= number_format( round( $pagoconsultasp + $pagoconsultasc + $pagoexamenes,1) ,2,'.','');
+            $egreso->totalpagado = number_format( round( $pagoconsultasp + $pagoconsultasc + $pagoexamenes,1) ,2,'.','');
+            $egreso->tipomovimiento_id=2; //caja
+            $egreso->tipodocumento_id=3;//Egreso
+            $egreso->conceptopago_id=137; // pago a medico
+            $egreso->fechapagoinicio = $fechainicial;
+            $egreso->fechapagofin = $fechafinal;
+            $egreso->montoconsultasp = round($pagoconsultasp,1);
+            $egreso->montoconsultasc = round($pagoconsultasc,1);
+            $egreso->montoexamenes = round($pagoexamenes,1);
+            $egreso->comentario="Pago Consultas: " . number_format( round($pagoconsultasp + $pagoconsultasc,1) ,2,'.','') . " - Pago Exámenes: " . number_format( round($pagoexamenes,1) ,2,'.','') . " - Fecha: " . date("d/m/Y", strtotime($fechainicial)) . " al " . date("d/m/Y", strtotime($fechafinal)) ;
+            $egreso->caja_id= 1 ;
+            //$egreso->situacion='C';
+            $egreso->save(); 
 
-        $egreso = new Movimiento();
-        $egreso->sucursal_id = 1;
-        $egreso->fecha = date("Y-m-d H:i:s");
-        $numero = Movimiento::NumeroSigue(1,1,2,3);
-        $egreso->numero= $numero;
-        $user = Auth::user();
-        $egreso->responsable_id=$user->person_id;
-        $egreso->persona_id = $doctor_id;//doctor
-        $egreso->subtotal=0;
-        $egreso->igv=0;
-        $egreso->total= number_format( round( $pagoconsultasp + $pagoconsultasc + $pagoexamenes,1) ,2,'.','');
-        $egreso->totalpagado = number_format( round( $pagoconsultasp + $pagoconsultasc + $pagoexamenes,1) ,2,'.','');
-        $egreso->tipomovimiento_id=2; //caja
-        $egreso->tipodocumento_id=3;//Egreso
-        $egreso->conceptopago_id=137; // pago a medico
-        $egreso->fechapagoinicio = $fechainicial;
-        $egreso->fechapagofin = $fechafinal;
-        $egreso->montoconsultasp = round($pagoconsultasp,1);
-        $egreso->montoconsultasc = round($pagoconsultasc,1);
-        $egreso->montoexamenes = round($pagoexamenes,1);
-        $egreso->comentario="Pago Consultas: " . number_format( round($pagoconsultasp + $pagoconsultasc,1) ,2,'.','') . " - Pago Exámenes: " . number_format( round($pagoexamenes,1) ,2,'.','') . " - Fecha: " . date("d/m/Y", strtotime($fechainicial)) . " al " . date("d/m/Y", strtotime($fechafinal)) ;
-        $egreso->caja_id= 1 ;
-        $egreso->situacion='N';
-        $egreso->save(); 
+            foreach ($lista as $value) {
+                $detalle = Detallemovcaja::find($value->iddetalle);
+                $detalle->pagado = 1 ;
+                $detalle->egreso_id = $egreso->id;
+                $detalle->save();
+            }
 
         });
         return is_null($error) ? "OK" : $error;
@@ -12463,14 +12461,10 @@ class CajaController extends Controller
 
         $resultado        = Movimiento::join('detallemovcaja as dmc','dmc.movimiento_id','=','movimiento.id')
                             ->join('person as medico','medico.id','=','dmc.persona_id')
-                            ->join('movimiento as venta','movimiento.id','=','venta.movimiento_id')
+                            ->join('movimiento as venta','movimiento.id','=','venta.movimiento_id')//venta
                             ->join('person as paciente','paciente.id','=','movimiento.persona_id')
                             ->join('historia as historia','paciente.id','=','historia.person_id')
                             ->join('person as responsable','responsable.id','=','movimiento.responsable_id')
-                            ->leftjoin('movimiento as mref',function($join){
-                                $join->on('mref.movimiento_id', '=', 'movimiento.id')
-                                    ->where('mref.situacion','=','C'); // cobrado
-                            })
                             ->leftjoin('servicio as s','s.id','=','dmc.servicio_id')
                             ->join('plan','plan.id','=','movimiento.plan_id')
                             ->leftjoin('person as referido','referido.id','=','movimiento.doctor_id') // referido
@@ -12478,6 +12472,7 @@ class CajaController extends Controller
                             ->where('dmc.pagado','=', 0) // no pagado
                             ->whereNull('dmc.deleted_at') // no eliminado
                             ->where('movimiento.situacion','C') // cobrado
+                            //->where('movimiento.situacion2','L') // atendido
                             ->where(function($q) {            
                                 $q->where('s.tiposervicio_id','=',1)->orWhere('s.tiposervicio_id','=',21); // CONSULTA - EXAMENES
                             })
@@ -12492,8 +12487,8 @@ class CajaController extends Controller
             $resultado = $resultado->where('dmc.persona_id', '=', $doctor_id);
         }
 
-        $resultado        = $resultado->orderBy(DB::raw('case when mref.id>0 then mref.fecha else movimiento.fecha end'), 'desc')->orderBy('mref.serie', 'ASC')->orderBy('mref.numero', 'ASC')->groupBy('dmc.id')
-        ->select('s.tiposervicio_id as tiposervicio_id','venta.serie as serieventa', 'venta.numero as numeroventa','venta.tipodocumento_id as tipodocventa', 'dmc.precio as precio' ,'dmc.id as detalle_id','historia.tipopaciente as tipopaciente','medico.id as medico_id','mref.total','plan.id as plan_id','plan.nombre as plan2','mref.tipodocumento_id','mref.serie','mref.numero','movimiento.soat',DB::raw('case when mref.id>0 then (case when mref.fecha=movimiento.fecha then mref.fecha else movimiento.fecha end) else movimiento.fecha end as fecha'),'movimiento.doctor_id as referido_id','dmc.servicio_id','dmc.descripcion as servicio2','dmc.pagohospital as monto','movimiento.tarjeta','movimiento.tipotarjeta','movimiento.voucher','movimiento.situacion','dmc.recibo','dmc.fechaentrega','dmc.id as iddetalle',DB::raw('case when s.tarifario_id>0 then (select concat(codigo,\' \',nombre) from tarifario where id=s.tarifario_id) else s.nombre end as servicio'),'dmc.cantidad as cantidad','dmc.pagodoctor',DB::raw('concat(medico.apellidopaterno,\' \',medico.apellidomaterno,\' \',medico.nombres) as medico'),DB::raw('concat(referido.apellidopaterno,\' \',referido.apellidomaterno,\' \',referido.nombres) as referido'),DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente2'),DB::raw('responsable.nombres as responsable'),DB::raw('movimiento.numero as numero2'),'mref.ventafarmacia','mref.estadopago','mref.formapago','movimiento.nombrepaciente','movimiento.copago','movimiento.id','mref.id as venta_id');
+        $resultado        = $resultado->orderBy(DB::raw('case when venta.id>0 then venta.fecha else movimiento.fecha end'), 'desc')->orderBy('venta.serie', 'ASC')->orderBy('venta.numero', 'ASC')->groupBy('dmc.id')
+        ->select('s.tiposervicio_id as tiposervicio_id','venta.serie as serieventa', 'venta.numero as numeroventa','venta.tipodocumento_id as tipodocventa', 'dmc.precio as precio' ,'dmc.id as detalle_id','historia.tipopaciente as tipopaciente','dmc.persona_id as medico_id','venta.total','plan.id as plan_id','plan.nombre as plan2','venta.tipodocumento_id','venta.serie','venta.numero','movimiento.soat',DB::raw('case when venta.id>0 then (case when venta.fecha=movimiento.fecha then venta.fecha else movimiento.fecha end) else movimiento.fecha end as fecha'),'movimiento.doctor_id as referido_id','dmc.servicio_id','dmc.descripcion as servicio2','dmc.pagohospital as monto','movimiento.tarjeta','movimiento.tipotarjeta','movimiento.voucher','movimiento.situacion','dmc.recibo','dmc.fechaentrega','dmc.id as iddetalle',DB::raw('case when s.tarifario_id>0 then (select concat(codigo,\' \',nombre) from tarifario where id=s.tarifario_id) else s.nombre end as servicio'),'dmc.cantidad as cantidad','dmc.pagodoctor',DB::raw('concat(medico.apellidopaterno,\' \',medico.apellidomaterno,\' \',medico.nombres) as medico'),DB::raw('concat(referido.apellidopaterno,\' \',referido.apellidomaterno,\' \',referido.nombres) as referido'),DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente2'),DB::raw('responsable.nombres as responsable'),DB::raw('movimiento.numero as numero2'),'venta.ventafarmacia','venta.estadopago','venta.formapago','movimiento.nombrepaciente','movimiento.copago','movimiento.id','venta.id as venta_id');
         $lista            = $resultado->get();
 
         $pdf = new TCPDF();
@@ -12510,7 +12505,7 @@ class CajaController extends Controller
         //$pdf::Cell(20,10,utf8_decode("DOC VENTA"),1,0,'C');
         $pdf::Cell(70,10,utf8_decode("PACIENTE"),1,0,'C');
         $pdf::Cell(23,10,utf8_decode("TIPO PACIENTE"),1,0,'C'); 
-        $pdf::Cell(75,10,utf8_decode("SERVICIO"),1,0,'C'); 
+        $pdf::Cell(130,10,utf8_decode("SERVICIO"),1,0,'C'); 
         //$pdf::Cell(15,10,utf8_decode("CANT"),1,0,'C'); 
         //$pdf::Cell(27,10,utf8_decode("MONTO SERVICIO"),1,0,'C'); 
         $pdf::Cell(27,10,utf8_decode("PAGO DOCTOR"),1,0,'C'); 
@@ -12526,25 +12521,7 @@ class CajaController extends Controller
         $pagoconsultasc = 0;
         $pagoexamenes = 0; 
         foreach ($lista as $value) {
-            $pdf::Cell(20,10, date("d/m/Y",strtotime($value->fecha)),1,0,'C'); 
-            $comprobante ="";
-            if($value->tipodocventa == 4){
-                $comprobante ="F".$value->serieventa."-".$value->numeroventa;
-            }else if($value->tipodocventa == 5){
-                $comprobante ="B".$value->serieventa."-".$value->numeroventa;
-            }else if($value->tipodocventa == 12){
-                $comprobante ="T".$value->serieventa."-".$value->numeroventa;
-            }
-            //$pdf::Cell(20,10, $comprobante,1,0,'C'); 
-
-            // 4 factura
-            // 5 boleta
-            // 12 ticket
-            $pdf::Cell(70,10, $value->paciente2 ,1,0,'L');
-            $pdf::Cell(23,10, $value->tipopaciente ,1,0,'C');
-            $pdf::Cell(75,10, $value->servicio ,1,0,'L');
-            //$pdf::Cell(15,10, (int) $value->cantidad ,1,0,'C');
-            $pdf::Cell(27,10, number_format($value->monto * $value->cantidad,2,'.','') ,1,0,'R');
+            
 
             $consultas = 0;
             $examenes = 0;
@@ -12561,7 +12538,7 @@ class CajaController extends Controller
                 $montoconvenio = $medico->montoconvenio;
             }
 
-            $montoservicio = $value->monto * $value->cantidad;
+            $montoservicio = $value->precio * $value->cantidad;
 
             if($value->plan_id == 6){
                 if($value->tiposervicio_id == 1){
@@ -12593,20 +12570,43 @@ class CajaController extends Controller
 
                 if($value->tiposervicio_id == 1){
 
-                    if($value->precio != 0){
+                 //   if($value->precio != 0){
                         $montoconsultasc += $montoservicio;
 
                         $pagodoctor = $montoconvenio;
 
                         $pagoconsultasc += $pagodoctor;
 
-                    }
+            //        }
                 }
 
             }
-            $pdf::Cell(27,10, number_format($pagodoctor,2,'.','') ,1,0,'R');
-            //$pdf::Cell(20,10, $value->detalle_id ,1,0,'R');
-            $pdf::Ln();
+
+            if($pagodoctor !=0){
+                $pdf::Cell(20,10, date("d/m/Y",strtotime($value->fecha)),1,0,'C'); 
+                $comprobante ="";
+                if($value->tipodocventa == 4){
+                    $comprobante ="F".$value->serieventa."-".$value->numeroventa;
+                }else if($value->tipodocventa == 5){
+                    $comprobante ="B".$value->serieventa."-".$value->numeroventa;
+                }else if($value->tipodocventa == 12){
+                    $comprobante ="T".$value->serieventa."-".$value->numeroventa;
+                }
+                //$pdf::Cell(20,10, $comprobante,1,0,'C'); 
+
+                // 4 factura
+                // 5 boleta
+                // 12 ticket
+                $pdf::Cell(70,10, $value->paciente2 ,1,0,'L');
+                $pdf::Cell(23,10, $value->tipopaciente ,1,0,'C');
+                $pdf::Cell(130,10, $value->servicio ,1,0,'L');
+                //$pdf::Cell(15,10, (int) $value->cantidad ,1,0,'C');
+                //$pdf::Cell(27,10, number_format($value->monto * $value->cantidad,2,'.','') ,1,0,'R');
+                $pdf::Cell(27,10, number_format($pagodoctor,2,'.','') ,1,0,'R');
+                //$pdf::Cell(10,10, $value->detalle_id ,1,0,'R');
+                $pdf::Ln();
+            }
+            
         }
 
         $pdf::SetFont('helvetica','',7);   
@@ -12620,22 +12620,22 @@ class CajaController extends Controller
         $pdf::Ln();
         $pdf::Cell(100,7,utf8_decode(""),0,0,'C');
         $pdf::Cell(50,7,utf8_decode("MONTO TOTAL:"),1,0,'L');
-        $pdf::Cell(20,7,number_format( $montoconsultasc + $montoconsultasp + $montoexamenes ,2,'.',''),1,0,'R');
+        $pdf::Cell(20,7,number_format( round($montoconsultasc + $montoconsultasp + $montoexamenes,1) ,2,'.',''),1,0,'R');
         $pdf::Cell(20,7,number_format( round($pagoconsultasc + $pagoconsultasp + $pagoexamenes,1) ,2,'.',''),1,0,'R');
         $pdf::Ln();
         $pdf::Cell(100,7,utf8_decode(""),0,0,'C');
         $pdf::Cell(50,7,utf8_decode("CONSULTAS CONVENIO:"),1,0,'L');
-        $pdf::Cell(20,7,number_format( $montoconsultasc ,2,'.',''),1,0,'R');
+        $pdf::Cell(20,7,number_format( round($montoconsultasc,1) ,2,'.',''),1,0,'R');
         $pdf::Cell(20,7,number_format( round( $pagoconsultasc,1) ,2,'.',''),1,0,'R');
         $pdf::Ln();
         $pdf::Cell(100,7,utf8_decode(""),0,0,'C');
         $pdf::Cell(50,7,utf8_decode("CONSULTAS PARTICULAR:"),1,0,'L');
-        $pdf::Cell(20,7,number_format( $montoconsultasp ,2,'.',''),1,0,'R');
+        $pdf::Cell(20,7,number_format( round($montoconsultasp,1) ,2,'.',''),1,0,'R');
         $pdf::Cell(20,7,number_format( round($pagoconsultasp,1) ,2,'.',''),1,0,'R');
         $pdf::Ln();
         $pdf::Cell(100,7,utf8_decode(""),0,0,'C');
         $pdf::Cell(50,7,utf8_decode("EXAMENES:"),1,0,'L');
-        $pdf::Cell(20,7,number_format( $montoexamenes ,2,'.',''),1,0,'R');
+        $pdf::Cell(20,7,number_format( round($montoexamenes,1) ,2,'.',''),1,0,'R');
         $pdf::Cell(20,7,number_format( round($pagoexamenes,1) ,2,'.',''),1,0,'R');
         $pdf::Ln();
 
@@ -12697,6 +12697,346 @@ class CajaController extends Controller
 
         $pdf::Output('ReportePagoOjos.pdf');   
 
+    }
+
+    public function excelReportePagosOjos(Request $request) {
+        setlocale(LC_TIME, 'spanish');
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        
+        Excel::create('ExcelReporte', function($excel) use( $request ) {
+
+            $fechaini = $request->input('fechainicial');
+            $fechafin = $request->input('fechafinal');
+    
+            $fechainicial = date("d/m/Y", strtotime($fechaini));
+            $fechafinal = date("d/m/Y", strtotime($fechafin));
+    
+            $user=Auth::user();
+            $responsable = $user->login;
+
+            $nomcierre = 'Reporte de Pagos a Doctores Oftalmología'; 
+
+            $rs = Movimiento::join('detallemovcaja as dmc', 'movimiento.id', '=', 'dmc.egreso_id') // detallemovcaja que se pagaron
+                ->join('movimiento as ticket', 'ticket.id', '=', 'dmc.movimiento_id') // ticket
+                ->join('movimiento as venta', 'ticket.id', '=', 'venta.movimiento_id') // venta
+                ->join('plan','ticket.plan_id','=','plan.id') //plan
+                ->join('tipodocumento','venta.tipodocumento_id','=','tipodocumento.id') //comprobante
+                ->leftjoin('servicio as s','s.id','=','dmc.servicio_id')
+                ->join('person as paciente','paciente.id','=','ticket.persona_id')
+                ->join('person as medico','medico.id','=','dmc.persona_id')
+                ->join('historia','paciente.id','=','historia.person_id')
+                ->where('movimiento.tipomovimiento_id','=',2) //caja 
+                ->where('movimiento.tipodocumento_id','=',3) //egreso
+                ->where('movimiento.conceptopago_id','=',137) //pago a medico
+                ->where('movimiento.caja_id', '=',1) // ojos
+                ->where('ticket.situacion', "=", 'C')
+                ->where('venta.situacion','!=','U')
+                ->where('movimiento.fechapagoinicio', '>=' , $fechaini)
+                ->where('movimiento.fechapagofin', '<=', $fechafin)
+                ->orderBy('venta.serie', 'ASC')->orderBy('venta.numero', 'ASC')->orderBy('dmc.id')->groupBy('dmc.id')
+                ->select('movimiento.*','medico.id as medico_id','s.tiposervicio_id as tiposervicio_id','plan.id as plan_id','dmc.precio as precio2','dmc.cantidad as scantidad','plan.nombre as plan2','tipodocumento.abreviatura as abr','venta.serie as serieventa', 'venta.numero as numeroventa','historia.numero as numhistoria','dmc.pagodoctor as pagodoctor2','s.nombre as servicionombre','dmc.descripcion as serviciodescripcion', DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente2'), 'historia.tipopaciente as tipopaciente2' )
+                ->get();
+
+            $excel->sheet("Reporte Pago", function($sheet) use($rs, $nomcierre, $responsable, $request) {
+
+                $sheet->setWidth(array(
+                    'A' => 15, 'B' => 5, 'C' => 10, 'D' => 50, 'E' => 50, 'F' => 15, 'G' => 18, 'H' => 50, 'I' => 50, 'J' => 10, 'K' => 12, 'L' => 20, 'M' => 20 , 'N' => 20, 'O' => 50
+                ));
+
+                $sheet->setStyle(array(
+                    'font' => array(
+                        'name'      =>  'Calibri',
+                        'size'      =>  8
+                    )
+                ));
+
+                $indicee = 1;
+
+                $cabecera1 = array();
+                $cabecera1[] = $nomcierre;
+                $sheet->row($indicee,$cabecera1);
+                $sheet->mergeCells('A1:O1');
+
+                $sheet->cells('A1:L1', function ($cells) {
+                    $cells->setFont(array(
+                        'family'     => 'Calibri',
+                        'size'       => '25',
+                        'bold'       =>  true
+                    ));
+                    $cells->setAlignment('center');
+                });
+
+                $indicee++;
+
+                $a = 3;
+                $b = 0;
+
+                $doctores = Person::where('workertype_id','=','1')->where('especialidad_id','=','12')->where('id','!=',9277)->where('id','!=',9278)->orderBy('apellidopaterno','ASC')->get();
+
+                $fila = array();
+
+                if(count($rs)>0){
+
+                    foreach ($doctores as $medico) {
+
+                        $montoconsultasp = 0;
+                        $montoconsultasc = 0;
+                        $montoexamenes = 0; 
+                        $pagoconsultasp = 0;
+                        $pagoconsultasc = 0;
+                        $pagoexamenes = 0; 
+
+                        $consultas = 0;
+                        $examenes = 0;
+                        $montoconvenio = 0;
+                        $pagodoctor = 0;
+
+                        if($medico->consultas != null){
+                            $consultas = $medico->consultas;
+                        }
+                        if($medico->examenes != null){
+                            $examenes = $medico->examenes;
+                        }
+                        if($medico->montoconvenio != null){
+                            $montoconvenio = $medico->montoconvenio;
+                        }
+
+                        $cant = 0;
+
+                        $b = $a;
+
+                        foreach ($rs as $row) {  
+
+                            if($medico->id == $row->medico_id){
+
+                                if($cant == 0){
+
+                                    $cabecera1 = array();
+                                    $cabecera1[] = "FECHA";
+                                    $cabecera1[] = "DOC VENTA";
+                                    $cabecera1[] = "";
+                                    $cabecera1[] = "DOCTOR";
+                                    $cabecera1[] = "PACIENTE";
+                                    $cabecera1[] = "HISTORIA";
+                                    $cabecera1[] = "TIPO PACIENTE";
+                                    $cabecera1[] = "PLAN";
+                                    $cabecera1[] = "SERVICIO";
+                                    $cabecera1[] = "CANT";
+                                    $cabecera1[] = "PRECIO";
+                                    $cabecera1[] = "CON. PARTICULAR";
+                                    $cabecera1[] = "CON. CONVENIO";
+                                    $cabecera1[] = "EXAMENES";
+                                    $cabecera1[] = "RESPONSABLE";
+                    
+                                    $sheet->row($a,$cabecera1);
+                    
+                                    $sheet->mergeCells('B'.$a.':C'.$a);
+
+                                    $sheet->cells('A'.$a.':O'.$a, function ($cells) {
+                                        $cells->setFont(array(
+                                            'family'     => 'Calibri',
+                                            'size'       => '11',
+                                            'bold'       =>  true
+                                        ));
+                                        $cells->setAlignment('center');
+                                    });
+                    
+                                    $a++;
+            
+                                }
+
+                                $montoservicio = $row->precio2 * $row->scantidad;
+
+                                if($row->plan_id == 6){
+                                    if($row->tiposervicio_id == 1){
+
+                                        $montoconsultasp += $montoservicio;
+
+                                        if($medico->consultasigv == 1){
+                                            $pagodoctor = $montoservicio / 1.18 * ( $consultas / 100 );
+                                        }else{
+                                            $pagodoctor = $montoservicio * $consultas / 100 ;
+                                        }
+
+                                        $pagoconsultasp += $pagodoctor;
+
+                                    }else if($row->tiposervicio_id == 21){
+
+                                        $montoexamenes += $montoservicio;
+
+                                        if($medico->examenesigv == 1){
+                                            $pagodoctor = $montoservicio / 1.18 * $examenes / 100; 
+                                        }else{
+                                            $pagodoctor = $montoservicio * $examenes / 100;
+                                        }
+
+                                        $pagoexamenes += $pagodoctor;
+
+                                    }
+                                }else{
+
+                                    if($row->tiposervicio_id == 1){
+
+                                      //  if($row->precio != 0){
+                                            $montoconsultasc += $montoservicio;
+
+                                            $pagodoctor = $montoconvenio;
+
+                                            $pagoconsultasc += $pagodoctor;
+
+                                        //}
+                                    }
+
+                                }
+
+
+                                if($pagodoctor != 0){
+
+                                    $fila[] = date('d-m-Y', strtotime($row['fecha']));
+                                    $fila[] = $row['abr'];
+                                    $fila[] = $row['serieventa'] .'-'. $row['numeroventa']; 
+                                    $fila[] = $row->persona->apellidopaterno . " " . $row->persona->apellidomaterno . " " . $row->persona->nombres;
+                                    $fila[] = $row['paciente2'];
+                                    $fila[] = $row['numhistoria'];
+                                    $fila[] = $row['tipopaciente2'];
+                                    $fila[] = $row['plan2'];
+                                    if($row->servicionombre == ""){
+                                        $fila[] = $row['serviciodescripcion'];
+                                    }else{
+                                        $fila[] = $row['servicionombre'];
+                                    }
+                                    $fila[] = $row['scantidad'];
+                                    $fila[] = $row['precio2'];
+                                    if($row->plan_id == 6){
+                                        if($row->tiposervicio_id == 1){
+                                            $fila[]=round($pagodoctor,2);
+                                            $fila[]="";
+                                            $fila[]="";
+                                        }else if($row->tiposervicio_id == 21){
+                                            $fila[]="";
+                                            $fila[]="";
+                                            $fila[]=round($pagodoctor,2);
+                                        }
+                                    }else{
+                                        if($row->tiposervicio_id == 1){
+                                            $fila[]="";
+                                            $fila[]=round($pagodoctor,2);
+                                            $fila[]="";
+                                        }
+                                    }
+                                    $fila[] = $row->responsable->nombres . " " . $row->responsable->apellidopaterno;
+
+                                    $sheet->row($a, $fila);
+                                    $a++;
+                                    $fila = array(); 
+                                    $cant++;
+                                    
+                                }
+                            }
+                        } 
+
+                        if($cant != 0){
+
+                            $fila = array(); 
+                            $fila[]="";
+                            $fila[]="";
+                            $fila[]="";
+                            $fila[]="";
+                            $fila[]="";
+                            $fila[]="";
+                            $fila[]="";
+                            $fila[]="";
+                            $fila[] ="DOCTOR: " . $medico->apellidopaterno . " " . $medico->apellidomaterno . " " . $medico->nombres;
+                            $fila[]="TOTAL";
+                            $fila[]= round( $montoconsultasp + $montoconsultasc +$montoexamenes ,1);
+                            $fila[]= round( $pagoconsultasp,1);
+                            $fila[]= round( $pagoconsultasc,1);
+                            $fila[]= round( $pagoexamenes,1);
+
+                            $sheet->cells('I'.$a.':I'.$a, function ($cells) {
+                                $cells->setFont(array(
+                                    'family'     => 'Calibri',
+                                    'size'       => '11',
+                                    'bold'       =>  true
+                                ));
+                                $cells->setAlignment('left');
+                            });
+                            $sheet->cells('J'.$a.':J'.$a, function ($cells) {
+                                $cells->setFont(array(
+                                    'family'     => 'Calibri',
+                                    'size'       => '11',
+                                    'bold'       =>  true
+                                ));
+                                $cells->setAlignment('center');
+                            });
+                            $sheet->cells('K'.$a.':N'.$a, function ($cells) {
+                                $cells->setFont(array(
+                                    'family'     => 'Calibri',
+                                    'size'       => '11',
+                                    'bold'       =>  true
+                                ));
+                                $cells->setAlignment('right');
+                            });
+
+                            $sheet->row($a, $fila);
+                            $sheet->setBorder('I'.$a .':N'.$a, 'thin'); 
+
+                            $sheet->setBorder('A'.$b .':O'.($a-1), 'thin'); 
+
+                            $a++;
+
+                            $fila = array(); 
+                            $fila[]="";
+                            $fila[]="";
+                            $fila[]="";
+                            $fila[]="";
+                            $fila[]="";
+                            $fila[]="";
+                            $fila[]="";
+                            $fila[]="";
+                            $fila[]="";
+                            $fila[]="TOTAL A PAGAR";
+                            $fila[]="";
+                            $fila[]= round( $pagoconsultasp + $pagoconsultasc +$pagoexamenes ,1);
+                            
+                            $sheet->mergeCells('J'.$a.':K'.$a);
+
+                            $sheet->cells('J'.$a.':K'.$a, function ($cells) {
+                                $cells->setFont(array(
+                                    'family'     => 'Calibri',
+                                    'size'       => '11',
+                                    'bold'       =>  true
+                                ));
+                                $cells->setAlignment('center');
+                            });
+                            
+                            $sheet->cells('N'.$a.':N'.$a, function ($cells) {
+                                $cells->setFont(array(
+                                    'family'     => 'Calibri',
+                                    'size'       => '11',
+                                    'bold'       =>  true
+                                ));
+                                $cells->setAlignment('right');
+                            });
+
+                            $sheet->setBorder('J'.$a .':L'.$a, 'thin'); 
+
+                            $sheet->row($a, $fila);
+                            $a++;
+
+                            $fila = array();
+                            $sheet->row($a, $fila);
+                            $a++;
+                        }
+                     
+                    }
+                    
+                }
+
+            });
+
+        })->export('xlsx');
     }
 
     public function pdfReportePago(Request $request) {
