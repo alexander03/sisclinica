@@ -12093,10 +12093,7 @@ class CajaController extends Controller
         $caja_id = Libreria::getParam($request->input('caja_id'),'1');
 
         $sucursal_id = Session::get('sucursal_id');
-        $almacen_id = 1;
-        if($sucursal_id ==  2) {
-            $almacen_id = 3;
-        }
+        $almacen_id = $request->input('almacen_id');
 
         $producto_id = $request->input('producto_id');
 
@@ -12113,7 +12110,9 @@ class CajaController extends Controller
         }  
         if($caja->nombre == 'FARMACIA') {
             $nomcierre = ' Farmacia - ' . $nomcierre;
-        }     
+        } else {
+            $nomcierre = ' Logística - ' . $nomcierre;
+        }
         $pdf = new TCPDF();
         //$pdf::SetIma�
         $pdf::SetTitle('Productos por Stock, Lote, Fecha Vencimiento '.$nomcierre);
@@ -12147,7 +12146,7 @@ class CajaController extends Controller
                 
                 $pdf::SetFont('helvetica','B',9);
                 $pdf::Cell(30,7,"NÚMERO LOTE",1,0,'C');                
-                $pdf::Cell(30,7,utf8_decode("PRESENTACIÓN"),1,0,'C');
+                $pdf::Cell(30,7,"PRESENTACIÓN",1,0,'C');
                 $pdf::Cell(30,7,utf8_decode("FECHA VENC."),1,0,'C');
                 $pdf::Cell(35,7,'DÍAS RESTANTES',1,0,'C');
                 $pdf::Cell(25,7,'ESTADO',1,0,'C');
@@ -12164,10 +12163,10 @@ class CajaController extends Controller
                 foreach ($lotes as $key => $lote) {
                     $pdf::SetFont('helvetica','',8); 
                     $pdf::Cell(30,7,$lote['nombre'],1,0,'C');                    
-                    $pdf::Cell(30,7,$row->presentacion->nombre,1,0,'C');
+                    $pdf::Cell(30,7,$row->presentacion==NULL?'-':$row->presentacion->nombre,1,0,'C');
                     $pdf::Cell(30,7,date('d/m/Y', strtotime($lote['fechavencimiento'])),1,0,'C');
                     $pdf::Cell(35,7,$lote['diferencia'],1,0,'C');
-                    $pdf::Cell(25,7,$lote['direfencia'] > 0 ? 'NO VENCIDO': 'VENCIDO',1,0,'C');
+                    $pdf::Cell(25,7,($lote['diferencia'] > 0 ? 'NO VENCIDO': 'VENCIDO'),1,0,'C');
                     $pdf::Cell(40,7,$lote['queda'],1,0,'C');
                     $pdf::Ln();
                 }

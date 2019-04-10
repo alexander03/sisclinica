@@ -74,7 +74,7 @@
 							</select>
 						</div>
 						<div class="form-group">
-							<select name="almacen__id" id="almacen__id" class='form-control input-sms'>
+							<select name="almacen__id" id="almacen__id" class='form-control input-sm'>
 								@if($sucursal_id==1)
 								<option value="1">FARMACIA BMOJOS</option>
 								<option value="2">LOGÍSTICA BMOJOS</option>
@@ -149,8 +149,9 @@
 	function pdfDetallePorLoteStockFV(){
 		var fi = $('#fechainicial').val();
 		var ff = $('#fechafinal').val();
+		var almacen_id = $('#almacen__id').val();
 		var producto_id = $('#prodcto').val();
-		window.open('caja/pdfDetallePorLoteStockFV?caja_id='+$('#Medico').val()+'&fi='+fi+'&ff='+ff+'&producto_id='+producto_id,"_blank");
+		window.open('caja/pdfDetallePorLoteStockFV?caja_id='+$('#Medico').val()+'&fi='+fi+'&ff='+ff+'&producto_id='+producto_id+'&almacen_id='+almacen_id,"_blank");
 	}
 
 	@endif
