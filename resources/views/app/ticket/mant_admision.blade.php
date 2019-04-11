@@ -361,6 +361,42 @@ if(!is_null($ticket)){
             </table>
         </div>
      </div>
+    <!-- Modal -->
+    <div id="modalOxigeno" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">PRECIO PARA OXÍGENOS</h4>
+                </div>
+                <div class="modal-body" style="height: 170px;">
+                    <div class="bootbox-body">
+                        <form class="form-horizontal" role="form">
+                            <div class="form-group">
+                                <label  class="col-lg-2 col-md-2 col-sm-2 control-label" for="txtHorasO2">Horas</label>
+                                <div class="col-lg-4 col-md-4 col-sm-4">
+                                    <input type="text" class="form-control" id="txtHorasO2" onkeyup="calcularPrecioO2();" placeholder="Ingresa Horas"/>
+                                </div>
+                                <label class="col-lg-2 col-md-2 col-sm-2 control-label" for="txtLitros2">Litros</label>
+                                <div class="col-lg-4 col-md-4 col-sm-4">
+                                    <input type="text" class="form-control" id="txtLitros2" onkeyup="calcularPrecioO2();" placeholder="Ingresa Litros"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-6 col-md-6 col-sm-6"></div>
+                                <label  class="col-lg-2 col-md-2 col-sm-2 control-label" for="txtPrecioO2">Precio</label>
+                                <div class="col-lg-4 col-md-4 col-sm-4">
+                                    <input type="text" class="form-control" readonly="readonly" id="txtPrecioO2"/>
+                                    <input type="hidden" id="txtIdPrecioO2" value="">
+                                </div>
+                            </div>
+                        </form>
+                    </div>     
+                    <p class="text-right"><button type="button" class="btn btn-success" onclick="aceptarPrecioO2();">Aceptar</button>&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-warning" onclick="$('#modalOxigeno').modal('hide');">Cancelar</button></p>
+                </div>                
+            </div>
+      </div>
+    </div>
 {!! Form::close() !!}
 <script type="text/javascript">
 var valorbusqueda="";
@@ -399,6 +435,9 @@ $(document).ready(function() {
     $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="numeroventa"]').inputmask("99999999");
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="deducible"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
     $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="coa"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: ",", groupSize: 3, digits: 2 });
+    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="txtHorasO2"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
+    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="txtLitros2"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
+    $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="txtPrecioO2"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
 	var personas = new Bloodhound({
 		datumTokenizer: function (d) {
 			return Bloodhound.tokenizers.whitespace(d.value);
@@ -666,6 +705,34 @@ $(document).ready(function() {
     });
     generarNumero();
 }); 
+
+function aceptarPrecioO2() {
+    var precio = $('#txtPrecioO2').val();
+    var idprecio = $('#txtIdPrecioO2').val();
+    $('#txtPrecio'+idprecio).val((parseFloat(precio).toFixed(2)).toString());
+    calcularTotalItem2(idprecio);
+    $('#modalOxigeno').modal('hide');
+}
+
+function calcularPrecioO2() {
+    var horas = 0;
+    var litros = 0;
+    if($('#txtHorasO2').val()!=='') {
+        var horas = parseFloat($('#txtHorasO2').val());
+    } if($('#txtLitros2').val()!=='') {
+        var litros = parseFloat($('#txtLitros2').val());
+    }    
+    var precio = horas*litros*60*0.03;
+    $('#txtPrecioO2').val((parseFloat(precio).toFixed(2)).toString());
+}
+
+function modalO2(id) {
+    $('#txtHorasO2').val('');
+    $('#txtLitros2').val('');
+    $('#txtIdPrecioO2').val(id);
+    $('#txtPrecioO2').val((parseFloat('0.00').toFixed(2)).toString());
+    $('#modalOxigeno').modal("show");
+}
 
 function guardarHistoria (entidad, idboton) {
 	var idformulario = IDFORMMANTENIMIENTO + entidad;
@@ -946,7 +1013,7 @@ function seleccionarServicio(idservicio){
                     "<td><input type='checkbox' id='chkCopiar"+datos[c].idservicio+"' onclick='checkMedico(this.checked,"+datos[c].idservicio+")' /></td>"+
                     "<td><input type='text' class='xyz form-control input-xs' id='txtMedico"+datos[c].idservicio+"' name='txtMedico"+datos[c].idservicio+"' /><input type='hidden' id='txtIdMedico"+datos[c].idservicio+"' name='txtIdMedico"+datos[c].idservicio+"' value='0' /></td>"+
                     "<td align='left'>"+datos[c].tiposervicio+"</td><td>"+inpu+"</td>"+
-                    "<td><input type='hidden' id='txtPrecio2"+datos[c].idservicio+"' name='txtPrecio2"+datos[c].idservicio+"' value='"+datos[c].precio+"' /><input type='text' size='5' class='xyz form-control input-xs' data='numero' id='txtPrecio"+datos[c].idservicio+"' style='width: 60px;' name='txtPrecio"+datos[c].idservicio+"' value='"+datos[c].precio+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+datos[c].idservicio+")}\" onblur=\"calcularTotalItem("+datos[c].idservicio+")\" /></td>"+
+                    "<td><input type='hidden' id='txtPrecio2"+datos[c].idservicio+"' name='txtPrecio2"+datos[c].idservicio+"' value='"+datos[c].precio+"' /><input type='text' size='5' class='xyz form-control input-xs' data='numero' id='txtPrecio"+datos[c].idservicio+"' style='width: 60px;' name='txtPrecio"+datos[c].idservicio+"' value='"+datos[c].precio+"' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+datos[c].idservicio+")}\" onblur=\"calcularTotalItem("+datos[c].idservicio+")\" /><button type='button' style='width: 60px;' title='Fórmula Oxígeno' class='btn btn-success btn-xs' onclick=\"modalO2('"+datos[c].idservicio+"')\"><i class='fa fa-pencil'></i></button></td>"+
                     "<td><input type='text' size='5' class='xyz form-control input-xs' data='numero' id='txtDescuento"+datos[c].idservicio+"' style='width: 60px;' name='txtDescuento"+datos[c].idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem("+datos[c].idservicio+")}\" onblur=\"calcularTotalItem("+datos[c].idservicio+")\" style='width:50%' /></td>"+
                     "<td><input type='hidden' id='txtPrecioHospital2"+datos[c].idservicio+"' name='txtPrecioHospital2"+datos[c].idservicio+"' value='"+datos[c].preciohospital+"' /><input type='text' readonly='' size='5' class='xyz form-control input-xs' style='width: 60px;' data='numero'  id='txtPrecioHospital"+datos[c].idservicio+"' name='txtPrecioHospital"+datos[c].idservicio+"' value='"+datos[c].preciohospital+"' onblur=\"calcularTotalItem("+datos[c].idservicio+")\" /></td>"+
                     "<td><input type='hidden' id='txtPrecioMedico2"+datos[c].idservicio+"' name='txtPrecioMedico2"+datos[c].idservicio+"' value='"+datos[c].preciomedico+"' /><input type='text' readonly='' size='5' class='xyz form-control input-xs' data='numero' style='width: 60px;' id='txtPrecioMedico"+datos[c].idservicio+"' name='txtPrecioMedico"+datos[c].idservicio+"' value='"+datos[c].preciomedico+"' onblur=\"calcularTotalItem("+datos[c].idservicio+")\" /></td>"+
@@ -1001,7 +1068,7 @@ function seleccionarServicioOtro(){
         "<td><input type='checkbox' id='chkCopiar"+idservicio+"' onclick=\"checkMedico(this.checked,'"+idservicio+"')\" /></td>"+
         "<td><input type='text' class='xyz form-control input-xs' id='txtMedico"+idservicio+"' name='txtMedico"+idservicio+"' /><input type='hidden' id='txtIdMedico"+idservicio+"' name='txtIdMedico"+idservicio+"' value='0' /></td>"+
         "<td align='left'><select class='xyz form-control input-xs' id='cboTipoServicio"+idservicio+"' name='cboTipoServicio"+idservicio+"'><option value='0' selected=''>OTROS</option>"+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tiposervicio"]').html()+"</select></td><td><textarea class='xyz form-control input-xs txtareaa' id='txtServicio"+idservicio+"' name='txtServicio"+idservicio+"' /></td>"+
-        "<td><input type='hidden' id='txtPrecio2"+idservicio+"' name='txtPrecio2"+idservicio+"' value='0' /><input type='text' size='5' class='xyz form-control input-xs' style='width: 60px;' data='numero' id='txtPrecio"+idservicio+"' name='txtPrecio"+idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+idservicio+"')}\" onblur=\"calcularTotalItem2('"+idservicio+"')\" /></td>"+
+        "<td><input type='hidden' id='txtPrecio2"+idservicio+"' name='txtPrecio2"+idservicio+"' value='0' /><input type='text' size='5' class='xyz form-control input-xs' style='width: 60px;' data='numero' id='txtPrecio"+idservicio+"' name='txtPrecio"+idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+idservicio+"')}\" onblur=\"calcularTotalItem2('"+idservicio+"')\" />   <button type='button' style='width: 60px;' title='Fórmula Oxígeno' class='btn btn-success btn-xs' onclick=\"modalO2('"+idservicio+"')\"><i class='fa fa-pencil'></i></button>    </td>"+
         "<td><input type='text' size='5' style='width: 60px;' class='xyz form-control input-xs' data='numero' id='txtDescuento"+idservicio+"' name='txtDescuento"+idservicio+"' value='0' onkeydown=\"if(event.keyCode==13){calcularTotalItem2('"+idservicio+"')}\" onblur=\"calcularTotalItem2('"+idservicio+"')\" style='width:50%' /></td>"+
         "<td><input type='hidden' id='txtPrecioHospital2"+idservicio+"' name='txtPrecioHospital2"+idservicio+"' value='0' /><input type='text' size='5' style='width: 60px;' class='xyz form-control input-xs' data='numero'  id='txtPrecioHospital"+idservicio+"' name='txtPrecioHospital"+idservicio+"' value='0' onblur=\"calcularTotalItem2("+idservicio+")\" /></td>"+
         "<td><input type='hidden' id='txtPrecioMedico2"+idservicio+"' name='txtPrecioMedico2"+idservicio+"' value='0' /><input type='text' size='5' class='xyz form-control input-xs' data='numero'  id='txtPrecioMedico"+idservicio+"' name='txtPrecioMedico"+idservicio+"' value='0' style='width: 60px;' /></td>"+

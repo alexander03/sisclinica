@@ -32,24 +32,27 @@
 								{!! Form::date('fechafinal', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fechafinal')) !!}
 							</div>
 
-							<div class="form-group" @if(Auth::user()->usertype_id != 1 && $user->usertype_id != 24 && $user->usertype_id != 2) style="display: none;" @endif id="cajas"></div>
+							<div class="form-group" @if(Auth::user()->usertype_id != 1 && $user->usertype_id != 24 && $user->usertype_id != 2) style="display: none;" @endif id="cajas">
+								
+							</div>
 
 							{!! Form::button('<i class="glyphicon glyphicon-file"></i> Consolidado PDF', array('class' => 'btn btn-danger btn-xs', 'onclick' => 'imprimirDetalleF(\'\')')) !!}
 
 							{!! Form::button('<i class="glyphicon glyphicon-file"></i> Por cajas PDF', array('class' => 'btn btn-warning btn-xs', 'onclick' => 'imprimirDetalleF(\'2\')')) !!}
 
-							@if($user->usertype_id==1 || $user->usertype_id==14 || $user->usertype_id==8)
-								{!! Form::button('<i class="glyphicon glyphicon-print"></i> Movilidad', array('class' => 'btn btn-warning btn-xs', 'onclick' => 'imprimirMovilidadF()')) !!}
-								<!--{! Form::button('<i class="glyphicon glyphicon-file"></i> Excel', array('class' => 'btn btn-success btn-xs', 'onclick' => 'imprimirExcelF()')) !!}-->
-								{!! Form::button('<i class="glyphicon glyphicon-file"></i> Egresos', array('class' => 'btn btn-danger btn-xs', 'onclick' => 'egresosExcel()')) !!}
+							@if($user->usertype_id==1 || $user->usertype_id==14 || $user->usertype_id==8 || $user->usertype_id==2)
+								{{--{!! Form::button('<i class="glyphicon glyphicon-print"></i> Movilidad', array('class' => 'btn btn-warning btn-xs', 'onclick' => 'imprimirMovilidadF()')) !!}
+								{! Form::button('<i class="glyphicon glyphicon-file"></i> Excel', array('class' => 'btn btn-success btn-xs', 'onclick' => 'imprimirExcelF()')) !!}--}}
+								{!! Form::button('<i class="glyphicon glyphicon-file"></i> Egresos Excel', array('class' => 'btn btn-danger btn-xs', 'onclick' => 'egresosExcel()')) !!}
 							@endif
 							{!! Form::button('<i class="glyphicon glyphicon-file"></i> Consolidado Excel', array('class' => 'btn btn-success btn-xs','onclick' => 'pdfDetalleCierreExcelF(\'\')')) !!}
 							{!! Form::button('<i class="glyphicon glyphicon-file"></i> Por cajas Excel', array('class' => 'btn btn-success btn-xs','onclick' => 'pdfDetalleCierreExcelF(\'2\')')) !!}
-							@if($user->usertype_id==1 || $user->usertype_id==23)
+							@if($user->usertype_id==1 || $user->usertype_id==23|| $user->usertype_id==2)
 								{!! Form::button('<i class="glyphicon glyphicon-file"></i> Detalle de Egresos', array('class' => 'btn btn-info btn-xs','onclick' => 'pdfDetalleEgresos()')) !!}
 							@endif
 							@if($user->usertype_id==1 || $user->usertype_id==11 || $user->usertype_id == 2)
-								{!! Form::button('<i class="glyphicon glyphicon-print"></i> Ventas Por Producto Individual', array('class' => 'btn btn-primary btn-xs', 'id' => 'btnBuscar', 'onclick' => 'detallePorProducto();')) !!}
+								{!! Form::button('<i class="glyphicon glyphicon-print"></i> Ventas Por Producto Individual PDF', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnBuscar', 'onclick' => 'detallePorProducto();')) !!}
+								{!! Form::button('<i class="glyphicon glyphicon-print"></i> Ventas Por Producto Individual Excel', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar', 'onclick' => 'detallePorProductoF();')) !!}
 								{!! Form::button('<i class="glyphicon glyphicon-print"></i> Ventas Por Producto Agrupado, Convenio y Particular', array('class' => 'btn btn-info btn-xs', 'id' => 'btnBuscar', 'onclick' => 'detallePorProductoAgrupado();')) !!}				
 							@endif
 							<!--
@@ -73,7 +76,7 @@
 								@endif
 							</select>
 						</div>
-						<div class="form-group">
+						<div class="form-group" @if(Auth::user()->usertype_id != 1 && $user->usertype_id != 24 && $user->usertype_id != 2) style="display: none;" @endif>
 							<select name="almacen__id" id="almacen__id" class='form-control input-sm'>
 								@if($sucursal_id==1)
 								<option value="1">FARMACIA BMOJOS</option>
@@ -138,6 +141,12 @@
 		var fi = $('#fechainicial').val();
 		var ff = $('#fechafinal').val();
 		window.open('caja/pdfDetallePorProducto?caja_id='+$('#Medico').val()+'&fi='+fi+'&ff='+ff,"_blank");
+	}
+
+	function detallePorProductoF(){
+		var fi = $('#fechainicial').val();
+		var ff = $('#fechafinal').val();
+		window.open('caja/pdfDetallePorProductoF?caja_id='+$('#Medico').val()+'&fi='+fi+'&ff='+ff,"_blank");
 	}
 
 	function detallePorProductoAgrupado(){

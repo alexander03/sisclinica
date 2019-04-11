@@ -22,7 +22,7 @@
 	</div>
 	<div class="form-group">
 		<div class="col-lg-12 col-md-12 col-sm-12 text-right">
-			{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardar', 'onclick' => '#')) !!}
+			{!! Form::button('<i class="fa fa-check fa-lg"></i> '.$boton, array('class' => 'btn btn-success btn-sm', 'id' => 'btnGuardardar', 'onclick' => '#')) !!}
 			{!! Form::button('<i class="fa fa-exclamation fa-lg"></i> Cancelar', array('class' => 'btn btn-warning btn-sm', 'id' => 'btnCancelar'.$entidad, 'onclick' => 'cerrarModal();')) !!}
 		</div>
 	</div>
@@ -35,7 +35,7 @@ $(document).ready(function() {
 	$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="visa22"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
 	$(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="master22"]').inputmask('decimal', { radixPoint: ".", autoGroup: true, groupSeparator: "", groupSize: 3, digits: 2 });
 
-	$(document).on('click', '#btnGuardar', function(e) {
+	$(document).on('click', '#btnGuardardar', function(e) {
 		e.preventDefault();
 		e.stopImmediatePropagation();
 

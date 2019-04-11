@@ -1,3 +1,10 @@
+<?php
+	use Illuminate\Support\Facades\Session;
+	use Illuminate\Support\Facades\Auth;
+
+	$sucursal_id = Session::get('sucursal_id');
+?>
+
 <!-- Content Header (Page header) -->
 <section class="content-header">
 	<h1>
@@ -32,6 +39,17 @@
 								{!! Form::label('fechafinal', 'Fecha Final:') !!}
 								{!! Form::date('fechafinal', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fechafinal')) !!}
 							</div>
+							<div class="form-group" @if(Auth::user()->usertype_id != 1 && Auth::user()->usertype_id != 2) style="display: none;" @endif>
+								<select name="caja_id" id="caja_id" class='form-control input-xs' onchange="buscar('{{$entidad}}')">
+									@if($sucursal_id==1)
+									<option value="3">CAJA FARMACIA BMOJOS</option>
+									<option value="1">CAJA BMOJOS</option>
+									@elseif($sucursal_id==2)
+									<option value="4">CAJA FARMACIA ESPECIALIDADES</option>
+									<option value="2">CAJA ESPECIALIDADES</option>
+									@endif
+								</select>
+							</div>			
 							<div class="form-group">
 								{!! Form::label('tipodocumento', 'Tipo Doc.:') !!}
 								{!! Form::select('tipodocumento', $cboTipoDoc,'', array('class' => 'form-control input-xs', 'id' => 'tipodocumento', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
@@ -53,7 +71,7 @@
 								{!! Form::select('situacion', $cboSituacion,'', array('class' => 'form-control input-xs', 'id' => 'situacion', 'onchange' => 'buscar(\''.$entidad.'\')')) !!}
 							</div>
 							{!! Form::button('<i class="glyphicon glyphicon-search"></i> Buscar', array('class' => 'btn btn-info btn-xs', 'id' => 'btnBuscar', 'onclick' => 'buscar(\''.$entidad.'\')')) !!}
-							@if($user->usertype_id==8 || $user->usertype_id==1)
+							@if(Auth::user()->usertype_id==8 || Auth::user()->usertype_id==1)
 							{!! Form::button('<i class="glyphicon glyphicon-cog"></i> Procesar', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnProcesar', 'onclick' => 'procesar(\''.$entidad.'\')', 'style' => 'display:none')) !!}
 							{!! Form::button('<i class="glyphicon glyphicon-cog"></i> Resumen', array('class' => 'btn btn-warning btn-xs', 'id' => 'btnResumen','onclick' => 'resumen();')) !!}
 							<?php /*{!! Form::button('<i class="glyphicon glyphicon-file"></i> No click', array('class' => 'btn btn-danger btn-xs', 'id' => 'btnResumen','onclick' => 'resumen1();')) !!} */ ?>

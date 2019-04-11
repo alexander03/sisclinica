@@ -63,10 +63,17 @@ class VentaadmisionController extends Controller
         $user                  = Auth::user();
         $ventafarmacia         = 'N';
         $tipomovimiento_id     = 1;
-        if($user->usertype_id == 11) {
-            $ventafarmacia     = 'S';
-            $tipomovimiento_id = 2;
-        }
+        if($user->usertype_id == 1||$user->usertype_id == 2){
+            if($request->input('caja_id')=='3'||$request->input('caja_id')=='4') {
+                $ventafarmacia     = 'S';
+                $tipomovimiento_id = 2;
+            }
+        } else {
+            if($user->usertype_id == 11) {
+                $ventafarmacia     = 'S';
+                $tipomovimiento_id = 2;
+            }
+        }        
         $pagina           = $request->input('page');
         $filas            = $request->input('filas');
         $entidad          = 'Ventaadmision';
@@ -74,27 +81,33 @@ class VentaadmisionController extends Controller
                             ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')
                             ->leftjoin('movimiento as m2','m2.id','=','movimiento.movimiento_id')
                             ->where('movimiento.tipomovimiento_id','=',4)
-                            ->where('movimiento.ventafarmacia','=',$ventafarmacia)
+                            ->where('movimiento.ventafarmacia','=',$ventafarmacia);
                             //->where('movimiento.sucursal_id','=',$sucursal_id)
-                            ->where(function($q) use($sucursal_id, $user) {            
-                                if($sucursal_id == 1){
-                                    $q->where('movimiento.caja_id', '=', '1');
-                                    if($user->usertype_id == 11){
-                                        $q->where('movimiento.caja_id', '=', '3')->Where('movimiento.sucursal_id', '=', '1');
+                            if($user->usertype_id == 1||$user->usertype_id == 2){
+                                $resultado=$resultado->where(function($q) use($sucursal_id, $user, $request) {
+                                    $q->where('movimiento.caja_id', '=', $request->input('caja_id'));
+                                });
+                            } else {
+                                $resultado=$resultado->where(function($q) use($sucursal_id, $user) {            
+                                    if($sucursal_id == 1){
+                                        //$q->where('movimiento.caja_id', '=', '1');
+                                        if($user->usertype_id == 11){
+                                            $q->where('movimiento.caja_id', '=', '3');
+                                        }else{
+                                            $q->where('movimiento.caja_id', '=', '1');
+                                        }
                                     }else{
-                                        $q->where('movimiento.caja_id', '=', '1');
+                                        if($user->usertype_id == 11){
+                                            $q->where('movimiento.caja_id', '=', '4');
+                                        }else{
+                                            $q->where('movimiento.caja_id', '=', '2');
+                                        }
+                                        
                                     }
-                                }else{
-                                    if($user->usertype_id == 11){
-                                        $q->where('movimiento.caja_id', '=', '4')->Where('movimiento.sucursal_id', '=', '2');
-                                    }else{
-                                        $q->where('movimiento.caja_id', '=', '2')->Where('movimiento.sucursal_id', '=', '2');
-                                    }
-                                    
-                                }
-                            })
+                                });
+                            }
                             //->where('movimiento.situacion','<>','U')
-                            ->where('m2.tipomovimiento_id','=',$tipomovimiento_id);
+        $resultado        = $resultado->Where('movimiento.sucursal_id', '=', $sucursal_id)->where('m2.tipomovimiento_id','=',$tipomovimiento_id);
         if($request->input('fechainicial')!=""){
             $resultado = $resultado->where('movimiento.fecha','>=',$request->input('fechainicial').' 00:00:00');
         }

@@ -530,22 +530,22 @@ class VentaController extends Controller
     public function buscandoproducto(Request $request)
     {
         $nombre = $request->input("nombre");
-        $idtiposervicio = $request->input("idtiposervicio");
-        $tipopago = $request->input('tipopaciente');
+        //$idtiposervicio = $request->input("idtiposervicio");
+        //$tipopago = $request->input('tipopaciente');
 
         $sucursal_id = Session::get('sucursal_id');
         $user = Auth::user();        
-        if($sucursal_id == 2) {
-            if($user->usertype_id == 11) {
-                $almacen_id = 3;
-            } else {
-                $almacen_id = 4;
-            }            
+        if($user->usertype_id==1||$user->usertype_id==24||$user->usertype_id==2) {
+            $almacen_id = $request->input('almacen_id');
         } else {
-            if($user->usertype_id == 11) {
-                $almacen_id = 1;
+            if($sucursal_id == 1) {
+                if($user->usertype_id == 11) {
+                    $almacen_id = 1;
+                }
             } else {
-                $almacen_id = 2;
+                if($user->usertype_id == 11) {
+                    $almacen_id = 3;
+                }
             }
         }
 
@@ -681,17 +681,17 @@ class VentaController extends Controller
         $sucursal_id = Session::get('sucursal_id');
 
         $user=Auth::user();
-        if($sucursal_id == 1) {
-            if($user->usertype_id == 11) {
-                $almacen_id = 1;
-            } else {
-                $almacen_id = 2;
-            }
+        if($user->usertype_id==1||$user->usertype_id==24||$user->usertype_id==2) {
+            $almacen_id = $request->input('almacen_id');
         } else {
-            if($user->usertype_id == 11) {
-                $almacen_id = 3;
+            if($sucursal_id == 1) {
+                if($user->usertype_id == 11) {
+                    $almacen_id = 1;
+                }
             } else {
-                $almacen_id = 4;
+                if($user->usertype_id == 11) {
+                    $almacen_id = 3;
+                }
             }
         }
 

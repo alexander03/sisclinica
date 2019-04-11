@@ -105,20 +105,16 @@ class MovimientoalmacenController extends Controller
 
         $user=Auth::user();            
 
-        if($user->usertype_id == 1) {
+        if($user->usertype_id==1||$user->usertype_id==24||$user->usertype_id==2) {
             $almacen_id = $request->input('almacen_id');
         } else {
             if($sucursal_id == 1) {
                 if($user->usertype_id == 11) {
                     $almacen_id = 1;
-                } else {
-                    $almacen_id = 2;
                 }
             } else {
                 if($user->usertype_id == 11) {
                     $almacen_id = 3;
-                } else {
-                    $almacen_id = 4;
                 }
             }
         }
@@ -501,17 +497,17 @@ class MovimientoalmacenController extends Controller
         $sucursal_id = Session::get('sucursal_id');
 
         $user=Auth::user();
-        if($sucursal_id == 1) {
-            if($user->usertype_id == 11) {
-                $almacen_id = 1;
-            } else {
-                $almacen_id = 2;
-            }
+        if($user->usertype_id==1||$user->usertype_id==24||$user->usertype_id==2) {
+            $almacen_id = $request->input('almacen_id');
         } else {
-            if($user->usertype_id == 11) {
-                $almacen_id = 3;
+            if($sucursal_id == 1) {
+                if($user->usertype_id == 11) {
+                    $almacen_id = 1;
+                }
             } else {
-                $almacen_id = 4;
+                if($user->usertype_id == 11) {
+                    $almacen_id = 3;
+                }
             }
         }
 
@@ -859,20 +855,16 @@ class MovimientoalmacenController extends Controller
 
             $user=Auth::user();            
 
-            if($user->usertype_id == 1) {
+            if($user->usertype_id==1||$user->usertype_id==24||$user->usertype_id==2) {
                 $almacen_id = $request->input('almacen_id');
             } else {
                 if($sucursal_id == 1) {
                     if($user->usertype_id == 11) {
                         $almacen_id = 1;
-                    } else {
-                        $almacen_id = 2;
                     }
                 } else {
                     if($user->usertype_id == 11) {
                         $almacen_id = 3;
-                    } else {
-                        $almacen_id = 4;
                     }
                 }
             }
@@ -1204,20 +1196,20 @@ class MovimientoalmacenController extends Controller
         $pdf::Output('DocAlmacen.pdf');
     }
 
-    public function consultarlotes($producto_id) {
+    public function consultarlotes($producto_id, Request $request) {
         $sucursal_id = Session::get('sucursal_id');
-        $user = Auth::user();        
-        if($sucursal_id == 2) {
-            if($user->usertype_id == 11) {
-                $almacen_id = 3;
-            } else {
-                $almacen_id = 4;
-            }            
+        $user = Auth::user();    
+        if($user->usertype_id==1||$user->usertype_id==24||$user->usertype_id==2) {
+            $almacen_id = $request->input('almacen_id');
         } else {
-            if($user->usertype_id == 11) {
-                $almacen_id = 1;
+            if($sucursal_id == 1) {
+                if($user->usertype_id == 11) {
+                    $almacen_id = 1;
+                }
             } else {
-                $almacen_id = 2;
+                if($user->usertype_id == 11) {
+                    $almacen_id = 3;
+                }
             }
         }
         $producto = Producto::find($producto_id);

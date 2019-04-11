@@ -1,19 +1,27 @@
+<?php  
+	use Illuminate\Support\Facades\Session;
+	use Illuminate\Support\Facades\Auth;
+
+	$sucursal_id = Session::get('sucursal_id');
+	$usertype_id = Auth::user()->usertype_id;
+?>
+
 <div id="divMensajeError{!! $entidad !!}"></div>
 {!! Form::model($movimientoalmacen, $formData) !!}	
 	{!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
 	{!! Form::hidden('total', '0', array( 'id' => 'total')) !!}
 	<input type="hidden" name="cantproductos" id="cantproductos" value="0">
 	<div class="col-lg-4 col-md-4 col-sm-4">
-		<div class="form-group" style="height: 12px;display: none;">
+		<div class="form-group" style="height: 12px;@if($usertype_id!==1&&$usertype_id!==2&&$usertype_id!==24) display:none; @endif">
 			{!! Form::label('almacen_id', 'Almacen :', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::select('almacen_id', $cboAlmacen, null, array('style' => 'background-color: #D4F0FF;' ,'class' => 'form-control input-xs', 'id' => 'almacen_id', 'onclick' => 'generarNumero(this.value);')) !!}
+				{!! Form::select('almacen_id', $cboAlmacen, null, array('style' => 'background-color: #D4F0FF;' ,'class' => 'form-control input-xs', 'id' => 'almacen_id', 'onchange' => 'generarNumero($("#tipo").val());buscarProducto($("#nombreproducto").val());')) !!}
 			</div>
 		</div>
 		<div class="form-group" style="height: 12px;">
 			{!! Form::label('tipo', 'Tipo:', array('class' => 'col-lg-4 col-md-4 col-sm-4 control-label')) !!}
 			<div class="col-lg-7 col-md-7 col-sm-7">
-				{!! Form::select('tipo', $cboTipo, null, array('style' => 'background-color: #D4F0FF;' ,'class' => 'form-control input-xs', 'id' => 'tipo', 'onclick' => 'generarNumero(this.value);', 'onchange' => 'gestionlotes(this.value, 1);')) !!}
+				{!! Form::select('tipo', $cboTipo, null, array('style' => 'background-color: #D4F0FF;' ,'class' => 'form-control input-xs', 'id' => 'tipo', 'onchange' => 'gestionlotes(this.value, 1);')) !!}
 			</div>
 		</div>
 		<div class="form-group" id="divDescuentokayros" style="height: 12px;">
@@ -102,7 +110,7 @@
 				<td>&nbsp</td>
 				<td>{!! Form::text('lote', null, array('class' => 'form-control input-xs lote', 'id' => 'lote', 'size' => '6')) !!}</td>
 				<td>&nbsp</td>
-				<td><button class="btn btn-primary btn-xs botonlotes" style="display: none;" onclick="" type="button"><i class="glyphicon glyphicon-list-alt"></i> Seleccionar Lotes</button></td>
+				<td><button class="btn btn-primary btn-xs botonlotes" style="display: none;" onclick="modalLotes();" type="button"><i class="glyphicon glyphicon-list-alt"></i> Seleccionar Lotes</button></td>
 			</tr>
 				
 			</table>
@@ -264,7 +272,7 @@ $(document).ready(function() {
 			var key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0;
 			if(key == 13) {
 				e.preventDefault();
-				if($('#tipo').val() == '9') {
+				if($(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tipo"]').val() == '9') {
 					addpurchasecart();
 				} else {
 					var inputs = $(this).closest('form').find(':input:visible:not([disabled]):not([readonly])');
@@ -276,7 +284,7 @@ $(document).ready(function() {
 			var key = e.charCode ? e.charCode : e.keyCode ? e.keyCode : 0;
 			if(key == 13) {
 				e.preventDefault();
-				if($('#lote').attr('readonly') == 'readonly') {
+				if($(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="lote"]').attr('readonly') == 'readonly') {
 					addpurchasecart();
 				} else {
 					var inputs = $(this).closest('form').find(':input:visible:not([disabled]):not([readonly])');
@@ -318,12 +326,12 @@ $(document).ready(function() {
 			}
 		});
 		personas.initialize();
-		$('#nombrepersona').typeahead(null,{
+		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="nombrepersona"]').typeahead(null,{
 			displayKey: 'value',
 			source: personas.ttAdapter()
 		}).on('typeahead:selected', function (object, datum) {
-			$('#person_id').val(datum.id);
-			$('#cajafarmacia').focus();
+			$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="person_id"]').val(datum.id);
+			$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="cajafarmacia"]').focus();
 		});
 
 	var doctores = new Bloodhound({
@@ -344,11 +352,11 @@ $(document).ready(function() {
 			}
 		});
 		doctores.initialize();
-		$('#nombredoctor').typeahead(null,{
+		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="nombredoctor"]').typeahead(null,{
 			displayKey: 'value',
 			source: doctores.ttAdapter()
 		}).on('typeahead:selected', function (object, datum) {
-			$('#doctor_id').val(datum.id);
+			$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="doctor_id"]').val(datum.id);
 		});
 
 
@@ -441,8 +449,9 @@ function buscarProducto(valor){
         $.ajax({
             type: "POST",
             url: "venta/buscandoproducto",
-            data: "nombre="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="nombreproducto"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
+            data: "nombre="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="nombreproducto"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val()+"&almacen_id="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="almacen_id"]').val(),
             success: function(a) {
+            	$('.botonlotes').css('display', 'none');
                 datos=JSON.parse(a);
                 //$("#divProductos").html("<table class='table table-bordered table-condensed table-hover' border='1' id='tablaProducto'><thead><tr><th class='text-center'>P. Activo</th><th class='text-center'>Nombre</th><th class='text-center'>Presentacion</th><th class='text-center'>Stock</th><th class='text-center'>P.Kayros</th><th class='text-center'>P.Venta</th></tr></thead></table>");
                 $("#divProductos").css("overflow-x",'hidden');
@@ -472,7 +481,7 @@ function buscarProducto(valor){
                 });
                 $('#tablaProducto_filter').css('display','none');
                 $("#tablaProducto_info").css("display","none");
-                gestionlotes($('#tipo').val());
+                gestionlotes($(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tipo"]').val());
     	    }
         });
     } else {
@@ -491,7 +500,7 @@ function cambiar() {
 		$("#inicial").prop('readonly', false);*/
 	}else{
 		$("#numerodias").prop('readonly', true);
-		$('#serie').focus();
+		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="serie"]').focus();
 	}
 	
 }
@@ -511,7 +520,8 @@ function cambiar2() {
 function seleccionarProducto(idproducto){
 	//alert(idproducto);
 	var _token =$('input[name=_token]').val();
-	$.post('{{ URL::route("venta.consultaproducto")}}', {idproducto: idproducto,_token: _token} , function(data){
+	var almacen_id=$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="almacen_id"]').val();
+	$.post('{{ URL::route("venta.consultaproducto")}}', {idproducto: idproducto,_token: _token,almacen_id: almacen_id} , function(data){
 		//$('#divDetail').html(data);
 		//calculatetotal();
 		var datos = data.split('@');
@@ -527,7 +537,7 @@ function seleccionarProducto(idproducto){
 		} else {
 			$('#lote').attr('readonly', true);
 		}
-		gestionlotes($('#tipo').val());
+		gestionlotes($(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tipo"]').val());
 		$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="cantidad"]').focus();
 	});	
 }
@@ -686,7 +696,7 @@ function seleccionarCliente(id) {
 		$('#nombrepersona').val(datos[1]);
 		
 		cerrarModal();
-		var tipoventa = $('#tipoventa').val();
+		var tipoventa = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tipoventa"]').val();
 		if (tipoventa == 'N') {
 			$('#nombreproducto').focus();
 		}else{
@@ -781,7 +791,7 @@ function agregarconvenio(id){
 
 	function addpurchasecart(elemento = 'N'){
 		var fraccion = $('#pfraccion').val();
-		var tipo = $('#tipo').val();
+		var tipo = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tipo"]').val();
 		var cantidad = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="cantidad"]').val();
 		cantidad = cantidad.replace(",", "");
 		var precio = $(IDFORMMANTENIMIENTO + '{{ $entidad }} :input[id="preciocompra"]').val();
@@ -819,7 +829,7 @@ function agregarconvenio(id){
 	            setTimeout(function () {
 	                $('#preciocompra').focus();
 	            },2000) 
-		}else if(fechavencimiento.trim() === '' && $('#tipo').val() === '8'){
+		}else if(fechavencimiento.trim() === '' && $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tipo"]').val() === '8'){
 			bootbox.alert("Ingrese Fecha Vencimiento");
             setTimeout(function () {
                 $('#fechavencimiento').focus();
@@ -895,7 +905,7 @@ function agregarconvenio(id){
 	                $('#person_id').val(dat[0].person_id);
 					$('#nombrepersona').val(dat[0].paciente);
 					cerrarModal();
-	                var tipoventa = $('#tipoventa').val();
+	                var tipoventa = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tipoventa"]').val();
 					if (tipoventa == 'N') {
 						$('#nombreproducto').focus();
 					}else{
@@ -930,7 +940,7 @@ function agregarconvenio(id){
 	                $('#empresa_id').val(dat[0].empresa_id);
 					$('#nombrepersona').val(dat[0].nombre);
 					cerrarModal();
-	                var tipoventa = $('#tipoventa').val();
+	                var tipoventa = $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tipoventa"]').val();
 					if (tipoventa == 'N') {
 						$('#nombreproducto').focus();
 					}else{
@@ -1035,6 +1045,10 @@ $(document).on('click', '.escogerFila', function(){
 	$(this).css('background-color', 'yellow');
 });
 
+function modalLotes() {
+	modal("movimientoalmacen/consultarlotes/" +$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="producto_id"]').val() + "?almacen_id=" + $(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="almacen_id"]').val(), "Seleccionar Lotes para Salida de Productos");
+}
+
 function gestionlotes(valor, borrar = 0){	
 	if(borrar === 1) {			
 		$('#totalmovimiento2').html(parseFloat(0).toFixed(2));
@@ -1051,7 +1065,8 @@ function gestionlotes(valor, borrar = 0){
 		$('#cantidad').val('');		
 		if($('#tienelote').val() !== '') {
 			if($('#tienelote').val() === 'SI') {
-				$('.botonlotes').css('display', 'block').attr('onclick', 'modal("movimientoalmacen/consultarlotes/' + $('#producto_id').val() + '","Seleccionar Lotes para Salida de Productos")');
+				$('.cantidad').css('display', 'none');
+				$('.botonlotes').css('display', 'block');
 				$('.cantidad').css('display', 'none');
 			} else {
 				$('.botonlotes').css('display', 'none');
@@ -1068,6 +1083,7 @@ function gestionlotes(valor, borrar = 0){
 	if($('#tienelote').val() === 'NO') {
 		$('#nombreproducto').focus();
 	}
+	generarNumero(valor);
 }
 
 </script>

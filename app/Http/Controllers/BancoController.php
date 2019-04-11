@@ -225,3 +225,27 @@ class BancoController extends Controller
         return view('app.confirmarEliminar')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar','mensaje'));
     }
 }
+
+
+##- reporte mensual de caja ojos
+##- reporte mensual de caja especialidades
+##- reporte de pago de doctores de particular y convenio pagado en especialidades
+##- en PDF de pago de ojos solo contemplar fecha...paciente...tipo paciente... servicio...monto a pagar...plan. 
+##- en Excel de pago de ojos...más detallado. 
+##- validar en ojos q jale deducible y copago. 
+##- pago de doctores de especialidades usar. 
+##- reporte de farmacia...agregar convenio tanto el detalle como el consolidado.
+
+##Néstor...en las opciones de caja de farmacia agrega q le salga reporte detallado de venta
+##En el cierre de caja de farmacia que salga el tipo de paciente...particular o convenio
+##Q ya no aparezca el comentario en el cierre de caja de farmacia...que aparezca allí el detalle de los productos
+##Habilita editar la forma de pago en caja de farmacia
+##Acesos a reportes para Administrador y Logistica (SOLUCIONADO)
+##- fórmula de oxígeno.
+
+- las guías y prefactura solicitar formato.
+- agregar empresa en historia cuando es convenio...para fines publicitarios.
+- en hojas de costo mostrar las guías pendientes a pagar.
+- reportes estadísticas según formato a enviar.
+- en hoja de costos agregar cie10.
+- Impresión de egresos de pago de doctores de especialidades
