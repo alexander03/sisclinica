@@ -17,95 +17,104 @@ use App\Person;
 		@foreach ($doctores as $doctor)
 
 			<?php
-				$cantconsultaplan = 0;
-				$montomedicoconsulta = 0;
-				$montomedicoconsultaplan = 0;
-				$montomedicoexamenes = 0;
-				$pagomedicoconsulta = 0;
-				$pagomedicoexamenes = 0;
-			?>
+				$montoconsultasp = 0;
+				$montoconsultasc = 0;
+				$montoexamenes = 0; 
+				$pagoconsultasp = 0;
+				$pagoconsultasc = 0;
+				$pagoexamenes = 0; 
 
-			@foreach ($lista as $key => $value)
-
-				@if($doctor->id == $value->medico_id)
-					@if($value->plan_id == 6)
-						@if($value->tiposervicio_id == 1)
-						<?php
-							$montomedicoconsulta += $value->pagohospital*$value->cantidad;
-						?>
-						@elseif($value->tiposervicio_id == 21)
-						<?php
-							$montomedicoexamenes += $value->pagohospital*$value->cantidad;
-						?>
-						@endif
-					@else
-						@if($value->tiposervicio_id == 1)
-								@if($value->precio != 0)
-								<?php
-									$cantconsultaplan ++;
-									$montomedicoconsultaplan += $value->pagohospital*$value->cantidad;
-								?>
-							@endif
-						@endif
-					@endif
-				@endif
-				
-			@endforeach
-
-			@if($montomedicoconsulta != 0 || $montomedicoexamenes != 0)
-			<?php
-				/*if($doctor->id == 3){
-					$pagomedicoexamenes = $montomedicoexamenes / 1.18 * 0.25; 
-					$pagomedicoconsulta = $montomedicoconsulta * 0.58 + $cantconsultaplan * 30;
-				}else{
-					$pagomedicoexamenes = $montomedicoexamenes / 1.18 * 0.25; 
-					$pagomedicoconsulta = $montomedicoconsulta / 1.18 * 0.25 + $cantconsultaplan * 30;
-				}*/
-				$consultas = 0;
-				$examenes = 0;
-				$montoconvenio = 0;
+				//formulas de pago
 				if($doctor->consultas != null){
 					$consultas = $doctor->consultas;
+				}else{
+					$consultas = 0;
 				}
 				if($doctor->examenes != null){
 					$examenes = $doctor->examenes;
+				}else{
+					$examenes = 0;
 				}
 				if($doctor->montoconvenio != null){
 					$montoconvenio = $doctor->montoconvenio;
-				}
-				if($doctor->consultasigv == 1){
-					$particular = $montomedicoconsulta / 1.18 * ( $doctor->consultas / 100 );
 				}else{
-					$particular = $montomedicoconsulta * $doctor->consultas / 100 ;
+					$montoconvenio = 0;
 				}
-				$convenio = $cantconsultaplan * $montoconvenio;
-				$pagomedicoconsulta = $particular + $convenio;
-				if($doctor->examenesigv == 1){
-					$pagomedicoexamenes = $montomedicoexamenes / 1.18 * $doctor->examenes / 100; 
-				}else{
-					$pagomedicoexamenes = $montomedicoexamenes * $doctor->examenes / 100;
+				//fin formulas de pago
+
+				foreach ($lista as $value){
+
+					if($doctor->id == $value->medico_id){
+			
+						$montoservicio = $value->precio * $value->cantidad;
+
+						if($value->plan_id == 6){
+
+							if($value->tiposervicio_id == 1){
+
+								$montoconsultasp += $montoservicio;
+
+								if($doctor->consultasigv == 1){
+									$pagodoctor = $montoservicio / 1.18 * ( $consultas / 100 );
+								}else{
+									$pagodoctor = $montoservicio * $consultas / 100 ;
+								}
+
+								$pagoconsultasp += $pagodoctor;
+
+							}else if($value->tiposervicio_id == 21){
+								
+								$montoexamenes += $montoservicio;
+
+								if($doctor->examenesigv == 1){
+									$pagodoctor = $montoservicio / 1.18 * $examenes / 100; 
+								}else{
+									$pagodoctor = $montoservicio * $examenes / 100;
+								}
+
+								$pagoexamenes += $pagodoctor;
+
+							}
+						}else{
+
+							if($value->tiposervicio_id == 1){
+
+								//if($value->precio != 0){
+									$montoconsultasc += $montoservicio;
+			
+									$pagodoctor = $montoconvenio;
+			
+									$pagoconsultasc += $pagodoctor;
+			
+								//}
+							}
+						}
+
+					}
+					
 				}
+
 			?>
-			@if($pagomedicoexamenes + $pagomedicoconsulta != 0)
+
+			@if($pagoconsultasc != 0 || $pagoconsultasp != 0|| $pagoexamenes != 0)
 			<tr>
 				<td>{{ $doctor->apellidopaterno . " " . $doctor->apellidomaterno . " " . $doctor->nombres}}</td>
-				<td width="6%" align ="right">{{ number_format( round($montomedicoconsulta + $montomedicoconsultaplan,1) ,2,'.','') }}</td>
-				<td width="6%" align ="right">{{ number_format( round($montomedicoexamenes,1) ,2,'.','') }}</td>
-				<td width="6%" align ="right">{{ number_format( round($montomedicoexamenes + $montomedicoconsulta + $montomedicoconsultaplan,1) ,2,'.','') }}</td>
-				<td width="6%" align ="right">{{ number_format( round($particular,1) ,2,'.','') }}</td>
-				<td width="6%"align ="right">{{ number_format( round($convenio,1) ,2,'.','') }}</td>
-				<td width="6%" align ="right">{{ number_format( round($pagomedicoexamenes,1) ,2,'.','') }}</td>
-				<td width="6%" align ="right">{{ number_format( round($pagomedicoexamenes + $pagomedicoconsulta,1) ,2,'.','') }}</td>
+				<td width="6%" align ="right">{{ number_format( round($montoconsultasc + $montoconsultasp,1) ,2,'.','') }}</td>
+				<td width="6%" align ="right">{{ number_format( round($montoexamenes,1) ,2,'.','') }}</td>
+				<td width="6%" align ="right">{{ number_format( round($montoconsultasc + $montoconsultasp + $montoexamenes,1) ,2,'.','') }}</td>
+				<td width="6%" align ="right">{{ number_format( round($pagoconsultasp,1) ,2,'.','') }}</td>
+				<td width="6%"align ="right">{{ number_format( round($pagoconsultasc,1) ,2,'.','') }}</td>
+				<td width="6%" align ="right">{{ number_format( round($pagoexamenes,1) ,2,'.','') }}</td>
+				<td width="6%" align ="right">{{ number_format( round($pagoconsultasc + $pagoconsultasp + $pagoexamenes,1) ,2,'.','') }}</td>
 				<td>
-						<button class="btn btn-danger btn-xs" id="btnDetalle" data-doctor_id="{{$doctor->id}}" data-fechainicial="{{$fechainicial}}" data-fechafinal="{{$fechafinal}}" onclick="mostrarDetallePago(this);" type="button">
-						<i class="fa fa-list fa-lg"></i> Detalle
+					<button class="btn btn-danger btn-xs" id="btnDetalle" data-doctor_id="{{$doctor->id}}" data-fechainicial="{{$fechainicial}}" data-fechafinal="{{$fechafinal}}" onclick="mostrarDetallePago(this);" type="button">
+						<i class="fa fa-list fa-lg"></i> Detalle a pagar
 					</button>
-					<button disabled class="btn btn-success btn-xs" id="btnPagar" data-doctor_id="{{$doctor->id}}" data-pagoconsultas="{{ $pagomedicoconsulta }}" data-pagoexamenes="{{ $pagomedicoexamenes }}" data-fechainicial="{{$fechainicial}}" data-fechafinal="{{$fechafinal}}" onclick="guardarPagoDoctoresOjos(this);" type="button">
+					<button class="btn btn-success btn-xs" id="btnPagar" data-doctor_id="{{$doctor->id}}" data-pagoconsultasp="{{ $pagoconsultasp }}" data-pagoconsultasc="{{ $pagoconsultasc }}" data-pagoexamenes="{{ $pagoexamenes }}" data-fechainicial="{{$fechainicial}}" data-fechafinal="{{$fechafinal}}" onclick="guardarPagoDoctoresOjos(this);" type="button">
 						<i class="fa fa-check fa-lg"></i> Pagar
 					</button>
 				</td>
 			</tr>	
-			@endif
 			@endif
 		@endforeach
 
@@ -116,7 +125,7 @@ use App\Person;
 </div>
 <script type="text/javascript">
 $(document).ready(function() {
-	configurarAnchoModal('1000');
+	configurarAnchoModal('1100');
 }); 
 
 function checkear(id){

@@ -12751,12 +12751,10 @@ class CajaController extends Controller
 
         $resultado        = Movimiento::join('detallemovcaja as dmc','dmc.movimiento_id','=','movimiento.id')
                             ->join('person as medico','medico.id','=','dmc.persona_id')
+                            ->join('movimiento as venta','movimiento.id','=','venta.movimiento_id')//venta
                             ->join('person as paciente','paciente.id','=','movimiento.persona_id')
+                            ->join('historia as historia','paciente.id','=','historia.person_id')
                             ->join('person as responsable','responsable.id','=','movimiento.responsable_id')
-                            ->leftjoin('movimiento as mref',function($join){
-                                $join->on('mref.movimiento_id', '=', 'movimiento.id')
-                                    ->where('mref.situacion','=','C'); // cobrado
-                            })
                             ->leftjoin('servicio as s','s.id','=','dmc.servicio_id')
                             ->join('plan','plan.id','=','movimiento.plan_id')
                             ->leftjoin('person as referido','referido.id','=','movimiento.doctor_id') // referido
@@ -12795,7 +12793,7 @@ class CajaController extends Controller
         $cabecera[]       = array('valor' => 'Operacion', 'numero' => '2');
 
         $doctores = Person::where('workertype_id','=','1')->where('especialidad_id','=','12')->where('id','!=',9277)->where('id','!=',9278)->orderBy('apellidopaterno','ASC')->get();
-        
+
         //$conf = DB::connection('sqlsrv')->table('BL_CONFIGURATION')->get();
         if (count($lista) > 0) {
             return view($this->folderview.'.listapagosdoctoresojos')->with(compact('lista', 'cabecera','fechainicial','fechafinal', 'ruta','tipo','doctores'));
@@ -12830,7 +12828,6 @@ class CajaController extends Controller
                                 $q->where('s.tiposervicio_id','=',1)->orWhere('s.tiposervicio_id','=',21); // CONSULTA - EXAMENES
                             })
                             ->where('movimiento.sucursal_id','=', 1 ); // solo ojos
-        
         if($fechainicial!=""){
             $resultado = $resultado->where('movimiento.fecha','>=',$fechainicial);
         }
@@ -12869,8 +12866,8 @@ class CajaController extends Controller
             $egreso->montoconsultasp = round($pagoconsultasp,1);
             $egreso->montoconsultasc = round($pagoconsultasc,1);
             $egreso->montoexamenes = round($pagoexamenes,1);
-            $egreso->comentario="Pago Consultas: " . number_format( round($pagoconsultasp + $pagoconsultasc,1) ,2,'.','') . " - Pago Exámenes: " . number_format( round($pagoexamenes,1) ,2,'.','') . " - Fecha: " . date("d/m/Y", strtotime($fechainicial)) . " al " . date("d/m/Y", strtotime($fechafinal));
-            $egreso->caja_id= 1;
+            $egreso->comentario="Pago Consultas: " . number_format( round($pagoconsultasp + $pagoconsultasc,1) ,2,'.','') . " - Pago Exámenes: " . number_format( round($pagoexamenes,1) ,2,'.','') . " - Fecha: " . date("d/m/Y", strtotime($fechainicial)) . " al " . date("d/m/Y", strtotime($fechafinal)) ;
+            $egreso->caja_id= 1 ;
             //$egreso->situacion='C';
             $egreso->save(); 
 
@@ -12880,6 +12877,7 @@ class CajaController extends Controller
                 $detalle->egreso_id = $egreso->id;
                 $detalle->save();
             }
+
         });
         return is_null($error) ? "OK" : $error;
     }
@@ -12905,11 +12903,11 @@ class CajaController extends Controller
                             ->where('dmc.pagado','=', 0) // no pagado
                             ->whereNull('dmc.deleted_at') // no eliminado
                             ->where('movimiento.situacion','C') // cobrado
+                            //->where('movimiento.situacion2','L') // atendido
                             ->where(function($q) {            
                                 $q->where('s.tiposervicio_id','=',1)->orWhere('s.tiposervicio_id','=',21); // CONSULTA - EXAMENES
                             })
                             ->where('movimiento.sucursal_id','=', 1 ); // solo ojos
-
         if($fechainicial!=""){
             $resultado = $resultado->where('movimiento.fecha','>=',$fechainicial);
         }
@@ -12922,6 +12920,7 @@ class CajaController extends Controller
 
         $resultado        = $resultado->orderBy(DB::raw('case when venta.id>0 then venta.fecha else movimiento.fecha end'), 'desc')->orderBy('venta.serie', 'ASC')->orderBy('venta.numero', 'ASC')->groupBy('dmc.id')
         ->select('s.tiposervicio_id as tiposervicio_id','venta.serie as serieventa', 'venta.numero as numeroventa','venta.tipodocumento_id as tipodocventa', 'dmc.precio as precio' ,'dmc.id as detalle_id','historia.tipopaciente as tipopaciente','dmc.persona_id as medico_id','venta.total','plan.id as plan_id','plan.nombre as plan2','venta.tipodocumento_id','venta.serie','venta.numero','movimiento.soat',DB::raw('case when venta.id>0 then (case when venta.fecha=movimiento.fecha then venta.fecha else movimiento.fecha end) else movimiento.fecha end as fecha'),'movimiento.doctor_id as referido_id','dmc.servicio_id','dmc.descripcion as servicio2','dmc.pagohospital as monto','movimiento.tarjeta','movimiento.tipotarjeta','movimiento.voucher','movimiento.situacion','dmc.recibo','dmc.fechaentrega','dmc.id as iddetalle',DB::raw('case when s.tarifario_id>0 then (select concat(codigo,\' \',nombre) from tarifario where id=s.tarifario_id) else s.nombre end as servicio'),'dmc.cantidad as cantidad','dmc.pagodoctor',DB::raw('concat(medico.apellidopaterno,\' \',medico.apellidomaterno,\' \',medico.nombres) as medico'),DB::raw('concat(referido.apellidopaterno,\' \',referido.apellidomaterno,\' \',referido.nombres) as referido'),DB::raw('concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) as paciente2'),DB::raw('responsable.nombres as responsable'),DB::raw('movimiento.numero as numero2'),'venta.ventafarmacia','venta.estadopago','venta.formapago','movimiento.nombrepaciente','movimiento.copago','movimiento.id','venta.id as venta_id');
+        $lista            = $resultado->get();
 
         $pdf = new TCPDF();
         $pdf::SetTitle('Reporte de Pago Oftalmologia ' . $fechainicial . " - " . $fechafinal);
@@ -12953,6 +12952,8 @@ class CajaController extends Controller
         $pagoconsultasc = 0;
         $pagoexamenes = 0; 
         foreach ($lista as $value) {
+            
+
             $consultas = 0;
             $examenes = 0;
             $montoconvenio = 0;
@@ -13000,18 +13001,18 @@ class CajaController extends Controller
 
                 if($value->tiposervicio_id == 1){
 
-                    //if($value->precio != 0){
-
+                 //   if($value->precio != 0){
                         $montoconsultasc += $montoservicio;
 
                         $pagodoctor = $montoconvenio;
 
                         $pagoconsultasc += $pagodoctor;
 
-                    //}
+            //        }
                 }
 
             }
+
             if($pagodoctor !=0){
                 $pdf::Cell(20,10, date("d/m/Y",strtotime($value->fecha)),1,0,'C'); 
                 $comprobante ="";
@@ -13035,7 +13036,8 @@ class CajaController extends Controller
                 $pdf::Cell(27,10, number_format($pagodoctor,2,'.','') ,1,0,'R');
                 //$pdf::Cell(10,10, $value->detalle_id ,1,0,'R');
                 $pdf::Ln();
-            }            
+            }
+            
         }
 
         $pdf::SetFont('helvetica','',7);   
@@ -13440,7 +13442,7 @@ class CajaController extends Controller
                                 $cells->setAlignment('center');
                             });
                             
-                            $sheet->cells('N'.$a.':N'.$a, function ($cells) {
+                            $sheet->cells('L'.$a.':L'.$a, function ($cells) {
                                 $cells->setFont(array(
                                     'family'     => 'Calibri',
                                     'size'       => '11',
@@ -13527,7 +13529,7 @@ class CajaController extends Controller
             }
         }
 
-        $pdf::Output('ReportePagoEspecialidades.pdf');   
+        $pdf::Output('ReportePagoOjos.pdf');   
 
     }
 
@@ -13535,13 +13537,13 @@ class CajaController extends Controller
         setlocale(LC_TIME, 'spanish');
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+        
         Excel::create('ExcelReporte', function($excel) use( $request ) {
 
             $fecha = $request->input('fecha');
 
             $fecha1 = date("d/m/Y", strtotime($fecha));
-
+    
             $user=Auth::user();
             $responsable = $user->login;
 
