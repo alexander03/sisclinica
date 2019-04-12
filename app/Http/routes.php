@@ -1142,6 +1142,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('importProducto', 'ExcelController@importProducto');
     Route::post('historiasConvenio', 'ExcelController@historiasConvenio');
 
+    /* RESPALDO */
+    Route::post('respaldo/buscar', 'RespaldoController@buscar')->name('respaldo.buscar');
+    Route::get('respaldo/eliminar/{id}/{listarluego}', 'RespaldoController@eliminar')->name('respaldo.eliminar');
+    Route::resource('respaldo', 'RespaldoController', array('except' => array('show')));
+
+    Route::post('respaldo/importarArchivo', 'RespaldoController@importarArchivo')->name('respaldo.importarArchivo');
+
     //Reportes Tramas
     Route::get('/tramas', function(){
         return View::make('app.trama2.tramas');
