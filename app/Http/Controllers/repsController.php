@@ -98,22 +98,22 @@ class repsController extends Controller
      * @return Response 
      */
     public function medicos(){
-    	$response = '<div class="form-group">
-				  <label for="Medico">Médico:</label>
-				  <select class="form-control input-xs" id="Medico">
-				  <option value="0">TODOS</option>';
-    	$resultado        = Person::join('especialidad','especialidad.id','=','person.especialidad_id')
+        $response = '<div class="form-group">
+                  <label for="Medico">Médico:</label>
+                  <select class="form-control input-xs" id="Medico">
+                  <option value="0">TODOS</option>';
+        $resultado        = Person::join('especialidad','especialidad.id','=','person.especialidad_id')
                             ->where('workertype_id','=','1')->orderBy('apellidopaterno', 'ASC')
                             ->select('person.*');
         $list      = $resultado->get();
         $data = array();
         foreach ($list as $key => $value) {
-        	$response = $response.'<option value="'.$value->id.'">'.(trim($value->apellidopaterno." ".$value->apellidomaterno." ".$value->nombres)).'</option>';
+            $response = $response.'<option value="'.$value->id.'">'.(trim($value->apellidopaterno." ".$value->apellidomaterno." ".$value->nombres)).'</option>';
         }
         
-		$response = $response.'</select></div>';
-		return $response;
-	}
+        $response = $response.'</select></div>';
+        return $response;
+    }
     public function pnombres($apep,$apem){
         $response = '<div class="form-group">
                   <label for="Nombre">Nombres:</label>
@@ -506,9 +506,14 @@ class repsController extends Controller
         $title            = 'Caja Diaria';
         $user = Auth::user();
         $sucursal_id = Session::get('sucursal_id');
+        $almacen_id = 1;
+        if($sucursal_id ==  2) {
+            $almacen_id = 3;
+        }
         $productos = Producto::select('nombre', 'producto.id', DB::raw('SUM(cantidad) as cant'))
                                 ->orderBy('nombre')
                                 ->join('stock', 'stock.producto_id', '=', 'producto.id')
+                                ->where('almacen_id', $almacen_id)
                                 ->having(DB::raw('SUM(cantidad)'), '>', 0)
                                 ->groupBy('stock.producto_id')
                                 ->orderBy('producto.nombre')
@@ -516,26 +521,26 @@ class repsController extends Controller
         return view($this->folderview.'.caja')->with(compact('entidad', 'title','user', 'productos'));
     }
 
-	public function hosp(){
-		$entidad          = 'reporte';
+    public function hosp(){
+        $entidad          = 'reporte';
         $title            = 'Hospitalizados General';
         
         return view($this->folderview.'.hosp')->with(compact('entidad', 'title'));
-	}
+    }
 
-	public function pacM(){
-		$entidad          = 'reporte';
+    public function pacM(){
+        $entidad          = 'reporte';
         $title            = 'HOSPITALIZACION';
         
         return view($this->folderview.'.pacM')->with(compact('entidad', 'title'));
-	}
+    }
 
-	public function pacP(){
-		$entidad          = 'reporte';
+    public function pacP(){
+        $entidad          = 'reporte';
         $title            = 'Ingresos y altas por Paciente';
         
         return view($this->folderview.'.pacP')->with(compact('entidad', 'title'));
-	}
+    }
 
     public function fallecidos(){
         $entidad          = 'reporte';
@@ -565,12 +570,12 @@ class repsController extends Controller
         return view($this->folderview.'.consulpago')->with(compact('entidad', 'title'));
     }
 
-	public function salaope(){
-		$entidad          = 'reporte';
+    public function salaope(){
+        $entidad          = 'reporte';
         $title            = 'Sala de Operaciones';
         
         return view($this->folderview.'.salaope')->with(compact('entidad', 'title'));
-	}
+    }
 
     public function index()
     {

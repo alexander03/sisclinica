@@ -430,7 +430,7 @@ class SalaoperacionController extends Controller
         return json_encode($data);
     }
     
-   	public function pdfListar(Request $request){
+    public function pdfListar(Request $request){
         $entidad          = 'Salaoperacion';
         $paciente         = Libreria::getParam($request->input('paciente'),'');
         $doctor           = Libreria::getParam($request->input('doctor'),'');
