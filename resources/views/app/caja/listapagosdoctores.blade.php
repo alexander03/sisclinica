@@ -117,6 +117,7 @@ function guardarPagoDoctores(){
 		success: function(a) {
 			alert('GUARDADO CORRECTAMENTE...');
 			$('#btnGuardar').prop('disabled',false);
+			imprimirPagoDoctor(json);
 			buscar('Caja');
 			listapagosdoctores();
 		},
@@ -125,6 +126,17 @@ function guardarPagoDoctores(){
 	}
 	});
 }
+
+function imprimirPagoDoctor(json){
+		$.ajax({
+	        type: "POST",
+	        url: "http://localhost/clifacturacion/controlador/contImprimir.php?funcion=imprimirPagoDoctor",
+	        data: "json="+json+"&_token={{ csrf_token() }}",
+	        success: function(a) {
+	            console.log(a);
+		    }
+	    });
+	}
 
 </script>
 @endif
