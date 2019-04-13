@@ -46,6 +46,7 @@
 							<div class="form-group">
 								{!! Form::label('filtro', 'Estado:')!!}
 								<select name="filtro" id="filtro" class='form-control input-xs' onchange="buscar('{{ $entidad }}')">
+									<option value="">--TODOS--</option>
 									<option value="DESCARGADO">DESCARGADO</option>
 									<option value="SUBIDO">SUBIDO</option>
 									<option value="IMPORTADO">IMPORTADO</option>

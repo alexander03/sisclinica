@@ -323,7 +323,7 @@ class CuentasporpagarController extends Controller
         return json_encode($data);
     }
 
-	public function pdfComprobante(Request $request){
+    public function pdfComprobante(Request $request){
         $lista = Movimiento::where('id','=',$request->input('id'))->first();
                     
         $pdf = new TCPDF();

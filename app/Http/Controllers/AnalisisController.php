@@ -428,7 +428,7 @@ class AnalisisController extends Controller
         return json_encode($data);
     }
     
-   	public function pdfAnalisis(Request $request){
+    public function pdfAnalisis(Request $request){
         $entidad          = 'Facturacion';
         $id               = Libreria::getParam($request->input('id'),'');
         $resultado        = Analisis::join('historia','historia.id','=','analisis.historia_id')

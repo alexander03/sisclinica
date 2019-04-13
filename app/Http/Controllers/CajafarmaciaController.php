@@ -1700,7 +1700,7 @@ class CajafarmaciaController extends Controller
         echo $registro;
     }
 
-	public function pdfRecibo(Request $request){
+    public function pdfRecibo(Request $request){
         $lista = Movimiento::where('id','=',$request->input('id'))->first();
                     
         $pdf = new TCPDF();

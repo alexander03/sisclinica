@@ -619,7 +619,7 @@ class HistoriaController extends Controller
         return json_encode($data);
     }
 
-   	public function pdfSeguimiento(Request $request){
+    public function pdfSeguimiento(Request $request){
         $resultado        = Seguimiento::where('historia_id','=',$request->id)->orderBy('fechaenvio', 'ASC');
         $lista            = $resultado->get();
         if (count($lista) > 0) {            

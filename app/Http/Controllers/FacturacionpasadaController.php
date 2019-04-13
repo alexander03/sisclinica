@@ -467,7 +467,7 @@ class FacturacionpasadaController extends Controller
         return json_encode($data);
     }
     
-   	public function pdfComprobante(Request $request){
+    public function pdfComprobante(Request $request){
         $entidad          = 'Facturacion';
         $id               = Libreria::getParam($request->input('id'),'');
         $resultado        = Movimiento::join('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
