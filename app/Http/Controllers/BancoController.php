@@ -243,9 +243,9 @@ class BancoController extends Controller
 ##Acesos a reportes para Administrador y Logistica (SOLUCIONADO)
 ##- fórmula de oxígeno.
 
-- las guías y prefactura solicitar formato.
-- agregar empresa en historia cuando es convenio...para fines publicitarios.
-- en hojas de costo mostrar las guías pendientes a pagar.
-- reportes estadísticas según formato a enviar.
-- en hoja de costos agregar cie10.
-- Impresión de egresos de pago de doctores de especialidades
+#####- las guías y prefactura solicitar formato.
+#####- agregar empresa en historia cuando es convenio...para fines publicitarios.
+#####- en hojas de costo mostrar las guías pendientes a pagar.
+#####- reportes estadísticas según formato a enviar.
+#####- en hoja de costos agregar cie10.
+#####- Impresión de egresos de pago de doctores de especialidades

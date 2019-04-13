@@ -592,7 +592,7 @@ class CuentabancariaController extends Controller
         }
     }
     
-   	public function pdfListar(Request $request){
+    public function pdfListar(Request $request){
         $entidad          = 'Cuentabancaria';
         $resultado        = Movimiento::leftjoin('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')
                             ->join('person as responsable', 'responsable.id', '=', 'movimiento.responsable_id')

@@ -24,35 +24,35 @@ use Illuminate\Support\Facades\DB;
 class ExcelController extends Controller
 {
 
-	public function importHistoria()
+    public function importHistoria()
     {
-		return view('importHistoria');
-	}
+        return view('importHistoria');
+    }
 
-	public function downloadExcel($type)
-	{
-		$data = Item::get()->toArray();
-		return Excel::create('itsolutionstuff_example', function($excel) use ($data) {
-			$excel->sheet('mySheet', function($sheet) use ($data)
-	        {
-				$sheet->fromArray($data);
+    public function downloadExcel($type)
+    {
+        $data = Item::get()->toArray();
+        return Excel::create('itsolutionstuff_example', function($excel) use ($data) {
+            $excel->sheet('mySheet', function($sheet) use ($data)
+            {
+                $sheet->fromArray($data);
 
-	        });
-		})->download($type);
-	}
+            });
+        })->download($type);
+    }
 
-	public function importHistoriaExcel()
-	{
+    public function importHistoriaExcel()
+    {
         ini_set('memory_limit', -1);
         ini_set('max_execution_time', 0);
-		if(Input::hasFile('import_file')){
-			$path = Input::file('import_file')->getRealPath();
-			$data = Excel::load($path, function($reader) {
+        if(Input::hasFile('import_file')){
+            $path = Input::file('import_file')->getRealPath();
+            $data = Excel::load($path, function($reader) {
 
-			})->get();
-			if(!empty($data) && $data->count()){
-			    $dat=array();
-				foreach ($data as $key => $value) {
+            })->get();
+            if(!empty($data) && $data->count()){
+                $dat=array();
+                foreach ($data as $key => $value) {
                     $dni = trim($value->dni);
                     $nom = explode(" ",trim($value->paciente));
                     $value->apellidopaterno = $nom[0];
@@ -198,13 +198,13 @@ class ExcelController extends Controller
                     if(!is_null($error)){
                         print_r($error);die();
                     }
-				}
+                }
                 print_r($dat);
-			}
-		}
-		return view('importHistoria');;
+            }
+        }
+        return view('importHistoria');;
 
-	}
+    }
 
     public function importApellidoExcel()
     {

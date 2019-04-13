@@ -320,7 +320,7 @@ class PrefacturaController extends Controller
         return view('app.confirmarEliminar')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar'));
     }
     
-   	public function pdfComprobante(Request $request){
+    public function pdfComprobante(Request $request){
         $entidad          = 'Ticket';
         $id               = Libreria::getParam($request->input('ticket_id'),'');
         $resultado        = Movimiento::join('person as paciente', 'paciente.id', '=', 'movimiento.persona_id')

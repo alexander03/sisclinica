@@ -500,7 +500,7 @@ class HojacostoController extends Controller
         return json_encode($data);
     }
     
-   	public function pdfHojacosto(Request $request){
+    public function pdfHojacosto(Request $request){
         $entidad          = 'Ticket';
         $id               = Libreria::getParam($request->input('id'),'');
         $resultado        = Hojacosto::join('hospitalizacion','hospitalizacion.id','=','hojacosto.hospitalizacion_id')

@@ -63,7 +63,7 @@ class CartagarantiaController extends Controller
         $plan      = Libreria::getParam($request->input('plan'));
         $user      = Auth::user();
         $resultado = Cartagarantia::leftjoin('cotizacion','cotizacion.id','=','cartagarantia.cotizacion_id')
-        			->leftjoin('plan','plan.id','=','cotizacion.plan_id')
+                    ->leftjoin('plan','plan.id','=','cotizacion.plan_id')
                     ->where('plan.razonsocial','like','%'.$plan.'%')
                     ->where('cotizacion.codigo','like','%'.$codigo.'%');
         if($fecha!=""){
@@ -165,11 +165,11 @@ class CartagarantiaController extends Controller
         $dat=array();
         $numerocarta = Cartagarantia::NumeroSigue();
         $error = DB::transaction(function() use($request,$user,$numerocarta,&$dat){
-        	$cotizacion              = Cotizacion::find($request->input('cotizacion_id'));
-        	$cotizacion->situacion   = 'A';//ACEPTADA
-        	$cotizacion->paciente_id = $request->input('paciente_id');//ACEPTADA
-        	$cotizacion->total       = $request->input('totalcarta');
-        	$cotizacion->save();
+            $cotizacion              = Cotizacion::find($request->input('cotizacion_id'));
+            $cotizacion->situacion   = 'A';//ACEPTADA
+            $cotizacion->paciente_id = $request->input('paciente_id');//ACEPTADA
+            $cotizacion->total       = $request->input('totalcarta');
+            $cotizacion->save();
 
             $carta                   = new Cartagarantia();
             $carta->fecha            = $request->input('fechacarta');
@@ -266,7 +266,7 @@ class CartagarantiaController extends Controller
         $data = array();
         foreach ($list as $key => $value) {
             $data[] = array(
-            	'label' => $value->dni . ' - ' . $value->nombres . ' ' . $value->apellidopaterno . ' ' . $value->apellidomaterno,
+                'label' => $value->dni . ' - ' . $value->nombres . ' ' . $value->apellidopaterno . ' ' . $value->apellidomaterno,
                 'value' => $value->dni . ' - ' . $value->nombres . ' ' . $value->apellidopaterno . ' ' . $value->apellidomaterno,
                 'id'=> $value->id,
             );
@@ -277,14 +277,14 @@ class CartagarantiaController extends Controller
     public function buscarcotizacion($searching)
     {      
         $resultado = Cotizacion::where('codigo', '=', ''.strtoupper($searching).'')
-        						->where('situacion', '=', 'E')
-        						->first();
+                                ->where('situacion', '=', 'E')
+                                ->first();
         $data = array();
         if($resultado !== NULL) {  
-        	$tipo = 'AMBULATORIO';
-        	if($resultado->tipo == 'H') {
-        		$tipo = 'HOSPITALARIO';
-        	}  	
+            $tipo = 'AMBULATORIO';
+            if($resultado->tipo == 'H') {
+                $tipo = 'HOSPITALARIO';
+            }   
             $data['id'] = $resultado->id;
             $data['codigo'] = $resultado->codigo;
             $data['plan'] = $resultado->plan->nombre;
@@ -292,9 +292,9 @@ class CartagarantiaController extends Controller
             $data['tipo'] = $tipo;
             $data['total'] = $resultado->total;
         } else {
-        	$data['codigo'] = '';
+            $data['codigo'] = '';
         }
-	        
+            
         return json_encode($data);
     }
 }
