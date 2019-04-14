@@ -19,6 +19,7 @@ use App\Detallemovcaja;
 use App\Lote;
 use App\Cuenta;
 use App\Person;
+use App\Rolpersona;
 use App\Historia;
 use App\Productoprincipio;
 use App\Conveniofarmacia;
