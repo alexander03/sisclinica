@@ -1093,7 +1093,7 @@ class CajaController extends Controller
                                         $fila[] = $valuetp;                    
                                         $fila[] = $valuetpv;
                                         $fila[] = $valuetpm;
-                                        $fila[] = $detalle->persona->apellidopaterno; 
+                                        $fila[] = utf8_decode($detalle->persona==NULL?'-':$detalle->persona->apellidopaterno); 
                                     }
                                 } else {  
                                     if($i == 0) {
@@ -1101,7 +1101,7 @@ class CajaController extends Controller
                                         $fila[] = 'ANULADO';
                                         $fila[] = '';
                                         $fila[] = '';
-                                        $fila[] = $detalle->persona->apellidopaterno; 
+                                        $fila[] = utf8_decode($detalle->persona==NULL?'-':$detalle->persona->apellidopaterno); 
                                     } 
                                 }
                                 $sheet->row($a, $fila);
@@ -2122,7 +2122,7 @@ class CajaController extends Controller
                                         $fila[] = '';
                                         $fila[] = '';
                                     }
-                                    $fila[] = utf8_decode($detalle->persona->apellidopaterno);     
+                                    $fila[] = utf8_decode($detalle->persona==NULL?'-':$detalle->persona->apellidopaterno);     
                                 } else {
                                     $fila[] = '';                    
                                     $fila[] = '';
@@ -3074,14 +3074,14 @@ class CajaController extends Controller
                                                 $fila[] = $valuetp;                    
                                                 $fila[] = $valuetpv;
                                                 $fila[] = $valuetpm;
-                                                $fila[] = $detalle->persona->apellidopaterno;
+                                                $fila[] = utf8_decode($detalle->persona==NULL?'-':$detalle->persona->apellidopaterno);
                                             }
                                         } else {  
                                             if($i == 0) {
                                                 $fila[] = 'ANULADO';
                                                 $fila[] = '';
                                                 $fila[] = '';
-                                                $fila[] = $detalle->persona->apellidopaterno;
+                                                $fila[] = utf8_decode($detalle->persona==NULL?'-':$detalle->persona->apellidopaterno);
                                             }
                                         }                                                                  
                                         
@@ -4052,7 +4052,7 @@ class CajaController extends Controller
                                 $pdf::Cell(14,7,'','LR',0,'R');                        
                             }
                         }
-                        $pdf::Cell(20,7,utf8_decode($detalle->persona->apellidopaterno),1,0,'C');                        
+                        $pdf::Cell(20,7,utf8_decode($detalle->persona==NULL?'-':$detalle->persona->apellidopaterno),1,0,'C');                        
                         $pdf::Ln();
                         $i++;
                     }  
@@ -4664,7 +4664,7 @@ class CajaController extends Controller
                             $pdf::Cell(14,7,'',0,0,'R');
                             $pdf::Cell(14,7,'',0,0,'R');                        
                         }
-                        $pdf::Cell(20,7,utf8_decode($detalle->persona->apellidopaterno),1,0,'C');                        
+                        $pdf::Cell(20,7,utf8_decode($detalle->persona==NULL?'-':$detalle->persona->apellidopaterno),1,0,'C');                        
                         $pdf::Ln();
                         $i++;
                     }  
@@ -5268,7 +5268,7 @@ class CajaController extends Controller
                                     $pdf::Cell(14,7,'','LR',0,'R');                        
                                 }
                             }
-                            $pdf::Cell(20,7,utf8_decode($detalle->persona->apellidopaterno),1,0,'C');                        
+                            $pdf::Cell(20,7,utf8_decode($detalle->persona==NULL?'-':$detalle->persona->apellidopaterno),1,0,'C');                        
                             $pdf::Ln();
                             $i++;
                         }  
@@ -11530,7 +11530,7 @@ class CajaController extends Controller
                                 $pdf::Cell(14,7,$i,1,0,'C');
                                 $pdf::Cell(60,7,$row['apellidopaterno'] . ' ' . $row['apellidomaterno'] . ' ' . $row['nombres'],1,0,'L');
                                 $pdf::Cell(15,7,$row['dni'],1,0,'C');
-                                $pdf::Cell(30,7,utf8_decode($detalle->persona->apellidopaterno),1,0,'C');
+                                $pdf::Cell(30,7,utf8_decode($detalle->persona==NULL?'-':$detalle->persona->apellidopaterno),1,0,'C');
                                 if($detalle->tipodescuento == 'P') {
                                     $pdf::Cell(15,7,utf8_decode($detalle->descuento . '%'),1,0,'R'); 
                                 } else {
@@ -11577,7 +11577,7 @@ class CajaController extends Controller
                                 $pdf::Cell(14,7,$i,1,0,'C');
                                 $pdf::Cell(60,7,$row['apellidopaterno'] . ' ' . $row['apellidomaterno'] . ' ' . $row['nombres'],1,0,'L');
                                 $pdf::Cell(15,7,$row['dni'],1,0,'C');
-                                $pdf::Cell(30,7,utf8_decode($detalle->persona->apellidopaterno),1,0,'C');
+                                $pdf::Cell(30,7,utf8_decode($detalle->persona==NULL?'-':$detalle->persona->apellidopaterno),1,0,'C');
                                 if($detalle->tipodescuento == 'P') {
                                     $pdf::Cell(15,7,utf8_decode($detalle->descuento . '%'),1,0,'R'); 
                                 } else {

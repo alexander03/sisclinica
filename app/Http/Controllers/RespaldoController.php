@@ -120,15 +120,15 @@ class RespaldoController extends Controller
             return $existe;
         }
         $error = DB::transaction(function() use($id){
-            $area = Respaldo::find($id);
-            $area->delete();
+            $respaldo = Respaldo::find($id);
+            $respaldo->delete();
         });
         return is_null($error) ? "OK" : $error;
     }
 
     public function eliminar($id, $listarLuego)
     {
-        $existe = Libreria::verificarExistencia($id, 'area');
+        $existe = Libreria::verificarExistencia($id, 'respaldo');
         if ($existe !== true) {
             return $existe;
         }
@@ -136,9 +136,9 @@ class RespaldoController extends Controller
         if (!is_null(Libreria::obtenerParametro($listarLuego))) {
             $listar = $listarLuego;
         }
-        $modelo   = Area::find($id);
-        $entidad  = 'Area';
-        $formData = array('route' => array('area.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
+        $modelo   = Respaldo::find($id);
+        $entidad  = 'Respaldo';
+        $formData = array('route' => array('respaldo.destroy', $id), 'method' => 'DELETE', 'class' => 'form-horizontal', 'id' => 'formMantenimiento'.$entidad, 'autocomplete' => 'off');
         $boton    = 'Eliminar';
         return view('app.confirmarEliminar')->with(compact('modelo', 'formData', 'entidad', 'boton', 'listar'));
     }

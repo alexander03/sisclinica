@@ -145,6 +145,28 @@
 		
 	}
 
+	function importarArchivoHosting(archivo, id) {
+		//this.html('Cargando...').attr('disabled', 'disabled');
+		//return false;
+		$.ajax({
+			url: 'restore.php?archivo='+archivo,
+			type: 'GET',
+			beforeSend: function() {
+				$('#--'+id+'--').html('Cargando...').attr('disabled', 'disabled');
+			}
+		})
+		.done(function(a) {
+			$('#modalMensajeArchivo').modal('show');
+			$('#mensajeArchivo').html(a);
+			buscar('Respaldo');
+			$('#--'+id+'--').html('<div class="glyphicon glyphicon-cloud-upload"></div> Importar').removeAttr('disabled');
+		})
+		.fail(function() {
+			alert("Ocurrió un error.");
+		});
+		
+	}
+
 	function importarArchivo() {
 		var nombrearchivo = new FormData($('#formBusqueda{{$entidad}}')[0]);
 		$.ajax({

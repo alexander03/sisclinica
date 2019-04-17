@@ -21,5 +21,10 @@ class Detallecotizacion extends Model
  	public function doctor()
     {
         return $this->belongsTo('App\Person', 'doctor_id');
+    }
+
+    public function detalles()
+    {
+        return $this->hasMany('App\Detallecotizacion');
     }    
 }
