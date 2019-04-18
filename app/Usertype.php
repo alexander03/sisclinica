@@ -20,12 +20,12 @@ class Usertype extends Model
     public function scopelistar($query, $name)
     {
         return $query->where(function($subquery) use($name)
-		            {
-		            	if (!is_null($name)) {
-		            		$subquery->where('name', 'LIKE', '%'.$name.'%');
-		            	}
-		            })
-        			->orderBy('name', 'ASC');
+        {
+        	if (!is_null($name)) {
+        		$subquery->where('name', 'LIKE', '%'.$name.'%');
+        	}
+        })
+		->orderBy('name', 'ASC');
     }
 
     /**

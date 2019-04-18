@@ -53,7 +53,7 @@
 								</select>
 							</div>
 							<div class="form-group">
-								{!! Form::label('situacion', 'Situación:') !!}
+								{!! Form::label('situacion', 'Situacion:') !!}
 								<select name="situacion" id="situacion" class='form-control input-xs'>
 									<option value="">Todos</option>
 									<option value="E">Enviada</option>

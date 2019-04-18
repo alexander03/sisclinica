@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 class Denuncia extends Model
 {
     use SoftDeletes;
-    protected $table = 'Denuncia';
+    protected $table = 'denuncia';
     protected $dates = ['deleted_at'];
     
     public function historia()

@@ -4,8 +4,7 @@
 
 {!! $paginacion or '' !!}
 <div class="table-responsive">
-
-	<table id="example1" class="table table-bordered table-striped table-condensed table-hover">
+	<table id="example1" class="table table-bordered table-striped table-condensed table-hover table-responsive">
 
 		<thead>
 			<tr>
@@ -20,21 +19,37 @@
 			$dat="";
 			?>
 			@foreach ($lista as $key => $value)
-			<tr id="td{{ $value->id }}">
+			<tr @if($value->situacion == 'U') style="background-color:#FF9696" @endif id="td{{ $value->id }}">
 				<td>{{ $contador }}</td>
 	            <td>{{ date('d/m/Y',strtotime($value->fecha)) }}</td>
 	            <td>{{ $value->cotizacion->codigo }}</td>
+	            <td>{{ $value->codigo }}</td>
 	            <td>{{ $value->cotizacion->paciente->nombres . ' ' . $value->cotizacion->paciente->apellidopaterno . ' ' . $value->cotizacion->paciente->apellidomaterno }}</td>
 	            <td>{{ $value->cotizacion->plan->nombre }}</td>
 	            @if($value->cotizacion->tipo == 'A')
-	            <td>AMBULATORIA</td>
+	            <td>AMBU.</td>
 	            @else
-	            <td>HOSPITALARIA</td>
+	            <td>HOSP.</td>
 	            @endif
-	            <td>{{ $value->situacion == 'E' ? 'CONFIRMADA' : 'ANULADA' }}</td>
+	            <td>{{ $value->situacion == 'E' ? 'CONFIRM.' : 'ANUL.' }}</td>
 	            <td align="center">{{ number_format($value->monto,2,'.','') }}</td>
 	            <td>{{ $value->comentario == '' ? '-' : $value->comentario }}</td>
-	            <td>{{ $value->responsable->nombres }}</td>
+	            {{--<td>{{ $value->responsable->nombres }}</td>--}}
+	            @if($value->situacion !== 'U')
+		            <td>
+		            	{!! Form::button('<div class="glyphicon glyphicon-pencil"></div>', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning')) !!}
+		            </td>
+		            <td>
+		            	{!! Form::button('<div class="glyphicon glyphicon-list"></div> Liquidación', array('onclick' => 'modal (\''.URL::route($ruta["editLiquidacion"], array('listar'=>'SI', 'id' => $value->id)).'\', \''.$titulo_liquid.'\', this);', 'class' => 'btn btn-xs btn-info')) !!}
+		            </td>
+		            <td>
+		            	{!! Form::button('<div class="glyphicon glyphicon-remove"></div>', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_anular.'\', this);', 'class' => 'btn btn-xs btn-danger')) !!}
+		            </td>
+		        @else
+		        	<td>-</td>
+		        	<td>-</td>
+		        	<td>-</td>
+		        @endif
 			</tr>
 			<?php
 			$contador = $contador + 1;
@@ -47,7 +62,7 @@
 </div>
 <div style="position: absolute; right: 20px; top: 80px; color: red; font-weight: bold;">Total Facturado: {{ number_format($totalfac,2,'.','') }} </div>
 <script>
-validarCheck();
+//validarCheck();
 <?php 
 echo "cargarTodos('".substr($dat,0,strlen($dat)-1)."');";
 ?>

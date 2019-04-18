@@ -1,21 +1,13 @@
 <?php 
-if($cotizacion === null) {
-    $fecha = date('Y-m-d');
-    $tipo = 'A';
-    $plan = '';
-    $plan_id = '';
-    $codigo = '';
-    $total = '';
-    $referencia = '';
-} else {
-    $fecha = $cotizacion->fecha;
-    $tipo = $cotizacion->tipo;
-    $plan = $cotizacion->plan->nombre;
-    $plan_id = $cotizacion->plan->id;
-    $codigo = $cotizacion->codigo;
-    $referencia = $cotizacion->referencia;
-    $total = number_format($cotizacion->total, 2);
-}
+
+$codigocotizacion = $liquidacion->cartagarantia->cotizacion->codigo;
+$codigocarta = $liquidacion->cartagarantia->codigo;
+$paciente = $liquidacion->cartagarantia->cotizacion->paciente->nombres . ' ' . $liquidacion->cartagarantia->cotizacion->paciente->apellidopaterno . ' ' . $liquidacion->cartagarantia->cotizacion->paciente->apellidomaterno;
+$dni = $liquidacion->cartagarantia->cotizacion->paciente->dni;
+$plan = $liquidacion->cartagarantia->cotizacion->plan->nombre;
+$tipo = ($liquidacion->cartagarantia->cotizacion=='A'?'AMBULATORIA':'HOSPITALARIA');
+$fechacarta = $liquidacion->cartagarantia->fecha;
+
 ?>
 <style>
 .tr_hover{
@@ -26,7 +18,7 @@ if($cotizacion === null) {
 }
 </style>
 <div id="divMensajeError{!! $entidad !!}"></div>
-{!! Form::model($cotizacion, $formData) !!}    
+{!! Form::model($liquidacion, $formData) !!}    
     {!! Form::hidden('listar', $listar, array('id' => 'listar')) !!}
     {!! Form::hidden('listServicio', null, array('id' => 'listServicio')) !!}
     {!! Form::hidden('listDetallesServicio', null, array('id' => 'listDetallesServicio')) !!}
@@ -34,46 +26,35 @@ if($cotizacion === null) {
         {{--<div class="col-lg-6 col-md-6 col-sm-6">--}}
         <div class="col-lg-12 col-md-12 col-sm-12">
             <div class="form-group">
-                {!! Form::label('fecharegistro', 'Fecha:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-                <div class="col-lg-3 col-md-3 col-sm-3">
-                    {!! Form::date('fecharegistro', $fecha, array('class' => 'form-control input-xs', 'id' => 'fecharegistro')) !!}
+                {!! Form::label('fechacarta', 'Fecha:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    {!! Form::date('fechacarta', $fechacarta, array('class' => 'form-control input-xs', 'id' => 'fechacarta', 'readonly' => 'readonly')) !!}
                 </div>
-                {!! Form::label('tiporegistro', 'Tipo:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-                <div class="col-lg-3 col-md-3 col-sm-3">
-                    <select name="tiporegistro" class='form-control input-xs' id='tiporegistro'>
-                        <option value="A">AMBULATORIO</option>
-                        <option value="H">HOSPITALARIO</option>
-                    </select>
+                {!! Form::label('tipo', 'Tipo Cotizacion:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    {!! Form::text('tipo', $tipo, array('class' => 'form-control input-xs', 'id' => 'tipo', 'readonly' => 'readonly')) !!}
                 </div>
-                {!! Form::label('codigoregistro', 'Código:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-                <div class="col-lg-3 col-md-3 col-sm-3">
-                    {!! Form::text('codigoregistro', $codigo, array('class' => 'form-control input-xs', 'id' => 'codigoregistro')) !!}
+                {!! Form::label('codigoregistro', 'Código Cot.:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    {!! Form::text('codigoregistro', $codigocotizacion, array('class' => 'form-control input-xs', 'id' => 'codigoregistro', 'readonly' => 'readonly')) !!}
+                </div>
+                {!! Form::label('codigocarta', 'Código Carta:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    {!! Form::text('codigocarta', $codigocarta, array('class' => 'form-control input-xs', 'id' => 'codigocarta', 'readonly' => 'readonly')) !!}
                 </div>
             </div>
             <div class="form-group">
                 {!! Form::label('plan', 'Plan:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-                <div class="col-lg-4 col-md-4 col-sm-4">
-                    {!! Form::text('plan', $plan, array('class' => 'form-control input-xs', 'id' => 'plan')) !!}
-                    {!! Form::hidden('plan_id', $plan_id, array('id' => 'plan_id')) !!}
+                <div class="col-lg-3 col-md-3 col-sm-3">
+                    {!! Form::text('plan', $plan, array('class' => 'form-control input-xs', 'id' => 'plan', 'readonly' => 'readonly')) !!}
                 </div>
-                {!! Form::label('referencia', 'Referencia:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-                <div class="col-lg-6 col-md-6 col-sm-6">
-                    {!! Form::text('referencia', $referencia, array('class' => 'form-control input-xs', 'id' => 'referencia')) !!}
-                </div>
-            </div>
-            <div class="form-group">
                 {!! Form::label('paciente', 'Paciente:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-                <div class="col-lg-5 col-md-5 col-sm-5">
-                    {!! Form::text('paciente', $paciente===NULL?'':($paciente->dni .' ' . $paciente->apellidopaterno . ' ' . $paciente->apellidomaterno . ' ' . $paciente->nombres), array('class' => 'form-control input-xs', 'id' => 'paciente')) !!}
-                    {!! Form::hidden('person_id', $paciente===NULL?'':$paciente->id, array('id' => 'person_id')) !!}
+                <div class="col-lg-4 col-md-4 col-sm-4">
+                    {!! Form::text('paciente', $paciente, array('class' => 'form-control input-xs', 'id' => 'paciente', 'readonly' => 'readonly')) !!}
                 </div>
                 {!! Form::label('dni', 'DNI:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
                 <div class="col-lg-2 col-md-2 col-sm-2">
-                    {!! Form::text('dni', $paciente===NULL?'':$paciente->dni, array('readonly'=>'readonly', 'class' => 'form-control input-xs', 'id' => 'dni')) !!}
-                </div>
-                {!! Form::label('historia', 'Historia:', array('class' => 'col-lg-1 col-md-1 col-sm-1 control-label')) !!}
-                <div class="col-lg-2 col-md-2 col-sm-2">
-                    {!! Form::text('historia', $numhistoria===NULL?'':$numhistoria->numero, array('readonly'=>'readonly', 'class' => 'form-control input-xs', 'id' => 'historia')) !!}
+                    {!! Form::text('dni', $dni, array('readonly'=>'readonly', 'class' => 'form-control input-xs', 'id' => 'dni', 'readonly' => 'readonly')) !!}
                 </div>
             </div>
             <div class="form-group">
@@ -103,7 +84,7 @@ if($cotizacion === null) {
                     <th class="text-center" width="7%">Por Facturar</th>
                     <th class="text-center" width="5%" colspan="2"></th>
                 </thead>                
-                @if($cotizacion !== NULL) 
+                @if($liquidacion !== NULL) 
                     @foreach($cabeceras as $cabeza)
                         <tbody id="tbDetalle{{ $cabeza->id }}__">
                             <tr id="trDetalle{{ $cabeza->id }}__">
@@ -164,21 +145,21 @@ if($cotizacion === null) {
                     <tr>
                         <th class="text-right" colspan="8"></th>
                         <th class="text-right">Sub - Total</th>
-                        <th>{!! Form::text('subtotal', $total, array('class' => 'form-control input-xs', 'id' => 'subtotal', 'size' => 3, 'style' => 'width: 100%;', 'readonly' => 'readonly')) !!}</th>
+                        <th>{!! Form::text('subtotal', '', array('class' => 'form-control input-xs', 'id' => 'subtotal', 'size' => 3, 'style' => 'width: 100%;', 'readonly' => 'readonly')) !!}</th>
                         <th class="text-right"></th>
                         <th class="text-right"></th>
                     </tr>
                     <tr>
                         <th class="text-right" colspan="8"></th>
                         <th class="text-right">IGV</th>
-                        <th>{!! Form::text('igv', $total, array('class' => 'form-control input-xs', 'id' => 'igv', 'size' => 3, 'style' => 'width: 100%;', 'readonly' => 'readonly')) !!}</th>
+                        <th>{!! Form::text('igv', '', array('class' => 'form-control input-xs', 'id' => 'igv', 'size' => 3, 'style' => 'width: 100%;', 'readonly' => 'readonly')) !!}</th>
                         <th class="text-right"></th>
                         <th class="text-right"></th>
                     </tr>
                     <tr>
                         <th class="text-right" colspan="8"></th>
                         <th class="text-right">Total</th>
-                        <th>{!! Form::text('total', $total, array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'style' => 'width: 100%;', 'readonly' => 'readonly')) !!}</th>
+                        <th>{!! Form::text('total', '', array('class' => 'form-control input-xs', 'id' => 'total', 'size' => 3, 'style' => 'width: 100%;', 'readonly' => 'readonly')) !!}</th>
                         <th class="text-right"></th>
                         <th class="text-right"></th>
                     </tr>
@@ -487,40 +468,14 @@ function guardarPago (entidad, idboton) {
         msg += " *Debes Agregar al menos un detalle por cabecera \n";  
     }
 
-    if($('#plan_id').val()==""){
-        band = false;
-        msg += " *Debes Seleccionar un Plan \n";    
-    }
-
-    if($('#codigoregistro').val()==""){
-        band = false;
-        msg += " *Debes Escribir un código \n";    
-    }
-
-    if($('#referencia').val()==""){
-        band = false;
-        msg += " *Debes Escribir una referencia \n";    
-    }
-
-    //$("#total").val(total2);
     $(".txtareaa").each(function(index, el) {
         if($(this).val()==""){
             band = false;
             msg += " *Te falta agregar un campo \n"; 
         }
         
-    });        
+    });  
 
-    /*if($("#person_id").val()==""){
-        band = false;
-        msg += " *No se selecciono un paciente \n";    
-    }*/
-    /*for(c=0; c < carro.length; c++){
-        if($("#txtIdMedico"+carro[c]).val()==0){
-            band = false;
-            msg += " *Debe seleccionar medico \n";                        
-        }
-    }*/
     if(band){
         var idformulario = IDFORMMANTENIMIENTO + entidad;
         var data         = submitForm(idformulario);
@@ -546,6 +501,7 @@ function guardarPago (entidad, idboton) {
                 if (resp === 'OK') {
                     cerrarModal();
                     buscarCompaginado('', 'Accion realizada correctamente', entidad, 'OK');
+                    buscar('CartaGarantia');
                 } else if(resp === 'ERROR') {
                     alert(dat[0].msg);
                 } else {
@@ -562,7 +518,7 @@ var valorinicial="";
 function buscarServicio(valor){
     $.ajax({
         type: "POST",
-        url: "cotizacion/buscarservicio",
+        url: "liquidacion/buscarservicio",
         data: "idtiposervicio="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="tiposervicio"]').val()+"&descripcion="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="descripcion"]').val()+"&plan_id="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="plan_id"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
         success: function(a) {
             datos=JSON.parse(a);
@@ -596,7 +552,7 @@ function seleccionarServicio(idservicio){
     if(band){
         $.ajax({
             type: "POST",
-            url: "cotizacion/seleccionarservicio",
+            url: "liquidacion/seleccionarservicio",
             //data: "idservicio="+idservicio+"&plan_id="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[id="plan_id"]').val()+"&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
             data: "idservicio="+idservicio+"&plan_id=5&_token="+$(IDFORMMANTENIMIENTO + '{!! $entidad !!} :input[name="_token"]').val(),
             success: function(a) {
@@ -895,7 +851,7 @@ function agregarDetallePrefactura(idpersona){
     });
 }
 
-@if($cotizacion !== NULL) 
+@if($liquidacion !== NULL) 
     function cargarCarro() {
         @foreach($cabeceras as $detalle)
             carro.push('{{ $detalle->id }}__');

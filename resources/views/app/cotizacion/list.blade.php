@@ -42,20 +42,14 @@
 	            <td>ANULADA</td>
 	            @endif
 	  			<td>{{ number_format($value->total, 2) }}</td>
-	  			<td>{{ $value->responsable->nombres }}</td>	  			
-	  			@if($value->situacion != 'U')	
-	  			<td>{!! Form::button('<div class="glyphicon glyphicon-eye-open"></div> Ver', array('onclick' => 'modal (\''.URL::route($ruta["ver"], $value->id).'\', \''.$titulo_ver.'\', this);', 'class' => 'btn btn-xs btn-info')) !!}</td>
-		  			@if($value->situacion!='A') 
-		  				<td>{!! Form::button('<div class="glyphicon glyphicon-pencil"></div> Editar', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning')) !!}</td>
-						<td>{!! Form::button('<div class="glyphicon glyphicon-remove"></div> Anular', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_anular.'\', this);', 'class' => 'btn btn-xs btn-danger')) !!}</td>
-		  			@else
-		  				<td>-</td>
-		            	<td>-</td>
-		  			@endif
+	  			<td>{{ $value->responsable->nombres }}</td>	  	
+	  			<td>{!! Form::button('<div class="glyphicon glyphicon-eye-open"></div> Ver', array('onclick' => 'modal (\''.URL::route($ruta["ver"], $value->id).'\', \''.$titulo_ver.'\', this);', 'class' => 'btn btn-xs btn-info')) !!}</td>		
+	  			@if($value->situacion != 'U' && $value->situacion != 'A')
+	  				<td>{!! Form::button('<div class="glyphicon glyphicon-pencil"></div> Editar', array('onclick' => 'modal (\''.URL::route($ruta["edit"], array($value->id, 'listar'=>'SI')).'\', \''.$titulo_modificar.'\', this);', 'class' => 'btn btn-xs btn-warning')) !!}</td>
+					<td>{!! Form::button('<div class="glyphicon glyphicon-remove"></div> Anular', array('onclick' => 'modal (\''.URL::route($ruta["delete"], array($value->id, 'SI')).'\', \''.$titulo_anular.'\', this);', 'class' => 'btn btn-xs btn-danger')) !!}</td>
 				@else
-	            <td>-</td>
-	            <td>-</td>
-				<td>-</td>
+		            <td>-</td>
+		            <td>-</td>
 				@endif
 			</tr>
 			<?php
