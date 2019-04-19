@@ -900,8 +900,8 @@ class CajaController extends Controller
                     ->whereNotIn('movimiento.conceptopago_id',[31])
                     ->orWhere('m2.situacion','<>','R');
             })
-            ->where('conceptopago.tipo', '=', 'E')
-            ->where('movimiento.situacion2', '=', 'Q');
+            ->where('conceptopago.tipo', '=', 'E');
+            //->where('movimiento.situacion2', '=', 'Q');
 
         $resultadoegresos        = $resultadoegresos->select('movimiento.*','m2.situacion as situacion2','responsable.nombres as responsable2',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'conceptopago.nombre')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
 
@@ -1939,8 +1939,8 @@ class CajaController extends Controller
                     ->whereNotIn('movimiento.conceptopago_id',[31])
                     ->orWhere('m2.situacion','<>','R');
             })
-            ->where('conceptopago.tipo', '=', 'E')
-            ->where('movimiento.situacion2', '=', 'Q');
+            ->where('conceptopago.tipo', '=', 'E');
+            //->where('movimiento.situacion2', '=', 'Q');
 
         $resultadoegresos        = $resultadoegresos->select('movimiento.*','m2.situacion as situacion2','responsable.nombres as responsable2',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'), 'conceptopago.nombre')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
 
@@ -2006,7 +2006,7 @@ class CajaController extends Controller
                 $cabecera1[] = "EMPRESA";
                 $cabecera1[] = "CONCEPTO";
                 $cabecera1[] = "PRECIO";
-                $cabecera1[] = "EGRESO";
+                $cabecera1[] = "DSCTO";
                 $cabecera1[] = "INGRESO";
                 $cabecera1[] = "";
                 $cabecera1[] = "";
@@ -2105,9 +2105,13 @@ class CajaController extends Controller
                                 $nomdetalle .= ($detalle->servicio==null?$detalle->descripcion:$detalle->servicio->nombre);                         
                                 $fila[] = substr($nomdetalle,0,42);
                                 $fila[] = number_format($detalle->precio,2,'.','');    
-                                $fila[] = '';    
                                 if($i == 0) {            
-                                    if($row2['situacion'] == 'N') {                                    
+                                    if($row2['situacion'] == 'N') {  
+                                        if($detalle['tipodescuento'] == 'P'){
+                                            $fila[] =  $detalle['descuento'] . '%';
+                                        }else{
+                                            $fila[] =  'S/. '. $detalle['descuento'];
+                                        }                             
                                         $valuetp = number_format($row2['totalpagado'],2,'.','');
                                         $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
                                         $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
@@ -2118,13 +2122,22 @@ class CajaController extends Controller
                                         $fila[] = $valuetpv;
                                         $fila[] = $valuetpm;
                                     } else {  
+                                        if($detalle['tipodescuento'] == 'P'){
+                                            $fila[] =  $detalle['descuento'] . '%';
+                                        }else{
+                                            $fila[] =  'S/. '. $detalle['descuento'];
+                                        }     
                                         $fila[] = 'ANULADO';
                                         $fila[] = '';
                                         $fila[] = '';
                                     }
                                     $fila[] = utf8_decode($detalle->persona==NULL?'-':$detalle->persona->apellidopaterno);     
                                 } else {
-                                    $fila[] = '';                    
+                                    if($detalle['tipodescuento'] == 'P'){
+                                        $fila[] =  $detalle['descuento'] . '%';
+                                    }else{
+                                        $fila[] =  'S/. '. $detalle['descuento'];
+                                    }                    
                                     $fila[] = '';
                                     $fila[] = '';
                                     $fila[] = '';
@@ -2164,7 +2177,7 @@ class CajaController extends Controller
                     $fila[] = '';                           
                     $fila[] = '';                           
                     $fila[] = '';                           
-                    $fila[] = 0.00;                           
+                    $fila[] = '';     
                     $fila[] = number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.','');  
                     $fila[] = ''; 
                     $fila[] = '';                          
@@ -2246,7 +2259,7 @@ class CajaController extends Controller
                     $fila[] = '';                           
                     $fila[] = '';                           
                     $fila[] = '';                           
-                    $fila[] = 0.00;                           
+                    $fila[] = '';                       
                     $fila[] = number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.','');  
                     $fila[] = ''; 
                     $fila[] = '';                          
@@ -2350,7 +2363,7 @@ class CajaController extends Controller
                     $fila[] = '';                           
                     $fila[] = '';                           
                     $fila[] = '';                           
-                    $fila[] = 0.00;                           
+                    $fila[] = '';                    
                     $fila[] = number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.','');  
                     $fila[] = ''; 
                     $fila[] = '';                          
@@ -2430,7 +2443,7 @@ class CajaController extends Controller
                     $fila[] = '';                           
                     $fila[] = '';                           
                     $fila[] = '';                           
-                    $fila[] = 0.00;                           
+                    $fila[] = '';                             
                     $fila[] = number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.','');  
                     $fila[] = ''; 
                     $fila[] = '';                          
@@ -2475,6 +2488,7 @@ class CajaController extends Controller
                         $fila[] = ''; 
                         $sheet->mergeCells('E'.$a.':G'.$a);
                         if($row['situacion'] == 'N') {
+                            $fila[] = '';           
                             $fila[] = number_format($row['total'],2,'.','');
                             $fila[] = '';                           
                             $subtotalegresos += number_format($row['total'],2,'.','');
@@ -2496,8 +2510,8 @@ class CajaController extends Controller
                     $fila[] = '';                           
                     $fila[] = '';                           
                     $fila[] = '';
+                    $fila[] = '';
                     $fila[] = number_format($subtotalegresos,2,'.','');  
-                    $fila[] = 0.00;
                     $fila[] = ''; 
                     $fila[] = '';                          
                     $sheet->row($a, $fila);
@@ -2563,8 +2577,8 @@ class CajaController extends Controller
                         $fila[] = '';                           
                         $fila[] = '';                           
                         $fila[] = '';                           
+                        $fila[] = '';    
                         $fila[] = number_format($subtotalegresoscompra,2,'.','');  
-                        $fila[] = 0.00;                           
                         $fila[] = ''; 
                         $fila[] = '';                          
                         $sheet->row($a, $fila);
