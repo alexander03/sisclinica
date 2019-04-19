@@ -201,3 +201,4 @@ class Trama2Controller extends Controller
         return \Response::make($content, 200, $headers);
     }
 }
+ 
