@@ -55,6 +55,9 @@
 								{!! Form::button('<i class="glyphicon glyphicon-print"></i> Ventas Por Producto Individual Excel', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar', 'onclick' => 'detallePorProductoF();')) !!}
 								{!! Form::button('<i class="glyphicon glyphicon-print"></i> Ventas Por Producto Agrupado, Convenio y Particular', array('class' => 'btn btn-info btn-xs', 'id' => 'btnBuscar', 'onclick' => 'detallePorProductoAgrupado();')) !!}				
 							@endif
+							@if($user->usertype_id==1 || $user->usertype_id == 2)
+								{!! Form::button('<i class="glyphicon glyphicon-list"></i> Resumen de Atenciones Excel', array('class' => 'btn btn-success btn-xs', 'id' => 'btnBuscar', 'onclick' => 'detalleResumenAtenciones();')) !!}				
+							@endif
 							<!--
 							{! Form::button('<i class="glyphicon glyphicon-file"></i> Exportar Excel', array('class' => 'btn btn-success btn-xs','onclick' => 'pdfDetalleCierreExcelF()')) !!}
 							-->							
@@ -133,6 +136,12 @@
         		window.open('cajatesoreria/pdfDetalleCierreF' + tipo + '?caja_id='+$('#Medico').val()+'&fi='+fi+'&ff='+ff,"_blank");
         	@endif
         }
+    }
+
+    function detalleResumenAtenciones() {
+    	var fi = $('#fechainicial').val();
+		var ff = $('#fechafinal').val();
+		window.open('historiaclinica/pdfDetalleResumenAtenciones?fi='+fi+'&ff='+ff,"_blank");
     }
 
 	@if($user->usertype_id==1 || $user->usertype_id==11 || $user->usertype_id==24 || $user->usertype_id==2)

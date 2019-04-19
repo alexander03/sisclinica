@@ -1152,6 +1152,9 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::post('respaldo/importarArchivo', 'RespaldoController@importarArchivo')->name('respaldo.importarArchivo');
 
+    /* ATENCIONES */
+    Route::get('historiaclinica/pdfDetalleResumenAtenciones', 'historiaclinicaController@pdfDetalleResumenAtenciones')->name('historiaclinica.pdfDetalleResumenAtenciones');
+
     //Reportes Tramas
     Route::get('/tramas', function(){
         return View::make('app.trama2.tramas');

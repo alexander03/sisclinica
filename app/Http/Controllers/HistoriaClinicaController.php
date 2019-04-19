@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Carbon\Carbon;
+use Excel;
 
 class HistoriaClinicaController extends Controller
 {
@@ -1130,6 +1131,168 @@ class HistoriaClinicaController extends Controller
         $historia = Historia::where('numero','=', $numhistoria)->first();
         $historia->antecedentes2 = $antecedentes;
         $historia->save();
+    }
+
+    public function pdfDetalleResumenAtenciones(Request $request) {
+        $fi = $request->input('fi');
+        $ff = $request->input('ff');
+
+        Excel::create('ReporteAtenciones', function($excel) use($fi, $ff, $request) {
+ 
+            $excel->sheet('ReporteAtenciones', function($sheet) use($fi, $ff, $request) {
+
+                $elementos = Movimiento::select('fecha_atencion', 'historia.numero as numhistoria', 'person.dni', DB::raw('concat(person.apellidopaterno,\' \',person.apellidomaterno,\' \',person.nombres) as paciente'), DB::raw('(YEAR(CURDATE())-YEAR(person.fechanacimiento)) as anios'), 'historia.tipopaciente', 'convenio.nombre as nomconvenio', 'person.telefono', 'person.direccion', DB::raw('(CASE WHEN person.sexo = "M" THEN "MASCULINO" WHEN person.sexo = "F" THEN "FEMENINO" END) AS sexo'), 'departamento.nombre as nomdepartamento', 'provincia.nombre as nomprovincia', 'distrito.nombre as nomdistrito', 'historiaclinica.diagnostico')
+                    ->where('situacion', '=', 'C')
+                    ->where('situacion2', '=', 'L')
+                    ->whereBetween('fecha_atencion', [$fi, $ff])
+                    ->join('historiaclinica', 'ticket_id', '=', 'movimiento.id')
+                    ->join('person', 'movimiento.persona_id', '=', 'person.id')
+                    ->join('historia', 'historiaclinica.historia_id', '=', 'historia.id')
+                    ->leftjoin('convenio', 'convenio.id', '=', 'historia.convenio_id')
+                    ->leftjoin('provincia', 'provincia.id', '=', 'historia.provincia')
+                    ->leftjoin('departamento', 'departamento.id', '=', 'historia.departamento')
+                    ->leftjoin('distrito', 'distrito.id', '=', 'historia.distrito')
+                    ->orderBy('fecha_atencion', 'DESC')                    
+                    ->get();
+
+                $sheet->setWidth(array(
+                    'A' => 20,
+                    'B' => 15,
+                    'C' => 10, 
+                    'D' => 40, 
+                    'E' => 10, 
+                    'F' => 15, 
+                    'G' => 20, 
+                    'H' => 20, 
+                    'I' => 30, 
+                    'J' => 15, 
+                    'K' => 17, 
+                    'L' => 17,
+                    'M' => 17,
+                    'N' => 17,
+                    'O' => 17,
+                    'P' => 17,
+                    'Q' => 40,
+                    'R' => 40
+                ));
+
+                $sheet->setStyle(array(
+                    'font' => array(
+                        'name'      =>  'Calibri',
+                        'size'      =>  8
+                    )
+                ));
+
+                $indicee = 1;
+
+                //Cabecera
+
+                $cabecera1 = array();
+                $cabecera1[] = 'Reporte Atenciones del '.date('d-m-Y', strtotime($fi)).' al '.date('d-m-Y', strtotime($ff));
+                $sheet->row($indicee,$cabecera1);
+                //$sheet->mergeCells('A1:R1');
+
+                $sheet->cells('A1:R1', function ($cells) {
+                    $cells->setFont(array(
+                        'family'     => 'Calibri',
+                        'size'       => '22',
+                        'bold'       =>  true
+                    ));
+                    //$cells->setAlignment('center');
+                });
+
+                $indicee++;
+
+                $cabecera1 = array();
+                $cabecera1[] = "FECHA REGISTRO";
+                $cabecera1[] = "HISTORIA";
+                $cabecera1[] = "DNI";
+                $cabecera1[] = "PACIENTE";
+                $cabecera1[] = "EDAD";
+                $cabecera1[] = "TIPO PACIENTE";
+                $cabecera1[] = "CONVENIO";
+                $cabecera1[] = "TELEFONO";
+                $cabecera1[] = "DIRECCIÓN";
+                $cabecera1[] = "SEXO";
+                $cabecera1[] = "DEPARTAMENTO";
+                $cabecera1[] = "PROVINCIA";
+                $cabecera1[] = "DISTRITO";
+                $cabecera1[] = "TIPOCONSULTA";
+                $cabecera1[] = "";
+                $cabecera1[] = "";
+                $cabecera1[] = "DIAGNÓSTICO";
+                $cabecera1[] = "CIE 10";
+
+                $sheet->row($indicee,$cabecera1);
+
+                $indicee++;
+
+                $cabecera1 = array();
+                $cabecera1[] = "";
+                $cabecera1[] = "";
+                $cabecera1[] = "";
+                $cabecera1[] = "";
+                $cabecera1[] = "";
+                $cabecera1[] = "";
+                $cabecera1[] = "";
+                $cabecera1[] = "";
+                $cabecera1[] = "";
+                $cabecera1[] = "";
+                $cabecera1[] = "";
+                $cabecera1[] = "";
+                $cabecera1[] = "";
+                $cabecera1[] = "AMBULATORIA".count($elementos);
+                $cabecera1[] = "EMERGENCIA";
+                $cabecera1[] = "HOSPITALIZACIÓN";
+                $cabecera1[] = "";
+                $cabecera1[] = "";
+
+                $sheet->row($indicee,$cabecera1);
+
+                $sheet->mergeCells('A3:M3');
+                $sheet->mergeCells('N2:P2');
+                $sheet->mergeCells('Q3:R3');
+
+                $sheet->setBorder('A2:R3', 'thin');
+
+                $sheet->cells('A2:R3', function ($cells) {
+                    $cells->setFont(array(
+                        'family'     => 'Calibri',
+                        'size'       => '10',
+                        'bold'       =>  true
+                    ));
+                    $cells->setAlignment('center');
+                });
+
+                $a = 4;
+
+                if(count($elementos)>0){
+                    foreach ($elementos as $elemento) {
+                        $fila = array();                    
+                        $fila[] = date('d-m-Y h:m:s', strtotime($elemento['fecha_atencion']));
+                        $fila[] = $elemento['numhistoria'];
+                        $fila[] = $elemento['dni'];
+                        $fila[] = $elemento['paciente'];
+                        $fila[] = $elemento['anios'];
+                        $fila[] = $elemento['tipopaciente'];
+                        $fila[] = $elemento['nomconvenio'];
+                        $fila[] = $elemento['telefono'];
+                        $fila[] = $elemento['direccion'];
+                        $fila[] = $elemento['sexo'];
+                        $fila[] = $elemento['nomdepartamento'];
+                        $fila[] = $elemento['nomprovincia'];
+                        $fila[] = $elemento['nomdistrito'];
+                        $fila[] = '-';
+                        $fila[] = '-';
+                        $fila[] = '-';
+                        $fila[] = str_replace('<BR>', " || ", $elemento['diagnostico']);
+                        $fila[] = '-';
+                        $sheet->row($a, $fila);
+                        $a++;
+                    }
+                }
+            });
+        })->export('xlsx');
     }
 
 }
