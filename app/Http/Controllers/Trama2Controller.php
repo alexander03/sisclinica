@@ -67,8 +67,8 @@ class Trama2Controller extends Controller
         if($trama == 'TAA0') {
             $elementos = Trama2::get();
         }
-        /*
-        (CASE 
+        $cons =
+        '(CASE 
             WHEN YEAR(CURDATE())-YEAR(person.fechanacimiento) < 1 THEN 1 
             WHEN YEAR(CURDATE())-YEAR(person.fechanacimiento) >=1 AND YEAR(CURDATE())-YEAR(person.fechanacimiento) <= 4 THEN 2
             WHEN YEAR(CURDATE())-YEAR(person.fechanacimiento) >=5 AND YEAR(CURDATE())-YEAR(person.fechanacimiento) <= 9 THEN 3
@@ -84,20 +84,22 @@ class Trama2Controller extends Controller
             WHEN YEAR(CURDATE())-YEAR(person.fechanacimiento) >=55 AND YEAR(CURDATE())-YEAR(person.fechanacimiento) <= 59 THEN 13
             WHEN YEAR(CURDATE())-YEAR(person.fechanacimiento) >=60 AND YEAR(CURDATE())-YEAR(person.fechanacimiento) <= 64 THEN 14
             WHEN YEAR(CURDATE())-YEAR(person.fechanacimiento) > 64 THEN 15        
-        END) AS edad
-        */
+        END)';        
         if($trama == 'TAB1') {
             $elementos = Movimiento::where('clasificacionconsulta', 'C')
                         ->where('situacion', 'C')
                         ->where('situacion2', 'L')
                         ->where('sucursal_id', 1)
+                        ->where('fechanacimiento', '!=', 'NULL')
+                        ->where('sexo', '!=', 'NULL')
                         ->whereBetween('fecha_atencion', [$fechai, $fechaf])
                         ->join('historiaclinica', 'ticket_id', '=', 'movimiento.id')
                         ->join('person', 'movimiento.persona_id', '=', 'person.id')
                         ->orderBy('person.sexo', 'DESC')
-                        ->orderBy('edad', 'ASC')
-                        ->groupBy('edad')
-                        ->select(DB::raw('YEAR(CURDATE())-YEAR(person.fechanacimiento) AS edad'), 'person.sexo', DB::raw('COUNT(movimiento.id) AS totalatenciones'))
+                        ->orderBy(DB::raw($cons), 'ASC')
+                        ->groupBy('person.sexo')
+                        ->groupBy(DB::raw($cons))
+                        ->select(DB::raw($cons.' AS edad'), DB::raw('(CASE WHEN person.sexo = "M" THEN 1 WHEN person.sexo = "F" THEN 2 END) AS sexo'), DB::raw('COUNT(movimiento.id) AS totalatenciones'))
                         ->get();
         }
         if($trama == 'TAB2') {
@@ -105,16 +107,20 @@ class Trama2Controller extends Controller
                         ->where('situacion', 'C')
                         ->where('situacion2', 'L')
                         ->where('sucursal_id', 1)
+                        ->where('fechanacimiento', '!=', 'NULL')
+                        ->where('sexo', '!=', 'NULL')
                         ->whereBetween('fecha_atencion', [$fechai, $fechaf])
                         ->join('historiaclinica', 'ticket_id', '=', 'movimiento.id')
                         ->join('person', 'movimiento.persona_id', '=', 'person.id')
                         ->join('detallehistoriacie', 'detallehistoriacie.historiaclinica_id', '=', 'historiaclinica.id')
                         ->join('cie', 'cie.id', '=', 'detallehistoriacie.cie_id')
                         ->orderBy('person.sexo', 'DESC')
-                        ->orderBy('edad', 'ASC')
-                        ->groupBy('edad')
+                        ->orderBy(DB::raw($cons), 'ASC')
+                        ->orderBy('codigo', 'ASC')
+                        ->groupBy('person.sexo')
+                        ->groupBy(DB::raw($cons))
                         ->groupBy('cie.codigo')
-                        ->select(DB::raw('YEAR(CURDATE())-YEAR(person.fechanacimiento) AS edad'), 'person.sexo', DB::raw('COUNT(movimiento.id) AS totalatenciones'), 'cie.codigo')
+                        ->select(DB::raw($cons.' AS edad'), DB::raw('(CASE WHEN person.sexo = "M" THEN 1 WHEN person.sexo = "F" THEN 2 END) AS sexo'), DB::raw('COUNT(movimiento.id) AS totalatenciones'), 'cie.codigo')
                         ->get();
 
         }
@@ -123,30 +129,37 @@ class Trama2Controller extends Controller
                         ->where('situacion', 'C')
                         ->where('situacion2', 'L')
                         ->where('sucursal_id', 1)
+                        ->where('fechanacimiento', '!=', 'NULL')
+                        ->where('sexo', '!=', 'NULL')
                         ->whereBetween('fecha_atencion', [$fechai, $fechaf])
                         ->join('historiaclinica', 'ticket_id', '=', 'movimiento.id')
                         ->join('person', 'movimiento.persona_id', '=', 'person.id')
                         ->orderBy('person.sexo', 'DESC')
-                        ->orderBy(DB::raw('YEAR(CURDATE())-YEAR(person.fechanacimiento)'), 'ASC')
-                        ->groupBy(DB::raw('YEAR(CURDATE())-YEAR(person.fechanacimiento)'))
-                        ->select(DB::raw('YEAR(CURDATE())-YEAR(person.fechanacimiento) AS edad'), 'person.sexo', DB::raw('COUNT(movimiento.id) AS totalatenciones'))
+                        ->orderBy(DB::raw($cons), 'ASC')
+                        ->groupBy('person.sexo')
+                        ->groupBy(DB::raw($cons))
+                        ->select(DB::raw($cons.' AS edad'), DB::raw('(CASE WHEN person.sexo = "M" THEN 1 WHEN person.sexo = "F" THEN 2 END) AS sexo'), DB::raw('COUNT(movimiento.id) AS totalatenciones'))
                         ->get();
         }
         if($trama == 'TAC2') {
-            $elementos = Movimiento::where('clasificacionconsult', 'E')
+            $elementos = Movimiento::where('clasificacionconsulta', 'E')
                         ->where('situacion', 'C')
                         ->where('situacion2', 'L')
                         ->where('sucursal_id', 1)
+                        ->where('fechanacimiento', '!=', 'NULL')
+                        ->where('sexo', '!=', 'NULL')
                         ->whereBetween('fecha_atencion', [$fechai, $fechaf])
                         ->join('historiaclinica', 'ticket_id', '=', 'movimiento.id')
                         ->join('person', 'movimiento.persona_id', '=', 'person.id')
                         ->join('detallehistoriacie', 'detallehistoriacie.historiaclinica_id', '=', 'historiaclinica.id')
                         ->join('cie', 'cie.id', '=', 'detallehistoriacie.cie_id')
                         ->orderBy('person.sexo', 'DESC')
-                        ->orderBy(DB::raw('YEAR(CURDATE())-YEAR(person.fechanacimiento)'), 'ASC')
-                        ->groupBy(DB::raw('YEAR(CURDATE())-YEAR(person.fechanacimiento)'))
+                        ->orderBy(DB::raw($cons), 'ASC')
+                        ->orderBy('codigo', 'ASC')
+                        ->groupBy('person.sexo')
+                        ->groupBy(DB::raw($cons))                        
                         ->groupBy('cie.codigo')
-                        ->select(DB::raw('YEAR(CURDATE())-YEAR(person.fechanacimiento) AS edad'), 'person.sexo', DB::raw('COUNT(movimiento.id) AS totalatenciones'), 'cie.codigo')
+                        ->select(DB::raw($cons.'AS edad'), DB::raw('(CASE WHEN person.sexo = "M" THEN 1 WHEN person.sexo = "F" THEN 2 END) AS sexo'), DB::raw('COUNT(movimiento.id) AS totalatenciones'), 'cie.codigo')
                         ->get();
         }
         if($trama == 'TAD1') {
