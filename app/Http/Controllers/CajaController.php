@@ -3877,6 +3877,9 @@ class CajaController extends Controller
         $pdf::SetFont('helvetica','B',12);
         $pdf::Cell(0,10,"Detalle de Cierre de ".$nomcierre,0,0,'C');
         $pdf::Ln();
+        $pdf::SetFont('helvetica','B',9);
+        $pdf::Cell(120,7,('RESPONSABLE: '.$responsable),0,0,'L');
+        $pdf::Ln();
         $pdf::SetFont('helvetica','B',7);
         $pdf::Cell(15,7,utf8_decode("FECHA"),1,0,'C');
         $pdf::Cell(56,7,utf8_decode("PERSONA"),1,0,'C');
@@ -3884,11 +3887,11 @@ class CajaController extends Controller
         $pdf::Cell(40,7,utf8_decode("EMPRESA"),1,0,'C');
         $pdf::Cell(60,7,utf8_decode("CONCEPTO"),1,0,'C');
         $pdf::Cell(14,7,utf8_decode("PRECIO"),1,0,'C');
-        $pdf::Cell(14,7,utf8_decode("EGRESO"),1,0,'C');
+        //$pdf::Cell(14,7,utf8_decode("EGRESO"),1,0,'C');
         $pdf::Cell(42,7,utf8_decode("INGRESO"),1,0,'C');
         $pdf::Cell(20,7,utf8_decode("DOCTOR"),1,0,'C');
         $pdf::Ln();
-        $pdf::Cell(219,7,utf8_decode(""),1,0,'C');
+        $pdf::Cell(205,7,utf8_decode(""),1,0,'C');
         $pdf::Cell(14,7,utf8_decode("EFECTIVO"),1,0,'C');
         $pdf::Cell(14,7,utf8_decode("VISA"),1,0,'C');
         $pdf::Cell(14,7,utf8_decode("MASTER"),1,0,'C');
@@ -3934,7 +3937,7 @@ class CajaController extends Controller
 
         if(count($listaventas)>0){
             $pdf::SetFont('helvetica','B',8.5);
-            $pdf::Cell(281,7,'INGRESOS POR VENTAS',1,0,'L');
+            $pdf::Cell(267,7,'INGRESOS POR VENTAS',1,0,'L');
             $pdf::Ln();
             $subtotalefectivo = 0;
             $subtotalvisa = 0;
@@ -4010,7 +4013,7 @@ class CajaController extends Controller
                         if(count($detalles) <= 21) {                   
                             if($i == 0) {
                                 if($row2['situacion'] == 'N') {
-                                    $pdf::Cell(14,7*count($detalles),'',1,0,'L');
+                                    //$pdf::Cell(14,7*count($detalles),'',1,0,'L');
                                     $valuetp = number_format($row2['totalpagado'],2,'.','');
                                     $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
                                     $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
@@ -4021,10 +4024,10 @@ class CajaController extends Controller
                                     $pdf::Cell(14,7*count($detalles),$valuetpv,1,0,'R');
                                     $pdf::Cell(14,7*count($detalles),$valuetpm,1,0,'R');
                                 } else {
-                                    $pdf::Cell(56,7*count($detalles),'ANULADO',1,0,'C');
+                                    $pdf::Cell(42,7*count($detalles),'ANULADO',1,0,'C');
                                 }
                             } else {
-                                $pdf::Cell(14,7,'',0,0,'L');
+                                //$pdf::Cell(14,7,'',0,0,'L');
                                 $pdf::Cell(14,7,'',0,0,'R');                    
                                 $pdf::Cell(14,7,'',0,0,'R');
                                 $pdf::Cell(14,7,'',0,0,'R');                        
@@ -4032,7 +4035,7 @@ class CajaController extends Controller
                         } else {
                             if($i == 0) {
                                 if($row2['situacion'] == 'N') {
-                                    $pdf::Cell(14,7,'','LR',0,'L');
+                                    //$pdf::Cell(14,7,'','LR',0,'L');
                                     $valuetp = number_format($row2['totalpagado'],2,'.','');
                                     $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
                                     $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
@@ -4043,7 +4046,7 @@ class CajaController extends Controller
                                     $pdf::Cell(14,7,$valuetpv,'LR',0,'R');
                                     $pdf::Cell(14,7,$valuetpm,'LR',0,'R');
                                 } else {
-                                    $pdf::Cell(56,7,'ANULADO','LR',0,'C');
+                                    $pdf::Cell(42,7,'ANULADO','LR',0,'C');
                                 }
                             } else {
                                 $pdf::Cell(14,7,'','LR',0,'L');
@@ -4072,7 +4075,7 @@ class CajaController extends Controller
             } 
             $pdf::SetFont('helvetica','B',8.5);
             $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
-            $pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
+            //$pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
             $pdf::Cell(42,7,number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.',''),1,0,'R');
             $pdf::Ln();                   
         }      
@@ -4096,7 +4099,7 @@ class CajaController extends Controller
 
         if(count($listaventas)>0){
             $pdf::SetFont('helvetica','B',8.5);
-            $pdf::Cell(281,7,'INGRESOS POR CUOTAS',1,0,'L');
+            $pdf::Cell(267,7,'INGRESOS POR CUOTAS',1,0,'L');
             $pdf::Ln();
             $subtotalefectivo = 0;
             $subtotalvisa = 0;
@@ -4117,7 +4120,7 @@ class CajaController extends Controller
                     if($valuetp == 0){$valuetp='';}
                     if($valuetpv == 0){$valuetpv='';}
                     if($valuetpm == 0){$valuetpm='';}
-                    $pdf::Cell(14,7,'',1,0,'R');
+                    //$pdf::Cell(14,7,'',1,0,'R');
                     $pdf::Cell(14,7,$valuetp,1,0,'R');                    
                     $pdf::Cell(14,7,$valuetpv,1,0,'R');
                     $pdf::Cell(14,7,$valuetpm,1,0,'R');
@@ -4128,14 +4131,14 @@ class CajaController extends Controller
                     $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
                     $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
                 } else {
-                    $pdf::Cell(56,7,'ANULADO',1,0,'C');                    
+                    $pdf::Cell(42,7,'ANULADO',1,0,'C');                    
                 }  
                 $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
                 $pdf::Ln();                  
             } 
             $pdf::SetFont('helvetica','B',8.5);
             $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
-            $pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
+            //$pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
             $pdf::Cell(42,7,number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.',''),1,0,'R');
             $pdf::Ln();                   
         }
@@ -4155,7 +4158,7 @@ class CajaController extends Controller
 
         if(count($listaventasfarmacia)>0){
             $pdf::SetFont('helvetica','B',8.5);
-            $pdf::Cell(281,7,'INGRESOS POR VENTAS',1,0,'L');
+            $pdf::Cell(267,7,'INGRESOS POR VENTAS',1,0,'L');
             $pdf::Ln();
             $subtotalefectivo = 0;
             $subtotalvisa = 0;
@@ -4211,7 +4214,7 @@ class CajaController extends Controller
             } 
             $pdf::SetFont('helvetica','B',8.5);
             $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
-            $pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
+            //$pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
             $pdf::Cell(42,7,number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.',''),1,0,'R');
             $pdf::Ln();                 
         }
@@ -4233,7 +4236,7 @@ class CajaController extends Controller
 
         if(count($listaingresosvarios)>0){
             $pdf::SetFont('helvetica','B',8.5);
-            $pdf::Cell(281,7,'INGRESOS VARIOS',1,0,'L');
+            $pdf::Cell(267,7,'INGRESOS VARIOS',1,0,'L');
             $pdf::Ln();
             $subtotalefectivo = 0;
             $subtotalvisa = 0;
@@ -4252,7 +4255,7 @@ class CajaController extends Controller
                     if($valuetp == 0){$valuetp='';}
                     if($valuetpv == 0){$valuetpv='';}
                     if($valuetpm == 0){$valuetpm='';}
-                    $pdf::Cell(14,7,'',1,0,'R');                    
+                    //$pdf::Cell(14,7,'',1,0,'R');                    
                     $pdf::Cell(14,7,$valuetp,1,0,'R');                    
                     $pdf::Cell(14,7,$valuetpv,1,0,'R');
                     $pdf::Cell(14,7,$valuetpm,1,0,'R');                    
@@ -4263,7 +4266,7 @@ class CajaController extends Controller
                     $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
                     $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
                 } else {
-                    $pdf::Cell(56,7,'ANULADO',1,0,'C');
+                    $pdf::Cell(42,7,'ANULADO',1,0,'C');
                 }
                 $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
                 $pdf::Ln();
@@ -4271,7 +4274,7 @@ class CajaController extends Controller
             }   
             $pdf::SetFont('helvetica','B',8.5);
             $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
-            $pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
+            //$pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
             $pdf::Cell(42,7,number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.',''),1,0,'R');
             $pdf::Ln();                 
         }
@@ -4296,7 +4299,7 @@ class CajaController extends Controller
 
             if(count($listaingresosvarios)>0){
                 $pdf::SetFont('helvetica','B',8.5);
-                $pdf::Cell(281,7,'CAJA ANTERIOR',1,0,'L');
+                $pdf::Cell(267,7,'CAJA ANTERIOR',1,0,'L');
                 $pdf::Ln();
                 $subtotalefectivo = 0;
                 $subtotalvisa = 0;
@@ -4315,14 +4318,14 @@ class CajaController extends Controller
                         if($valuetp == 0){$valuetp='';}
                         if($valuetpv == 0){$valuetpv='';}
                         if($valuetpm == 0){$valuetpm='';}
-                        $pdf::Cell(14,7,'',1,0,'R');                    
+                        //$pdf::Cell(14,7,'',1,0,'R');                    
                         $pdf::Cell(14,7,$valuetp,1,0,'R');                    
                         $pdf::Cell(14,7,$valuetpv,1,0,'R');
                         $pdf::Cell(14,7,$valuetpm,1,0,'R');                    
                         $totalefectivo += number_format($row['total'],2,'.','');
                         $subtotalefectivo += number_format($row['total'],2,'.','');
                     } else {
-                        $pdf::Cell(56,7,'ANULADO',1,0,'C');
+                        $pdf::Cell(42,7,'ANULADO',1,0,'C');
                     }
                     $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
                     $pdf::Ln();
@@ -4330,7 +4333,7 @@ class CajaController extends Controller
                 }   
                 $pdf::SetFont('helvetica','B',8.5);
                 $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
-                $pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
+                //$pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
                 $pdf::Cell(42,7,number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.',''),1,0,'R');
                 $pdf::Ln();                 
             }
@@ -4353,8 +4356,8 @@ class CajaController extends Controller
             })
             //->where('movimiento.situacion', '<>', 'A')
             //->where('movimiento.situacion', '<>', 'R')
-            ->where('conceptopago.tipo', '=', 'E')
-            ->where('movimiento.situacion2', '=', 'Q');
+            ->where('conceptopago.tipo', '=', 'E');
+            //->where('movimiento.situacion2', '=', 'Q');
 
         $resultadoegresos        = $resultadoegresos->select('movimiento.*','m2.situacion as situacion2','responsable.nombres as responsable2',DB::raw('case when paciente.bussinesname is null then concat(paciente.apellidopaterno,\' \',paciente.apellidomaterno,\' \',paciente.nombres) else paciente.bussinesname end as paciente'),'paciente.ruc as ruc' ,DB::raw('concat(paciente.ruc,\' \',paciente.bussinesname) as razonsocial'), 'conceptopago.nombre')->orderBy('conceptopago.tipo', 'asc')->orderBy('conceptopago.orden', 'asc')->orderBy('conceptopago.id', 'asc')->orderBy('movimiento.tipotarjeta', 'asc')->orderBy('movimiento.numero', 'asc');
 
@@ -4362,7 +4365,7 @@ class CajaController extends Controller
 
         if(count($listaegresos)>0){
             $pdf::SetFont('helvetica','B',8.5);
-            $pdf::Cell(281,7,'EGRESOS',1,0,'L');
+            $pdf::Cell(267,7,'EGRESOS',1,0,'L');
             $pdf::Ln();
             $subtotalegresos = 0;
             foreach ($listaegresos as $row) { 
@@ -4378,10 +4381,11 @@ class CajaController extends Controller
                 $pdf::Cell(114,7,substr($row['nombre'].': '.$row['comentario'], 0, 95),1,0,'L');
                 if($row['situacion'] == 'N') {
                     $pdf::Cell(14,7,number_format($row['total'],2,'.',''),1,0,'R');
-                    $pdf::Cell(42,7,utf8_decode(""),1,0,'C');                    
+                    $pdf::Cell(14,7,utf8_decode(""),1,0,'C');                    
+                    $pdf::Cell(14,7,utf8_decode(""),1,0,'C');                    
                     $subtotalegresos += number_format($row['total'],2,'.','');
                 } else {
-                    $pdf::Cell(56,7,utf8_decode("ANULADO"),1,0,'C');
+                    $pdf::Cell(42,7,utf8_decode("ANULADO"),1,0,'C');
                 }  
                 $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
                 $pdf::Ln();              
@@ -4389,7 +4393,7 @@ class CajaController extends Controller
             $pdf::SetFont('helvetica','B',8.5);
             $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
             $pdf::Cell(14,7,number_format($subtotalegresos,2,'.',''),1,0,'R');
-            $pdf::Cell(42,7,number_format(0,2,'.',''),1,0,'R');
+            //$pdf::Cell(42,7,number_format(0,2,'.',''),1,0,'R');
             $pdf::Ln();                  
         }
 
@@ -4425,7 +4429,7 @@ class CajaController extends Controller
 
             if(count($listaegresos)>0){
                 $pdf::SetFont('helvetica','B',8.5);
-                $pdf::Cell(281,7,'EGRESOS POR COMPRA',1,0,'L');
+                $pdf::Cell(267,7,'EGRESOS POR COMPRA',1,0,'L');
                 $pdf::Ln();
                 $subtotalegresoscompra = 0;
                 foreach ($listaegresos as $row) { 
@@ -4438,10 +4442,11 @@ class CajaController extends Controller
                         $pdf::Cell(114,7,$row['nombre'].': '.$row['comentario'],1,0,'L');
                         if($row['situacion'] == 'N') {
                             $pdf::Cell(14,7,number_format($row['total'],2,'.',''),1,0,'R');
-                            $pdf::Cell(42,7,utf8_decode(""),1,0,'C');                    
+                            $pdf::Cell(14,7,utf8_decode(""),1,0,'C');                    
+                            $pdf::Cell(14,7,utf8_decode(""),1,0,'C');                    
                             $subtotalegresoscompra += number_format($row['total'],2,'.','');
                         } else {
-                            $pdf::Cell(56,7,utf8_decode("ANULADO"),1,0,'C');
+                            $pdf::Cell(42,7,utf8_decode("ANULADO"),1,0,'C');
                         }  
                         $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
                         $pdf::Ln();     
@@ -4450,7 +4455,7 @@ class CajaController extends Controller
                 $pdf::SetFont('helvetica','B',8.5);
                 $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
                 $pdf::Cell(14,7,number_format($subtotalegresoscompra,2,'.',''),1,0,'R');
-                $pdf::Cell(42,7,number_format(0,2,'.',''),1,0,'R');
+                //$pdf::Cell(42,7,number_format(0,2,'.',''),1,0,'R');
                 $pdf::Ln();                  
             }
         }
@@ -4511,6 +4516,14 @@ class CajaController extends Controller
         $pdf::Ln();
         $pdf::Output('ListaCaja.pdf');
     }
+/*
+
+[18:47, 17/4/2019] Alex Samamé: Caja anterior al inició
+[18:47, 17/4/2019] Alex Samamé: En caja de farmacia debe aparecer el detalle de los medicamentos vendidos
+[18:47, 17/4/2019] Alex Samamé: Y cada medicamento su precio
+[18:47, 17/4/2019] Alex Samamé: En resumen de caja agregar antes de ingresos la caja anterior
+[18:47, 17/4/2019] Alex Samamé: Fecha ...persona...Bro...empresa y concepto combinar en una sola celda hacia abjo
+*/
 
     //Consolidado
     public function pdfDetalleCierreF(Request $request){
@@ -4548,6 +4561,9 @@ class CajaController extends Controller
         $pdf::SetFont('helvetica','B',12);
         $pdf::Cell(0,10,"Detalle Cierre Consolidado de ".$nomcierre . ' del ' . date("d/m/Y", strtotime($fi)) . ' al ' . date("d/m/Y", strtotime($ff)),0,0,'C');
         $pdf::Ln();
+        $pdf::SetFont('helvetica','B',9);
+        $pdf::Cell(120,7,('RESPONSABLE: '.$responsable),0,0,'L');
+        $pdf::Ln();
         $pdf::SetFont('helvetica','B',7);
         $pdf::Cell(15,7,utf8_decode("FECHA"),1,0,'C');
         $pdf::Cell(56,7,utf8_decode("PERSONA"),1,0,'C');
@@ -4555,11 +4571,11 @@ class CajaController extends Controller
         $pdf::Cell(40,7,utf8_decode("EMPRESA"),1,0,'C');
         $pdf::Cell(60,7,utf8_decode("CONCEPTO"),1,0,'C');
         $pdf::Cell(14,7,utf8_decode("PRECIO"),1,0,'C');
-        $pdf::Cell(14,7,utf8_decode("EGRESO"),1,0,'C');
+     //   $pdf::Cell(14,7,utf8_decode("EGRESO"),1,0,'C');
         $pdf::Cell(42,7,utf8_decode("INGRESO"),1,0,'C');
         $pdf::Cell(20,7,utf8_decode("DOCTOR"),1,0,'C');
         $pdf::Ln();
-        $pdf::Cell(219,7,utf8_decode(""),1,0,'C');
+        $pdf::Cell(205,7,utf8_decode(""),1,0,'C');
         $pdf::Cell(14,7,utf8_decode("EFECTIVO"),1,0,'C');
         $pdf::Cell(14,7,utf8_decode("VISA"),1,0,'C');
         $pdf::Cell(14,7,utf8_decode("MASTER"),1,0,'C');
@@ -4605,7 +4621,7 @@ class CajaController extends Controller
 
         if(count($listaventas)>0){
             $pdf::SetFont('helvetica','B',8.5);
-            $pdf::Cell(281,7,'INGRESOS POR VENTAS',1,0,'L');
+            $pdf::Cell(267,7,'INGRESOS POR VENTAS',1,0,'L');
             $pdf::Ln();
             $subtotalefectivo = 0;
             $subtotalvisa = 0;
@@ -4645,7 +4661,7 @@ class CajaController extends Controller
                         $pdf::Cell(14,7,number_format($detalle->precio,2,',',''),1,0,'R');                    
                         if($i == 0) {
                             if($row2['situacion'] == 'N') {
-                                $pdf::Cell(14,7*count($detalles),'',1,0,'L');
+                                //$pdf::Cell(14,7*count($detalles),'',1,0,'L'); EGRESO
                                 $valuetp = number_format($row2['totalpagado'],2,'.','');
                                 $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
                                 $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
@@ -4656,10 +4672,10 @@ class CajaController extends Controller
                                 $pdf::Cell(14,7*count($detalles),$valuetpv,1,0,'R');
                                 $pdf::Cell(14,7*count($detalles),$valuetpm,1,0,'R');
                             } else {
-                                $pdf::Cell(56,7*count($detalles),'ANULADO',1,0,'C');
+                                $pdf::Cell(42,7*count($detalles),'ANULADO',1,0,'C');
                             }
                         } else {
-                            $pdf::Cell(14,7,'',0,0,'L');
+                            //$pdf::Cell(14,7,'',0,0,'L');
                             $pdf::Cell(14,7,'',0,0,'R');                    
                             $pdf::Cell(14,7,'',0,0,'R');
                             $pdf::Cell(14,7,'',0,0,'R');                        
@@ -4684,7 +4700,7 @@ class CajaController extends Controller
             } 
             $pdf::SetFont('helvetica','B',8.5);
             $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
-            $pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
+            //$pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
             $pdf::Cell(42,7,number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.',''),1,0,'R');
             $pdf::Ln();                   
         }      
@@ -4708,7 +4724,7 @@ class CajaController extends Controller
 
         if(count($listaventas)>0){
             $pdf::SetFont('helvetica','B',8.5);
-            $pdf::Cell(281,7,'INGRESOS POR CUOTAS',1,0,'L');
+            $pdf::Cell(267,7,'INGRESOS POR CUOTAS',1,0,'L');
             $pdf::Ln();
             $subtotalefectivo = 0;
             $subtotalvisa = 0;
@@ -4729,7 +4745,7 @@ class CajaController extends Controller
                     if($valuetp == 0){$valuetp='';}
                     if($valuetpv == 0){$valuetpv='';}
                     if($valuetpm == 0){$valuetpm='';}
-                    $pdf::Cell(14,7,'',1,0,'R');
+                    //$pdf::Cell(14,7,'',1,0,'R');
                     $pdf::Cell(14,7,$valuetp,1,0,'R');                    
                     $pdf::Cell(14,7,$valuetpv,1,0,'R');
                     $pdf::Cell(14,7,$valuetpm,1,0,'R');
@@ -4740,14 +4756,14 @@ class CajaController extends Controller
                     $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
                     $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
                 } else {
-                    $pdf::Cell(56,7,'ANULADO',1,0,'C');                    
+                    $pdf::Cell(42,7,'ANULADO',1,0,'C');                    
                 }  
                 $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
                 $pdf::Ln();                  
             } 
             $pdf::SetFont('helvetica','B',8.5);
             $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
-            $pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
+            //$pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
             $pdf::Cell(42,7,number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.',''),1,0,'R');
             $pdf::Ln();                   
         }
@@ -4767,7 +4783,7 @@ class CajaController extends Controller
 
         if(count($listaventasfarmacia)>0){
             $pdf::SetFont('helvetica','B',8.5);
-            $pdf::Cell(281,7,'INGRESOS POR VENTAS',1,0,'L');
+            $pdf::Cell(267,7,'INGRESOS POR VENTAS',1,0,'L');
             $pdf::Ln();
             $subtotalefectivo = 0;
             $subtotalvisa = 0;
@@ -4843,7 +4859,7 @@ class CajaController extends Controller
 
         if(count($listaingresosvarios)>0){
             $pdf::SetFont('helvetica','B',8.5);
-            $pdf::Cell(281,7,'INGRESOS VARIOS',1,0,'L');
+            $pdf::Cell(267,7,'INGRESOS VARIOS',1,0,'L');
             $pdf::Ln();
             $subtotalefectivo = 0;
             $subtotalvisa = 0;
@@ -4862,7 +4878,7 @@ class CajaController extends Controller
                     if($valuetp == 0){$valuetp='';}
                     if($valuetpv == 0){$valuetpv='';}
                     if($valuetpm == 0){$valuetpm='';}
-                    $pdf::Cell(14,7,'',1,0,'R');                    
+                    //$pdf::Cell(14,7,'',1,0,'R');                    
                     $pdf::Cell(14,7,$valuetp,1,0,'R');                    
                     $pdf::Cell(14,7,$valuetpv,1,0,'R');
                     $pdf::Cell(14,7,$valuetpm,1,0,'R');                    
@@ -4873,7 +4889,7 @@ class CajaController extends Controller
                     $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
                     $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
                 } else {
-                    $pdf::Cell(56,7,'ANULADO',1,0,'C');
+                    $pdf::Cell(42,7,'ANULADO',1,0,'C');
                 }
                 $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
                 $pdf::Ln();
@@ -4881,7 +4897,7 @@ class CajaController extends Controller
             }   
             $pdf::SetFont('helvetica','B',8.5);
             $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
-            $pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
+            //$pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
             $pdf::Cell(42,7,number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.',''),1,0,'R');
             $pdf::Ln();                 
         }
@@ -4912,7 +4928,7 @@ class CajaController extends Controller
 
         if(count($listaegresos)>0){
             $pdf::SetFont('helvetica','B',8.5);
-            $pdf::Cell(281,7,'EGRESOS',1,0,'L');
+            $pdf::Cell(267,7,'EGRESOS',1,0,'L');
             $pdf::Ln();
             $subtotalegresos = 0;
             foreach ($listaegresos as $row) { 
@@ -4924,10 +4940,11 @@ class CajaController extends Controller
                 $pdf::Cell(114,7,$row['nombre'].': '.$row['comentario'],1,0,'L');
                 if($row['situacion'] == 'N') {
                     $pdf::Cell(14,7,number_format($row['total'],2,'.',''),1,0,'R');
-                    $pdf::Cell(42,7,utf8_decode(""),1,0,'C');                    
+                    $pdf::Cell(14,7,utf8_decode(""),1,0,'C');                    
+                    $pdf::Cell(14,7,utf8_decode(""),1,0,'C');                    
                     $subtotalegresos += number_format($row['total'],2,'.','');
                 } else {
-                    $pdf::Cell(56,7,utf8_decode("ANULADO"),1,0,'C');
+                    $pdf::Cell(42,7,utf8_decode("ANULADO"),1,0,'C');
                 }  
                 $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
                 $pdf::Ln();              
@@ -4935,7 +4952,7 @@ class CajaController extends Controller
             $pdf::SetFont('helvetica','B',8.5);
             $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
             $pdf::Cell(14,7,number_format($subtotalegresos,2,'.',''),1,0,'R');
-            $pdf::Cell(42,7,number_format(0,2,'.',''),1,0,'R');
+            //$pdf::Cell(42,7,number_format(0,2,'.',''),1,0,'R');
             $pdf::Ln();                  
         }
 
@@ -4971,7 +4988,7 @@ class CajaController extends Controller
 
             if(count($listaegresos)>0){
                 $pdf::SetFont('helvetica','B',8.5);
-                $pdf::Cell(281,7,'EGRESOS POR COMPRA',1,0,'L');
+                $pdf::Cell(267,7,'EGRESOS POR COMPRA',1,0,'L');
                 $pdf::Ln();
                 $subtotalegresoscompra = 0;
                 foreach ($listaegresos as $row) { 
@@ -4984,11 +5001,12 @@ class CajaController extends Controller
                         $pdf::Cell(114,7,$row['nombre'].': '.$row['comentario'],1,0,'L');
                         if($row['situacion'] == 'N') {
                             $pdf::Cell(14,7,number_format($row['total'],2,'.',''),1,0,'R');
-                            $pdf::Cell(42,7,utf8_decode(""),1,0,'C');                    
+                            $pdf::Cell(14,7,utf8_decode(""),1,0,'C');                    
+                            $pdf::Cell(14,7,utf8_decode(""),1,0,'C');                    
                             $subtotalegresoscompra += number_format($row['total'],2,'.','');
                             $subtotalegresos += number_format($row['total'],2,'.','');
                         } else {
-                            $pdf::Cell(56,7,utf8_decode("ANULADO"),1,0,'C');
+                            $pdf::Cell(42,7,utf8_decode("ANULADO"),1,0,'C');
                         }  
                         $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
                         $pdf::Ln();     
@@ -4997,7 +5015,7 @@ class CajaController extends Controller
                 $pdf::SetFont('helvetica','B',8.5);
                 $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
                 $pdf::Cell(14,7,number_format($subtotalegresoscompra,2,'.',''),1,0,'R');
-                $pdf::Cell(42,7,number_format(0,2,'.',''),1,0,'R');
+                //$pdf::Cell(42,7,number_format(0,2,'.',''),1,0,'R');
                 $pdf::Ln();                  
             }
         }
@@ -5100,6 +5118,9 @@ class CajaController extends Controller
             $pdf::SetFont('helvetica','B',12);
             $pdf::Cell(0,10,"Detalle de Cierre por cajas " . $nomcierre . ' / Apertura N. ' . $apertura->numero,0,0,'C');
             $pdf::Ln();
+            $pdf::SetFont('helvetica','B',9);
+            $pdf::Cell(120,7,('RESPONSABLE: '.$responsable),0,0,'L');
+            $pdf::Ln();
             $pdf::SetFont('helvetica','B',7);
             $pdf::Cell(15,7,utf8_decode("FECHA"),1,0,'C');
             $pdf::Cell(56,7,utf8_decode("PERSONA"),1,0,'C');
@@ -5107,11 +5128,11 @@ class CajaController extends Controller
             $pdf::Cell(40,7,utf8_decode("EMPRESA"),1,0,'C');
             $pdf::Cell(60,7,utf8_decode("CONCEPTO"),1,0,'C');
             $pdf::Cell(14,7,utf8_decode("PRECIO"),1,0,'C');
-            $pdf::Cell(14,7,utf8_decode("EGRESO"),1,0,'C');
+            //$pdf::Cell(14,7,utf8_decode("EGRESO"),1,0,'C');
             $pdf::Cell(42,7,utf8_decode("INGRESO"),1,0,'C');
             $pdf::Cell(20,7,utf8_decode("DOCTOR"),1,0,'C');
             $pdf::Ln();
-            $pdf::Cell(219,7,utf8_decode(""),1,0,'C');
+            $pdf::Cell(205,7,utf8_decode(""),1,0,'C');
             $pdf::Cell(14,7,utf8_decode("EFECTIVO"),1,0,'C');
             $pdf::Cell(14,7,utf8_decode("VISA"),1,0,'C');
             $pdf::Cell(14,7,utf8_decode("MASTER"),1,0,'C');
@@ -5152,7 +5173,7 @@ class CajaController extends Controller
 
             if(count($listaventas)>0){
                 $pdf::SetFont('helvetica','B',8.5);
-                $pdf::Cell(281,7,'INGRESOS POR VENTAS',1,0,'L');
+                $pdf::Cell(267,7,'INGRESOS POR VENTAS',1,0,'L');
                 $pdf::Ln();
                 $subtotalefectivo = 0;
                 $subtotalvisa = 0;
@@ -5226,7 +5247,7 @@ class CajaController extends Controller
                             if(count($detalles) <= 21) {                   
                                 if($i == 0) {
                                     if($row2['situacion'] == 'N') {
-                                        $pdf::Cell(14,7*count($detalles),'',1,0,'L');
+                                        //$pdf::Cell(14,7*count($detalles),'',1,0,'L');
                                         $valuetp = number_format($row2['totalpagado'],2,'.','');
                                         $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
                                         $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
@@ -5237,10 +5258,10 @@ class CajaController extends Controller
                                         $pdf::Cell(14,7*count($detalles),$valuetpv,1,0,'R');
                                         $pdf::Cell(14,7*count($detalles),$valuetpm,1,0,'R');
                                     } else {
-                                        $pdf::Cell(56,7*count($detalles),'ANULADO',1,0,'C');
+                                        $pdf::Cell(42,7*count($detalles),'ANULADO',1,0,'C');
                                     }
                                 } else {
-                                    $pdf::Cell(14,7,'',0,0,'L');
+                                    //$pdf::Cell(14,7,'',0,0,'L');
                                     $pdf::Cell(14,7,'',0,0,'R');                    
                                     $pdf::Cell(14,7,'',0,0,'R');
                                     $pdf::Cell(14,7,'',0,0,'R');                        
@@ -5248,7 +5269,7 @@ class CajaController extends Controller
                             } else {
                                 if($i == 0) {
                                     if($row2['situacion'] == 'N') {
-                                        $pdf::Cell(14,7,'','LR',0,'L');
+                                        //$pdf::Cell(14,7,'','LR',0,'L');
                                         $valuetp = number_format($row2['totalpagado'],2,'.','');
                                         $valuetpv = number_format($row2['totalpagadovisa'],2,'.','');
                                         $valuetpm = number_format($row2['totalpagadomaster'],2,'.','');
@@ -5259,10 +5280,10 @@ class CajaController extends Controller
                                         $pdf::Cell(14,7,$valuetpv,'LR',0,'R');
                                         $pdf::Cell(14,7,$valuetpm,'LR',0,'R');
                                     } else {
-                                        $pdf::Cell(56,7,'ANULADO','LR',0,'C');
+                                        $pdf::Cell(42,7,'ANULADO','LR',0,'C');
                                     }
                                 } else {
-                                    $pdf::Cell(14,7,'','LR',0,'L');
+                                    //$pdf::Cell(14,7,'','LR',0,'L');
                                     $pdf::Cell(14,7,'','LR',0,'R');                    
                                     $pdf::Cell(14,7,'','LR',0,'R');
                                     $pdf::Cell(14,7,'','LR',0,'R');                        
@@ -5288,7 +5309,7 @@ class CajaController extends Controller
                 } 
                 $pdf::SetFont('helvetica','B',8.5);
                 $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
-                $pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
+                //$pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
                 $pdf::Cell(42,7,number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.',''),1,0,'R');
                 $pdf::Ln();                   
             }      
@@ -5312,7 +5333,7 @@ class CajaController extends Controller
 
             if(count($listaventas)>0){
                 $pdf::SetFont('helvetica','B',8.5);
-                $pdf::Cell(281,7,'INGRESOS POR CUOTAS',1,0,'L');
+                $pdf::Cell(267,7,'INGRESOS POR CUOTAS',1,0,'L');
                 $pdf::Ln();
                 $subtotalefectivo = 0;
                 $subtotalvisa = 0;
@@ -5333,7 +5354,7 @@ class CajaController extends Controller
                         if($valuetp == 0){$valuetp='';}
                         if($valuetpv == 0){$valuetpv='';}
                         if($valuetpm == 0){$valuetpm='';}
-                        $pdf::Cell(14,7,'',1,0,'R');
+                        //$pdf::Cell(14,7,'',1,0,'R');
                         $pdf::Cell(14,7,$valuetp,1,0,'R');                    
                         $pdf::Cell(14,7,$valuetpv,1,0,'R');
                         $pdf::Cell(14,7,$valuetpm,1,0,'R');
@@ -5344,7 +5365,7 @@ class CajaController extends Controller
                         $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
                         $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
                     } else {
-                        $pdf::Cell(56,7,'ANULADO',1,0,'C');                    
+                        $pdf::Cell(42,7,'ANULADO',1,0,'C');                    
                     }  
                     $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
                     $pdf::Ln();                  
@@ -5371,7 +5392,7 @@ class CajaController extends Controller
 
             if(count($listaventasfarmacia)>0){
                 $pdf::SetFont('helvetica','B',8.5);
-                $pdf::Cell(281,7,'INGRESOS POR VENTAS',1,0,'L');
+                $pdf::Cell(267,7,'INGRESOS POR VENTAS',1,0,'L');
                 $pdf::Ln();
                 $subtotalefectivo = 0;
                 $subtotalvisa = 0;
@@ -5425,7 +5446,7 @@ class CajaController extends Controller
                 } 
                 $pdf::SetFont('helvetica','B',8.5);
                 $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
-                $pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
+                //$pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
                 $pdf::Cell(42,7,number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.',''),1,0,'R');
                 $pdf::Ln();                 
             }
@@ -5447,7 +5468,7 @@ class CajaController extends Controller
 
             if(count($listaingresosvarios)>0){
                 $pdf::SetFont('helvetica','B',8.5);
-                $pdf::Cell(281,7,'INGRESOS VARIOS',1,0,'L');
+                $pdf::Cell(267,7,'INGRESOS VARIOS',1,0,'L');
                 $pdf::Ln();
                 $subtotalefectivo = 0;
                 $subtotalvisa = 0;
@@ -5466,7 +5487,7 @@ class CajaController extends Controller
                         if($valuetp == 0){$valuetp='';}
                         if($valuetpv == 0){$valuetpv='';}
                         if($valuetpm == 0){$valuetpm='';}
-                        $pdf::Cell(14,7,'',1,0,'R');                    
+                        //$pdf::Cell(14,7,'',1,0,'R');                    
                         $pdf::Cell(14,7,$valuetp,1,0,'R');                    
                         $pdf::Cell(14,7,$valuetpv,1,0,'R');
                         $pdf::Cell(14,7,$valuetpm,1,0,'R');                    
@@ -5477,7 +5498,7 @@ class CajaController extends Controller
                         $subtotalvisa     += number_format($row['totalpagadomaster'],2,'.','');
                         $subtotalmaster   += number_format($row['totalpagado'],2,'.','');
                     } else {
-                        $pdf::Cell(56,7,'ANULADO',1,0,'C');
+                        $pdf::Cell(42,7,'ANULADO',1,0,'C');
                     }
                     $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
                     $pdf::Ln();
@@ -5485,7 +5506,7 @@ class CajaController extends Controller
                 }   
                 $pdf::SetFont('helvetica','B',8.5);
                 $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
-                $pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
+                //$pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
                 $pdf::Cell(42,7,number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.',''),1,0,'R');
                 $pdf::Ln();                 
             }
@@ -5511,7 +5532,7 @@ class CajaController extends Controller
 
             if(count($listacajaanterior)>0){
                 $pdf::SetFont('helvetica','B',8.5);
-                $pdf::Cell(281,7,'CAJA ANTERIOR',1,0,'L');
+                $pdf::Cell(267,7,'CAJA ANTERIOR',1,0,'L');
                 $pdf::Ln();
                 $subtotalefectivo = 0;
                 $subtotalvisa = 0;
@@ -5530,14 +5551,14 @@ class CajaController extends Controller
                         if($valuetp == 0){$valuetp='';}
                         if($valuetpv == 0){$valuetpv='';}
                         if($valuetpm == 0){$valuetpm='';}
-                        $pdf::Cell(14,7,'',1,0,'R');                    
+                        //$pdf::Cell(14,7,'',1,0,'R');                    
                         $pdf::Cell(14,7,$valuetp,1,0,'R');                    
                         $pdf::Cell(14,7,$valuetpv,1,0,'R');
                         $pdf::Cell(14,7,$valuetpm,1,0,'R');                    
                         $totalefectivo += number_format($row['total'],2,'.','');
                         $subtotalefectivo += number_format($row['total'],2,'.','');
                     } else {
-                        $pdf::Cell(56,7,'ANULADO',1,0,'C');
+                        $pdf::Cell(42,7,'ANULADO',1,0,'C');
                     }
                     $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
                     $pdf::Ln();
@@ -5545,7 +5566,7 @@ class CajaController extends Controller
                 }   
                 $pdf::SetFont('helvetica','B',8.5);
                 $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
-                $pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
+                //$pdf::Cell(14,7,number_format(0,2,'.',''),1,0,'R');
                 $pdf::Cell(42,7,number_format($subtotalefectivo+$subtotalvisa+$subtotalmaster,2,'.',''),1,0,'R');
                 $pdf::Ln();                 
             }
@@ -5578,7 +5599,7 @@ class CajaController extends Controller
 
             if(count($listaegresos)>0){
                 $pdf::SetFont('helvetica','B',8.5);
-                $pdf::Cell(281,7,'EGRESOS',1,0,'L');
+                $pdf::Cell(267,7,'EGRESOS',1,0,'L');
                 $pdf::Ln();
                 $subtotalegresos = 0;
                 foreach ($listaegresos as $row) { 
@@ -5590,10 +5611,11 @@ class CajaController extends Controller
                     $pdf::Cell(114,7,substr($row['nombre'].': '.$row['comentario'],0,95),1,0,'L');
                     if($row['situacion'] == 'N') {
                         $pdf::Cell(14,7,number_format($row['total'],2,'.',''),1,0,'R');
-                        $pdf::Cell(42,7,utf8_decode(""),1,0,'C');                    
+                        $pdf::Cell(14,7,utf8_decode(""),1,0,'C');                    
+                        $pdf::Cell(14,7,utf8_decode(""),1,0,'C');                    
                         $subtotalegresos += number_format($row['total'],2,'.','');
                     } else {
-                        $pdf::Cell(56,7,utf8_decode("ANULADO"),1,0,'C');
+                        $pdf::Cell(42,7,utf8_decode("ANULADO"),1,0,'C');
                     }  
                     $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
                     $pdf::Ln();              
@@ -5601,7 +5623,7 @@ class CajaController extends Controller
                 $pdf::SetFont('helvetica','B',8.5);
                 $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
                 $pdf::Cell(14,7,number_format($subtotalegresos,2,'.',''),1,0,'R');
-                $pdf::Cell(42,7,number_format(0,2,'.',''),1,0,'R');
+                //$pdf::Cell(42,7,number_format(0,2,'.',''),1,0,'R');
                 $pdf::Ln();                  
             }
 
@@ -5628,7 +5650,7 @@ class CajaController extends Controller
 
                 if(count($listaegresos)>0){
                     $pdf::SetFont('helvetica','B',8.5);
-                    $pdf::Cell(281,7,'EGRESOS POR COMPRA',1,0,'L');
+                    $pdf::Cell(267,7,'EGRESOS POR COMPRA',1,0,'L');
                     $pdf::Ln();
                     $subtotalegresoscompra = 0;
                     foreach ($listaegresos as $row) { 
@@ -5641,11 +5663,12 @@ class CajaController extends Controller
                             $pdf::Cell(114,7,$row['nombre'].': '.$row['comentario'],1,0,'L');
                             if($row['situacion'] == 'N') {
                                 $pdf::Cell(14,7,number_format($row['total'],2,'.',''),1,0,'R');
-                                $pdf::Cell(42,7,utf8_decode(""),1,0,'C');                    
+                                $pdf::Cell(14,7,utf8_decode(""),1,0,'C');                    
+                                $pdf::Cell(14,7,utf8_decode(""),1,0,'C');                    
                                 $subtotalegresoscompra += number_format($row['total'],2,'.','');
                                 $subtotalegresos += number_format($row['total'],2,'.','');
                             } else {
-                                $pdf::Cell(56,7,utf8_decode("ANULADO"),1,0,'C');
+                                $pdf::Cell(42,7,utf8_decode("ANULADO"),1,0,'C');
                             }  
                             $pdf::Cell(20,7,utf8_decode("-"),1,0,'C');
                             $pdf::Ln();     
@@ -5654,7 +5677,7 @@ class CajaController extends Controller
                     $pdf::SetFont('helvetica','B',8.5);
                     $pdf::Cell(205,7,'SUBTOTAL',1,0,'R');
                     $pdf::Cell(14,7,number_format($subtotalegresoscompra,2,'.',''),1,0,'R');
-                    $pdf::Cell(42,7,number_format(0,2,'.',''),1,0,'R');
+                    //$pdf::Cell(42,7,number_format(0,2,'.',''),1,0,'R');
                     $pdf::Ln();                  
                 }
             }
