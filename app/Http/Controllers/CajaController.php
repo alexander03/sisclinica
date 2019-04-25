@@ -13780,13 +13780,66 @@ class CajaController extends Controller
             $efectivo = $request->input('efectivo22');
             $visa = $request->input('visa22');
             $master = $request->input('master22');
+            //Saco el movimiento
             $ingreso = Movimiento::find($id);
-            $ingreso->totalpagado = $efectivo;
-            $ingreso->totalpagadovisa = $visa;
-            $ingreso->totalpagadomaster = $master;
-            $ingreso->save();
+            //Saco la venta
+            $usertype_id = Auth::user()->usertype_id;
+            if($usertype_id == 11) {
+                //Siu es farmacia
+                $venta = Movimiento::find($ingreso->movimiento_id);
+                $venta->totalpagado = $efectivo;
+                $venta->totalpagadovisa = $visa;
+                $venta->totalpagadomaster = $master;
+                $venta->save();
+            } else {
+                $venta = Movimiento::find($ingreso->movimiento_id);
+                //saco el Ticket
+                $ticket = Movimiento::find($venta->movimiento_id);
+                $ticket->totalpagado = $efectivo;
+                $ticket->totalpagadovisa = $visa;
+                $ticket->totalpagadomaster = $master;
+                $ticket->save();
+
+                $ingreso->totalpagado = $efectivo;
+                $ingreso->totalpagadovisa = $visa;
+                $ingreso->totalpagadomaster = $master;
+                $ingreso->save();
+            }                
             //$dat[0]=array("respuesta"=>"OK");
         //});
         //return is_null($error) ? json_encode($dat) : $error;        
     }
+
+    /*public function editarformapago3(Request $request) {
+        $movimientos = Movimiento::where('tipomovimiento_id', '=', 2)
+        ->where('sucursal_id', '=', 2)
+        ->where('caja_id', '=', 4)
+        ->get();
+
+        $i = 0;
+        $usertype_id = Auth::user()->usertype_id;
+        foreach ($movimientos as $movimiento) {
+            $ingreso = Movimiento::find($movimiento->id);
+            //Saco la venta
+            $venta = Movimiento::find($ingreso->movimiento_id);
+            //saco el Ticket
+            //
+            if($venta !== NULL) {
+                if($usertype_id == 11) {
+                    $venta->totalpagado = $movimiento->totalpagado;
+                    $venta->totalpagadovisa = $movimiento->totalpagadovisa;
+                    $venta->totalpagadomaster = $movimiento->totalpagadomaster;
+                    $venta->save();
+                } else {
+                    $ticket = Movimiento::find($venta->movimiento_id);
+                    $ticket->totalpagado = $movimiento->totalpagado;
+                    $ticket->totalpagadovisa = $movimiento->totalpagadovisa;
+                    $ticket->totalpagadomaster = $movimiento->totalpagadomaster;
+                    $ticket->save();
+                }                    
+            }
+            $i++;
+            echo $i.'<br>';
+        }
+    }*/
 }

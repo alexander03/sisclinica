@@ -27,7 +27,7 @@
 								{!! Form::date('fechafinal', date('Y-m-d'), array('class' => 'form-control input-xs', 'id' => 'fechafinal')) !!}
 							</div>
 
-							{!! Form::button('<i class="glyphicon glyphicon-search"></i> Reporte', array('class' => 'btn btn-info btn-xs', 'id' => 'btnBuscar', 'onclick' => 'Genera()')) !!}
+							{!! Form::button('<i class="glyphicon glyphicon-search"></i> Reporte', array('class' => 'btn btn-info btn-xs', 'id' => 'btnBuscar', 'onclick' => 'detalleResumenAtenciones()')) !!}
 							{!! Form::close() !!}
 						</div>
 					</div>
@@ -53,4 +53,10 @@
 			window.open(link,'_blank');
 		}
 	}
+
+	function detalleResumenAtenciones() {
+    	var fi = $('#fechainicial').val();
+		var ff = $('#fechafinal').val();
+		window.open('historiaclinica/pdfDetalleResumenAtenciones?fi='+fi+'&ff='+ff,"_blank");
+    }
 </script>
