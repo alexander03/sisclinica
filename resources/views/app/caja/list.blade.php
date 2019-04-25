@@ -297,6 +297,26 @@ $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
     </thead>
     <tbody>
         <tr>
+            <th>CAJA ANTERIOR</th>
+            <th class="text-right">{{ number_format($cierre_anterior->total,2,'.','') }}</th>
+        </tr>
+        @if($sucursal_id == 2)
+        <tr>
+            <th>APERTURA DE CAJA</th>
+            <th class="text-right">{{ number_format($apertura_caja->total,2,'.','') }}</th>
+        </tr>
+        @endif
+        @if($sucursal_id == 2)
+        <tr>
+            <th>INGRESOS</th>
+            <th class="text-right">{{ number_format($ingreso-$totaldolares-$apertura_caja->total,2,'.','') }}</th>
+        </tr>
+        <tr>
+            <td>Efectivo</td>
+            <td align="right">{{ number_format($efectivo-$visa2-$master2-$totaldolares-$apertura_caja->total,2,'.','') }}</td>
+        </tr>
+        @else
+        <tr>
             <th>INGRESOS</th>
             <th class="text-right">{{ number_format($ingreso-$totaldolares,2,'.','') }}</th>
         </tr>
@@ -304,6 +324,7 @@ $saldo = number_format($ingreso - $egreso - $visa - $master,2,'.','');
             <td>Efectivo</td>
             <td align="right">{{ number_format($efectivo-$visa2-$master2-$totaldolares,2,'.','') }}</td>
         </tr>
+        @endif
         <tr>
             <td>Master</td>
             <td align="right">{{ number_format($master+$master2,2,'.','') }}</td>
