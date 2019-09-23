@@ -128,7 +128,7 @@ class HistoriaClinicaController extends Controller
                    // 'cie10' => (is_null($cie10)?'':$cie10->codigo . " - " . $cie10->descripcion),
                 //    'cie10id' => (is_null($cie10)?0:$cie10->id),
                     'sintomas' => $historiaclinica->sintomas,
-                    'citaproxima' => date('Y-m-d',strtotime($cita->fecha)) ,
+                    'citaproxima' => date('d/m/Y',strtotime($cita->fecha)) ,
                     'cantcitas' => $cantidad,
                     'tratamiento' => $historiaclinica->tratamiento,
                     'diagnostico' => $historiaclinica->diagnostico,
@@ -794,7 +794,7 @@ class HistoriaClinicaController extends Controller
             $jsondata = array(
                 'atencion_id' => $request->input('cita_id'),
                 'fecha' => date('d-m-Y',strtotime($historiaclinica->fecha_atencion)) ,
-                'citaproxima' => date('Y-m-d',strtotime($citaproxima)) ,
+                'citaproxima' => date('d/m/Y',strtotime($citaproxima)) ,
                 'fondo' => $fondo,
                 'doctor' => $doctor->apellidopaterno . ' ' . $doctor->apellidomaterno . ' ' . $doctor->nombres,
                 'paciente' => $historia->persona->apellidopaterno . ' ' . $historia->persona->apellidomaterno . ' ' . $historia->persona->nombres,
@@ -1295,4 +1295,197 @@ class HistoriaClinicaController extends Controller
         })->export('xlsx');
     }
 
+    public function registrarHistoriaClinica2(Request $request)
+    {
+
+        $error = DB::transaction(function() use($request){
+            if($request->input('citaproxima') != null){
+
+                if($request->input('cita_id') == null){
+                    
+                    $Cita       = new Cita();
+
+                    $user = Auth::user();
+                    
+                    //sucursal_id
+                    $sucursal_id = 1;
+
+                    $Cita->sucursal_id = $sucursal_id;
+                    $Cita->fecha = $request->input('citaproxima');
+
+                    $historia = Historia::find($request->input('historia_id'));
+
+                    $Cita->paciente_id = $historia->persona->id;
+
+
+                    $Cita->paciente = $historia->persona->apellidopaterno . " " . $historia->persona->apellidomaterno . " " . $historia->persona->nombres;
+                    $Cita->historia = $historia->numero;
+                    $Cita->tipopaciente = $historia->tipopaciente;
+
+
+                    $Cita->historia_id = $request->input('historia_id');
+                    
+                    $Cita->doctor_id = $request->input('doctor_id');
+                    
+                    $Cita->situacion='P';//Pendiente
+        
+                    $Cita->usuario_id = $user->person_id;
+                    $Cita->save();
+
+                }else{
+
+                    $historiaclinica   = HistoriaClinica::find($request->input('cita_id'));
+                    
+                    $error = DB::transaction(function() use($request, $historiaclinica){
+                        if($historiaclinica->citaproxima == null){
+                            $Cita       = new Cita();
+                            $user = Auth::user();
+                            
+                            //sucursal_id
+                            $sucursal_id = 1;
+        
+                            $Cita->sucursal_id = $sucursal_id;
+                            $Cita->fecha = $request->input('citaproxima');
+        
+                            $historia = Historia::find($request->input('historia_id'));
+        
+                            $Cita->paciente_id = $historia->persona->id;
+        
+        
+                            $Cita->paciente = $historia->persona->apellidopaterno . " " . $historia->persona->apellidomaterno . " " . $historia->persona->nombres;
+                            $Cita->historia = $historia->numero;
+                            $Cita->tipopaciente = $historia->tipopaciente;
+        
+        
+                            $Cita->historia_id = $request->input('historia_id');
+                            
+                            $Cita->doctor_id = $request->input('doctor_id');
+                            
+                            $Cita->situacion='P';//Pendiente
+                
+                            $Cita->usuario_id = $user->person_id;
+                            $Cita->save();
+
+                        }else{
+                            $cita  = Cita::find($historiaclinica->citaproxima);
+                            $cita->fecha  = $request->input('citaproxima');
+                            $cita->save();
+                        }
+                    });
+
+                }
+
+            }
+        });
+
+        $error = DB::transaction(function() use($request){
+/*
+            $cie10 = Cie::where('codigo', $request->input('cie102'))->get();
+            if(count($cie10) == 0) {
+                return 'El Código CIE no existe';
+            }
+*/
+            $historiaclinica = HistoriaClinica::where('ticket_id', $request->input('ticket_id') )->first();
+
+            if($historiaclinica == null){
+                $historiaclinica                 = new HistoriaClinica();
+            }
+            $historiaclinica->numero         = (int) $request->input('numero');
+            $historiaclinica->historia_id    = $request->input('historia_id');
+            $historiaclinica->tratamiento    = strtoupper(($request->input('tratamiento')));
+            $historiaclinica->sintomas       = strtoupper($request->input('sintomas'));
+            $historiaclinica->diagnostico    = strtoupper($request->input('diagnostico'));
+            //$historiaclinica->examenes             = strtoupper($request->input('examenes'));
+            $historiaclinica->motivo               = strtoupper($request->input('motivo'));
+            
+            if($request->input('citaproxima') != null){
+                   $historia = Historia::find($request->input('historia_id'));
+                    $cita_id = Cita::where('historia_id',$historia->id)->where('paciente_id', $historia->persona->id)->max('id');
+                    $historiaclinica->citaproxima     = $cita_id;
+            }else{
+                if($historiaclinica->citaproxima != null){
+                    $citaant = Cita::find($historiaclinica->citaproxima);
+                    $citaant->delete();
+                    $historiaclinica->citaproxima     =  null ;
+                }
+            }
+
+            $historiaclinica->exploracion_fisica   = strtoupper(($request->input('exploracion_fisica')));
+            $historiaclinica->ticket_id =  $request->input('ticket_id');
+            $historiaclinica->doctor_id =  $request->input('doctor_id');
+            $user = Auth::user();
+            $historiaclinica->user_id   = $user->id;
+
+            $now = new \DateTime();
+
+            //$historiaclinica->cie_id         = $request->input('cie102_id');
+
+            $historiaclinica->fecha_atencion = $now;
+            $historiaclinica->save();
+
+            $Ticket   = Movimiento::find($request->input('ticket_id'));
+            $Ticket->situacion2 = 'L'; //Atendido Listo
+
+            if( $request->input('fondo') == "SI"){
+                $Ticket->tiempo_fondo  = $now;
+                $Ticket->situacion2 = 'F'; // Cola por fondo
+            }
+
+            $Ticket->save();
+
+            $historia = Historia::find($request->input('historia_id'));
+            $historia->antecedentes = strtoupper($request->input('antecedentes'));
+            $historia->save();
+
+        });
+
+        $historiaclinica = HistoriaClinica::where('ticket_id', $request->input('ticket_id') )->first();
+
+         $ciesborrar = Detallehistoriacie::where('historiaclinica_id', $historiaclinica->id )->get();
+        foreach ($ciesborrar as $value) {
+            $error = DB::transaction(function() use($request, $value){
+                $value->delete();
+            });
+            
+        }
+        $cies = json_decode($request->input('cies'));
+        foreach ($cies->{"data"} as $cie) {
+            $error = DB::transaction(function() use($request, $historiaclinica, $cie){
+                $detallehistoriacie = new Detallehistoriacie();
+                $detallehistoriacie->historiaclinica_id = $historiaclinica->id;
+                $detallehistoriacie->cie_id = $cie->{"id"};
+                $detallehistoriacie->save();
+            });
+        }
+
+
+        $examenesborrar = Examenhistoriaclinica::where('historiaclinica_id', $historiaclinica->id )->get();
+
+        foreach ($examenesborrar as $value) {
+
+            $error = DB::transaction(function() use($request, $value){
+
+                $value->delete();
+
+            });
+            
+        }
+
+        $examenes = json_decode($request->input('examenes'));
+
+        foreach ($examenes->{"data"} as $examen) {
+            $error = DB::transaction(function() use($request, $historiaclinica, $examen){
+
+                $examenhistoriaclinica = new Examenhistoriaclinica();
+                $examenhistoriaclinica->situacion = 'N';
+                $examenhistoriaclinica->historiaclinica_id = $historiaclinica->id;
+                $examenhistoriaclinica->servicio_id = $examen->{"id"};
+                $examenhistoriaclinica->save();
+
+            });
+        }
+
+
+        return is_null($error) ? "OK" : $error;
+    }
 }
